@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym Management System</title>
+    <link rel="stylesheet" href="gymprof.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" href="#"><img src="img/Logoo.ico" alt="Logo"> PEAK PULSE</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="member.html">Manage Members</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="gym-profiling.html">Manage Gym Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="trainer-info.html">Manage Trainer Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="gym-profiling.html">Manage Products</a>
+                </li>
+                <div class="nav-item">
+                    <button class="btn btn-secondary mb-2" onclick="window.location.href='Dashboard.html'">Back</button>
+                </div>
+            </ul>
+        </div>
+    </nav>
+    <!-- Navigation Bar ends -->
+
+ 
+
+    <div class="container mt-5 pt-5">
+        <div class="row justify-content-center">
+            <!-- Form Section -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white text-center">
+                        <h4>Gym Profiling Management</h4>
+                    </div>
+                    <div class="card-body">
+                        <!-- Error Message -->
+                        <div id="error-message" class="error-message"></div>
+                        <!-- Form start -->
+                        <form id="gymForm" enctype="multipart/form-data">
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label for="inputId">ID</label>
+                                    <input type="text" name="id" class="form-control" id="inputId" placeholder="ID">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="inputName">Business Name</label>
+                                    <input type="text" name="name" class="form-control" id="inputName" placeholder="Name">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputImage">Upload Photo</label>
+                                <input type="file" name="image" class="form-control-file" id="inputImage">
+                            </div>
+                            <button type="submit" name="submit" class="btn btn-primary btn-block">Save</button>
+                        </form>
+                        <!-- Form end -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gym Details Button -->
+    <div class="container mt-4 d-flex justify-content-center">
+        <button type="button" class="btn btn-info" onclick="window.open('gym_details.html', '_blank')">Show Gym Details</button>
+    </div>
+
+    <!-- Gym Details Modal -->
+    <div class="modal fade" id="gymModal" tabindex="-1" role="dialog" aria-labelledby="gymModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="gymModalLabel">Gym Details</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered" id="gymDetailsTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Business Name</th>
+                                <th>Photo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gymDetailsBody">
+                            <!-- Gym details will be populated here by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK and Configuration -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script> <!-- Added Firebase Auth SDK -->
+    <script src="script.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+</html>

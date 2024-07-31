@@ -1,0 +1,42 @@
+/* Navigation Bar Styles */
+.navbar {
+    background-color: #343a40; /* Dark background color to match typical Bootstrap */
+}
+
+.navbar-brand {
+    color: #ffffff;
+    font-size: 1.5rem;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.navbar-brand img {
+    height: 40px;
+    margin-right: 10px;
+}
+
+.navbar-nav .nav-item {
+    margin-left: 1rem; /* Spacing between menu items */
+}
+
+.navbar-nav .nav-link {
+    color: #ffffff;
+    font-size: 1rem;
+    text-decoration: none;
+    padding: 0.5rem 1rem; /* Adjust padding for better spacing */
+}
+
+.navbar-nav .nav-link:hover {
+    color: #f8f9fa; /* Lighten color on hover */
+    background-color: #495057; /* Slightly lighter background on hover */
+    border-radius: 4px; /* Rounded corners on hover */
+}
+
+.navbar-toggler {
+    border: none; /* Remove border from the toggle button */
+}
+
+.navbar-toggler-icon {
+    background-image: url('data:image/svg+xml;charset=utf8,...'); /* Bootstrap default icon */
+}

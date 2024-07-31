@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/main.min.css">
+    <link rel="stylesheet " href="Dashstyle.css">
+
+</head>
+<body>
+    <!-- Sidebar -->
+
+        <div class="sidebar">
+            <a class="navbar-brand" href="#"><img src="img/Logoo.ico" alt="PeakPulse"> PEAK PULSE </a>
+            <div class="sidebar-links">
+                <a href="#homeSection">Home</a>
+                <a href="#servicesSection">Services and Promotions</a>
+                <a href="#trainerSection">Trainer</a>
+                <a href="#membershipSection">Membership</a>
+                <a href="#reportsSection">Reports</a>
+                <a href="#billingSection">Billing</a>
+                <a href="#calendarSection">Calendar</a>
+                <a href="#membersSection">Member Status</a>
+            </div>
+            <div class="navbar-icons">
+
+                <i class="fas fa-shopping-cart" title="Cart"></i>
+            </div>
+            <div id="dropdownMenu" class="dropdown">
+                <button class="btn btn-primary dropbtn">Loading...</button>
+                <div class="dropdown-content">
+                    <!-- Dropdown options will be added dynamically -->
+                </div>
+            </div>
+        </div>
+
+
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Hero Section -->
+        <div id="homeSection" class="hero">
+            <h2>Welcome to PEAK PULSE</h2>
+            <p>Your fitness journey starts here with top-notch facilities and expert guidance.</p>
+            <a class="btn btn-primary" href="#membershipSection">Explore Membership Plans</a>
+        </div>
+
+        <!-- Notification Card -->
+        <div class="notification-card">
+            <h3>Notifications</h3>
+            <div id="notificationList">
+                <!-- Notifications will be dynamically added here -->
+            </div>
+            <div class="show-more" id="showMore">Show More</div>
+        </div>
+
+        <!-- Services and Promotions Section -->
+        <div id="servicesSection" class="section">
+            <h2 class="text-center">Services and Promotions</h2>
+            <!-- Services and Promotions content goes here -->
+        </div>
+
+        <!-- Trainer Section -->
+        <div id="trainerSection" class="section">
+            <h2 class="text-center">Our Trainers</h2>
+            <div class="container mt-4">
+                <<div class="row" id="trainerCardsContainer">>
+                    <!-- Trainer 1 -->
+                    <div class="col-md-4">
+                        <div class="card shadow">
+                            <img src="img/trainer1.jpg" class="card-img-top" alt="Trainer 1">
+                            <div class="card-body">
+                                <h5 class="card-title">Trainer Name 1</h5>
+                                <p class="card-text">Specializes in strength training and conditioning.</p>
+                                <button class="btn btn-primary">View Profile</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Trainer 2 -->
+                    <div class="col-md-4">
+                        <div class="card shadow">
+                            <img src="img/trainer2.jpg" class="card-img-top" alt="Trainer 2">
+                            <div class="card-body">
+                                <h5 class="card-title">Trainer Name 2</h5>
+                                <p class="card-text">Expert in yoga and flexibility training.</p>
+                                <button class="btn btn-primary">View Profile</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Trainer 3 -->
+                    <div class="col-md-4">
+                        <div class="card shadow">
+                            <img src="img/trainer3.jpg" class="card-img-top" alt="Trainer 3">
+                            <div class="card-body">
+                                <h5 class="card-title">Trainer Name 3</h5>
+                                <p class="card-text">Specializes in cardiovascular and endurance training.</p>
+                                <button class="btn btn-primary">View Profile</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar Section -->
+        <div id="calendarSection" class="section">
+            <h2 class="text-center">Calendar</h2>
+            <div id="calendar"></div>
+        </div>
+
+        <!-- Payment and Schedule Display Section -->
+        <div class="section">
+            <div class="container">
+                <div class="row">
+                    <!-- Payments -->
+                    <div class="col-md-6 display-section">
+                        <h3>Payments</h3>
+                        <p>Your upcoming and past payments are displayed here. Review your payment history and status.</p>
+                        <!-- Payment details will be dynamically added here -->
+                    </div>
+                    <!-- Schedules -->
+                    <div class="col-md-6 display-section">
+                        <h3>Schedules</h3>
+                        <p>View your scheduled gym sessions and personal training appointments here.</p>
+                        <!-- Schedule details will be dynamically added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Member Status Section -->
+        <div id="membersSection" class="section">
+            <h2 class="text-center">Member Status</h2>
+            <div class="container mt-4">
+                <!-- Overdue Payments -->
+                <div class="display-section">
+                    <h3>Overdue Payments</h3>
+                    <p>Review members with overdue payments. Ensure timely follow-ups and notifications.</p>
+                    <!-- Overdue payments details will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Section -->
+        <div id="reportsSection" class="section">
+            <h2 class="text-center">Reports</h2>
+            <div class="container mt-4"> 
+                <h2>Submit a Complaint</h2>
+                <div class="row">
+                    <!-- Form Section -->
+                    <div class="col-md-6">
+                        <form id="ReportForm">
+                            <div class="form-group">
+                                <label for="name">Your Name:</label>
+                                <input type="text" class="form-control" id="name" name="reporter_name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email:</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="issue">Issue:</label>
+                                <textarea class="form-control" id="issue" name="issue" rows="4" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Billing Section -->
+        <div id="billingSection" class="section">
+            <h2 class="text-center">Billing</h2>
+            <!-- Billing content goes here -->
+        </div>
+    </div>
+
+    <!-- Add Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/main.min.js"></script>
+    <script type="module" src="DashScript.js"></script>
+</body>
+</html>
