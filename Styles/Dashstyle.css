@@ -1,0 +1,575 @@
+/* General styles */
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    background-color: #f8f9fa;
+}
+
+.sidebar {
+    height: 100vh;
+    width: 250px;
+    background: #343a40;
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 20px;
+    color: #fff;
+    transition: width 0.3s ease, background 0.3s ease;
+}
+
+.sidebar:hover {
+    width: 300px;
+    background: #23272b;
+}
+
+.sidebar img {
+    width: 60px;
+    height: auto;
+    display: block;
+    margin: 0 auto 20px;
+}
+
+.sidebar a {
+    color: #fff;
+    text-decoration: none;
+    display: block;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 5px 0;
+    transition: background 0.3s ease, padding 0.3s ease;
+}
+
+.sidebar a:hover {
+    background: #495057;
+    padding-left: 15px; /* Indentation effect on hover */
+}
+
+.navbar-icons {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+.navbar-icons i {
+    margin-left: 15px;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #fff;
+    transition: color 0.3s ease;
+}
+
+.navbar-icons i:hover {
+    color: #007bff;
+}
+
+.main-content {
+    margin-left: 250px;
+    padding: 20px;
+    width: calc(100% - 250px);
+    transition: margin-left 0.3s ease, width 0.3s ease;
+}
+
+.hero {
+    background: url('LandPage1.jpg') no-repeat center center/cover;
+    color: #fff;
+    text-align: center;
+    padding: 150px 0;
+    background-attachment: fixed;
+}
+
+.hero h2 {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+    transition: font-size 0.3s ease;
+}
+
+.hero p {
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+}
+
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+.section {
+    padding: 60px 20px;
+}
+
+/* Dropdown container */
+/* Dropdown container */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* Dropdown button */
+.dropbtn {
+    background-color: #007bff; /* Button background color */
+    color: white; /* Button text color */
+    padding: 10px 20px; /* Button padding */
+    border: none; /* Remove button border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    font-size: 1rem; /* Font size */
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    width: 100%; /* Make button take full width of its container */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+/* Change button background on hover */
+.dropbtn:hover {
+    background-color: #0056b3; /* Darker blue */
+    transform: scale(1.05); /* Slightly enlarge button on hover */
+}
+
+/* Dropdown content */
+.dropdown-content {
+    display: none; /* Hide dropdown by default */
+    position: absolute;
+    background-color: #343a40; /* Dark background color */
+    min-width: 100%; /* Match width of the button */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+    z-index: 1000; /* Ensure dropdown appears on top */
+    right: 0; /* Align to the right of the button */
+    border-radius: 8px; /* Rounded corners */
+    border: 1px solid #495057; /* Border to separate from the background */
+    opacity: 0; /* Start with invisible */
+    visibility: hidden; /* Hidden by default */
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease; /* Smooth transitions */
+    transform: translateY(10px); /* Start with a slight offset */
+}
+
+/* Show dropdown on hover */
+.dropdown:hover .dropdown-content {
+    display: block; /* Show dropdown */
+    opacity: 1; /* Fully visible */
+    visibility: visible; /* Visible */
+    transform: translateY(0); /* Move to original position */
+}
+
+/* Dropdown links */
+.dropdown-content a {
+    color: #fff; /* White text color */
+    padding: 12px 16px; /* Padding for items */
+    text-decoration: none; /* Remove underline */
+    display: block; /* Block display for full-width clickable area */
+    border-bottom: 1px solid #495057; /* Subtle border between items */
+    transition: background-color 0.3s ease; /* Smooth background color transition */
+    border-radius: 5px; /* Rounded corners for items */
+    margin: 0; /* Remove margin between items */
+}
+
+/* Remove border from the last item */
+.dropdown-content a:last-child {
+    border-bottom: none; /* No border for the last item */
+}
+
+/* Hover effect for dropdown links */
+.dropdown-content a:hover {
+    background-color: #495057; /* Background color on hover */
+    color: #fff; /* Text color on hover */
+}
+
+/* Active item */
+.dropdown-content a.active {
+    background-color: #007bff; /* Highlight active item with a primary color */
+    color: #fff; /* Keep text color white */
+}
+
+/* Optional: Add an arrow for dropdown */
+.dropdown::after {
+    content: '▼'; /* Down arrow symbol */
+    font-size: 0.8rem; /* Adjust size */
+    color: #fff; /* Arrow color */
+    margin-left: 10px; /* Space between button text and arrow */
+    vertical-align: middle; /* Align vertically with text */
+    transition: color 0.3s ease; /* Smooth transition for color */
+}
+
+/* Change arrow color on button hover */
+.dropdown:hover::after {
+    color: #0056b3; /* Darker blue */
+}
+
+/* Calendar styling */
+#calendar {
+    max-width: 90%;
+    margin: 0 auto;
+    height: 500px;
+}
+
+/* Notification Card */
+.notification-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    transition: box-shadow 0.3s ease;
+}
+
+.notification-card:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.notification-card h3 {
+    margin-bottom: 15px;
+}
+
+.notification {
+    border-bottom: 1px solid #ddd;
+    padding: 10px 0;
+    position: relative;
+}
+
+.notification:last-child {
+    border-bottom: none;
+}
+
+.notification button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.notification button:hover {
+    color: #007bff;
+}
+
+.show-more {
+    text-align: center;
+    cursor: pointer;
+    color: #007bff;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f1f1f1;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.show-more:hover {
+    background-color: #e9ecef;
+}
+
+.display-section {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.display-section h3 {
+    margin-bottom: 15px;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -10px;
+    background: red;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 12px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.notification-bell {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.notification-bell i {
+    font-size: 1.6rem;
+}
+
+.notification-bell:hover {
+    color: #ffcc00;
+}
+
+/* Notification dropdown */
+.notification-dropdown {
+    display: none;
+    position: absolute;
+    top: 30px;
+    right: 0;
+    background-color: #343a40;
+    min-width: 200px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+    border-radius: 5px;
+    z-index: 1000;
+    overflow-y: auto;
+    max-height: 300px;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    opacity: 0;
+    visibility: hidden;
+}
+
+.notification-dropdown .notification {
+    border-bottom: 1px solid #495057;
+    padding: 10px;
+    position: relative;
+    color: #fff;
+}
+
+.notification-dropdown .notification:last-child {
+    border-bottom: none;
+}
+
+.notification-dropdown .notification button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.notification-dropdown .notification button:hover {
+    color: #007bff;
+}
+
+.notification-dropdown .show-more {
+    text-align: center;
+    cursor: pointer;
+    color: #007bff;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #495057;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.notification-dropdown .show-more:hover {
+    background-color: #343a40;
+}
+
+/* Style for the sidebar links */
+.sidebar a {
+    display: flex;
+    align-items: center;
+    color: #fff;
+    text-decoration: none;
+    padding: 10px;
+    transition: background-color 0.3s ease;
+}
+
+/* Style for the notification bell icon */
+.sidebar .fa-bell {
+    margin-left: 8px;
+    position: relative;
+}
+
+/* Style for the notification badge */
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -10px;
+    background: red;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Optional: hover effect for the notification bell */
+.sidebar .fa-bell:hover {
+    color: #ffcc00;
+}
+.dropdown-menu {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.dropdown-menu.show {
+    display: block;
+    opacity: 1;
+}
+.dropdown-item {
+    cursor: pointer;
+}
+
+.membership-section {
+    background-color: #f8f9fa;
+    padding: 60px 0;
+}
+.membership-section h2 {
+    margin-bottom: 40px;
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+.membership-plans {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+.membership-plan {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    margin: 15px;
+    flex: 1 1 30%;
+    text-align: center;
+}
+.membership-plan h3 {
+    margin-bottom: 15px;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+.membership-plan p {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: #007bff;
+}
+.membership-plan ul {
+    list-style-type: none;
+    padding: 0;
+    margin-bottom: 20px;
+}
+.membership-plan ul li {
+    margin-bottom: 10px;
+    font-size: 1rem;
+}
+.btn-secondary {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: #ffffff;
+}
+.btn-secondary:hover {
+    background-color: #0056b3;
+    border-color: #004085;
+}
+@media (max-width: 768px) {
+    .membership-plan {
+        flex: 1 1 100%;
+    }
+}
+/* Footer Styles */
+.footer {
+    background-color: #343a40; /* Dark background color */
+    color: #ffffff; /* White text color */
+    padding: 1.5rem 0; /* Vertical padding */
+    text-align: center; /* Center-align text */
+    position: relative; /* Ensure the footer is positioned at the bottom */
+    bottom: 0;
+    width: 100%;
+}
+
+.footer .container {
+    max-width: 1140px; /* Container width */
+    margin: 0 auto; /* Center container */
+}
+
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.footer-content p {
+    margin: 0; /* Remove default margin */
+    font-size: 1rem; /* Font size */
+}
+
+.footer-links {
+    list-style: none; /* Remove default list styles */
+    padding: 0;
+    margin: 1rem 0; /* Margin above and below the links */
+}
+
+.footer-links li {
+    display: inline; /* Display links inline */
+    margin: 0 0.5rem; /* Space between links */
+}
+
+.footer-links a {
+    color: #ffffff; /* White text color for links */
+    text-decoration: none; /* Remove underline from links */
+    font-size: 0.875rem; /* Font size */
+}
+
+.footer-links a:hover {
+    text-decoration: underline; /* Underline on hover */
+}
+
+.footer-social {
+    margin-top: 1rem; /* Margin above social icons */
+}
+
+.footer-social .social-icon {
+    color: #ffffff; /* White color for social icons */
+    font-size: 1.5rem; /* Icon size */
+    margin: 0 0.5rem; /* Space between icons */
+    text-decoration: none; /* Remove underline from social links */
+}
+
+.footer-social .social-icon:hover {
+    color: #007bff; /* Change color on hover */
+}
+/* Dropdown Styles */
+.sidebar .dropdown-toggle {
+    cursor: pointer;
+}
+
+.sidebar .dropdown-menu {
+    display: none; /* Hidden by default */
+    position: absolute;
+    background-color: #343a40;
+    border: none;
+    border-radius: 0.25rem;
+    padding: 0.5rem 0;
+    width: 100%;
+}
+
+.sidebar .dropdown-menu.show {
+    display: block; /* Display when active */
+}
+
+.sidebar .dropdown-item {
+    color: #ffffff;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    display: block;
+}
+
+.sidebar .dropdown-item:hover {
+    background-color: #495057;
+}
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    background-color: #f8f9fa;
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding-top: 20px;
+}
+.sidebar a {
+    display: block;
+    padding: 10px;
+    color: #495057;
+    text-decoration: none;
+}
+.sidebar a:hover {
+    background-color: #e9ecef;
+}

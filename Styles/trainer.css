@@ -1,0 +1,124 @@
+.card {
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card-header {
+    background-color: #007bff;
+    color: white;
+    border-bottom: 0;
+    border-radius: 15px 15px 0 0;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: none;
+}
+
+.navbar-brand img {
+    width: 50px;
+    margin-right: 10px;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+    color: #fff;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    background-color: #f8f9fa;
+}
+
+.sidebar {
+    height: 100vh;
+    width: 250px;
+    background: #343a40;
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 20px;
+    color: #fff;
+    transition: width 0.3s ease, background 0.3s ease;
+}
+
+.sidebar:hover {
+    width: 300px;
+    background: #23272b;
+}
+
+.sidebar img {
+    width: 60px;
+    height: auto;
+    display: block;
+    margin: 0 auto 20px;
+}
+
+.sidebar a {
+    color: #fff;
+    text-decoration: none;
+    display: block;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 5px 0;
+    transition: background 0.3s ease, padding 0.3s ease;
+}
+
+.sidebar a:hover {
+    background: #495057;
+    padding-left: 15px; /* Indentation effect on hover */
+}
+
+.navbar-icons {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+.navbar-icons i {
+    margin-left: 15px;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #fff;
+    transition: color 0.3s ease;
+}
+
+.navbar-icons i:hover {
+    color: #007bff;
+}
+
+.main-content {
+    margin-left: 250px;
+    padding: 20px;
+    width: calc(100% - 250px);
+    transition: margin-left 0.3s ease, width 0.3s ease;
+}

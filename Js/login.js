@@ -42,15 +42,16 @@ async function updateAuthSection(user) {
                 const role = userData.role || 'User';
                 const username = userData.username || 'User';
 
+                if (role === 'gym_owner') {
+                    // Redirect to GymDashboard.html
+                    window.location.href = 'GymDashboard.html';
+                    return; // Ensure no further code executes
+                }
+
                 let roleSpecificHtml = '';
                 if (role === 'admin') {
                     roleSpecificHtml = `
                         <a class="btn btn-warning" href="accounts.html" id="adminManagement">Admin Management</a>
-                        <a class="btn btn-danger" href="#" id="logoutBtn">Log Out</a>
-                    `;
-                } else if (role === 'gym_owner') {
-                    roleSpecificHtml = `
-                        <a class="btn btn-warning" href="gym-details.html" id="GymOwnerManagement">Gym Owner Management</a>
                         <a class="btn btn-danger" href="#" id="logoutBtn">Log Out</a>
                     `;
                 } else if (role === 'trainer') {

@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up</title>
-    <link rel="stylesheet" href="signup.css">
+    <link rel="stylesheet" href="Styles/signup.css">
 </head>
 <body>
     <section class="signup">
@@ -15,10 +15,10 @@
                 <div class="contact">
                     <form id="signupForm">
                         <h3>SIGN UP</h3>
-                        <input type="text" id="username" name="user" placeholder="USERNAME">
-                        <input type="email" id="email" name="email" placeholder="EMAIL">
-                        <input type="password" id="password" name="pass" placeholder="PASSWORD">
-                        <input type="password" id="confirmPassword" name="confirmPass" placeholder="CONFIRM PASSWORD">
+                        <input type="text" id="username" name="user" placeholder="USERNAME" required>
+                        <input type="email" id="email" name="email" placeholder="EMAIL" required>
+                        <input type="password" id="password" name="pass" placeholder="PASSWORD" required>
+                        <input type="password" id="confirmPassword" name="confirmPass" placeholder="CONFIRM PASSWORD" required>
                         <select id="role" name="role">
                             <option value="">Select Role (Optional)</option>
                             <option value="user">User</option>
@@ -42,124 +42,24 @@
                 <div class="right-inductor"><img src="https://lh3.googleusercontent.com/fife/ABSRlIoGiXn2r0SBm7bjFHea6iCUOyY0N2SrvhNUT-orJfyGNRSMO2vfqar3R-xs5Z4xbeqYwrEMq2FXKGXm-l_H6QAlwCBk9uceKBfG-FjacfftM0WM_aoUC_oxRSXXYspQE3tCMHGvMBlb2K1NAdU6qWv3VAQAPdCo8VwTgdnyWv08CmeZ8hX_6Ty8FzetXYKnfXb0CTEFQOVF4p3R58LksVUd73FU6564OsrJt918LPEwqIPAPQ4dMgiH73sgLXnDndUDCdLSDHMSirr4uUaqbiWQq-X1SNdkh-3jzjhW4keeNt1TgQHSrzW3maYO3ryueQzYoMEhts8MP8HH5gs2NkCar9cr_guunglU7Zqaede4cLFhsCZWBLVHY4cKHgk8SzfH_0Rn3St2AQen9MaiT38L5QXsaq6zFMuGiT8M2Md50eS0JdRTdlWLJApbgAUqI3zltUXce-MaCrDtp_UiI6x3IR4fEZiCo0XDyoAesFjXZg9cIuSsLTiKkSAGzzledJU3crgSHjAIycQN2PH2_dBIa3ibAJLphqq6zLh0qiQn_dHh83ru2y7MgxRU85ithgjdIk3PgplREbW9_PLv5j9juYc1WXFNW9ML80UlTaC9D2rP3i80zESJJY56faKsA5GVCIFiUtc3EewSM_C0bkJSMiobpko8O8k9q3pZ27cGplnfoh_9m2x4tzyRHsmM7Ssgs4P8QHRa9ZGeiOxydS1wCjs0X4vztZGUYx_nY0b_JpW90Z1leNUd1hwz2lksE-ppjZCSIfN4-rAeaOCTx6ZK_DlLXgfW2zRWB1OWNUWh5pjYYp4s_OWe6q8GWv6UVvUzPYUwNNXqLIMQ_t1PhxIEdD6xL8zZqGfjOw0lzG7FqtmEwYfbl9F52-8uc_AYw1Dlbv0Rbt2tJwuzkp_iT9uyXYqwy8RPSSxQW5lQ2STKn8ukbEnFqXEzFVhaEtmo68giGUVsN2v3jI1eiK4ujHb9zRrwVXzKzyssRHgFnvtU8t2w4oa9a_TQh_vF12D8lHSnJ4tRZX6OtiTK0wUnYUJ4kPC0Y1Frw_78pYkK0KwKfwnTCe0QdlICr_xPz7ck0rTTF_zq9jG6KcSZvH2Zzzg3kxVeFw8nUBhQUjVnaHRy2c2AdtCj3d6bA3szSmhw7fp91t1oD_3KiR_vIjft4iDFz_CgUEZgLO5d_FXjb2e0w7HTkA2b07V4y6U1hCBB9gNj4LHD0oSrmWdzGWw5P1B3awmaDFAF4ftdcV9r9OZGs27xh6PU4kK_F9w=s2048-no?authuser=0" alt=""></div>
             </div>
         </div>
+        <div id="gymDetailsFormContainer" style="display: none;">
+            <h2>Gym Details</h2>
+            <form id="gymDetailsForm">
+                <label for="gymName">Gym Name:</label>
+                <input type="text" id="gymName" name="gymName" required>
+                
+                <label for="gymLocation">Location:</label>
+                <input type="text" id="gymLocation" name="gymLocation" required>
+                
+                <label for="gymDescription">Description:</label>
+                <textarea id="gymDescription" name="gymDescription" required></textarea>
+                
+                <button type="submit">Submit Gym Details</button>
+            </form>
+            <div id="gymDetailsErrorMessage"></div>
+            <div id="gymDetailsSuccessMessage"></div>
+        </div>
     </section>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.2.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.2.0/firebase-auth.js";
-        import { getDatabase, ref, set, get, runTransaction } from "https://www.gstatic.com/firebasejs/9.2.0/firebase-database.js";
-    
-        const firebaseConfig = {
-            apiKey: "AIzaSyAPNGokBic6CFHzuuENDHdJrMEn6rSE92c",
-            authDomain: "capstone40-project.firebaseapp.com",
-            databaseURL: "https://capstone40-project-default-rtdb.firebaseio.com",
-            projectId: "capstone40-project",
-            storageBucket: "capstone40-project.appspot.com",
-            messagingSenderId: "399081968589",
-            appId: "1:399081968589:web:5b502a4ebf245e817aaa84",
-            measurementId: "G-CDP5BCS8EY"
-        };
-    
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const database = getDatabase(app);
-    
-        // Get the form and error message element
-        const signupForm = document.getElementById('signupForm');
-        const errorMessage = document.getElementById('error-message');
-        const successMessage = document.getElementById('success-message');
-    
-        // Function to clear messages after a delay
-        function clearMessages() {
-            setTimeout(() => {
-                errorMessage.textContent = '';
-                successMessage.textContent = '';
-            }, 5000); // 5000ms = 5 seconds
-        }
-    
-        // Function to get the next ID for a given role using transaction
-        async function getNextId(role) {
-            const idRef = ref(database, `RoleIds/${role}`);
-            
-            try {
-                // Run a transaction to ensure ID is incremented atomically
-                const updatedId = await runTransaction(idRef, (currentId) => {
-                    if (currentId === null) {
-                        return 0; // Start with ID 1 if no ID exists
-                    } else {
-                        return currentId + 1; // Increment ID
-                    }
-                });
-
-                // Check if the transaction was successful
-                if (updatedId.committed) {
-                    console.log(`Next ID for ${role}: ${updatedId.snapshot.val()}`);
-                    return updatedId.snapshot.val();
-                } else {
-                    throw new Error("Transaction was not committed.");
-                }
-            } catch (error) {
-                console.error("Error updating ID:", error);
-                throw new Error("Failed to get next ID.");
-            }
-        }
-    
-        // Listen for form submit
-        signupForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-    
-            // Get form values
-            const username = document.getElementById('username').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const role = document.getElementById('role').value || 'admin'; // Default to 'admin' if no role is selected
-    
-            // Validate form fields
-            if (!username || !email || !password || !confirmPassword) {
-                errorMessage.textContent = "Please fill in all the fields.";
-                clearMessages();
-                return;
-            }
-            if (password !== confirmPassword) {
-                errorMessage.textContent = "Passwords do not match.";
-                clearMessages();
-                return;
-            }
-    
-            try {
-                // Create user with email and password
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-                const uid = user.uid;
-    
-                // Get the next ID for the role
-                const nextId = await getNextId(role);
-    
-                // Save user data to the database
-                const userData = {
-                    id: nextId,
-                    username: username,
-                    email: email,
-                    role: role, // Save role as provided or default to 'admin'
-                };
-    
-                await set(ref(database, 'Accounts/' + uid), userData);
-    
-                // Display success message
-                successMessage.textContent = "Sign up successful. You can now log in.";
-                errorMessage.textContent = '';  // Clear any previous error message
-                signupForm.reset();  // Reset the form
-    
-                // Clear the success message after 5 seconds
-                clearMessages();
-            } catch (error) {
-                errorMessage.textContent = error.message;
-                clearMessages();
-            }
-        });
-    </script>
-    
+    <script type="module" src="Js/signup.js"></script>
 </body>
 </html>

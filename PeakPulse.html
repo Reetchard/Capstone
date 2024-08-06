@@ -4,26 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PEAK PULSE</title>
-    <link rel="stylesheet" href="LandStyle.css">
+    <link rel="stylesheet" href="Styles/LandStyle.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <script src="script.js" defer></script>
+    <script type="module" src="JS/Land.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        .modal-content {
+            padding: 20px;
+        }
+        .btn-info {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
     <header>
         <nav>
             <div class="container">
-                <h1 class="logo"><img src="img/Logoo.ico" alt="PeakPulse">PEAK PULSE</h1>
+                <h1 class="logo"><img src="Styles/Logoo.ico" alt="PeakPulse">PEAK PULSE</h1>
                 <ul>
                     <li><a href="#home">Home</a></li>
-                    <li><a href="#about">About</a></li>
-                    <li><a href="#about">Services and Promotions</a></li>
+                    <li><a href="#services-promotions">Services and Promotions</a></li>
                     <li><a href="#pricing">Pricing</a></li>
                     <li><a href="#profiling">Gym Profiling</a></li>
+                    <li><a href="#trainers">Trainers</a></li>
                     <li><a href="#membership">Membership</a></li>
-                    <li><a href="#contact">Contact</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li class="nav-item dropdown" id="guestDropdown" style="display: none;">
+                        <a class="nav dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span id="guest-id">Your Guest ID: N/A</span>
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="#" id="logoutButton">Log Out</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item" id="guestButtonItem">
+                        <button id="guestButton" class="btn btn-secondary">Log in as Guest</button>
+                    </li>
                 </ul>
+                </div>
             </div>
         </nav>
+        <div id="errorMessage" class="error-message">
+            You need to Log in First.
+        </div>
         <div class="hero">
             <div class="hero-content">
                 <h1>Transform Your Body, Transform Your Life</h1>
@@ -32,7 +56,6 @@
             </div>
         </div>
     </header>
-
     <section id="about" class="section">
         <div class="container">
             <h2>About Us</h2>
@@ -80,7 +103,6 @@
             </div>
         </div>
     </section>
-    
     
     <section id="membership" class="section bg-light">
         <div class="container">
@@ -133,7 +155,6 @@
         </div>
     </section>
     
-
     <section id="profiling" class="section">
         <div class="container">
             <h2>Gym Profiling</h2>
@@ -142,39 +163,109 @@
         </div>
     </section>
 
-    <section id="membership" class="section bg-light">
+    <section id="trainers" class="section bg-light">
         <div class="container">
-            <h2>Membership</h2>
-            <p>Become a part of the PEAK PULSE family and enjoy numerous benefits. Our membership plans are designed to provide you with flexibility and convenience. Choose the plan that suits you best and start your fitness journey today!</p>
-            <a href="#contact" class="btn btn-primary">Join Now</a>
+            <h2>Our Trainers</h2>
+            <p>Meet our team of professional trainers who are dedicated to helping you reach your fitness goals. Each trainer brings a unique set of skills and experience to the table. Here are some of the amazing trainers you'll find at PEAK PULSE:</p>
+            <div class="trainers">
+                <div class="trainer">
+                    <img src="Styles/trainer1.jpg" alt="Trainer 1" class="trainer-img">
+                    <h3>John Doe</h3>
+                    <p>Specializes in strength training and nutrition. With over 10 years of experience, John helps clients build muscle and improve their overall health.</p>
+                    <button class="check-info btn-primary" data-trainer="John Doe">Check Information</button>
+                </div>
+                <div class="trainer">
+                    <img src="Styles/trainer2.jpg" alt="Trainer 2" class="trainer-img">
+                    <h3>Jane Smith</h3>
+                    <p>An expert in yoga and flexibility training. Jane's classes are designed to improve balance, flexibility, and mental well-being.</p>
+                    <button class="check-info btn-primary" data-trainer="Jane Smith">Check Information</button>
+                </div>
+                <div class="trainer">
+                    <img src="Styles/trainer3.jpg" alt="Trainer 3" class="trainer-img">
+                    <h3>Mike Johnson</h3>
+                    <p>Certified in high-intensity interval training (HIIT) and cardiovascular fitness. Mike provides intense workouts to boost your endurance and stamina.</p>
+                    <button class="check-info btn-primary" data-trainer="Mike Johnson">Check Information</button>
+                </div>
+                <div class="trainer">
+                    <img src="Styles/trainer4.jpg" alt="Trainer 4" class="trainer-img">
+                    <h3>Emily Davis</h3>
+                    <p>Focuses on functional training and injury prevention. Emily uses her background in sports medicine to help clients recover from injuries and prevent future issues.</p>
+                    <button class="check-info btn-primary" data-trainer="Emily Davis">Check Information</button>
+                </div>
+            </div>
         </div>
     </section>
-
-    <section id="contact" class="section">
-        <div class="container">
-            <h2>Contact Us</h2>
-            <form id="contact-form">
-                <div class="form-group">
-                    <label for="name">Name:</label>
-                    <input type="text" id="name" name="name" required>
+    
+    <!-- Modal Templates -->
+    <div class="modal fade" id="trainer1Modal" tabindex="-1" aria-labelledby="trainer1ModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="trainer1ModalLabel">John Doe</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="form-group">
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" required>
+                <div class="modal-body">
+                    <p>John specializes in strength training and nutrition. With over 10 years of experience, he helps clients build muscle and improve their overall health.</p>
+                    <p>Contact: john.doe@example.com</p>
+                    <p>Available Hours: Mon-Fri 9am-6pm</p>
                 </div>
-                <div class="form-group">
-                    <label for="message">Message:</label>
-                    <textarea id="message" name="message" rows="4" required></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Send Message</button>
-            </form>
+            </div>
         </div>
-    </section>
+    </div>
+    
+    <div class="modal fade" id="trainer2Modal" tabindex="-1" aria-labelledby="trainer2ModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="trainer2ModalLabel">Jane Smith</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Jane is an expert in yoga and flexibility training. Her classes are designed to improve balance, flexibility, and mental well-being.</p>
+                    <p>Contact: jane.smith@example.com</p>
+                    <p>Available Hours: Mon-Sat 10am-5pm</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="trainer3Modal" tabindex="-1" aria-labelledby="trainer3ModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="trainer3ModalLabel">Mike Johnson</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Mike is certified in high-intensity interval training (HIIT) and cardiovascular fitness. He provides intense workouts to boost endurance and stamina.</p>
+                    <p>Contact: mike.johnson@example.com</p>
+                    <p>Available Hours: Tue-Sun 8am-7pm</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="trainer4Modal" tabindex="-1" aria-labelledby="trainer4ModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="trainer4ModalLabel">Emily Davis</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Emily focuses on functional training and injury prevention. She uses her background in sports medicine to help clients recover from injuries and prevent future issues.</p>
+                    <p>Contact: emily.davis@example.com</p>
+                    <p>Available Hours: Mon-Fri 9am-6pm</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <footer>
         <div class="container">
             <p>&copy; 2024 PEAK PULSE. All Rights Reserved.</p>
         </div>
     </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

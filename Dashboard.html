@@ -8,40 +8,49 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/main.min.css">
-    <link rel="stylesheet " href="Dashstyle.css">
-
+    <link rel="stylesheet" href="Styles/Dashstyle.css">
 </head>
+    <style>
+        /* Add your custom CSS here */
+        .sidebar { width: 250px; position: fixed; top: 0; left: 0; height: 100vh; background: #343a40; color: #fff; }
+        .sidebar.open { width: 300px; }
+        .main-content { margin-left: 250px; transition: margin-left 0.3s; }
+        .main-content.shifted { margin-left: 300px; }
+    </style>
 <body>
     <!-- Sidebar -->
-
-        <div class="sidebar">
-            <a class="navbar-brand" href="#"><img src="img/Logoo.ico" alt="PeakPulse"> PEAK PULSE </a>
-            <div class="sidebar-links">
-                <a href="#homeSection">Home</a>
-                <a href="#servicesSection">Services and Promotions</a>
-                <a href="#trainerSection">Trainer</a>
-                <a href="#membershipSection">Membership</a>
-                <a href="#reportsSection">Reports</a>
-                <a href="#billingSection">Billing</a>
-                <a href="#calendarSection">Calendar</a>
-                <a href="#membersSection">Member Status</a>
-            </div>
-            <div class="navbar-icons">
-
-                <i class="fas fa-shopping-cart" title="Cart"></i>
-            </div>
-            <div id="dropdownMenu" class="dropdown">
-                <button class="btn btn-primary dropbtn">Loading...</button>
-                <div class="dropdown-content">
-                    <!-- Dropdown options will be added dynamically -->
-                </div>
+    <div class="sidebar">
+        <a class="navbar-brand"><img src="Styles/Logoo.ico" alt="PeakPulse"> PEAK PULSE </a>
+        <div class="sidebar-links">
+            <a href="#homeSection">Home</a>
+            <a href="#servicesSection">Services and Promotions</a>
+            <a href="#trainerSection">Trainer</a>
+            <a href="#membership">Membership</a>
+            <a href="#reportsSection">Reports</a>
+            <a href="#calendarSection">Calendar</a>
+            <a href="#membersSection">Member Status</a>
+            <div class="btn-group dropend">
+                <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    Billing
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#billingSection">Billing Overview</a></li>
+                    <li><a class="dropdown-item" href="billing.html">Add Billing Form</a></li>
+                </ul>
             </div>
         </div>
+        <div class="navbar-icons">
+            <i class="fas fa-shopping-cart" title="Cart"></i>
+        </div>
+        <div id="dropdownMenu" class="dropdown">
+            <button class="btn btn-primary dropbtn">Loading...</button>
+            <div class="dropdown-content">
+                <!-- Dropdown options will be added dynamically -->
+            </div>
+        </div>
+    </div>
 
-
-    
     <!-- Main Content -->
     <div class="main-content">
         <!-- Hero Section -->
@@ -70,43 +79,73 @@
         <div id="trainerSection" class="section">
             <h2 class="text-center">Our Trainers</h2>
             <div class="container mt-4">
-                <<div class="row" id="trainerCardsContainer">>
-                    <!-- Trainer 1 -->
-                    <div class="col-md-4">
-                        <div class="card shadow">
-                            <img src="img/trainer1.jpg" class="card-img-top" alt="Trainer 1">
-                            <div class="card-body">
-                                <h5 class="card-title">Trainer Name 1</h5>
-                                <p class="card-text">Specializes in strength training and conditioning.</p>
-                                <button class="btn btn-primary">View Profile</button>
-                            </div>
-                        </div>
+                <!-- Trainer Table -->
+                <table class="table table-bordered table-striped" id="trainerTable">
+                    <thead>
+                        <tr>
+                            <th>Photo</th>
+                            <th>Name</th>
+                            <th>Specialization</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Trainer rows will be dynamically added here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Membership Section -->
+        <section id="membership" class="section bg-light">
+            <div class="container">
+                <h2>Membership</h2>
+                <p>Join the PEAK PULSE family and enjoy a range of benefits designed to fit your fitness needs and lifestyle. Our membership plans are tiered to offer increasing levels of value, with exclusive discounts on products and bookings as you move up the plans. Here's how our plans stack up:</p>
+                <div class="membership-plans">
+                    <div class="membership-plan">
+                        <h3>Basic</h3>
+                        <p>P1M/month</p>
+                        <ul>
+                            <li>Access to gym equipment</li>
+                            <li>1 Free Fitness Assessment</li>
+                            <li>Standard Locker Room</li>
+                            <li>10% Discount on Personal Training Sessions</li>
+                            <li>5% Discount on Store Products</li>
+                        </ul>
+                        <a href="#contact" class="btn btn-secondary">Sign Up</a>
                     </div>
-                    <!-- Trainer 2 -->
-                    <div class="col-md-4">
-                        <div class="card shadow">
-                            <img src="img/trainer2.jpg" class="card-img-top" alt="Trainer 2">
-                            <div class="card-body">
-                                <h5 class="card-title">Trainer Name 2</h5>
-                                <p class="card-text">Expert in yoga and flexibility training.</p>
-                                <button class="btn btn-primary">View Profile</button>
-                            </div>
-                        </div>
+                    <div class="membership-plan">
+                        <h3>Premium</h3>
+                        <p>P3M/month</p>
+                        <ul>
+                            <li>Access to gym equipment</li>
+                            <li>5 Free Fitness Assessments</li>
+                            <li>Premium Locker Room</li>
+                            <li>Free Group Classes</li>
+                            <li>15% Discount on Personal Training Sessions</li>
+                            <li>10% Discount on Store Products</li>
+                            <li>Priority Booking for Trainer Sessions</li>
+                        </ul>
+                        <a href="#contact" class="btn btn-secondary">Sign Up</a>
                     </div>
-                    <!-- Trainer 3 -->
-                    <div class="col-md-4">
-                        <div class="card shadow">
-                            <img src="img/trainer3.jpg" class="card-img-top" alt="Trainer 3">
-                            <div class="card-body">
-                                <h5 class="card-title">Trainer Name 3</h5>
-                                <p class="card-text">Specializes in cardiovascular and endurance training.</p>
-                                <button class="btn btn-primary">View Profile</button>
-                            </div>
-                        </div>
+                    <div class="membership-plan">
+                        <h3>Elite</h3>
+                        <p>P69B/month</p>
+                        <ul>
+                            <li>Access to gym equipment</li>
+                            <li>Unlimited Fitness Assessments</li>
+                            <li>Elite Locker Room</li>
+                            <li>Free Personal Training Sessions</li>
+                            <li>Free Group Classes</li>
+                            <li>20% Discount on Personal Training Sessions</li>
+                            <li>15% Discount on Store Products</li>
+                            <li>Exclusive Access to Special Workshops</li>
+                            <li>Free Monthly Trainer Booking</li>
+                        </ul>
+                        <a href="#contact" class="btn btn-secondary">Sign Up</a>
                     </div>
                 </div>
             </div>
-        </div>
 
         <!-- Calendar Section -->
         <div id="calendarSection" class="section">
@@ -122,6 +161,8 @@
                     <div class="col-md-6 display-section">
                         <h3>Payments</h3>
                         <p>Your upcoming and past payments are displayed here. Review your payment history and status.</p>
+                        <!-- Add Payment Method Button -->
+                        <a href="#addPaymentMethod" class="btn btn-primary">Add Payment Method</a>
                         <!-- Payment details will be dynamically added here -->
                     </div>
                     <!-- Schedules -->
@@ -180,14 +221,37 @@
             <h2 class="text-center">Billing</h2>
             <!-- Billing content goes here -->
         </div>
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-content">
+                    <p>&copy; 2024 PEAK PULSE. All Rights Reserved.</p>
+                    <ul class="footer-links">
+                        <li><a href="#privacyPolicy">Privacy Policy</a></li>
+                        <li><a href="#termsOfService">Terms of Service</a></li>
+                        <li><a href="#contactUs">Contact Us</a></li>
+                    </ul>
+                    <div class="footer-social">
+                        <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+        </footer>
     </div>
 
     <!-- Add Bootstrap JS and dependencies -->
+     
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/main.min.js"></script>
-    <script type="module" src="DashScript.js"></script>
+    
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+
+    <script type="module" src="Js/DashScript.js"></script>
+    <script type="module" src="Js/trainerinfo.css"></script>
+    
 </body>
 </html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Gym Owner Form</title>
+        <link rel="stylesheet" href="Styles/Gymform.css">
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=f72efe892bc49e6fae427c68c3147efa690471f2&libraries=places" async defer></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <!-- Firebase SDKs -->
+        <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js"></script>
+        
+    </head>
+<body>
+    <div class="navbar">
+        <span class="navbar-title">PeakPulse</span>
+        <a href="login.html" class="back-button">Back</a>
+    </div>
+    <div class="gym-owner-form-container">
+        <header>
+            <img src="Styles/GDLogo.png" alt="Gym Logo" class="logo">
+            <h1>Complete Your Gym Details</h1>
+        </header>
+        <form id="gymOwnerDetailsForm" class="form">
+            <div class="form-group">
+                <label for="gymName">Gym Name:</label>
+                <input type="text" id="gymName" required>
+            </div>
+
+            <div class="form-group">
+                <label for="gymLocation">Location:</label>
+                <input type="text" id="gymLocation" placeholder="Search for your gym location" required>
+            </div>
+
+            <div class="form-group">
+                <label for="gymCertifications">Certifications/Permits (Upload Photo):</label>
+                <input type="file" id="gymCertifications" accept="image/*" required>
+            </div>
+
+            <div class="form-group">
+                <label for="gymEquipment">Equipment:</label>
+                <input type="text" id="gymEquipment" required>
+            </div>
+
+            <div class="form-group">
+                <label for="gymContact">Contact Info:</label>
+                <input type="text" id="gymContact" required>
+            </div>
+
+            <div class="form-group">
+                <label for="gymPrograms">Programs:</label>
+                <input type="text" id="gymPrograms" required>
+            </div>
+
+            <div class="form-group">
+                <label for="gymOpeningTime">Opening Time:</label>
+                <input type="text" id="gymOpeningTime" class="time-picker" required>
+            </div>
+
+            <div class="form-group">
+                <label for="gymClosingTime">Closing Time:</label>
+                <input type="text" id="gymClosingTime" class="time-picker" required>
+            </div>
+
+            <button type="submit" class="submit-btn">Submit</button>
+            <div id="gymOwnerFormErrorMessage" class="error-message"></div>
+            <div id="gymOwnerFormSuccessMessage" class="success-message"></div>
+        </form>
+    </div>
+    <!-- Ensure this path is correct -->
+    <script src="JS/gymOwnerForm.js" defer></script>
+
+</body>
+</html>

@@ -23,10 +23,26 @@ const database = firebase.database();
 const accountRef = database.ref('Accounts');
 
 // Function to display all accounts
+function showToast(title, message) {
+    const toastElement = document.getElementById('toast');
+    const toastTitle = document.getElementById('toast-title');
+    const toastBody = document.getElementById('toast-body');
+
+    if (toastElement && toastTitle && toastBody) {
+        toastTitle.textContent = title;
+        toastBody.textContent = message;
+
+        const toast = new bootstrap.Toast(toastElement);
+        toast.show();
+    } else {
+        console.error('Toast element or its children are not found in the DOM.');
+    }
+}
+
+// Function to display all accounts
 function displayAccountInfo() {
     accountRef.once('value', function(snapshot) {
         const accounts = snapshot.val();
-        console.log('Accounts Data:', accounts); // Debugging line
         const accountInfoBody = document.getElementById('accountInfoBody');
         accountInfoBody.innerHTML = '';
 
@@ -35,12 +51,11 @@ function displayAccountInfo() {
                 if (accounts.hasOwnProperty(key)) {
                     const account = accounts[key];
                     const row = document.createElement('tr');
-
-                    const status = account.status || 'N/A'; // Use account status
+                    const status = account.status || 'N/A';
 
                     row.innerHTML = `
                         <td><input type="checkbox" class="selectAccount" value="${key}"></td>
-                        <td>${account.id || 'N/A'}</td>
+                        <td class="account-id">${account.id || 'N/A'}</td>
                         <td>${account.username || 'N/A'}</td>
                         <td>${status}</td>
                         <td>
@@ -58,10 +73,11 @@ function displayAccountInfo() {
         }
     }).catch(error => {
         console.error('Error fetching data:', error);
+        showToast('Error', 'Error fetching account data. Please try again later.');
     });
 }
 
-// Function to get the next ID (based on the highest existing ID)
+// Function to get the next ID
 function getNextId(callback) {
     accountRef.once('value', function(snapshot) {
         const accounts = snapshot.val();
@@ -82,7 +98,8 @@ function getNextId(callback) {
         callback(maxId + 1);
     }).catch(error => {
         console.error('Error fetching data for ID:', error);
-        callback(1); // Default to 1 if there's an error
+        showToast('Error', 'Unable to determine next ID. Defaulting to 1.');
+        callback(1);
     });
 }
 
@@ -100,27 +117,33 @@ document.getElementById('accountForm').addEventListener('submit', function(e) {
                 id: nextId,
                 username,
                 email,
-                status: 'Active', // Default status
-                online: true, // default online status
-                lastOnline: new Date().toISOString() // current timestamp
+                status: 'Active',
+                online: true,
+                lastOnline: new Date().toISOString()
             };
 
             if (key) {
                 accountRef.child(key).update(accountData).then(() => {
                     $('#accountModal').modal('hide');
                     displayAccountInfo();
+                    showToast('Success', 'Account updated successfully.');
                 }).catch(error => {
                     console.error('Error updating account:', error);
+                    showToast('Error', 'Error updating account. Please try again later.');
                 });
             } else {
                 accountRef.push(accountData).then(() => {
                     $('#accountModal').modal('hide');
                     displayAccountInfo();
+                    showToast('Success', 'Account added successfully.');
                 }).catch(error => {
                     console.error('Error adding account:', error);
+                    showToast('Error', 'Error adding account. Please try again later.');
                 });
             }
         });
+    } else {
+        showToast('Error', 'Please fill in all required fields.');
     }
 });
 
@@ -134,6 +157,7 @@ window.editAccount = function(key) {
         $('#accountModal').modal('show');
     }).catch(error => {
         console.error('Error fetching account data:', error);
+        showToast('Error', 'Error fetching account data. Please try again later.');
     });
 };
 
@@ -142,8 +166,10 @@ window.removeAccount = function(key) {
     if (confirm('Are you sure you want to remove this account?')) {
         accountRef.child(key).remove().then(() => {
             displayAccountInfo();
+            showToast('Success', 'Account removed successfully.');
         }).catch(error => {
             console.error('Error deleting account:', error);
+            showToast('Error', 'Error deleting account. Please try again later.');
         });
     }
 };
@@ -152,9 +178,11 @@ window.removeAccount = function(key) {
 window.setStatus = function(key, status) {
     accountRef.child(key).update({ status }).then(() => {
         console.log(`Account ${key} set to ${status} successfully.`);
-        displayAccountInfo(); // Refresh the account list
+        displayAccountInfo();
+        showToast('Success', `Account status updated to ${status}.`);
     }).catch(error => {
         console.error("Error updating account status:", error);
+        showToast('Error', 'Error updating account status. Please try again later.');
     });
 };
 
@@ -162,7 +190,7 @@ window.setStatus = function(key, status) {
 window.deleteSelected = function() {
     const selectedCheckboxes = document.querySelectorAll('.selectAccount:checked');
     if (selectedCheckboxes.length === 0) {
-        alert('Please select at least one account to delete.');
+        showToast('Warning', 'Please select at least one account to delete.');
         return;
     }
 
@@ -171,11 +199,12 @@ window.deleteSelected = function() {
             const key = checkbox.value;
             accountRef.child(key).remove().catch(error => {
                 console.error('Error deleting account:', error);
+                showToast('Error', 'Error deleting selected accounts. Please try again later.');
             });
         });
 
-        // Refresh the account list after deletion
         displayAccountInfo();
+        showToast('Success', 'Selected accounts deleted successfully.');
     }
 };
 
@@ -189,12 +218,12 @@ window.toggleSelectAll = function(source) {
 
 // Display account information on page load
 displayAccountInfo();
+
 // Function to search accounts by ID
 function searchAccount() {
     const searchId = document.getElementById('searchAccountId').value.trim();
     accountRef.once('value', function(snapshot) {
         const accounts = snapshot.val();
-        console.log('Accounts Data:', accounts); // Debugging line
         const accountInfoBody = document.getElementById('accountInfoBody');
         accountInfoBody.innerHTML = '';
 
@@ -203,9 +232,9 @@ function searchAccount() {
             for (const key in accounts) {
                 if (accounts.hasOwnProperty(key)) {
                     const account = accounts[key];
-                    if (account.id.toString().includes(searchId)) { // Check if ID matches
+                    if (account.id.toString().includes(searchId)) {
                         const row = document.createElement('tr');
-                        const status = account.status || 'N/A'; // Use account status
+                        const status = account.status || 'N/A';
                         row.innerHTML = `
                             <td><input type="checkbox" class="selectAccount" value="${key}"></td>
                             <td>${account.id || 'N/A'}</td>
@@ -231,6 +260,25 @@ function searchAccount() {
         }
     }).catch(error => {
         console.error('Error fetching data:', error);
+        showToast('Error', 'Error fetching account data. Please try again later.');
     });
 }
+    function showToast(title, message) {
+        const toastElement = document.getElementById('toast');
+        const toastTitle = document.getElementById('toast-title');
+        const toastBody = document.getElementById('toast-body');
 
+        if (toastElement && toastTitle && toastBody) {
+            toastTitle.textContent = title;
+            toastBody.textContent = message;
+
+            // Create a new Bootstrap toast instance and show it
+            const toast = new bootstrap.Toast(toastElement, {
+                autohide: true,
+                delay: 3000 // Adjust delay as needed
+            });
+            toast.show();
+        } else {
+            console.error('Toast element or its children are not found in the DOM.');
+        }
+    }

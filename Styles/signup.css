@@ -7,7 +7,7 @@ img {
     width: 100%;
     background: radial-gradient(#653d84, #332042);
     position: relative;
-    background: url(img/LandPage2.jpg) no-repeat center center/cover;
+    background: url(LandPage2.jpg) no-repeat center center/cover;
 }
 .signup_box {
     width: 90%;
