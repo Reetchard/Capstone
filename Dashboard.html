@@ -11,20 +11,13 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/main.min.css">
     <link rel="stylesheet" href="Styles/Dashstyle.css">
 </head>
-    <style>
-        /* Add your custom CSS here */
-        .sidebar { width: 250px; position: fixed; top: 0; left: 0; height: 100vh; background: #343a40; color: #fff; }
-        .sidebar.open { width: 300px; }
-        .main-content { margin-left: 250px; transition: margin-left 0.3s; }
-        .main-content.shifted { margin-left: 300px; }
-    </style>
 <body>
-    <!-- Sidebar -->
     <div class="sidebar">
         <a class="navbar-brand"><img src="Styles/Logoo.ico" alt="PeakPulse"> PEAK PULSE </a>
         <div class="sidebar-links">
             <a href="#homeSection">Home</a>
             <a href="#servicesSection">Services and Promotions</a>
+            <a href="#productSection">Products</a>
             <a href="#trainerSection">Trainer</a>
             <a href="#membership">Membership</a>
             <a href="#reportsSection">Reports</a>
@@ -35,8 +28,7 @@
                     Billing
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#billingSection">Billing Overview</a></li>
-                    <li><a class="dropdown-item" href="billing.html">Add Billing Form</a></li>
+                    <li><a class="dropdown-item" href="bOverview.html">Billing Overview</a></li>
                 </ul>
             </div>
         </div>
@@ -57,7 +49,7 @@
         <div id="homeSection" class="hero">
             <h2>Welcome to PEAK PULSE</h2>
             <p>Your fitness journey starts here with top-notch facilities and expert guidance.</p>
-            <a class="btn btn-primary" href="#membershipSection">Explore Membership Plans</a>
+            <a class="btn btn-primary" href="#membership">Explore Membership Plans</a>
         </div>
 
         <!-- Notification Card -->
@@ -75,6 +67,33 @@
             <!-- Services and Promotions content goes here -->
         </div>
 
+        <!-- Product Section -->
+        <div id="productSection" class="section">
+            <div class="card-header">
+                <h4>Product List</h4>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered table-striped" id="productTable">
+                    <thead>
+                        <tr>
+                            <th>Photo</th>
+                            <th>Name</th>
+                            <th>Price</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Quantity</th>
+                            <th>Date Added</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productTableBody">
+                        <!-- Product rows will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        
         <!-- Trainer Section -->
         <div id="trainerSection" class="section">
             <h2 class="text-center">Our Trainers</h2>
@@ -112,7 +131,7 @@
                             <li>10% Discount on Personal Training Sessions</li>
                             <li>5% Discount on Store Products</li>
                         </ul>
-                        <a href="#contact" class="btn btn-secondary">Sign Up</a>
+                        <a href="#contact" class="btn btn-secondary">Avail</a>
                     </div>
                     <div class="membership-plan">
                         <h3>Premium</h3>
@@ -126,7 +145,7 @@
                             <li>10% Discount on Store Products</li>
                             <li>Priority Booking for Trainer Sessions</li>
                         </ul>
-                        <a href="#contact" class="btn btn-secondary">Sign Up</a>
+                        <a href="#contact" class="btn btn-secondary">Avail</a>
                     </div>
                     <div class="membership-plan">
                         <h3>Elite</h3>
@@ -142,10 +161,11 @@
                             <li>Exclusive Access to Special Workshops</li>
                             <li>Free Monthly Trainer Booking</li>
                         </ul>
-                        <a href="#contact" class="btn btn-secondary">Sign Up</a>
+                        <a href="#contact" class="btn btn-secondary">Avail</a>
                     </div>
                 </div>
             </div>
+        </section>
 
         <!-- Calendar Section -->
         <div id="calendarSection" class="section">
@@ -221,6 +241,7 @@
             <h2 class="text-center">Billing</h2>
             <!-- Billing content goes here -->
         </div>
+
         <footer class="footer">
             <div class="container">
                 <div class="footer-content">
@@ -241,7 +262,6 @@
     </div>
 
     <!-- Add Bootstrap JS and dependencies -->
-     
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -252,6 +272,8 @@
 
     <script type="module" src="Js/DashScript.js"></script>
     <script type="module" src="Js/trainerinfo.css"></script>
+    <script src="Js/billing.js"></script>
+    <script src="Js/products.js"></script>
     
 </body>
 </html>

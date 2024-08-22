@@ -5,11 +5,15 @@ body {
 }
 
 .navbar {
-    background-color: #343a40;
+    background-color: #818486;
 }
 
 .navbar .navbar-brand img {
     height: 50px;
+}
+
+.navbar .ml-auto {
+    margin-left: auto;
 }
 
 .navbar .navbar-menu {
@@ -24,7 +28,6 @@ body {
 
 .navbar .navbar-link {
     color: #ffffff;
-    text-decoration: none;
 }
 
 .card {

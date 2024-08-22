@@ -79,6 +79,46 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
+// Function to display products in the table
+function displayProducts() {
+    const tableBody = document.getElementById('productTableBody');
+    if (!tableBody) {
+        console.error('Element with ID "productTableBody" not found.');
+        return;
+    }
+
+    const productsRef = ref(database, 'dashboard/products');
+    get(productsRef).then((snapshot) => {
+        if (snapshot.exists()) {
+            tableBody.innerHTML = ''; // Clear the table body before reloading
+            snapshot.forEach((childSnapshot) => {
+                const data = childSnapshot.val();
+                const newRow = document.createElement('tr');
+
+                // Ensure 'photoURL' is provided by the gym owner; otherwise, fallback to a default image
+                const photoURL = data.photoURL || 'default-image.png';
+
+                newRow.innerHTML = `
+                    <td><img src="${photoURL}" alt="${data.name}" style="width: 50px; height: auto;"></td>
+                    <td>${data.name}</td>
+                    <td>$${data.price}</td>
+                    <td>${data.description}</td>
+                    <td>${data.category}</td>
+                    <td>${data.quantity}</td>
+                    <td>${data.dateAdded}</td>
+                    <td><button class="btn btn-primary">Buy</button></td>
+                `;
+
+                tableBody.appendChild(newRow);
+            });
+        } else {
+            console.log('No products found.');
+        }
+    }).catch((error) => {
+        console.error('Error loading products:', error);
+    });
+}
+
 
 // Initialize FullCalendar
 document.addEventListener('DOMContentLoaded', function() {
@@ -102,6 +142,9 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         console.error('Calendar element not found');
     }
+
+    // Call function to display products
+    displayProducts();
 });
 
 // Show/Hide notification dropdown
@@ -180,25 +223,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Sidebar or openSidebar button not found');
     }
 });
-document.addEventListener('DOMContentLoaded', () => {
-    const sidebar = document.querySelector('.sidebar');
-    const openSidebarBtn = document.querySelector('#openSidebar');
-    const mainContent = document.querySelector('.main-content');
-
-    if (openSidebarBtn && sidebar && mainContent) {
-        openSidebarBtn.addEventListener('click', () => {
-            if (sidebar.classList.contains('open')) {
-                sidebar.classList.remove('open');
-                mainContent.classList.remove('shifted');
-            } else {
-                sidebar.classList.add('open');
-                mainContent.classList.add('shifted');
-            }
-        });
-    } else {
-        console.error('Sidebar or openSidebar button not found');
-    }
-});
 
 document.addEventListener('DOMContentLoaded', function () {
     var dropdownToggle = document.querySelector('.btn-group .dropdown-toggle');
@@ -236,4 +260,30 @@ document.addEventListener('DOMContentLoaded', function () {
     dropdownMenu.addEventListener('mouseleave', function() {
         hideDropdown();
     });
+    
+    function setCurrentUserId(userId) {
+        localStorage.setItem('currentUserId', userId);
+    }
+    
+    function getBillingRecordsForUser(userId) {
+        return JSON.parse(localStorage.getItem(`billingRecords_${userId}`)) || [];
+    }
+    
+    function saveBillingRecordsForUser(userId, records) {
+        localStorage.setItem(`billingRecords_${userId}`, JSON.stringify(records));
+    }
 });
+
+function updateCartCount() {
+    const cartCount = document.getElementById('cartCount');
+    let count = parseInt(cartCount.textContent) + 1;
+    cartCount.textContent = count;
+
+    // Save cart count to localStorage or sessionStorage
+    localStorage.setItem('cartCount', count);
+}
+
+document.querySelector('.fa-shopping-cart').addEventListener('click', function() {
+    window.location.href = 'checkout.html';
+});
+

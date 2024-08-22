@@ -15,6 +15,19 @@
         .btn-info {
             margin-top: 10px;
         }
+        /* Ensure the error message is styled and positioned correctly */
+        .error-message {
+            display: none;
+            color: red;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+        }
+        .error-message.show {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -38,16 +51,10 @@
                             <li><a class="dropdown-item" href="#" id="logoutButton">Log Out</a></li>
                         </ul>
                     </li>
-                    <li class="nav-item" id="guestButtonItem">
-                        <button id="guestButton" class="btn btn-secondary">Log in as Guest</button>
-                    </li>
                 </ul>
                 </div>
             </div>
         </nav>
-        <div id="errorMessage" class="error-message">
-            You need to Log in First.
-        </div>
         <div class="hero">
             <div class="hero-content">
                 <h1>Transform Your Body, Transform Your Life</h1>
@@ -56,147 +63,7 @@
             </div>
         </div>
     </header>
-    <section id="about" class="section">
-        <div class="container">
-            <h2>About Us</h2>
-            <p>At PEAK PULSE, we are committed to helping you achieve your fitness goals. Our gym offers a wide range of equipment, classes, and personal training options to suit your needs. Whether you're a beginner or an experienced athlete, we have something for everyone.</p>
-            <div class="features">
-                <div class="feature">
-                    <h3>Modern Equipment</h3>
-                    <p>Our gym is equipped with the latest fitness technology to ensure you get the best workout experience.</p>
-                </div>
-                <div class="feature">
-                    <h3>Expert Trainers</h3>
-                    <p>Our certified trainers are here to guide you through your fitness journey with personalized training programs.</p>
-                </div>
-                <div class="feature">
-                    <h3>Group Classes</h3>
-                    <p>Join our diverse range of group classes to stay motivated and make new friends.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-    <section id="services-promotions" class="section bg-light">
-        <div class="container">
-            <h2>Services and Promotions</h2>
-            <div class="services-promotions-content">
-                <div class="service">
-                    <h3>Personal Training</h3>
-                    <p>Our certified personal trainers offer one-on-one sessions to help you achieve your fitness goals more efficiently. Tailored workout plans and nutritional advice are included.</p>
-                </div>
-                <div class="service">
-                    <h3>Group Classes</h3>
-                    <p>Join our dynamic group classes, ranging from high-intensity interval training (HIIT) to yoga. Enjoy the camaraderie and motivation of working out with others.</p>
-                </div>
-                <div class="service">
-                    <h3>Gym Promotions</h3>
-                    <p>Take advantage of our ongoing promotions! We offer seasonal discounts, referral bonuses, and special deals for new members. Don't miss out on the chance to save while getting fit!</p>
-                </div>
-                <div class="service">
-                    <h3>Trainer Booking</h3>
-                    <p>Conveniently book your personal trainer online or through our app. Choose from a variety of time slots and trainers to fit your schedule and fitness needs.</p>
-                </div>
-                <div class="service">
-                    <h3>Special Promotions</h3>
-                    <p>Explore our limited-time offers including discounts on membership plans and exclusive packages. Check our website regularly for the latest deals and updates!</p>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <section id="membership" class="section bg-light">
-        <div class="container">
-            <h2>Membership</h2>
-            <p>Join the PEAK PULSE family and enjoy a range of benefits designed to fit your fitness needs and lifestyle. Our membership plans are tiered to offer increasing levels of value, with exclusive discounts on products and bookings as you move up the plans. Here's how our plans stack up:</p>
-            <div class="membership-plans">
-                <div class="membership-plan">
-                    <h3>Basic</h3>
-                    <p>P1M/month</p>
-                    <ul>
-                        <li>Access to gym equipment</li>
-                        <li>1 Free Fitness Assessment</li>
-                        <li>Standard Locker Room</li>
-                        <li>10% Discount on Personal Training Sessions</li>
-                        <li>5% Discount on Store Products</li>
-                    </ul>
-                    <a href="#contact" class="btn btn-secondary">Sign Up</a>
-                </div>
-                <div class="membership-plan">
-                    <h3>Premium</h3>
-                    <p>P3M/month</p>
-                    <ul>
-                        <li>Access to gym equipment</li>
-                        <li>5 Free Fitness Assessments</li>
-                        <li>Premium Locker Room</li>
-                        <li>Free Group Classes</li>
-                        <li>15% Discount on Personal Training Sessions</li>
-                        <li>10% Discount on Store Products</li>
-                        <li>Priority Booking for Trainer Sessions</li>
-                    </ul>
-                    <a href="#contact" class="btn btn-secondary">Sign Up</a>
-                </div>
-                <div class="membership-plan">
-                    <h3>Elite</h3>
-                    <p>P69B/month</p>
-                    <ul>
-                        <li>Access to gym equipment</li>
-                        <li>Unlimited Fitness Assessments</li>
-                        <li>Elite Locker Room</li>
-                        <li>Free Personal Training Sessions</li>
-                        <li>Free Group Classes</li>
-                        <li>20% Discount on Personal Training Sessions</li>
-                        <li>15% Discount on Store Products</li>
-                        <li>Exclusive Access to Special Workshops</li>
-                        <li>Free Monthly Trainer Booking</li>
-                    </ul>
-                    <a href="#contact" class="btn btn-secondary">Sign Up</a>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <section id="profiling" class="section">
-        <div class="container">
-            <h2>Gym Profiling</h2>
-            <p>At PEAK PULSE, we offer detailed gym profiling to tailor our services to your specific fitness needs. Our profiling includes body composition analysis, fitness assessments, and goal setting to help you stay on track and achieve your desired results.</p>
-            <a href="#contact" class="btn btn-primary">Learn More</a>
-        </div>
-    </section>
 
-    <section id="trainers" class="section bg-light">
-        <div class="container">
-            <h2>Our Trainers</h2>
-            <p>Meet our team of professional trainers who are dedicated to helping you reach your fitness goals. Each trainer brings a unique set of skills and experience to the table. Here are some of the amazing trainers you'll find at PEAK PULSE:</p>
-            <div class="trainers">
-                <div class="trainer">
-                    <img src="Styles/trainer1.jpg" alt="Trainer 1" class="trainer-img">
-                    <h3>John Doe</h3>
-                    <p>Specializes in strength training and nutrition. With over 10 years of experience, John helps clients build muscle and improve their overall health.</p>
-                    <button class="check-info btn-primary" data-trainer="John Doe">Check Information</button>
-                </div>
-                <div class="trainer">
-                    <img src="Styles/trainer2.jpg" alt="Trainer 2" class="trainer-img">
-                    <h3>Jane Smith</h3>
-                    <p>An expert in yoga and flexibility training. Jane's classes are designed to improve balance, flexibility, and mental well-being.</p>
-                    <button class="check-info btn-primary" data-trainer="Jane Smith">Check Information</button>
-                </div>
-                <div class="trainer">
-                    <img src="Styles/trainer3.jpg" alt="Trainer 3" class="trainer-img">
-                    <h3>Mike Johnson</h3>
-                    <p>Certified in high-intensity interval training (HIIT) and cardiovascular fitness. Mike provides intense workouts to boost your endurance and stamina.</p>
-                    <button class="check-info btn-primary" data-trainer="Mike Johnson">Check Information</button>
-                </div>
-                <div class="trainer">
-                    <img src="Styles/trainer4.jpg" alt="Trainer 4" class="trainer-img">
-                    <h3>Emily Davis</h3>
-                    <p>Focuses on functional training and injury prevention. Emily uses her background in sports medicine to help clients recover from injuries and prevent future issues.</p>
-                    <button class="check-info btn-primary" data-trainer="Emily Davis">Check Information</button>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <!-- Modal Templates -->
     <div class="modal fade" id="trainer1Modal" tabindex="-1" aria-labelledby="trainer1ModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -260,6 +127,125 @@
             </div>
         </div>
     </div>
+    <section id="about" class="section">
+        <div class="container">
+            <h2>About Us</h2>
+            <p>At PEAK PULSE, we are committed to helping you achieve your fitness goals. Our gym offers a wide range of equipment, classes, and personal training options to suit your needs. Whether you're a beginner or an experienced athlete, we have something for everyone.</p>
+            <div class="features">
+                <div class="feature">
+                    <h3>Modern Equipment</h3>
+                    <p>Our gym is equipped with the latest fitness technology to ensure you get the best workout experience.</p>
+                </div>
+                <div class="feature">
+                    <h3>Expert Trainers</h3>
+                    <p>Our certified trainers are here to guide you through your fitness journey with personalized training programs.</p>
+                </div>
+                <div class="feature">
+                    <h3>Group Classes</h3>
+                    <p>Join our diverse range of group classes to stay motivated and make new friends.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    
+    <section id="membership" class="section bg-light">
+        <div class="container">
+            <h2>Membership</h2>
+            <p>Join the PEAK PULSE family and enjoy a range of benefits designed to fit your fitness needs and lifestyle. Our membership plans are tiered to offer increasing levels of value, with exclusive discounts on products and bookings as you move up the plans. Here's how our plans stack up:</p>
+            <div class="membership-plans">
+                <div class="membership-plan">
+                    <h3>Basic</h3>
+                    <p>P1M/month</p>
+                    <ul>
+                        <li>Access to gym equipment</li>
+                        <li>1 Free Fitness Assessment</li>
+                        <li>Standard Locker Room</li>
+                        <li>10% Discount on Personal Training Sessions</li>
+                        <li>5% Discount on Store Products</li>
+                    </ul>
+                    <a href="#contact" class="btn btn-secondary">Sign Up</a>
+                </div>
+                <div class="membership-plan">
+                    <h3>Premium</h3>
+                    <p>P3M/month</p>
+                    <ul>
+                        <li>Access to gym equipment</li>
+                        <li>5 Free Fitness Assessments</li>
+                        <li>Premium Locker Room</li>
+                        <li>Free Group Classes</li>
+                        <li>15% Discount on Personal Training Sessions</li>
+                        <li>10% Discount on Store Products</li>
+                        <li>Priority Booking for Trainer Sessions</li>
+                    </ul>
+                    <a href="#contact" class="btn btn-secondary">Sign Up</a>
+                </div>
+                <div class="membership-plan">
+                    <h3>Elite</h3>
+                    <p>P69B/month</p>
+                    <ul>
+                        <li>Access to gym equipment</li>
+                        <li>Unlimited Fitness Assessments</li>
+                        <li>Elite Locker Room</li>
+                        <li>Free Personal Training Sessions</li>
+                        <li>Free Group Classes</li>
+                        <li>20% Discount on Personal Training Sessions</li>
+                        <li>15% Discount on Store Products</li>
+                        <li>Exclusive Access to Special Workshops</li>
+                        <li>Free Monthly Trainer Booking</li>
+                    </ul>
+                    <a href="#contact" class="btn btn-secondary">Sign Up</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section id="profiling" class="section">
+        <div class="container">
+            <h2>Gym Profiling</h2>
+            <p>At PEAK PULSE, we offer detailed gym profiling to tailor our services to your specific fitness needs. Our profiling includes body composition analysis, fitness assessments, and goal setting to help you stay on track and achieve your desired results.</p>
+            <a href="#contact" class="btn btn-primary">Learn More</a>
+        </div>
+    </section>
+
+    <section id="trainers" class="section bg-light">
+            <div class="container">
+                <h2>Our Trainers </h2>
+                <div class="trainers-content" id="trainer-profiles">
+                    <!-- Trainer profiles will be dynamically added here -->
+                </div>
+            </div>
+        </section>
+        
+    </section>
+    <section id="services-promotions" class="section bg-light">
+        <div class="container">
+            <h2>Services and Promotions</h2>
+            <div class="services-promotions-content">
+                <div class="service">
+                    <h3>Personal Training</h3>
+                    <p>Our certified personal trainers offer one-on-one sessions to help you achieve your fitness goals more efficiently. Tailored workout plans and nutritional advice are included.</p>
+                </div>
+                <div class="service">
+                    <h3>Group Classes</h3>
+                    <p>Join our dynamic group classes, ranging from high-intensity interval training (HIIT) to yoga. Enjoy the camaraderie and motivation of working out with others.</p>
+                </div>
+                <div class="service">
+                    <h3>Gym Promotions</h3>
+                    <p>Take advantage of our ongoing promotions! We offer seasonal discounts, referral bonuses, and special deals for new members. Don't miss out on the chance to save while getting fit!</p>
+                </div>
+                <div class="service">
+                    <h3>Trainer Booking</h3>
+                    <p>Conveniently book your personal trainer online or through our app. Choose from a variety of time slots and trainers to fit your schedule and fitness needs.</p>
+                </div>
+                <div class="service">
+                    <h3>Special Promotions</h3>
+                    <p>Explore our limited-time offers including discounts on membership plans and exclusive packages. Check our website regularly for the latest deals and updates!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
 
     <footer>
         <div class="container">
@@ -267,5 +253,10 @@
         </div>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Firebase App (the core Firebase SDK) -->
+        <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+        <!-- Add the Firebase products that you want to use -->
+        <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+
 </body>
 </html>

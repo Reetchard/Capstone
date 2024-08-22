@@ -41,13 +41,20 @@ async function updateAuthSection(user) {
                 const userData = snapshot.val();
                 const role = userData.role || 'User';
                 const username = userData.username || 'User';
-
+    
+                // Handle redirection based on role
                 if (role === 'gym_owner') {
-                    // Redirect to GymDashboard.html
                     window.location.href = 'GymDashboard.html';
                     return; // Ensure no further code executes
+                } else if (role === 'admin') {
+                    window.location.href = 'Accounts.html';
+                    return; // Ensure no further code executes
+                } else {
+                    window.location.href = 'Dashboard.html';
+                    return; // Ensure no further code executes
                 }
-
+    
+                // Display role-specific content if not redirected
                 let roleSpecificHtml = '';
                 if (role === 'admin') {
                     roleSpecificHtml = `
@@ -62,7 +69,7 @@ async function updateAuthSection(user) {
                 } else {
                     roleSpecificHtml = '<a class="btn btn-danger" href="#" id="logoutBtn">Log Out</a>';
                 }
-
+    
                 authSection.innerHTML = `<span>Greetings, ${username}</span>${roleSpecificHtml}`;
                 const logoutBtn = document.getElementById('logoutBtn');
                 if (logoutBtn) {
@@ -84,7 +91,6 @@ async function updateAuthSection(user) {
         authSection.innerHTML = '<a class="btn btn-primary" href="login.html">Login</a>';
     }
 }
-
 // Listen to authentication state changes
 auth.onAuthStateChanged(user => {
     updateAuthSection(user);
@@ -131,4 +137,11 @@ function displayAccountInfo() {
     }).catch(error => {
         console.error('Error fetching data:', error);
     });
+    function registerNewUser(userId) {
+        setCurrentUserId(userId);
+        // Initialize or clear user's billing records
+        localStorage.removeItem(`billingRecords_${userId}`);
+        // Redirect to the billing page or initialize the user's session
+    }
+    
 }

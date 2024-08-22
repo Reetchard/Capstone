@@ -2,8 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const billingOverview = document.getElementById('billingOverview');
     const addBillingMethod = document.getElementById('addBillingMethod');
     const editModal = new bootstrap.Modal(document.getElementById('editModal'));
-    const currentUserId = getCurrentUserId();
-    let billingRecords = JSON.parse(localStorage.getItem(`billingRecords_${currentUserId}`)) || [];
+    let billingRecords = JSON.parse(localStorage.getItem('billingRecords')) || [];
     let currentEditIndex = null;
 
     // Function to render billing records
@@ -75,8 +74,8 @@ document.addEventListener('DOMContentLoaded', () => {
             billingRecords[currentEditIndex] = record;
         }
 
-        // Save updated records to localStorage for the current user
-        localStorage.setItem(`billingRecords_${currentUserId}`, JSON.stringify(billingRecords));
+        // Save updated records to localStorage
+        localStorage.setItem('billingRecords', JSON.stringify(billingRecords));
         renderBillingRecords();
         editModal.hide();
     });

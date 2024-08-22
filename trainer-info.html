@@ -3,60 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trainer Information - Gym Management System</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Gym Management System</title>
+    <link rel="stylesheet" href="gymprof.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <style>
-        .card {
-            max-width: 1200px;
-            margin: auto;
+        /* Custom Navbar Styles */
+        .navbar {
+            background-color: #583672;
+            transition: background-color 0.3s ease;
         }
-
-        .form-inline {
-            margin-bottom: 1rem;
+        .navbar-brand img {
+            width: 40px;
+            margin-right: 10px;
         }
-
-        .modal-body {
-            padding: 2rem;
+        .navbar-nav .nav-link {
+            color: #fff !important;
+            font-weight: bold;
+            transition: color 0.3s ease;
         }
-
-        .photo-preview {
-            max-width: 100%;
-            max-height: 200px;
-            display: none;
-            margin-top: 1rem;
+        .navbar-nav .nav-link:hover {
+            color: #f5f5f5 !important;
+        }
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 6h16M4 12h16m-7 6h7' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        }
+        .btn-secondary {
+            background-color: #f5f5f5;
+            color: #583672;
+            border: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+            color: #583672;
+        }
+        .modal-header {
+            background-color: #583672;
+            color: #fff;
+        }
+        .modal-footer .btn-secondary {
+            background-color: #e0e0e0;
+            color: #583672;
         }
     </style>
 </head>
 <body>
-
-<!-- Navigation Bar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand" href="#"><img src="img/Logoo.ico" alt="Logo" style="height: 40px;"> PEAK PULSE</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
-                <a class="nav-link" href="member.html">Manage Members</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="gym-profiling.html">Manage Gym Profile</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="trainer-info.html">Manage Trainer Profile</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="gym-profiling.html">Manage Products</a>
-            </li>
-            <div class="nav-link">
-                <button class="btn btn-secondary mb-2" onclick="window.location.href='gym-profiling.html'">Back</button>
-            </div>
-        </ul>
-    </div>
-</nav>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" href="#">
+            <img src="Styles/Logoo.ico" alt="Logo"> PEAK PULSE
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="member.html">Manage Members</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="trainer-info.html">Manage Trainer</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="Products.html">Manage Products</a>
+                </li>
+                <li class="nav-item">
+                    <button class="btn btn-secondary" onclick="window.location.href='Dashboard.html'">Back</button>
+                </li>
+            </ul>
+        </div>
+    </nav>
 <!-- Navigation Bar Ends -->
 
 <!-- Trainer Information Table -->

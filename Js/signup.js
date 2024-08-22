@@ -30,6 +30,12 @@ function clearMessages() {
         successMessage.textContent = '';
     }, 5000); // 5000ms = 5 seconds
 }
+function registerNewUser(userId) {
+    setCurrentUserId(userId);
+    // Initialize or clear user's billing records
+    localStorage.removeItem(`billingRecords_${userId}`);
+    // Redirect to the billing page or initialize the user's session
+}
 
 // Function to get the next ID for a given role using transaction
 async function getNextId(role) {
@@ -166,6 +172,7 @@ signupForm.addEventListener('submit', async (e) => {
         errorMessage.textContent = handleFirebaseError(error);
         clearMessages();
     }
+    
 });
 
 // Handle gym owner details form submission in a new file (gymOwnerForm.js)
