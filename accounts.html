@@ -3,67 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gym Management System</title>
-    <link rel="stylesheet" href="Styles/style.css">
+    <title>Admin Management Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <!-- FontAwesome CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <style>
-        .navbar-brand img {
-            height: 40px;
-        }
-        .navbar-nav .nav-link {
-            color: white;
-        }
-        .navbar-nav .nav-link:hover {
-            color: #f8f9fa;
-        }
-        .card {
-            max-width: 1200px;
-            margin: auto;
-        }
-        .form-inline {
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-        }
-        .modal-body {
-            padding: 2rem;
-        }
-        .table-checkbox {
-            width: 20px;
-            height: 20px;
-        }
-        .delete-all-btn {
-            margin-left: auto;
-        }
-        .navbar {
-            background-color: #343a40; /* Dark color for the navbar */
-        }
-    </style>
 </head>
 <body>
 
 <!-- Navigation Bar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand" href="#"><img src="Styles/Logoo.ico" alt="Logo"> PEAK PULSE</a>
+    <a class="navbar-brand" href="#"><img src="framework/img/Logoo.ico" alt="Logo"> PEAK PULSE</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mr-auto">
+            <!-- Left-aligned items can go here if needed -->
+        </ul>
+        <span class="navbar-text mx-auto text-white">
+            Admin Management Dashboard
+        </span>
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
                 <a class="nav-link" href="accounts.html">Manage Account</a>
             </li>
             <li class="nav-item">
+                <a class="nav-link" href="Gym-Profile.html">Manage Gym Profile</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" href="reports.html">Manage Reports</a>
             </li>
             <div class="nav-link">
-                <button class="btn btn-secondary mb-2" onclick="window.location.href='dashboard.html'">Back</button>
+                <button class="btn btn-secondary mb-2" onclick="window.location.href='login.html'">Log out</button>
             </div>
         </ul>
     </div>
+</div>
 </nav>
 <!-- Navigation Bar Ends -->
 
@@ -96,13 +73,12 @@
         </div>
     </div>
 </div>
-
 <!-- Add/Edit Account Modal -->
 <div class="modal fade" id="accountModal" tabindex="-1" role="dialog" aria-labelledby="accountModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="accountModalLabel">Update Account</h5>
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="accountModalLabel">Account Details</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -112,35 +88,39 @@
                     <input type="hidden" id="accountKey">
                     <div class="form-group">
                         <label for="username">Username</label>
-                        <input type="text" name="username" class="form-control" id="username" placeholder="Enter Username" required>
+                        <input type="text" name="username" class="form-control" id="username" readonly>
                     </div>
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="email" name="email" class="form-control" id="email" placeholder="Enter Email" required>
+                        <input type="email" name="email" class="form-control" id="email" readonly>
                     </div>
-                    <button type="submit" class="btn btn-primary">Save</button>
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <input type="text" name="status" class="form-control" id="status" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="role">Role</label>
+                        <input type="text" name="role" class="form-control" id="role" readonly>
+                    </div>
+                    <div class="form-group" id="specialFieldGroup"></div>
+                    <button type="button" class="btn btn-success" id="approveBtn" onclick="approveAccount()">Approve</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Toast Container -->
-<div id="toast-container" aria-live="polite" aria-atomic="true">
-    <div id="toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header">
-            <strong class="mr-auto" id="toast-title">Notification</strong>
-            <small>Just now</small>
-            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        <div class="toast-body" id="toast-body">
-            Toast content goes here
-        </div>
+
+<!-- Floating Notification Container -->
+<div id="notification-container" class="fixed-bottom d-flex justify-content-center align-items-center">
+    <div id="notification-message" class="alert alert-dismissible fade show" role="alert" style="display: none;">
+        <span id="notification-text"></span>
+        <button type="button" class="close" aria-label="Close" onclick="hideNotification()">
+            <span aria-hidden="true">&times;</span>
+        </button>
     </div>
 </div>
-
 
 
 <!-- Firebase App (the core Firebase SDK) -->
@@ -153,7 +133,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-<script src="Js/accounts.js"></script>
+<script src="src/Js/accounts.js"></script>
 
 </body>
 </html>

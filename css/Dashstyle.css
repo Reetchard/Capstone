@@ -73,7 +73,7 @@ body {
 }
 
 .hero {
-    background: url('LandPage1.jpg') no-repeat center center/cover;
+    background: url('framework/img/LandPage1.jpg') no-repeat center center/cover;
     color: #fff;
     text-align: center;
     padding: 150px 0;
@@ -578,3 +578,49 @@ body {
 .sidebar.open { width: 300px; }
 .main-content { margin-left: 250px; transition: margin-left 0.3s; }
 .main-content.shifted { margin-left: 300px; }
+.section {
+    padding: 40px 20px;
+    background-color: #f4f4f4;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+.text-center {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.services-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.service-item {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.service-item h3 {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.service-item p {
+    font-size: 16px;
+    color: #666;
+}
+
+.service-item ul {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
+.service-item ul li {
+    font-size: 16px;
+    color: #666;
+}

@@ -2,72 +2,186 @@
 <html lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trainer Registration - Gym Management System</title>
+    <title>Trainer Dashboard - Gym Management System</title>
     <link rel="stylesheet" href="style.css">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            overflow-x: hidden;
+        }
+        .sidebar {
+            height: 100vh;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #343a40;
+            color: white;
+            padding: 15px;
+            overflow-y: auto;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+        }
+        .sidebar a:hover {
+            background-color: #495057;
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        .card-header {
+            background-color: #343a40;
+            color: white;
+        }
+        .card {
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .form-control-file {
+            margin-bottom: 15px;
+        }
+        #photoPreview {
+            display: block;
+            width: 100px;
+            margin-top: 10px;
+        }
+        .btn-block {
+            margin-top: 20px;
+        }
+        .alert {
+            margin-top: 20px;
+        }
+        .notification-icon {
+            color: white;
+            font-size: 1.5rem;
+            margin-right: 15px;
+        }
+        .notification-icon:hover {
+            color: #ddd;
+        }
+        .chat-box {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        .chat-message {
+            margin-bottom: 10px;
+        }
+        .chat-message .message {
+            border-radius: 8px;
+            padding: 10px;
+            background-color: #f1f1f1;
+        }
+        .chat-message .trainer {
+            text-align: right;
+        }
+        .chat-input {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
 
-<!-- Navigation Bar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand" href="#"><img src="Styles/Logoo.ico" alt="Logo"> Peak Pulse</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav mr-auto">
-            <li class="nav-item">
-                <a class="nav-link" href="members.html">Members</a>
-            </li>
-        </ul>
-        <button class="btn btn-secondary my-2 my-sm-0" onclick="window.location.href='dashboard.html';">Back to Dashboard</button>
-    </div>
-</nav>
-<!-- Navigation Bar Ends -->
+<!-- Sidebar -->
+<div class="sidebar">
+    <h3 class="text-center">Trainer Dashboard</h3>
+    <a href="dashboard.html"><i class="fas fa-home"></i> Home</a>
+    <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+    <a href="members.html"><i class="fas fa-users"></i> Members</a>
+    <a href="trainers.html"><i class="fas fa-chalkboard-teacher"></i> Trainers</a>
+    <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+    <button class="btn btn-secondary btn-block" onclick="window.location.href='login.html';"><i class="fas fa-sign-out-alt"></i> Log out</button>
+</div>
+<!-- Sidebar Ends -->
 
-<!-- Trainer Registration Form -->
-<div class="container mt-4">
-    <div class="card">
-        <div class="card-header text-center">
-            <h2>Trainer Registration</h2>
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="#"><img src="Styles/Logoo.ico" alt="Logo"> Peak Pulse</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <span class="navbar-text mx-auto text-white">
+                Trainer Dashboard
+            </span>
+            <div class="ml-auto">
+                <i class="fas fa-bell notification-icon" data-toggle="tooltip" title="Notifications"></i>
+                <button class="btn btn-secondary" onclick="window.location.href='chat.html';"><i class="fas fa-comments"></i> Chat</button>
+            </div>
         </div>
-        <div class="card-body">
-            <form id="trainerForm">
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label for="name">Full Name</label>
-                        <input type="text" name="name" class="form-control" id="name" placeholder="Enter Full Name" required>
+    </nav>
+    <!-- Navigation Bar Ends -->
+
+    <!-- Trainer Dashboard Content -->
+    <div class="container mt-4">
+        <!-- Trainer Schedule -->
+        <div class="card">
+            <div class="card-header">
+                <h4>Upcoming Schedules</h4>
+            </div>
+            <div class="card-body">
+                <!-- Example schedules, you can dynamically populate this -->
+                <ul class="list-group">
+                    <li class="list-group-item">Session with John Doe - 10:00 AM, Aug 14, 2024</li>
+                    <li class="list-group-item">Yoga Class - 12:00 PM, Aug 14, 2024</li>
+                    <li class="list-group-item">Personal Training - 3:00 PM, Aug 15, 2024</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Members Section -->
+        <div class="card">
+            <div class="card-header">
+                <h4>Members</h4>
+            </div>
+            <div class="card-body">
+                <!-- Example members, you can dynamically populate this -->
+                <ul class="list-group">
+                    <li class="list-group-item">Jane Smith - <a href="member-profile.html">View Profile</a></li>
+                    <li class="list-group-item">Michael Brown - <a href="member-profile.html">View Profile</a></li>
+                    <li class="list-group-item">Emily Davis - <a href="member-profile.html">View Profile</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Real-time Chat -->
+        <div class="card">
+            <div class="card-header">
+                <h4>Chat</h4>
+            </div>
+            <div class="card-body">
+                <div class="chat-box" id="chatBox">
+                    <!-- Example chat messages -->
+                    <div class="chat-message trainer">
+                        <div class="message">Hi, how can I assist you today?</div>
                     </div>
-                    <div class="form-group col-md-6">
-                        <label for="experience">Experience (Years)</label>
-                        <input type="number" name="experience" class="form-control" id="experience" placeholder="Enter Experience" required>
+                    <div class="chat-message user">
+                        <div class="message">I have a question about my schedule.</div>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="experienceCertificates">Permit/Certificate</label>
-                    <input type="file" name="experienceCertificates" class="form-control-file" id="experienceCertificates" required>
+                <div class="chat-input">
+                    <input type="text" id="chatInput" class="form-control" placeholder="Type a message...">
+                    <button class="btn btn-primary mt-2" onclick="sendMessage()">Send</button>
                 </div>
-                <div class="form-group">
-                    <label for="experienceDetails">Experience/s</label>
-                    <input type="text" name="experienceDetails" class="form-control" id="experienceDetails" placeholder="Enter Experience Details" required>
-                </div>
-                <div class="form-group">
-                    <label for="profilePicture">Profile Picture</label>
-                    <input type="file" name="profilePicture" class="form-control-file" id="profilePicture" required>
-                    <img id="photoPreview" style="display: none; width: 100px; margin-top: 10px;">
-                </div>
-                <div class="form-group">
-                    <label for="expertise">Expertise</label>
-                    <input type="text" name="expertise" class="form-control" id="expertise" placeholder="Enter Expertise" required>
-                </div>
-                <button type="submit" name="submit" class="btn btn-primary btn-block">Save Trainer</button>
-                <div id="formMessage" class="mt-3"></div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
+<!-- Main Content Ends -->
 
 <!-- Firebase JS SDK -->
 <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
@@ -96,110 +210,37 @@
 
     const database = firebase.database();
     const storage = firebase.storage();
-    const trainerRef = database.ref('trainers');
 
-    // Function to generate a new Trainer ID
-    function generateTrainerId(callback) {
-        trainerRef.once('value', function(snapshot) {
-            const trainers = snapshot.val();
-            const newId = trainers ? Object.keys(trainers).length + 1 : 1;
-            callback(newId);
-        });
+    // Chat functionality
+    const chatBox = document.getElementById('chatBox');
+    const chatInput = document.getElementById('chatInput');
+    const chatRef = database.ref('chats');
+
+    function sendMessage() {
+        const message = chatInput.value.trim();
+        if (message) {
+            chatRef.push({
+                message: message,
+                sender: 'trainer', // Change to 'user' as needed
+                timestamp: new Date().toISOString()
+            });
+            chatInput.value = '';
+        }
     }
 
-    // Function to handle photo preview
-    document.getElementById('profilePicture').addEventListener('change', function(event) {
-        const file = event.target.files[0];
-        const photoPreview = document.getElementById('photoPreview');
-        
-        if (file) {
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                photoPreview.src = e.target.result;
-                photoPreview.style.display = 'block';
-            };
-            
-            reader.readAsDataURL(file);
-        } else {
-            photoPreview.src = '';
-            photoPreview.style.display = 'none';
-        }
+    chatRef.on('child_added', function(snapshot) {
+        const chatMessage = snapshot.val();
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('chat-message');
+        messageElement.classList.add(chatMessage.sender);
+        messageElement.innerHTML = `<div class="message">${chatMessage.message}</div>`;
+        chatBox.appendChild(messageElement);
+        chatBox.scrollTop = chatBox.scrollHeight;
     });
 
-    // Function to save trainer information
-    function saveTrainer(name, experience, experienceDetails, permitOrCertificate, profilePicture, expertise) {
-        generateTrainerId(function(newId) {
-            const trainerData = {
-                id: newId,
-                name: name,
-                experience: experience,
-                experienceDetails: experienceDetails,
-                expertise: expertise,
-                status: 'Active'
-            };
-
-            if (profilePicture) {
-                const storageRef = storage.ref('trainer_photos/' + profilePicture.name);
-                storageRef.put(profilePicture).then(() => {
-                    storageRef.getDownloadURL().then((url) => {
-                        trainerData.photoURL = url;
-                        if (permitOrCertificate) {
-                            const certificateRef = storage.ref('trainer_certificates/' + permitOrCertificate.name);
-                            certificateRef.put(permitOrCertificate).then(() => {
-                                certificateRef.getDownloadURL().then((certUrl) => {
-                                    trainerData.permitOrCertificateURL = certUrl;
-                                    trainerRef.push(trainerData, function(error) {
-                                        const formMessage = document.getElementById('formMessage');
-                                        if (error) {
-                                            formMessage.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
-                                        } else {
-                                            formMessage.innerHTML = `<div class="alert alert-success">Trainer information saved successfully!</div>`;
-                                            document.getElementById('trainerForm').reset();
-                                            document.getElementById('photoPreview').style.display = 'none';
-                                        }
-                                    });
-                                }).catch(error => showError("Failed to get certificate URL: " + error.message));
-                            }).catch(error => showError("Failed to upload certificate: " + error.message));
-                        } else {
-                            trainerRef.push(trainerData, function(error) {
-                                const formMessage = document.getElementById('formMessage');
-                                if (error) {
-                                    formMessage.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
-                                } else {
-                                    formMessage.innerHTML = `<div class="alert alert-success">Trainer information saved successfully!</div>`;
-                                    document.getElementById('trainerForm').reset();
-                                }
-                            });
-                        }
-                    }).catch(error => showError("Failed to get photo URL: " + error.message));
-                }).catch(error => showError("Failed to upload photo: " + error.message));
-            } else {
-                trainerRef.push(trainerData, function(error) {
-                    const formMessage = document.getElementById('formMessage');
-                    if (error) {
-                        formMessage.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
-                    } else {
-                        formMessage.innerHTML = `<div class="alert alert-success">Trainer information saved successfully!</div>`;
-                        document.getElementById('trainerForm').reset();
-                    }
-                });
-            }
-        });
-    }
-
-    // Event listener for trainer form submission
-    document.getElementById('trainerForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        const name = document.getElementById('name').value;
-        const experience = document.getElementById('experience').value;
-        const experienceDetails = document.getElementById('experienceDetails').value;
-        const permitOrCertificate = document.getElementById('experienceCertificates').files[0];
-        const profilePicture = document.getElementById('profilePicture').files[0];
-        const expertise = document.getElementById('expertise').value;
-
-        saveTrainer(name, experience, experienceDetails, permitOrCertificate, profilePicture, expertise);
+    // Notifications (Dummy example)
+    document.querySelector('.notification-icon').addEventListener('click', function() {
+        alert('You have new notifications!');
     });
 </script>
 

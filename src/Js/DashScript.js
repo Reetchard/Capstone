@@ -31,16 +31,13 @@ function createDropdownMenu(username, role) {
     const dropdownContent = document.querySelector('.dropdown-content');
     if (dropdownContent) {
         dropdownContent.innerHTML = ''; // Clear previous content
-
-        if (role === 'admin') {
-            dropdownContent.innerHTML += '<a href="accounts.html">Admin Management</a>';
-        } else if (role === 'gym_owner') {
+         if (role === 'gym_owner') {
             dropdownContent.innerHTML += '<a href="gym-profiling.html">Gym Owner Management</a>';
         } else if (role === 'trainer') {
             dropdownContent.innerHTML += '<a href="Trainer.html">Personal Information</a>';
         }
         
-        dropdownContent.innerHTML += '<a href="PeakPulse.html" id="logout">Log Out</a>';
+        dropdownContent.innerHTML += '<a href="index.html" id="logout">Log Out</a>';
 
         // Add event listener for logout
         document.getElementById('logout')?.addEventListener('click', () => {

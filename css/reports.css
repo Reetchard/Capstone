@@ -1,0 +1,90 @@
+/* Navbar Styles */
+.navbar-brand img {
+    height: 40px;
+}
+.navbar-nav .nav-link {
+    color: white;
+}
+.navbar-nav .nav-link:hover {
+    color: #f8f9fa;
+}
+.card {
+    max-width: 1200px;
+    margin: auto;
+}
+.form-inline {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+}
+.modal-body {
+    padding: 2rem;
+}
+.table-checkbox {
+    width: 20px;
+    height: 20px;
+}
+.delete-all-btn {
+    margin-left: auto;
+}
+.navbar {
+    background-color: #343a40; /* Dark color for the navbar */
+}
+/* Card Styles */
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 10px; /* Rounded corners */
+}
+
+.card:hover {
+    transform: scale(1.05); /* Slightly enlarge card on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow */
+}
+
+.card-body {
+    padding: 20px; /* Increase padding */
+}
+
+.card-title {
+    font-size: 1.25rem; /* Increase font size */
+}
+
+.card-text {
+    font-size: 1rem;
+}
+
+.card-header {
+    background-color: #007bff; /* Card header background color */
+    color: white; /* Text color for header */
+    border-bottom: 1px solid #0056b3; /* Border for header */
+}
+
+.card-footer {
+    background-color: #f8f9fa; /* Footer background color */
+}
+.navbar-text {
+    font-size: 1.25rem; /* Adjust size as needed */
+    font-weight: bold;  /* Optional: make it bold */
+}
+
+/* Ensure the navbar brand is not affected */
+.navbar-brand img {
+    height: 40px;
+}
+
+.navbar-nav .nav-link {
+    color: white;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #f8f9fa;
+}
+
+.navbar {
+    background-color: #343a40; /* Dark color for the navbar */
+}
+
+/* Ensures space for title and buttons on mobile */
+.navbar-collapse {
+    justify-content: space-between;
+}

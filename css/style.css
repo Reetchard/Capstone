@@ -247,3 +247,71 @@ form input {
     padding-left: 10px; /* Adjust container padding if needed */
     padding-right: 10px; /* Adjust container padding if needed */
 }
+.navbar-brand img {
+    height: 40px;
+}
+.navbar-nav .nav-link {
+    color: white;
+}
+.navbar-nav .nav-link:hover {
+    color: #f8f9fa;
+}
+.card {
+    max-width: 1200px;
+    margin: auto;
+}
+.form-inline {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+}
+.modal-body {
+    padding: 2rem;
+}
+.table-checkbox {
+    width: 20px;
+    height: 20px;
+}
+.delete-all-btn {
+    margin-left: auto;
+}
+.navbar {
+    background-color: #343a40; /* Dark color for the navbar */
+}
+/* Center align the navbar text */
+    .navbar-text {
+        font-size: 1.25rem; /* Adjust size as needed */
+        font-weight: bold;  /* Optional: make it bold */
+    }
+
+    /* Ensure the navbar brand is not affected */
+    .navbar-brand img {
+        height: 40px;
+    }
+
+    .navbar-nav .nav-link {
+        color: white;
+    }
+
+    .navbar-nav .nav-link:hover {
+        color: #f8f9fa;
+    }
+
+    .navbar {
+        background-color: #343a40; /* Dark color for the navbar */
+    }
+
+    /* Ensures space for title and buttons on mobile */
+    .navbar-collapse {
+        justify-content: space-between;
+    }
+    .navbar-nav .dropdown-menu {
+    background-color: #343a40; /* Match the navbar background */
+}
+.navbar-nav .dropdown-item {
+    color: #f8f9fa; /* Text color for items */
+}
+.navbar-nav .dropdown-item:hover {
+    background-color: #495057; /* Background color on hover */
+    color: #ffffff; /* Text color on hover */
+}

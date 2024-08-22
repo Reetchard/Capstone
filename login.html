@@ -2,300 +2,104 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            color: #333;
-        }
-        img {
-            width: 100%;
-        }
-        .login {
-            height: 100vh;
-            width: 100%;
-            background: url('Styles/LandPage.jpg') no-repeat center center/cover;
-            position: relative;
-        }
-        .login_box {
-            width: 90%;
-            max-width: 1050px;
-            height: 600px;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            display: flex;
-            overflow: hidden;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-        .login_box .left {
-            width: 100%;
-            max-width: 40%;
-            height: 100%;
-            padding: 30px;
-            background: linear-gradient(135deg, #f5f5f5, #fff);
-            border-right: 2px solid #ddd;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .login_box .right {
-            width: 60%;
-            height: 100%;
-            background: url('Styles/LandPage.jpg') no-repeat center center/cover;
-            color: #fff;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-        .left .top_link a {
-            color: #583672;
-            font-weight: bold;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-        }
-        .left .top_link a img {
-            width: 20px;
-            margin-right: 10px;
-        }
-        .left .contact {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            width: 100%;
-        }
-        .left h3 {
-            margin-bottom: 20px;
-            color: #333;
-        }
-        .left input {
-            border: 1px solid #ddd;
-            width: 100%;
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-        .error-message {
-            color: red;
-            text-align: center;
-            margin-top: 10px;
-        }
-        .submit {
-            border: none;
-            padding: 15px 70px;
-            border-radius: 5px;
-            display: block;
-            margin: 20px auto 10px;
-            background: #583672;
-            color: #fff;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-        .remember-me {
-            display: flex;
-            align-items: center;
-            margin: 10px 0;
-        }
-        .remember-me input {
-            margin-right: 5px;
-            transform: scale(1.2);
-        }
-        .remember-me label {
-            font-size: 13px;
-        }
-        .sign-up-link {
-            text-align: center;
-            margin-top: 15px;
-        }
-        .sign-up-link a {
-            color: #583672;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        .right .right-text {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-        .right-text h2 {
-            font-size: 50px;
-            font-weight: 700;
-            margin: 0;
-        }
-        .right-text h5 {
-            font-size: 20px;
-            font-weight: 400;
-            margin: 10px 0 0;
-        }
-        .right .right-inductor {
-            position: absolute;
-            width: 80px;
-            height: 8px;
-            background: #fff;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-radius: 5px;
-        }
-        @media (max-width: 768px) {
-            .login_box {
-                flex-direction: column;
-                height: auto;
-                max-width: 90%;
-            }
-            .login_box .left, .login_box .right {
-                width: 100%;
-                max-width: none;
-                padding: 20px;
-            }
-        }
-    </style>
+    <title>Login & Sign Up</title>
+    <link rel="stylesheet" href="css/login.css">
 </head>
 <body>
-    <section class="login">
-        <div class="login_box">
-            <div class="left">
-                <div class="top_link">
-                    <a href="PeakPulse.html">
-                        <img src="https://drive.google.com/u/0/uc?id=16U__U5dJdaTfNGobB_OpwAJ73vM50rPV&export=download" alt="">Return home
-                    </a>
+    <div class="video-background">
+        <video autoplay muted loop id="background-video">
+            <source src="video/GymLog.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+    <h2>PEAKPULSE</h2>
+    <div class="container" id="container">
+        <!-- Sign Up Form -->
+        <div class="form-container sign-up-container">
+            <form id="signupForm">
+                <h1>Create Account</h1>
+                <div class="social-container">
+                    <!-- Social login buttons can go here -->
                 </div>
-                <div class="contact">
-                    <form id="loginForm">
-                        <h3>LOG IN</h3>
-                        <input type="text" id="username" name="user" placeholder="USERNAME or EMAIL">
-                        <input type="password" id="password" name="pass" placeholder="PASSWORD">
-                        <button type="submit" class="submit">LET'S GO</button>
-                        <div id="error-message" class="error-message"></div>
-                        <div class="sign-up-link">
-                            <p>Don't have an account? <a href="signup.html">Sign Up Now</a></p>
-                        </div>
-                    </form>
+                <input type="text" id="signupUsername" placeholder="Name" />
+                <input type="email" id="signupEmail" placeholder="Email" />
+                <input type="password" id="signupPassword" placeholder="Password" />
+                <input type="password" id="confirmPassword" placeholder="Confirm Password" />
+                <select id="role">
+                    <option value="">Select role (optional)</option>
+                    <option value="user">User</option>
+                    <option value="gym_owner">Gym Owner</option>
+                    <option value="trainer">Trainer</option>
+                </select>
+                <button type="submit">Sign Up</button>
+                <div id="signupErrorMessage" class="error-message"></div>
+
+                <!-- Success message container -->
+                <div id="signupSuccessMessage" class="success-message"></div>
+            </form>
+        </div>
+        <!-- Sign In Form -->
+        <div class="form-container sign-in-container">
+            <form id="loginForm">
+                <h1>Log In</h1>
+                <div class="social-container">
+                    <!-- Social login buttons can go here -->
                 </div>
-            </div>
-            <div class="right">
-                <div class="right-text">
-                    <h2>PEAK PULSE</h2>
-                    <h5>Enhance Your Strength!</h5>
+                <input type="text" id="loginUsername" placeholder="Username or Email" />
+                <input type="password" id="loginPassword" placeholder="Password" />
+                <a href="#">Forgot your password?</a>
+                <button type="submit">Log in</button>
+                <div id="error-message" class="error-message"></div>
+            </form>
+        </div>
+
+        <!-- Overlay -->
+        <div class="overlay-container">
+            <div class="overlay">
+                <div class="overlay-panel overlay-left">
+                    <h1>Welcome Back!</h1>
+                    <p>Enhance your Strength</p>
+                    <button class="ghost" id="signIn">Sign In</button>
                 </div>
-                <div class="right-inductor"></div>
+                <div class="overlay-panel overlay-right">
+                    <h1>Hello, Friend!</h1>
+                    <p>We keep your Account Safe!</p>
+                    <button class="ghost" id="signUp">Sign Up</button>
+                </div>
             </div>
         </div>
-    </section>
+    </div>
+        <!-- Error message container -->
+    <div id="error-message" class="message-container error-container"style="display:none;></div>
 
-    <!-- Firebase SDKs -->
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.2.0/firebase-app.js';
-        import { getAuth, signInWithEmailAndPassword, setPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/9.2.0/firebase-auth.js';
-        import { getDatabase, ref, query, orderByChild, equalTo, get } from 'https://www.gstatic.com/firebasejs/9.2.0/firebase-database.js';
+    <!-- Success message container -->
+    <div id="signupSuccessMessage" class="message-container success-container"></div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyAPNGokBic6CFHzuuENDHdJrMEn6rSE92c",
-            authDomain: "capstone40-project.firebaseapp.com",
-            databaseURL: "https://capstone40-project-default-rtdb.firebaseio.com",
-            projectId: "capstone40-project",
-            storageBucket: "capstone40-project.appspot.com",
-            messagingSenderId: "399081968589",
-            appId: "1:399081968589:web:5b502a4ebf245e817aaa84",
-            measurementId: "G-CDP5BCS8EY"
-        };
+    <!-- Gym owner form container -->
+    <div class="gym-owner-form-container" style="display: none;">
+        <!-- Your gym owner form goes here -->
+    </div>
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const database = getDatabase(app);
 
-        function signInWithEmail(email, password, errorMessage) {
-            setPersistence(auth, browserSessionPersistence)
-                .then(() => signInWithEmailAndPassword(auth, email, password))
-                .then((userCredential) => {
-                    // Signed in
-                    const user = userCredential.user;
-                    const userId = user.uid;
-                    const userRef = ref(database, 'Accounts/' + userId);
-                    get(userRef).then((snapshot) => {
-                        if (snapshot.exists()) {
-                            const userData = snapshot.val();
-                            const role = userData.role || 'user'; // Default to 'user' if no role is found
-                            if (role === 'admin') {
-                                window.location.href = "Dashboard.html";
-                            } else if (role === 'gym_owner') {
-                                window.location.href = "Dashboard.html";
-                            } else {
-                                window.location.href = "Dashboard.html";
-                            }
-                        } else {
-                            window.location.href = "Dashboard.html"; // Default role redirection
-                        }
-                    });
-                })
-                .catch((error) => {
-                    console.error("SignIn Error:", error.code, error.message);
-                    errorMessage.textContent = 'PeakPulse says: ' + error.message;
-                });
-        }
-
-        document.getElementById('loginForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value;
-            const errorMessage = document.getElementById('error-message');
-
-            // Clear previous error message
-            errorMessage.textContent = '';
-
-            if (username === '' || password === '') {
-                errorMessage.textContent = 'Please enter both username and password.';
-                return;
-            }
-
-            if (username.includes('@')) {
-                // Attempt login with email
-                signInWithEmail(username, password, errorMessage);
-            } else {
-                // Attempt login with username
-                const accountsRef = ref(database, 'Accounts');
-                const queryRef = query(accountsRef, orderByChild('username'), equalTo(username));
-
-                get(queryRef)
-                    .then((snapshot) => {
-                        if (snapshot.exists()) {
-                            snapshot.forEach((childSnapshot) => {
-                                const userData = childSnapshot.val();
-                                const email = userData.email;
-                                if (email) {
-                                    signInWithEmail(email, password, errorMessage);
-                                } else {
-                                    errorMessage.textContent = 'No email associated with this username.';
-                                }
-                            });
-                        } else {
-                            errorMessage.textContent = 'Invalid username or email.';
-                        }
-                    })
-                    .catch((error) => {
-                        console.error(error.code, error.message);
-                        errorMessage.textContent = error.message;
-                    });
-            }
+    <script>
+        const signUpButton = document.getElementById('signUp');
+        const signInButton = document.getElementById('signIn');
+        const container = document.getElementById('container');
+        
+        signUpButton.addEventListener('click', () => {
+            container.classList.add("right-panel-active");
         });
-
-        // Handle Sign Up Link
-        document.querySelector('.sign-up-link a').addEventListener('click', function(event) {
-            event.preventDefault();
-            window.location.href = "signup.html";
+        
+        signInButton.addEventListener('click', () => {
+            container.classList.remove("right-panel-active");
         });
     </script>
+    <footer>
+        <p>
+            © 2024 PeakPulse. All rights reserved.
+        </p>
+    </footer>
+    <script type="module" src="src/Js/login.js"></script>
 </body>
 </html>
