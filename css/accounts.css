@@ -1,3 +1,49 @@
+/* Navbar Styling */
+.navbar {
+    background-color: #343a40; /* Dark color for the navbar */
+    padding: 0.75rem 1.5rem; /* Added padding for better spacing */
+    border-bottom: 2px solid #6c757d; /* Slightly darker bottom border */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow for a floating effect */
+}
+
+.navbar-brand img {
+    height: 40px; /* Logo size */
+    margin-right: 10px; /* Space between logo and brand name */
+    transition: transform 0.3s ease; /* Smooth scale effect */
+}
+
+.navbar-brand img:hover {
+    transform: scale(1.1); /* Slightly enlarge logo on hover */
+}
+
+.navbar-nav .nav-link {
+    color: #ffffff; /* Light color for text */
+    font-size: 1rem; /* Font size for readability */
+    text-decoration: none; /* Remove underline from links */
+    padding: 0.5rem 1rem; /* Padding for better spacing */
+    transition: color 0.3s ease, background-color 0.3s ease; /* Smooth color transition */
+}
+
+.navbar-nav .nav-link:hover {
+    color: #f8f9fa; /* Lighten color on hover */
+    background-color: #495057; /* Slightly lighter background on hover */
+    border-radius: 4px; /* Rounded corners on hover */
+}
+
+.navbar-nav .nav-item {
+    margin-left: 1rem; /* Spacing between menu items */
+}
+
+.navbar-toggler {
+    border: none; /* Remove border from the toggle button */
+    background: transparent; /* Ensure no background */
+}
+
+.navbar-toggler-icon {
+    background-image: url('data:image/svg+xml;charset=utf8,...'); /* Custom icon if needed */
+}
+
+
 /* Modal transition */
 .modal-dialog {
     transition: transform 0.3s ease;
@@ -6,132 +52,153 @@
 .modal-dialog.show {
     transform: translateY(0);
 }
-        /* Navbar styling */
-        .navbar {
-            background-color: #343a40; /* Dark color for the navbar */
-        }
-        .navbar-brand img {
-            height: 40px;
-        }
-        .navbar-nav .nav-link {
-            color: #f8f9fa;
-        }
-        .navbar-nav .nav-link:hover {
-            color: #adb5bd;
-        }
 
-        /* Card and table styling */
-        .card {
-            border-radius: 0.5rem;
-            overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-        }
-        .table th, .table td {
-            vertical-align: middle;
-        }
-            /* Modal styling */
-            .modal-dialog {
-                transform: translateY(30px);
-                display: flex;
-                justify-content: center; /* Center horizontally */
-                align-items: center; /* Center vertically */
-            }
+/* Card and table styling */
+.card {
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
 
-            .modal-dialog.show {
-                transform: translateY(0);
-            }
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
 
-            .modal-content {
-                border-radius: 0.5rem;
-                transition: transform 0.3s ease;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
+.table th, .table td {
+    vertical-align: middle;
+}
 
-            #notification-container {
-                bottom: 20px; /* Adjust this value to set the distance from the bottom */
-                z-index: 1050; /* Ensure it's above other content */
-            }
-            
-            #notification-message {
-                width: auto;
-                max-width: 300px;
-                padding: 15px;
-                background-color: #f8d7da; /* Red background for errors, change as needed */
-                color: #721c24; /* Red text color for errors, change as needed */
-                border: 1px solid #f5c6cb; /* Light red border */
-                border-radius: 0.25rem;
-            }
-            
-            #notification-message.success {
-                background-color: #d4edda;
-                color: #155724;
-                border: 1px solid #c3e6cb;
-            }
-            
-            #notification-message.info {
-                background-color: #d1ecf1;
-                color: #0c5460;
-                border: 1px solid #bee5eb;
-            }
-            
-            #notification-message.warning {
-                background-color: #fff3cd;
-                color: #856404;
-                border: 1px solid #ffeeba;
-            }
+/* Modal styling */
+.modal-dialog {
+    transform: translateY(30px);
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+}
 
-            /* General spacing and padding */
-            .container {
-                margin-top: 2rem;
-            }
+.modal-dialog.show {
+    transform: translateY(0);
+}
 
-            .form-inline {
-                margin-bottom: 1rem;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-            }
+.modal-content {
+    border-radius: 0.5rem;
+    transition: transform 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-            /* Centering messages in form elements */
-            .form-message {
-                text-align: center; /* Center text inside the form message */
-                margin-top: 1rem;
-            }
-            /* Floating Notification Styles */
-            .notification-container {
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                z-index: 9999;
-            }
+/* Notification Styles */
+#notification-container {
+    bottom: 20px; /* Adjust this value to set the distance from the bottom */
+    right: 20px; /* Right alignment */
+    z-index: 1050; /* Ensure it's above other content */
+}
 
-            .notification-message {
-                display: none;
-                padding: 15px;
-                border-radius: 5px;
-                color: #fff;
-                font-size: 16px;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-                opacity: 0;
-                transition: opacity 0.5s ease, transform 0.5s ease;
-                transform: translateY(20px);
-            }
+#notification-message {
+    width: auto;
+    max-width: 300px;
+    padding: 15px;
+    border-radius: 0.25rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for elevation effect */
+    color: #fff; /* Default text color */
+    opacity: 0;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    transform: translateY(20px);
+}
 
-            .notification-message.success {
-                background-color: #28a745; /* Green */
-            }
+#notification-message.success {
+    background-color: #28a745; /* Green for success */
+    color: #fff;
+}
 
-            .notification-message.error {
-                background-color: #dc3545; /* Red */
-            }
+#notification-message.error {
+    background-color: #dc3545; /* Red for errors */
+    color: #fff;
+}
 
-            .notification-message.info {
-                background-color: #17a2b8; /* Teal */
-            }
+#notification-message.info {
+    background-color: #17a2b8; /* Teal for information */
+    color: #fff;
+}
+
+#notification-message.warning {
+    background-color: #ffc107; /* Yellow for warnings */
+    color: #212529; /* Dark text for better readability */
+}
+
+/* General spacing and padding */
+.container {
+    margin-top: 2rem;
+}
+
+.form-inline {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Centering messages in form elements */
+.form-message {
+    text-align: center; /* Center text inside the form message */
+    margin-top: 1rem;
+}
+
+/* Floating Notification Styles */
+.notification-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+.notification-message {
+    display: none;
+    padding: 15px;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 16px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    transform: translateY(20px);
+}
+
+.notification-message.success {
+    background-color: #28a745; /* Green */
+}
+
+.notification-message.error {
+    background-color: #dc3545; /* Red */
+}
+
+.notification-message.info {
+    background-color: #17a2b8; /* Teal */
+}
+/* Base styles for mobile and small screens (default) */
+
+/* Tablet (portrait) and up */
+@media (min-width: 576px) {
+    .navbar {
+        padding: 0.75rem 1.5rem; /* Increase padding for tablets */
+    }
+
+    .navbar-brand img {
+        height: 45px; /* Adjust logo size for tablets */
+    }
+
+    .navbar-nav .nav-link {
+        font-size: 0.875rem; /* Slightly smaller text for tablets */
+    }
+
+    .card {
+        border-radius: 0.75rem; /* Slightly rounded corners */
+    }
+
+    .modal-content {
+        width: 90vw; /* Make modals responsive */
+    }
+}

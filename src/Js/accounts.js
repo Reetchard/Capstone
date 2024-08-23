@@ -43,7 +43,7 @@ const accountRef = database.ref('Accounts');
                                     <td><a href="#" onclick="viewAccountDetails('${key}'); return false;">${account.username || 'N/A'}</a></td>
                                     <td>${status}</td>
                                     <td>
-                                        <button class="btn btn-info btn-sm" onclick="setStatus('${key}', 'Still under review')">Review</button>
+                                        <button class="btn btn-info btn-sm" onclick="setStatus('${key}', 'Under review')">Review</button>
                                         <button class="btn btn-success btn-sm" onclick="setStatus('${key}', 'Approved')">Approve</button>
                                         <button class="btn btn-danger btn-sm" onclick="blockAccount('${key}')">Block</button>
                                     </td>

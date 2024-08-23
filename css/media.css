@@ -1,0 +1,62 @@
+
+/* Media Queries for Responsive Design */
+
+/* Tablet (portrait) and up */
+@media (min-width: 576px) {
+    .navbar {
+        padding: 1rem 2rem; /* Increased padding for tablets */
+    }
+
+    .navbar-brand img {
+        height: 45px; /* Adjust logo size for tablets */
+    }
+
+    .navbar-nav .nav-link {
+        font-size: 0.875rem; /* Slightly smaller text for tablets */
+    }
+}
+
+/* Tablet (landscape) and up */
+@media (min-width: 768px) {
+    .navbar {
+        padding: 1rem 2.5rem; /* More padding for larger tablets */
+    }
+
+    .navbar-brand img {
+        height: 50px; /* Adjust logo size for larger tablets */
+    }
+
+    .navbar-nav .nav-link {
+        font-size: 1rem; /* Default font size for larger tablets */
+    }
+}
+
+/* Laptop and up */
+@media (min-width: 992px) {
+    .navbar {
+        padding: 1rem 3rem; /* Extra padding for laptops */
+    }
+
+    .navbar-brand img {
+        height: 55px; /* Larger logo for laptops */
+    }
+
+    .navbar-nav .nav-link {
+        font-size: 1.125rem; /* Larger text for readability on laptops */
+    }
+}
+
+/* Large desktops and up */
+@media (min-width: 1200px) {
+    .navbar {
+        padding: 1rem 3.5rem; /* More padding for large screens */
+    }
+
+    .navbar-brand img {
+        height: 60px; /* Larger logo for large screens */
+    }
+
+    .navbar-nav .nav-link {
+        font-size: 1.25rem; /* Larger text for large desktops */
+    }
+}

@@ -54,6 +54,20 @@ function signUpWithEmail(email, password, username, role, errorMessageElement, s
         });
     }
 
+    function showErrorMessage(element, message) {
+        element.textContent = message;
+        setTimeout(() => {
+            element.textContent = '';
+        }, 2000); // Hide after 2 seconds
+    }
+
+    function showSuccessMessage(element, message) {
+        element.textContent = message;
+        setTimeout(() => {
+            element.textContent = '';
+        }, 2000); // Hide after 2 seconds
+    }
+
     // Sign up the user and set the user details in the database
     createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
@@ -82,17 +96,25 @@ function signUpWithEmail(email, password, username, role, errorMessageElement, s
             });
         })
         .then((roleId) => {
-            successMessageElement.textContent = 'Sign up successful!';
-            setTimeout(() => {
-                successMessageElement.textContent = '';
-            }, 2000); // 2 seconds delay for hiding success message
-            document.getElementById('signupForm').reset();
+            showSuccessMessage(successMessageElement, 'Sign up successful!');
+            
+            // Redirect Gym Owners to the GymForm if their role is 'gym_owner'
+            if (role.toLowerCase() === 'gym_owner') {
+                setTimeout(() => {
+                    window.location.href = 'GymForm.html'; // Redirect to GymForm.html
+                }, 2000); // Delay to allow the success message to be seen
+            } else {
+                // No additional redirection needed for other roles
+                setTimeout(() => {
+                    document.getElementById('signupForm').reset();
+                }, 2000); // Delay to allow the success message to be seen
+            }
         })
         .catch((error) => {
-            console.error("Sign Up Error:", error.code, error.message);
             showErrorMessage(errorMessageElement, 'PeakPulse says: ' + error.message);
         });
 }
+
 
 // Function to sign in with email or username
 function signInWithEmailOrUsername(username, password, errorMessage) {
@@ -132,27 +154,20 @@ function signInWithEmailOrUsername(username, password, errorMessage) {
                     }
 
                     // Check user status and role
-                    if (status === 'under review') {
-                        showErrorMessage(errorMessage, 'Your account is under review. Please wait until it is approved by an admin.');
-                        return;
-                    }
+                        if (status === 'Under review') {
+                            showErrorMessage(errorMessage, 'Your account is under review. Please wait until it is approved by an admin.');
+                            return;
+                        }
 
                     if (role.toLowerCase() === 'admin') {
                         // Redirect admin to accounts.html
                         window.location.href = "accounts.html";
                         return;
                     }
-
-                    // Handle non-admin roles and account statuses
-                    if (status === 'pending') {
-                        showErrorMessage(errorMessage, 'Your account is under review. We will notify you via email once it is approved.');
-                        return;
-                    }
-
                     // Redirect based on user role
                     switch (role) {
                         case 'GYM_OWNER':
-                            window.location.href = "GymForm.html";
+                            window.location.href = "GymDashboard.html";
                             break;
                         case 'TRAINER':
                             window.location.href = "trainer.html";

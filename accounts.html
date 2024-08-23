@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Management Dashboard</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/media.css">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <!-- FontAwesome CSS -->
@@ -73,44 +74,142 @@
         </div>
     </div>
 </div>
-<!-- Add/Edit Account Modal -->
-<div class="modal fade" id="accountModal" tabindex="-1" role="dialog" aria-labelledby="accountModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="accountModalLabel">Account Details</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="accountForm">
-                    <input type="hidden" id="accountKey">
-                    <div class="form-group">
-                        <label for="username">Username</label>
-                        <input type="text" name="username" class="form-control" id="username" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" name="email" class="form-control" id="email" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="status">Status</label>
-                        <input type="text" name="status" class="form-control" id="status" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="role">Role</label>
-                        <input type="text" name="role" class="form-control" id="role" readonly>
-                    </div>
-                    <div class="form-group" id="specialFieldGroup"></div>
-                    <button type="button" class="btn btn-success" id="approveBtn" onclick="approveAccount()">Approve</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                </form>
+    <!-- Add/Edit Account Modal -->
+    <div class="modal fade" id="accountModal" tabindex="-1" role="dialog" aria-labelledby="accountModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="accountModalLabel">Account Details</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="accountForm">
+                        <input type="hidden" id="accountKey">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" name="username" class="form-control" id="username" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" name="email" class="form-control" id="email" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <input type="text" name="status" class="form-control" id="status" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="role">Role</label>
+                            <input type="text" name="role" class="form-control" id="role" readonly>
+                        </div>
+                        <div class="form-group" id="specialFieldGroup"></div>
+                        <button type="button" class="btn btn-success" id="approveBtn" onclick="approveAccount()">Approve</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
-
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="text-center">Manage Gym Forms</h2>
+                <div class="form-inline">
+                    <input type="text" id="searchGymFormId" class="form-control mr-2" placeholder="Search by Gym ID">
+                    <button class="btn btn-primary" onclick="searchGymForm()">Search</button>
+                    <button class="btn btn-danger ml-2 delete-all-btn" onclick="deleteSelectedGymForms()">Delete All</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="selectAllGymForms" onclick="toggleSelectAllGymForms(this)"></th>
+                            <th>Gym Name</th>
+                            <th>Address</th>
+                            <th>Phone</th>
+                            <th>Certifications</th>
+                            <th>Equipment</th>
+                            <th>Contact</th>
+                            <th>Programs</th>
+                            <th>Open Time</th>
+                            <th>Closing Time</th>
+                            <th>Location</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gymFormInfoBody">
+                        <!-- Gym Form information will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add/Edit Gym Form Modal -->
+    <div class="modal fade" id="gymFormModal" tabindex="-1" role="dialog" aria-labelledby="gymFormModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="gymFormModalLabel">Gym Form Details</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="gymForm">
+                        <input type="hidden" id="gymFormId">
+                        <div class="form-group">
+                            <label for="gymName">Gym Name</label>
+                            <input type="text" name="gymName" class="form-control" id="gymName" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <input type="text" name="address" class="form-control" id="address" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="text" name="phone" class="form-control" id="phone" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="website">Website</label>
+                            <input type="text" name="website" class="form-control" id="website" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="certifications">Certifications</label>
+                            <input type="text" name="certifications" class="form-control" id="certifications" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="equipment">Equipment</label>
+                            <input type="text" name="equipment" class="form-control" id="equipment" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="contact">Contact</label>
+                            <input type="text" name="contact" class="form-control" id="contact" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="programs">Programs</label>
+                            <input type="text" name="programs" class="form-control" id="programs" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="openTime">Open Time</label>
+                            <input type="text" name="openTime" class="form-control" id="openTime" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="closingTime">Closing Time</label>
+                            <input type="text" name="closingTime" class="form-control" id="closingTime" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="location">Location</label>
+                            <input type="text" name="location" class="form-control" id="location" readonly>
+                        </div>
+                        <button type="button" class="btn btn-success" id="approveBtn" onclick="approveGymForm()">Approve</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>   
 
 <!-- Floating Notification Container -->
 <div id="notification-container" class="fixed-bottom d-flex justify-content-center align-items-center">

@@ -16,29 +16,29 @@
     <h2>PEAKPULSE</h2>
     <div class="container" id="container">
         <!-- Sign Up Form -->
-        <div class="form-container sign-up-container">
-            <form id="signupForm">
-                <h1>Create Account</h1>
-                <div class="social-container">
-                    <!-- Social login buttons can go here -->
-                </div>
-                <input type="text" id="signupUsername" placeholder="Name" />
-                <input type="email" id="signupEmail" placeholder="Email" />
-                <input type="password" id="signupPassword" placeholder="Password" />
-                <input type="password" id="confirmPassword" placeholder="Confirm Password" />
-                <select id="role">
-                    <option value="">Select role (optional)</option>
-                    <option value="user">User</option>
-                    <option value="gym_owner">Gym Owner</option>
-                    <option value="trainer">Trainer</option>
-                </select>
-                <button type="submit">Sign Up</button>
-                <div id="signupErrorMessage" class="error-message"></div>
-
-                <!-- Success message container -->
-                <div id="signupSuccessMessage" class="success-message"></div>
-            </form>
-        </div>
+        <div class="container" id="container">
+            <!-- Sign Up Form -->
+            <div class="form-container sign-up-container">
+                <form id="signupForm">
+                    <h1>Create Account</h1>
+                    <div class="social-container">
+                        <!-- Social login buttons can go here -->
+                    </div>
+                    <input type="text" id="signupUsername" placeholder="Name" />
+                    <input type="email" id="signupEmail" placeholder="Email" />
+                    <input type="password" id="signupPassword" placeholder="Password" />
+                    <input type="password" id="confirmPassword" placeholder="Confirm Password" />
+                    <select id="role">
+                        <option value="">Select role (optional)</option>
+                        <option value="user">User</option>
+                        <option value="gym_owner">Gym Owner</option>
+                        <option value="trainer">Trainer</option>
+                    </select>
+                    <button type="submit">Sign Up</button>
+                    <div id="signupErrorMessage" class="error-message"></div>
+                    <div id="signupSuccessMessage" class="success-message"></div>
+                </form>
+            </div>
         <!-- Sign In Form -->
         <div class="form-container sign-in-container">
             <form id="loginForm">
@@ -80,6 +80,8 @@
     <div class="gym-owner-form-container" style="display: none;">
         <!-- Your gym owner form goes here -->
     </div>
+    <!-- Example of an element that should exist in the HTML -->
+    <div id="loginErrorMessage" class="error-message"></div>
 
 
     <script>

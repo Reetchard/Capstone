@@ -163,38 +163,30 @@ h1 {
 }
 
 /* Message Styles */
-.error-message,
-.success-message {
-    display: none;
-    font-size: 1em;
-    padding: 12px;
-    border-radius: 6px;
-    position: relative;
-    margin: 20px 0;
-    transition: opacity 0.5s, visibility 0.5s;
+.error-message, .success-message {
+    display: none; /* Hide messages by default */
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 15px;
 }
 
 .error-message {
-    background-color: #fef2f2; /* Light red background */
-    color: #dc2626; /* Dark red text */
-    border: 1px solid #fca5a5; /* Light red border */
-    text-align: center;
+    background-color: #dc3545; /* Red background for errors */
+    color: #fff;
 }
 
 .success-message {
-    background-color: #d1fae5; /* Light green background */
-    color: #059669; /* Dark green text */
-    border: 1px solid #86efac; /* Light green border */
-    text-align: center;
+    background-color: #28a745; /* Green background for success */
+    color: #fff;
 }
 
-/* Info Message Styles */
+
 .info-message {
-    background-color: #fef9c3; /* Light yellow background */
-    color: #d97706; /* Dark yellow text */
-    border: 1px solid #fef08a; /* Light yellow border */
-    padding: 12px;
-    border-radius: 6px;
-    text-align: center;
-    margin: 20px 0;
+    display: none; /* Hide by default */
+    padding: 15px;
+    background-color: #d1ecf1; /* Light blue background for info */
+    color: #0c5460; /* Darker blue text */
+    border: 1px solid #bee5eb; /* Light blue border */
+    border-radius: 0.25rem;
+    margin-top: 15px;
 }

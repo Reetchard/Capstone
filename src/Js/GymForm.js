@@ -54,70 +54,42 @@ import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "http
         event.preventDefault();
     
         const gymName = document.getElementById('gymName').value;
-        const gymLocation = document.getElementById('gymLocation').value;
         const gymCertifications = document.getElementById('gymCertifications').files[0];
         const gymEquipment = document.getElementById('gymEquipment').value;
         const gymContact = document.getElementById('gymContact').value;
         const gymPrograms = document.getElementById('gymPrograms').value;
         const gymOpeningTime = document.getElementById('gymOpeningTime').value;
         const gymClosingTime = document.getElementById('gymClosingTime').value;
+        const gymLocation = document.getElementById('gymLocation').value;
     
-        const errorMessage = document.getElementById('gymOwnerFormErrorMessage');
-        const successMessage = document.getElementById('gymOwnerFormSuccessMessage');
-    
-        if (!gymName || !gymLocation || !gymCertifications || !gymEquipment || !gymContact || !gymPrograms || !gymOpeningTime || !gymClosingTime) {
-            showError("Please fill in all required fields.");
+        if (!gymName || !gymCertifications || !gymEquipment || !gymContact || !gymPrograms || !gymOpeningTime || !gymClosingTime || !gymLocation) {
+            document.getElementById('gymOwnerFormErrorMessage').innerText = 'Please fill in all required fields.';
             return;
         }
     
-        try {
-            const gymId = await getNextGymId();
+        // Upload certifications image
+        const certificationsRef = storageRef(storage, 'certifications/' + gymCertifications.name);
+        await uploadBytes(certificationsRef, gymCertifications);
     
-            // Create a reference to the file in Firebase Storage
-            const certStorageRef = storageRef(storage, `gym_certifications/${gymId}`);
-            const uploadTask = uploadBytes(certStorageRef, gymCertifications);
+        // Save form data to Firebase
+        const gymFormRef = ref(database, 'GymForms/' + Date.now()); // Using timestamp as GymID
+        await set(gymFormRef, {
+            gymName,
+            certifications: gymCertifications.name,
+            gymEquipment,
+            gymContact,
+            gymPrograms,
+            gymOpeningTime,
+            gymClosingTime,
+            gymLocation
+        });
     
-            uploadTask.then(async (snapshot) => {
-                // Get the download URL from Firebase Storage
-                const downloadURL = await getDownloadURL(certStorageRef);
+        // Set a flag in local storage to indicate form submission
+        localStorage.setItem('formSubmitted', 'true');
     
-                // Save form data to Firebase Database
-                const gymData = {
-                    id: gymId,
-                    name: gymName,
-                    location: gymLocation,
-                    permits: downloadURL,
-                    equipment: gymEquipment,
-                    contact: gymContact,
-                    programs: gymPrograms,
-                    schedule: {
-                        openingTime: gymOpeningTime,
-                        closingTime: gymClosingTime
-                    },
-                    status: 'pending'
-                };
-    
-                await set(ref(database, 'gyms/' + gymId), gymData);
-    
-                successMessage.textContent = "Gym details submitted successfully!";
-                errorMessage.textContent = '';
-                successMessage.style.display = 'block';
-                setTimeout(() => {
-                    successMessage.style.display = 'none';
-                }, 1500);
-    
-                // Clear the form
-                document.getElementById('gymOwnerDetailsForm').reset();
-            }).catch((error) => {
-                console.error('Error uploading file:', error);
-                showError("Failed to upload certifications.");
-            });
-        } catch (error) {
-            showError("An error occurred. Please try again.");
-            console.error('Error submitting gym details:', error);
-        }
+        // Show success message
+        document.getElementById('gymOwnerFormSuccessMessage').innerText = 'Form submitted successfully! Please wait for admin approval.';
     });
-
 
     function initMap() {
         // Coordinates for Lapu-Lapu City, Cebu, Philippines
@@ -249,3 +221,140 @@ import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "http
             });
         }
     });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('gymOwnerDetailsForm');
+        const errorMessage = document.getElementById('gymOwnerFormErrorMessage');
+        const successMessage = document.getElementById('gymOwnerFormSuccessMessage');
+    
+        // Initialize Flatpickr (if needed)
+        flatpickr("#gymOpeningTime, #gymClosingTime", {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: "h:i K"
+        });
+    
+        // Google Maps setup
+        let map;
+        const locationInput = document.getElementById('gymLocation');
+        const autocomplete = new google.maps.places.Autocomplete(locationInput);
+    
+        autocomplete.addListener('place_changed', function() {
+            const place = autocomplete.getPlace();
+            if (!place.geometry) {
+                // User entered the name of a place that was not suggested
+                return;
+            }
+    
+            // Map setup
+            if (!map) {
+                map = new google.maps.Map(document.getElementById('map'), {
+                    center: place.geometry.location,
+                    zoom: 15
+                });
+            }
+    
+            map.setCenter(place.geometry.location);
+            map.setZoom(15);
+    
+            new google.maps.Marker({
+                position: place.geometry.location,
+                map: map
+            });
+        });
+    
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+    
+            // Clear previous messages
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+    
+            let hasError = false;
+    
+            // Validation
+            const requiredFields = [
+                'gymName', 'gymCertifications', 'gymEquipment', 'gymContact', 
+                'gymPrograms', 'gymOpeningTime', 'gymClosingTime', 'gymLocation'
+            ];
+    
+            requiredFields.forEach(function(fieldId) {
+                const field = document.getElementById(fieldId);
+                if (!field.value.trim()) {
+                    field.style.border = '1px solid #dc3545'; // Red border for errors
+                    hasError = true;
+                } else {
+                    field.style.border = ''; // Remove error border
+                }
+            });
+    
+            if (hasError) {
+                errorMessage.textContent = 'Please fill out all required fields.';
+                errorMessage.style.display = 'block';
+                return;
+            }
+    
+            // Simulate form submission
+            setTimeout(function() {
+                successMessage.textContent = 'Form submitted successfully!';
+                successMessage.style.display = 'block';
+            }, 500);
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('gymOwnerDetailsForm');
+        const errorMessage = document.getElementById('gymOwnerFormErrorMessage');
+        const successMessage = document.getElementById('gymOwnerFormSuccessMessage');
+        const infoMessage = document.getElementById('infoMessage');
+    
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault(); // Prevent default form submission
+    
+            // Clear previous messages
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+            infoMessage.style.display = 'none'; // Hide the static message initially
+    
+            // Get form data
+            const formData = new FormData(form);
+    
+            // Basic validation example
+            let hasErrors = false;
+            for (let [key, value] of formData.entries()) {
+                if (!value) {
+                    hasErrors = true;
+                    errorMessage.textContent = `Please fill out the ${key} field.`;
+                    break;
+                }
+            }
+    
+            if (hasErrors) {
+                errorMessage.style.display = 'block';
+                return; // Stop processing if there are errors
+            }
+    
+            // Process form data and interact with Firebase
+            try {
+                // Example of uploading data to Firebase
+                // Note: Replace with your actual Firebase logic
+                const database = firebase.database();
+                const storage = firebase.storage();
+    
+                // Example: Save form data to Firebase Realtime Database
+                await database.ref('gyms').push(Object.fromEntries(formData));
+    
+                // Show success message
+                successMessage.textContent = 'Your gym details have been submitted successfully.';
+                successMessage.style.display = 'block';
+    
+                // Show the static message
+                infoMessage.style.display = 'block';
+            } catch (error) {
+                // Show error message
+                errorMessage.textContent = 'An error occurred while submitting your details.';
+                errorMessage.style.display = 'block';
+            }
+        });
+    });
+
