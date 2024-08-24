@@ -1,7 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.2.0/firebase-app.js';
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, setPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/9.2.0/firebase-auth.js';
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, setPersistence, browserSessionPersistence} from 'https://www.gstatic.com/firebasejs/9.2.0/firebase-auth.js';
 import { getDatabase, ref, set, get, query, orderByChild, equalTo } from 'https://www.gstatic.com/firebasejs/9.2.0/firebase-database.js';
-
 const firebaseConfig = {
     apiKey: "AIzaSyAPNGokBic6CFHzuuENDHdJrMEn6rSE92c",
     authDomain: "capstone40-project.firebaseapp.com",
@@ -17,14 +16,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const database = getDatabase(app);
-
-// Function to show error messages with delay
-function showErrorMessage(element, message) {
-    element.textContent = message;
-    setTimeout(() => {
-        element.textContent = '';
-    }, 2000); // 2 seconds delay
-}
 
 // Function to sign up with email and password
 function signUpWithEmail(email, password, username, role, errorMessageElement, successMessageElement) {
@@ -55,19 +46,30 @@ function signUpWithEmail(email, password, username, role, errorMessageElement, s
     }
 
     function showErrorMessage(element, message) {
-        element.textContent = message;
-        setTimeout(() => {
-            element.textContent = '';
-        }, 2000); // Hide after 2 seconds
+        if (element) {
+            element.textContent = message;
+            element.style.display = 'block'; // Ensure it's visible
+            setTimeout(() => {
+                element.textContent = '';
+                element.style.display = 'none'; // Hide after timeout
+            }, 2000); // Display for 2 seconds
+        } else {
+            console.error('Error message element not found.');
+        }
     }
-
+    
     function showSuccessMessage(element, message) {
-        element.textContent = message;
-        setTimeout(() => {
-            element.textContent = '';
-        }, 2000); // Hide after 2 seconds
+        if (element) {
+            element.textContent = message;
+            element.style.display = 'block'; // Ensure it's visible
+            setTimeout(() => {
+                element.textContent = '';
+                element.style.display = 'none'; // Hide after timeout
+            }, 2000); // Display for 2 seconds
+        } else {
+            console.error('Success message element not found.');
+        }
     }
-
     // Sign up the user and set the user details in the database
     createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
@@ -102,7 +104,8 @@ function signUpWithEmail(email, password, username, role, errorMessageElement, s
             if (role.toLowerCase() === 'gym_owner') {
                 setTimeout(() => {
                     window.location.href = 'GymForm.html'; // Redirect to GymForm.html
-                }, 2000); // Delay to allow the success message to be seen
+                }, 2000);
+                 // Delay to allow the success message to be seen
             } else {
                 // No additional redirection needed for other roles
                 setTimeout(() => {
@@ -117,9 +120,13 @@ function signUpWithEmail(email, password, username, role, errorMessageElement, s
 
 
 // Function to sign in with email or username
-function signInWithEmailOrUsername(username, password, errorMessage) {
+function signInWithEmailOrUsername(username, password, errorMessageElement, successMessageElement) {
     if (!username || !password) {
-        showErrorMessage(errorMessage, 'Please enter both username and password.');
+        if (errorMessageElement) {
+            showErrorMessage(errorMessageElement, 'Please enter both username and password.');
+        } else {
+            console.error('Error element not found.');
+        }
         return;
     }
 
@@ -146,6 +153,12 @@ function signInWithEmailOrUsername(username, password, errorMessage) {
             setPersistence(auth, browserSessionPersistence)
                 .then(() => signInWithEmailAndPassword(auth, email, password))
                 .then(() => {
+                    if (successMessageElement) {
+                        showSuccessMessage(successMessageElement, 'Sign-in successful!');
+                    } else {
+                        console.error('Success element not found.');
+                    }
+
                     // Check if the username is 'admin'
                     if (isAdminUsername) {
                         // Redirect admin to accounts.html
@@ -154,16 +167,21 @@ function signInWithEmailOrUsername(username, password, errorMessage) {
                     }
 
                     // Check user status and role
-                        if (status === 'Under review') {
-                            showErrorMessage(errorMessage, 'Your account is under review. Please wait until it is approved by an admin.');
-                            return;
+                    if (status === 'Under review') {
+                        if (errorMessageElement) {
+                            showErrorMessage(errorMessageElement, 'Your account is under review. Please wait until it is approved by an admin.');
+                        } else {
+                            console.error('Error element not found.');
                         }
+                        return;
+                    }
 
                     if (role.toLowerCase() === 'admin') {
                         // Redirect admin to accounts.html
                         window.location.href = "accounts.html";
                         return;
                     }
+
                     // Redirect based on user role
                     switch (role) {
                         case 'GYM_OWNER':
@@ -179,16 +197,70 @@ function signInWithEmailOrUsername(username, password, errorMessage) {
                 })
                 .catch((error) => {
                     console.error("SignIn Error:", error.code, error.message);
-                    showErrorMessage(errorMessage, 'PeakPulse says: ' + error.message);
+                    if (errorMessageElement) {
+                        showErrorMessage(errorMessageElement, 'PeakPulse says: ' + error.message);
+                    } else {
+                        console.error('Error element not found.');
+                    }
                 });
         } else {
-            showErrorMessage(errorMessage, 'User not found.');
+            if (errorMessageElement) {
+                showErrorMessage(errorMessageElement, 'User not found.');
+            } else {
+                console.error('Error element not found.');
+            }
         }
     }).catch((error) => {
         console.error("Query Error:", error.code, error.message);
-        showErrorMessage(errorMessage, 'PeakPulse says: ' + error.message);
+        if (errorMessageElement) {
+            showErrorMessage(errorMessageElement, 'PeakPulse says: ' + error.message);
+        } else {
+            console.error('Error element not found.');
+        }
     });
 }
+
+// Function to show error messages
+function showErrorMessage(element, message) {
+    if (element) {
+        element.textContent = message;
+        setTimeout(() => {
+            element.textContent = '';
+        }, 2000); // Hide after 2 seconds
+    } else {
+        console.error('Element not found for showing error message.');
+    }
+}
+
+// Function to show success messages
+function showSuccessMessage(element, message) {
+    if (element) {
+        element.textContent = message;
+        setTimeout(() => {
+            element.textContent = '';
+        }, 2000); // Hide after 2 seconds
+    } else {
+        console.error('Element not found for showing success message.');
+    }
+}
+
+// Add event listener for login form submission
+document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.getElementById('loginForm');
+    
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const username = document.getElementById('loginUsername')?.value.trim();
+            const password = document.getElementById('loginPassword')?.value;
+            const errorMessage = document.getElementById('error-message');
+
+            signInWithEmailOrUsername(username, password, errorMessage);
+        });
+    } else {
+        console.error('Login form with ID "loginForm" not found.');
+    }
+});
 
 // Add event listener for login form submission
 document.addEventListener('DOMContentLoaded', function() {
@@ -213,8 +285,6 @@ document.addEventListener('DOMContentLoaded', () => {
         signupForm.addEventListener('submit', function(event) {
             event.preventDefault();
 
-            console.log('Form submission intercepted');
-
             // Get form values
             const username = document.getElementById('signupUsername')?.value.trim();
             const email = document.getElementById('signupEmail')?.value.trim();
@@ -227,8 +297,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const successMessage = document.getElementById('signupSuccessMessage');
 
             // Clear previous messages
-            errorMessage.textContent = '';
-            successMessage.textContent = '';
+            if (errorMessage) errorMessage.textContent = '';
+            if (successMessage) successMessage.textContent = '';
 
             let messages = [];
 
@@ -259,6 +329,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // If all validations pass, proceed with signup
             signUpWithEmail(email, password, username, role, errorMessage, successMessage);
         });
+    } else {
+        console.error('Signup form with ID "signupForm" not found.');
     }
 
     function validatePassword(password) {
