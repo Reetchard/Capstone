@@ -39,11 +39,6 @@
     background: transparent; /* Ensure no background */
 }
 
-.navbar-toggler-icon {
-    background-image: url('data:image/svg+xml;charset=utf8,...'); /* Custom icon if needed */
-}
-
-
 /* Modal transition */
 .modal-dialog {
     transition: transform 0.3s ease;
@@ -59,6 +54,7 @@
     overflow: hidden;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-bottom: 20px;
 }
 
 .card:hover {
@@ -66,35 +62,79 @@
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
-.table th, .table td {
-    vertical-align: middle;
+.card-header {
+    background-color: #007bff;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-bottom: none;
+    border-radius: 10px 10px 0 0;
 }
 
-/* Modal styling */
-.modal-dialog {
-    transform: translateY(30px);
-    display: flex;
-    justify-content: center; /* Center horizontally */
-    align-items: center; /* Center vertically */
+.card-body {
+    background-color: #f8f9fa;
 }
 
-.modal-dialog.show {
-    transform: translateY(0);
+/* Form and Input Styling */
+.form-group label {
+    font-weight: bold;
 }
 
-.modal-content {
-    border-radius: 0.5rem;
-    transition: transform 0.3s ease;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.form-control {
+    border-radius: 0.25rem;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.075);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
+}
+
+/* Buttons */
+.btn-action {
+    margin: 0 5px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-action-create {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+.btn-action-edit {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: white;
+}
+
+.btn-action-delete {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+.btn-action-create:hover {
+    background-color: #0056b3;
+    border-color: #00408d;
+}
+
+.btn-action-edit:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+}
+
+.btn-action-delete:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
 }
 
 /* Notification Styles */
 #notification-container {
-    bottom: 20px; /* Adjust this value to set the distance from the bottom */
-    right: 20px; /* Right alignment */
-    z-index: 1050; /* Ensure it's above other content */
+    bottom: 20px;
+    right: 20px;
+    z-index: 1050;
 }
 
 #notification-message {
@@ -102,8 +142,8 @@
     max-width: 300px;
     padding: 15px;
     border-radius: 0.25rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for elevation effect */
-    color: #fff; /* Default text color */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    color: #fff;
     opacity: 0;
     transition: opacity 0.5s ease, transform 0.5s ease;
     transform: translateY(20px);
@@ -111,17 +151,14 @@
 
 #notification-message.success {
     background-color: #28a745; /* Green for success */
-    color: #fff;
 }
 
 #notification-message.error {
     background-color: #dc3545; /* Red for errors */
-    color: #fff;
 }
 
 #notification-message.info {
     background-color: #17a2b8; /* Teal for information */
-    color: #fff;
 }
 
 #notification-message.warning {
@@ -143,38 +180,142 @@
 
 /* Centering messages in form elements */
 .form-message {
-    text-align: center; /* Center text inside the form message */
+    text-align: center;
     margin-top: 1rem;
 }
 
-/* Floating Notification Styles */
-.notification-container {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 9999;
+body {
+    background-color: #f4f4f9;
+    font-family: Arial, sans-serif;
 }
 
-.notification-message {
+
+.card { margin-bottom: 20px; }
+        .remove-btn { color: red; cursor: pointer; }
+        .remove-btn:hover { text-decoration: underline; }
+
+        /* Table styling */
+        .table {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+        }
+        .table th, .table td {
+            vertical-align: middle;
+        }
+        .table th {
+            background-color: #343a40;
+            color: #fff;
+            text-align: center;
+        }
+        .table td {
+            text-align: center;
+        }
+        .table img {
+            max-width: 100px;
+            height: auto;
+        }
+        .btn-edit {
+            color: #007bff;
+            cursor: pointer;
+        }
+        .btn-edit:hover {
+            text-decoration: underline;
+        }
+        .btn-delete {
+            color: #dc3545;
+            cursor: pointer;
+        }
+        .btn-delete:hover {
+            text-decoration: underline;
+        }
+        .status-under-review {
+            color: #ffc107;
+        }
+    /* Transition effect for buttons */
+.btn {
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Custom button spacing */
+.mx-1 {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+}
+
+/* Button hover effects */
+.btn:hover {
+    transform: scale(1.05);
+}
+
+/* Specific button styles */
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+/* Modal Styles */
+.modal {
     display: none;
-    padding: 15px;
-    border-radius: 5px;
-    color: #fff;
-    font-size: 16px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    opacity: 0;
-    transition: opacity 0.5s ease, transform 0.5s ease;
-    transform: translateY(20px);
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.9);
 }
 
-.notification-message.success {
-    background-color: #28a745; /* Green */
+.modal-content {
+    margin: auto;
+    display: block;
+    width: 80%;
+    max-width: 700px;
 }
 
-.notification-message.error {
-    background-color: #dc3545; /* Red */
+#caption {
+    margin: 10px;
+    text-align: center;
+    color: #ccc;
 }
 
-.notification-message.info {
-    background-color: #17a2b8; /* Teal */
+.close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: #bbb;
+    text-decoration: none;
+    cursor: pointer;
 }

@@ -345,3 +345,24 @@ function initMap() {
 
 // Initialize map on page load
 window.onload = initMap;
+
+document.getElementById('notificationBell').addEventListener('click', function() {
+    var notificationList = document.getElementById('notificationList');
+    notificationList.classList.toggle('show');
+});
+
+// Optional: Hide notification list when clicking outside of it
+document.addEventListener('DOMContentLoaded', function() {
+    var notificationBell = document.getElementById('notificationBell');
+    var notificationList = document.getElementById('notificationList');
+
+    notificationBell.addEventListener('click', function() {
+        notificationList.classList.toggle('show');
+    });
+
+    document.addEventListener('click', function(event) {
+        if (!notificationBell.contains(event.target) && !notificationList.contains(event.target)) {
+            notificationList.classList.remove('show');
+        }
+    });
+});

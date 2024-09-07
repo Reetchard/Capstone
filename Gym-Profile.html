@@ -7,6 +7,11 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="css/gymprof.css">
+    <style>
+        .card { margin-bottom: 20px; }
+        .remove-btn { color: red; cursor: pointer; }
+        .remove-btn:hover { text-decoration: underline; }
+    </style>
 </head>
 <body>
     <!-- Navigation Bar -->
@@ -16,9 +21,7 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav mr-auto">
-                <!-- Left-aligned items can go here if needed -->
-            </ul>
+            <ul class="navbar-nav mr-auto"></ul>
             <span class="navbar-text mx-auto text-white">
                 Admin Management Dashboard
             </span>
@@ -37,69 +40,45 @@
                 </div>
             </ul>
         </div>
-    </div>
     </nav>
-    <!-- Gym Profile Section -->
-    <div class="container">
-        <div class="row">
-            <!-- Gym Profile Card -->
-            <div class="col-md-4">
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5>Gym Profile</h5>
-                    </div>
-                    <div class="card-body">
-                        <h6 class="card-title">Business Name</h6>
-                        <p class="card-text">Peak Pulse Gym</p>
-                        <h6 class="card-title">Location</h6>
-                        <p class="card-text">123 Fitness St, Muscle City, CA 90210</p>
-                        <h6 class="card-title">Contact</h6>
-                        <p class="contact-info">
-                            <i class="fas fa-phone"></i> (123) 456-7890<br>
-                            <i class="fas fa-envelope"></i> contact@peakpulse.com<br>
-                            <i class="fas fa-globe"></i> <a href="https://www.peakpulse.com" target="_blank">www.peakpulse.com</a>
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Trainers Card -->
-            <div class="col-md-4">
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5>Trainers</h5>
-                    </div>
-                    <div class="card-body">
-                        <ul class="list-unstyled">
-                            <li><strong>John Doe</strong> - Certified Personal Trainer</li>
-                            <li><strong>Jane Smith</strong> - Strength & Conditioning Coach</li>
-                            <li><strong>Mike Johnson</strong> - Yoga Instructor</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Members Card -->
-            <div class="col-md-4">
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5>Members</h5>
-                    </div>
-                    <div class="card-body">
-                        <ul class="list-unstyled">
-                            <li><strong>Emily Davis</strong> - Membership ID: 001</li>
-                            <li><strong>David Lee</strong> - Membership ID: 002</li>
-                            <li><strong>Sarah Brown</strong> - Membership ID: 003</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
+    <div class="container mt-4">
+        <h2>Gym Profiles</h2>
+        <button class="btn btn-danger mb-3" onclick="deleteSelected()">Delete All</button>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>Gym Name</th>
+                    <th>Photo</th>
+                    <th>Certifications</th>
+                    <th>Equipment</th>
+                    <th>Contact</th>
+                    <th>Programs</th>
+                    <th>Opening Time</th>
+                    <th>Closing Time</th>
+                    <th>Location</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="gymList">
+                <!-- Gym profiles will be populated here -->
+            </tbody>
+        </table>
+             <!-- Modal Structure -->
+            <div id="imageModal" class="modal">
+                <span class="close">&times;</span>
+                <img class="modal-content" id="modalImage">
+                <div id="caption"></div>
+            </div>
+
+    </div>
+    
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script type="module" src="src/Js/gymDetails.js"></script>
 </body>
 </html>
