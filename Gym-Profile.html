@@ -48,7 +48,8 @@
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>Select</th>
+                    <th>    <input type="checkbox" id="selectAll" onclick="selectAllProfiles(this)">
+                        <label for="selectAll">Select All</label></th>
                     <th>Gym Name</th>
                     <th>Photo</th>
                     <th>Certifications</th>
@@ -66,19 +67,30 @@
                 <!-- Gym profiles will be populated here -->
             </tbody>
         </table>
-             <!-- Modal Structure -->
-            <div id="imageModal" class="modal">
+
+        <!-- Modal Structure -->
+           <div id="imageModal" class="modal" style="display: none;">
                 <span class="close">&times;</span>
-                <img class="modal-content" id="modalImage">
-                <div id="caption"></div>
+                <img class="modal-content" id="modalImage" style="width: 100%;">
+                <!-- Removed caption section if not needed -->
             </div>
 
     </div>
-    
+        <div id="messageArea"></div>
+        <div id="message-container" style="display: none; padding: 10px; margin: 0 auto; border-radius: 5px; font-weight: bold; text-align: center; max-width: 600px;">
+            <span id="message-text"></span>
+        </div>
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script type="module" src="src/Js/gymDetails.js"></script>
+    <script>
+        // Function to select or deselect all profiles
+        function selectAllProfiles(selectAll) {
+            const checkboxes = document.querySelectorAll('.select-gym');
+            checkboxes.forEach(checkbox => checkbox.checked = selectAll.checked);
+        }
+    </script>
 </body>
 </html>
