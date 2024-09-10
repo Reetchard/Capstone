@@ -163,24 +163,125 @@ window.setStatus = function(key, status) {
 // Function to delete selected accounts
 window.deleteSelected = function() {
     const selectedCheckboxes = document.querySelectorAll('.selectAccount:checked');
+    const messageContainer = document.createElement('div');
+    
+    // Set message container styles
+    messageContainer.style.position = 'fixed';
+    messageContainer.style.top = '50%';
+    messageContainer.style.left = '50%';
+    messageContainer.style.transform = 'translate(-50%, -50%)'; // Center the message horizontally and vertically
+    messageContainer.style.padding = '15px 25px';
+    messageContainer.style.zIndex = '9999';
+    messageContainer.style.backgroundColor = '#f8d7da'; // Default for error/warning
+    messageContainer.style.color = '#721c24';
+    messageContainer.style.borderRadius = '5px';
+    messageContainer.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+    messageContainer.style.fontSize = '16px';
+    messageContainer.style.fontWeight = 'bold';
+    messageContainer.style.textAlign = 'center';
+    messageContainer.style.display = 'none'; // Hidden initially
+    
+    // Add the message container to the body
+    document.body.appendChild(messageContainer);
+
+    // Function to show a message
+    const showMessage = (type, text) => {
+        messageContainer.innerText = text;
+        if (type === 'success') {
+            messageContainer.style.backgroundColor = '#d4edda';
+            messageContainer.style.color = '#155724';
+        } else if (type === 'warning') {
+            messageContainer.style.backgroundColor = '#fff3cd';
+            messageContainer.style.color = '#856404';
+        } else {
+            messageContainer.style.backgroundColor = '#f8d7da';
+            messageContainer.style.color = '#721c24';
+        }
+        
+        // Display the message container
+        messageContainer.style.display = 'block';
+
+        // Hide the message after 3 seconds
+        setTimeout(() => {
+            messageContainer.style.display = 'none';
+        }, 3000); // 3 seconds delay
+    };
+
+    // If no accounts are selected, show warning message
     if (selectedCheckboxes.length === 0) {
-        showToast('Warning', 'Please select at least one account to delete.');
+        showMessage('warning', '⚠️ Please select at least one account to delete.');
         return;
     }
 
-    if (confirm('Are you sure you want to delete the selected accounts?')) {
+    // Create custom confirmation modal
+    const confirmationModal = document.createElement('div');
+    confirmationModal.style.position = 'fixed';
+    confirmationModal.style.top = '50%';
+    confirmationModal.style.left = '50%';
+    confirmationModal.style.transform = 'translate(-50%, -50%)';
+    confirmationModal.style.backgroundColor = '#ffffff';
+    confirmationModal.style.padding = '20px';
+    confirmationModal.style.borderRadius = '8px';
+    confirmationModal.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.2)';
+    confirmationModal.style.zIndex = '10000'; // Ensure it's above everything
+    confirmationModal.style.textAlign = 'center';
+
+    const confirmationText = document.createElement('p');
+    confirmationText.innerText = 'Are you sure you want to delete the selected accounts?';
+    confirmationText.style.marginBottom = '20px';
+    confirmationModal.appendChild(confirmationText);
+
+    // Create "Yes" button
+    const yesButton = document.createElement('button');
+    yesButton.innerText = 'Yes';
+    yesButton.style.marginRight = '10px';
+    yesButton.style.padding = '10px 15px';
+    yesButton.style.backgroundColor = '#28a745';
+    yesButton.style.color = '#ffffff';
+    yesButton.style.border = 'none';
+    yesButton.style.borderRadius = '5px';
+    yesButton.style.cursor = 'pointer';
+    yesButton.onclick = () => {
+        // Perform the deletion
         selectedCheckboxes.forEach(checkbox => {
             const key = checkbox.value;
             accountRef.child(key).remove().catch(error => {
                 console.error('Error deleting account:', error);
-                showToast('Error', 'Error deleting selected accounts. Please try again later.');
+                showMessage('error', '❌ An error occurred while deleting accounts. Please try again later.');
             });
         });
 
+        // Refresh the account info and show success message
         displayAccountInfo();
-        showToast('Success', 'Selected accounts deleted successfully.');
-    }
+        showMessage('success', '✅ The selected accounts have been deleted successfully.');
+        
+        // Close the modal
+        document.body.removeChild(confirmationModal);
+    };
+
+    // Create "Cancel" button
+    const cancelButton = document.createElement('button');
+    cancelButton.innerText = 'Cancel';
+    cancelButton.style.padding = '10px 15px';
+    cancelButton.style.backgroundColor = '#dc3545';
+    cancelButton.style.color = '#ffffff';
+    cancelButton.style.border = 'none';
+    cancelButton.style.borderRadius = '5px';
+    cancelButton.style.cursor = 'pointer';
+    cancelButton.onclick = () => {
+        // Close the modal without deleting
+        document.body.removeChild(confirmationModal);
+    };
+
+    // Add buttons to the modal
+    confirmationModal.appendChild(yesButton);
+    confirmationModal.appendChild(cancelButton);
+
+    // Append the modal to the body
+    document.body.appendChild(confirmationModal);
 };
+
+
 // Function to toggle all checkboxes
 window.toggleSelectAll = function(source) {
     const checkboxes = document.querySelectorAll('.selectAccount');

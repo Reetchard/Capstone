@@ -21,23 +21,21 @@ const storage = getStorage(app);
 
 window.addEventListener('load', () => {
     // Ensure the form is defined correctly
-    const form = document.getElementById("gymOwnerDetailsForm");
+    const form = document.getElementById("TrainerForm");
     if (!form) {
         console.error('Form element not found');
         return;
     }
 
-    const gymName = document.getElementById("gymName");
-    const gymPhotoInput = document.getElementById("gymPhoto");
-    const gymCertificationsInput = document.getElementById("gymCertifications");
-    const gymEquipment = document.getElementById("gymEquipment");
-    const gymContact = document.getElementById("gymContact");
-    const gymPrograms = document.getElementById("gymPrograms");
-    const gymOpeningTime = document.getElementById("gymOpeningTime");
-    const gymClosingTime = document.getElementById("gymClosingTime");
-    const gymLocation = document.getElementById("gymLocation");
-    const errorMessage = document.getElementById("gymOwnerFormErrorMessage");
-    const successMessage = document.getElementById("gymOwnerFormSuccessMessage");
+    const TrainerName = document.getElementById("TrainerName");
+    const TrainerPhoto = document.getElementById("TrainerPhoto");
+    const TrainerPermit = document.getElementById("TrainerPermit");
+    const Email = document.getElementById("Email");
+    const Days = document.getElementById("Days");
+    const Experience = document.getElementById("Experience");
+    const Expertise = document.getElementById("Expertise");
+    const errorMessage = document.getElementById("TrainerFormErrorMessage");
+    const successMessage = document.getElementById("TrainerFormSuccessMessage");
 
     // Function to handle image upload
     async function uploadFile(file, path) {
@@ -49,24 +47,22 @@ window.addEventListener('load', () => {
     // Function to check for duplicate data
     async function isDuplicateData() {
         const dbRef = ref(database);
-        const snapshot = await get(child(dbRef, `GymForms`));
+        const snapshot = await get(child(dbRef, `Trainer`));
 
         if (snapshot.exists()) {
-            const gymsData = snapshot.val();
+            const trainersData = snapshot.val();
             
-            // Loop through existing gym data to check for duplicates
-            for (const key in gymsData) {
-                const gym = gymsData[key];
+            // Loop through existing Trainer data to check for duplicates
+            for (const key in trainersData) {
+                const trainer = trainersData[key];
 
-                if (gym.gymName === gymName.value &&
-                    gym.gymPhoto === gymPhotoInput.value &&
-                    gym.gymCertifications === gymCertificationsInput.value &&
-                    gym.gymEquipment === gymEquipment.value &&
-                    gym.gymContact === gymContact.value &&
-                    gym.gymPrograms === gymPrograms.value &&
-                    gym.gymOpeningTime === gymOpeningTime.value &&
-                    gym.gymClosingTime === gymClosingTime.value &&
-                    gym.gymLocation === gymLocation.value) {
+                if (trainer.TrainerName === TrainerName.value &&
+                    trainer.TrainerPhoto === TrainerPhotoInput.value &&
+                    trainer.TrainerPermit === TrainerPermitInput.value &&
+                    trainer.Email === Email.value &&
+                    trainer.Days === Days.value &&
+                    trainer.Experience === Experience.value &&
+                    trainer.Expertise === Expertise.value) {
                 
                     // Data match found (duplicate)
                     return true;
@@ -97,25 +93,23 @@ window.addEventListener('load', () => {
         } else {
             try {
                 // Upload files and get URLs
-                const gymPhotoURL = gymPhotoInput.files[0] ? await uploadFile(gymPhotoInput.files[0], `gym_photos/${gymName.value}`) : "";
-                const gymCertificationsURL = gymCertificationsInput.files[0] ? await uploadFile(gymCertificationsInput.files[0], `gym_certifications/${gymName.value}`) : "";
+                const TrainerPhotoURL = TrainerPhotoInput.files[0] ? await uploadFile(TrainerPhotoInput.files[0], `Trainer_photos/${TrainerName.value}`) : "";
+                const TrainerPermitURL = TrainerPhotoInput.files[0] ? await uploadFile(TrainerPhotoInput.files[0], `Trainer_permits/${TrainerName.value}`) : "";
     
                 // Submit new data if no duplicate is found
-                const newGymRef = ref(database, 'GymForms/' + gymName.value);
-                await set(newGymRef, {
-                    gymName: gymName.value,
-                    gymPhoto: gymPhotoURL,  // Store photo URL
-                    gymCertifications: gymCertificationsURL,  // Store certification URL
-                    gymEquipment: gymEquipment.value,
-                    gymContact: gymContact.value,
-                    gymPrograms: gymPrograms.value,
-                    gymOpeningTime: gymOpeningTime.value,
-                    gymClosingTime: gymClosingTime.value,
-                    gymLocation: gymLocation.value,
+                const NewTrainerRef = ref(database, 'TrainerForm/' + TrainerName.value);
+                await set(NewTrainerRef, {
+                    TrainerName: TrainerName.value,
+                    TrainerPhoto: TrainerPhotoURL,  // Store photo URL
+                    TrainerPermit: TrainerPermitURL,  // Store Permit URL
+                    Email: Email.value,
+                    Days: Days.value,
+                    Experience: Experience.value,
+                    Expertise: Expertise.value,
                     status: "Under Review"  // Set status as "Under Review"
                 });
     
-                successMessage.innerHTML = "Gym information submitted successfully!";
+                successMessage.innerHTML = "Trainer information submitted successfully!";
                 errorMessage.innerHTML = "";  // Clear any error message
     
                 // Hide success message after 3 seconds

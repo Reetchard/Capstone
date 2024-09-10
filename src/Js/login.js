@@ -72,52 +72,74 @@ function signUpWithEmail(email, password, username, role, errorMessageElement, s
     }
     // Sign up the user and set the user details in the database
     createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-            const user = userCredential.user;
-            const userId = user.uid;
-            const userRef = ref(database, 'Accounts/' + userId);
+    .then((userCredential) => {
+        const user = userCredential.user;
+        const userId = user.uid;
+        const userRef = ref(database, 'Accounts/' + userId);
 
-            // Get the next roleId and set user details
-            return new Promise((resolve, reject) => {
-                getNextRoleId((nextRoleId) => {
-                    // Set 'under review' status if the role is 'gym_owner'
-                    const initialStatus = role.toLowerCase() === 'gym_owner' ? 'under review' : 'active';
-                    
-                    set(userRef, {
-                        username: username,
-                        email: email,
-                        role: role,
-                        roleId: nextRoleId,
-                        status: initialStatus
-                    }).then(() => {
-                        // Set the roleId in the RoleIds node
-                        const roleIdRef = ref(database, 'RoleIds/role_' + userId);
-                        set(roleIdRef, nextRoleId).then(() => resolve(nextRoleId)).catch(reject);
-                    }).catch(reject);
-                });
+        // Get the next roleId and set user details
+        return new Promise((resolve, reject) => {
+            getNextRoleId((nextRoleId) => {
+                let initialStatus = 'Under review'; // Default status for all roles
+                
+                // Use switch-case for different roles
+                switch (role.toLowerCase()) {
+                    case 'gym_owner':
+                        initialStatus = 'Under review';
+                        break;
+                    case 'trainer':
+                        initialStatus = 'Under review';
+                        break;
+                    case 'user':
+                        initialStatus = 'Under review';
+                        break;
+                    default:
+                        initialStatus = 'pending'; // Add a fallback if role is undefined
+                }
+
+                set(userRef, {
+                    username: username,
+                    email: email,
+                    role: role,
+                    roleId: nextRoleId,
+                    status: initialStatus
+                }).then(() => {
+                    // Set the roleId in the RoleIds node
+                    const roleIdRef = ref(database, 'RoleIds/role_' + userId);
+                    set(roleIdRef, nextRoleId).then(() => resolve(nextRoleId)).catch(reject);
+                }).catch(reject);
             });
-        })
-        .then((roleId) => {
-            showSuccessMessage(successMessageElement, 'Sign up successful!');
-            
-            // Redirect Gym Owners to the GymForm if their role is 'gym_owner'
-            if (role.toLowerCase() === 'gym_owner') {
+        });
+    })
+    .then((roleId) => {
+        showSuccessMessage(successMessageElement, 'Sign up successful!');
+
+        // Use switch-case for redirection based on role
+        switch (role.toLowerCase()) {
+            case 'gym_owner':
                 setTimeout(() => {
                     window.location.href = 'GymForm.html'; // Redirect to GymForm.html
                 }, 2000);
-                 // Delay to allow the success message to be seen
-            } else {
-                // No additional redirection needed for other roles
+                break;
+            case 'trainer':
                 setTimeout(() => {
-                    document.getElementById('signupForm').reset();
-                }, 2000); // Delay to allow the success message to be seen
-            }
-        })
-        .catch((error) => {
-            showErrorMessage(errorMessageElement, 'PeakPulse says: ' + error.message);
-        });
+                    window.location.href = 'TrainerForm.html'; // Redirect to TrainerForm.html
+                }, 2000);
+                break;
+            case 'user':
+                setTimeout(() => {
+                    document.getElementById('signupForm').reset(); // No redirection for regular users
+                }, 2000);
+                break;
+            default:
+                console.log('No valid role selected for redirection.');
+        }
+    })
+    .catch((error) => {
+        showErrorMessage(errorMessageElement, 'PeakPulse says: ' + error.message);
+    });
 }
-
+    
 
 // Function to sign in with email or username
 function signInWithEmailOrUsername(username, password, errorMessageElement, successMessageElement) {

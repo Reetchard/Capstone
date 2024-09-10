@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trainer Form</title>
+    <link rel="stylesheet" href="css/TrainerForm.css">
+</head>
+<body>
+    <header>
+        <h1>Trainer Form</h1>
+    </header>
+    <div class="form-container">
+        <form id="TrainerForm">
+            <!-- Form inputs for trainer details -->
+            <input type="text" id="TrainerName" placeholder="Trainer Name" required>
+            <label for="TrainerPhoto">Trainer Photo</label>
+            <input type="file" id="TrainerPhoto" accept="image/*" required>
+            <label for="TrainerPermit">Trainer permit or Certification</label>
+            <input type="file" id="TrainerPermit" accept="application/pdf, image/*" required>
+            <input type="text" id="Email" placeholder="Email" required>
+            <label for="Days">Days Available </label>
+            <input type="text" id="Days" placeholder="Day Available" required>
+            <input type="text" id="Experience" placeholder="Experience/s" required>
+            <input type="text" id="Expertise" placeholder="Expertise" required>
+            <button type="submit">Submit</button>
+            <p id="TrainerFormErrorMessage"></p>
+            <p id="TrainerFormSuccessMessage"></p>
+        </form>
+    </div>
+
+    <!-- Link to external JS file -->
+    <script type="module" src="src/Js/TrainerForm.js"></script>
+</body>
+</html>
