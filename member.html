@@ -3,121 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gym Management System</title>
-    <link rel="stylesheet" href="gymprof.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-    <style>
-        /* Custom Navbar Styles */
-        .navbar {
-            background-color: #583672;
-            transition: background-color 0.3s ease;
-        }
-        .navbar-brand img {
-            width: 40px;
-            margin-right: 10px;
-        }
-        .navbar-nav .nav-link {
-            color: #fff !important;
-            font-weight: bold;
-            transition: color 0.3s ease;
-        }
-        .navbar-nav .nav-link:hover {
-            color: #f5f5f5 !important;
-        }
-        .navbar-toggler-icon {
-            background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 6h16M4 12h16m-7 6h7' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-        }
-        .btn-secondary {
-            background-color: #f5f5f5;
-            color: #583672;
-            border: none;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-        .btn-secondary:hover {
-            background-color: #e0e0e0;
-            color: #583672;
-        }
-        .modal-header {
-            background-color: #583672;
-            color: #fff;
-        }
-        .modal-footer .btn-secondary {
-            background-color: #e0e0e0;
-            color: #583672;
-        }
-    </style>
+    <title>Manage Members - Gym Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/media.css">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- FontAwesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <a class="navbar-brand" href="#">
-            <img src="Styles/Logoo.ico" alt="Logo"> PEAK PULSE
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="member.html">Manage Members</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="trainer-info.html">Manage Trainer</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="gym-profiling.html">Manage Products</a>
-                </li>
-                <li class="nav-item">
-                    <button class="btn btn-secondary" onclick="window.location.href='login.html'">Log out</button>
-                </li>
-            </ul>
+
+<!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#"><img src="framework/img/Logoo.ico" alt="Logo"> PEAK PULSE</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mr-auto">
+            <!-- Left-aligned items can go here if needed -->
+        </ul>
+        <span class="navbar-text mx-auto text-white">
+            Gym Management Dashboard
+        </span>
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="member.html">Manage Members</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="trainer-info.html">Manage Trainer Profile</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="Products.html">Manage Products</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="membership.html">Manage Memberships</a>
+            </li>
+            <div class="nav-link">
+                <button class="btn btn-secondary mb-2" onclick="window.location.href='login.html'">Log out</button>
+            </div>
+        </ul>
+    </div>
+</nav>
+<!-- Navigation Bar Ends -->
+
+<!-- Manage Members Section -->
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h2 class="text-center">Manage Members</h2>
+            <div class="form-inline mt-3">
+                <input type="text" id="searchMemberId" class="form-control mr-2" placeholder="Search by ID">
+                <button class="btn btn-light" onclick="searchMember()">Search</button>
+                <button class="btn btn-danger ml-2" onclick="deleteSelected()">Delete Selected</button>
+            </div>
         </div>
-    </nav>
+        <div class="card-body">
+            <table class="table table-bordered table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)"></th>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Membership Type</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Payment Method</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="MemberInfoBody">
+                    <!-- Dynamic member rows will be injected here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
-<!-- Navigation Bar ends -->
-
-
-
-
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header bg-primary text-white text-center">
-                    <h4>Gym Members</h4>
-                </div>
-                <div class="card-body">
-                    <!-- Table start -->
-                    <table class="table table-striped table-hover">
-                        <thead class="thead-dark">
-                            <tr>
-                                <th scope="col">ID</th>
-                                <th scope="col">Name</th>
-                                <th scope="col">Email</th>
-                                <th scope="col">Membership Type</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php while ($row = mysqli_fetch_assoc($result)) { ?>
-                            <tr>
-                                <td><?php echo $row['id']; ?></td>
-                                <td><?php echo $row['name']; ?></td>
-                                <td><?php echo $row['email']; ?></td>
-                                <td><?php echo $row['membership_type']; ?></td>
-                            </tr>
-                            <?php } ?>
-                        </tbody>
-                    </table>
-                    <!-- Table end -->
-                </div>
+<!-- Add/Edit Member Modal -->
+<div class="modal fade" id="MemberModal" tabindex="-1" role="dialog" aria-labelledby="MemberModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="MemberModalLabel">Member Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="MemberForm">
+                    <input type="hidden" id="MemberKey">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" name="username" class="form-control" id="username" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" name="email" class="form-control" id="email" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <input type="text" name="status" class="form-control" id="status" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="role">Role</label>
+                        <input type="text" name="role" class="form-control" id="role" readonly>
+                    </div>
+                    <div class="form-group" id="specialFieldGroup"></div>
+                    <button type="button" class="btn btn-success" id="approveBtn" onclick="approveMembers()">Approve</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<!-- Floating Notification -->
+<div id="notification-container" class="fixed-bottom d-flex justify-content-center align-items-center">
+    <div id="notification-message" class="alert alert-dismissible fade show" role="alert" style="display: none;">
+        <span id="notification-text"></span>
+        <button type="button" class="close" aria-label="Close" onclick="hideNotification()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+</div>
+
+<!-- Firebase App (the core Firebase SDK) -->
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+
+<!-- Bootstrap JS and dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script type="module" src="src/Js/Memberinfo.js"></script>
 
 </body>
 </html>

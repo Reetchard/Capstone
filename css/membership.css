@@ -1,0 +1,242 @@
+body {
+    background-color: #f4f6f9;
+    font-family: 'Roboto', sans-serif;
+}
+
+.navbar {
+    background-color: #343a40;
+}
+
+.navbar-brand img {
+    height: 40px;
+}
+
+h1 {
+    color: #007bff;
+    text-align: center;
+}
+
+.container {
+    padding-top: 50px;
+}
+
+/* Card Styling */
+.membership-card {
+    border-radius: 15px;
+    border: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background: #fff;
+    position: relative;
+    padding: 0;
+    margin-bottom: 30px;
+}
+
+.membership-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Plan-specific colors */
+.basic-plan {
+    background: linear-gradient(135deg, #007bff, #80caff);
+    color: #fff;
+}
+
+.premium-plan {
+    background: linear-gradient(135deg, #28a745, #6fd77e);
+    color: #fff;
+}
+
+.vip-plan {
+    background: linear-gradient(135deg, #ffc107, #ffd96e);
+    color: #fff;
+}
+
+.card-header {
+    font-weight: bold;
+    padding: 20px;
+    font-size: 1.5rem;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.card-body {
+    padding: 30px;
+    text-align: center;
+}
+
+.card-text {
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+    line-height: 1.5;
+}
+
+/* Button Styling */
+.transition-button {
+    padding: 12px 25px;
+    font-size: 1.1rem;
+    background-color: #fff;
+    border: none;
+    border-radius: 25px;
+    color: #007bff;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.transition-button:hover {
+    transform: translateY(-3px);
+    background-color: #343a40;
+    color: #fff;
+}
+
+/* Additional hover effect for buttons based on the plan type */
+.basic-plan .transition-button:hover {
+    background-color: #0056b3;
+}
+
+.premium-plan .transition-button:hover {
+    background-color: #218838;
+}
+
+.vip-plan .transition-button:hover {
+    background-color: #e0a800;
+}
+
+/* Badge styling for popular plans */
+.popular-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #ff3e3e;
+    color: #fff;
+    padding: 5px 10px;
+    font-size: 0.9rem;
+    border-radius: 5px;
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+/* Modal Styling */
+.modal-content {
+    border-radius: 10px;
+    transition: transform 0.3s ease-in-out;
+    padding: 30px;
+    background-color: #f7f9fc;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.modal-body {
+    padding: 30px;
+    background-color: #f7f9fc;
+}
+
+.modal-header {
+    padding: 20px;
+    background-color: #007bff;
+    color: #ffffff;
+    border-radius: 10px 10px 0 0;
+}
+
+.modal-header .close {
+    color: #fff;
+    font-size: 1.5rem;
+}
+
+.form-control {
+    border-radius: 25px;
+    padding: 10px 20px;
+    transition: border-color 0.3s ease-in-out;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.25);
+}
+
+/* Button styling in modal */
+.btn-block {
+    padding: 12px;
+    font-size: 1.1rem;
+    border-radius: 25px;
+    transition: all 0.3s ease-in-out;
+}
+
+.btn-block:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+/* Styling for membership cards */
+.membership-card {
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .membership-card:hover {
+    transform: scale(1.05); /* Slight zoom effect on hover */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Elevation on hover */
+  }
+  
+  .card-header {
+    background-color: #4caf50; /* Change this to match the edit plan card color */
+    color: #fff;
+    font-size: 1.25em;
+    padding: 10px;
+    font-weight: bold;
+  }
+  
+  .card-body {
+    padding: 20px;
+  }
+  
+  .card-text {
+    font-size: 1em;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .card-price {
+    font-size: 1.5em;
+    color: #28a745; /* Green color for the price */
+  }
+  
+  .transition-button {
+    background-color: #007bff;
+    border: none;
+    padding: 10px;
+    color: #fff;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .transition-button:hover {
+    background-color: #0056b3; /* Darker shade on hover */
+  }
+  /* Modal Styles */
+.modal-content {
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  }
+  
+  .modal-header {
+    background-color: #007bff;
+    color: #fff;
+  }
+  
+  .modal-title {
+    font-size: 1.25em;
+    font-weight: bold;
+  }
+  
+  .modal-footer .btn {
+    border-radius: 5px;
+  }
+  
+  .modal-body p {
+    font-size: 1em;
+    color: #333;
+  }
+  

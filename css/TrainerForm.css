@@ -73,16 +73,16 @@ form button:hover {
 }
 
 /* Error and success messages */
-#gymOwnerFormErrorMessage,
-#gymOwnerFormSuccessMessage {
+#TrainerFormErrorMessage,
+#TrainerFormSuccessMessage {
     font-size: 0.9rem;
     margin-top: 10px;
 }
 
-#gymOwnerFormErrorMessage {
+#TrainerFormErrorMessage {
     color: #ff4c4c;
 }
 
-#gymOwnerFormSuccessMessage {
+#TrainerFormSuccessMessage {
     color: #4caf50;
 }

@@ -207,7 +207,7 @@ function signInWithEmailOrUsername(username, password, errorMessageElement, succ
                     // Redirect based on user role
                     switch (role) {
                         case 'GYM_OWNER':
-                            window.location.href = "GymDashboard.html";
+                            window.location.href = "member.html";
                             break;
                         case 'TRAINER':
                             window.location.href = "trainer.html";

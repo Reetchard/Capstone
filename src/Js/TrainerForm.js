@@ -28,8 +28,8 @@ window.addEventListener('load', () => {
     }
 
     const TrainerName = document.getElementById("TrainerName");
-    const TrainerPhoto = document.getElementById("TrainerPhoto");
-    const TrainerPermit = document.getElementById("TrainerPermit");
+    const TrainerPhotoInput = document.getElementById("TrainerPhoto");
+    const TrainerPermitInput = document.getElementById("TrainerPermit");
     const Email = document.getElementById("Email");
     const Days = document.getElementById("Days");
     const Experience = document.getElementById("Experience");
