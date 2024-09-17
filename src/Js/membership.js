@@ -41,7 +41,7 @@ $('#editPlanForm').on('submit', function(e) {
     var id = $('#editPlanId').val();
     var name = $('#editPlanName').val();
     var price = $('#editPlanPrice').val();
-    var description = $('#editPlanDescription').val();
+    var description = tinymce.get('editPlanDescription').getContent(); // Get content from TinyMCE
 
     // Update the card details in Firebase Realtime Database
     update(ref(database, 'membershipPlans/' + id), {
@@ -56,7 +56,7 @@ $('#editPlanForm').on('submit', function(e) {
             card.find('.card-header').text(name + ' Plan');
             card.find('.card-body').eq(0).find('.card-text').eq(0).text(name);
             card.find('.card-price').text('₱' + price);
-            card.find('.card-body').eq(0).find('.card-text').eq(1).text(description);
+            card.find('.card-body').eq(0).find('.card-text').eq(1).html(description); // Use .html() to render HTML
 
             // Notify the user of the successful update
             $('#successMessage').text('Plan updated successfully.');
@@ -109,4 +109,12 @@ $(document).ready(function() {
             });
         }
     });
+});
+    // Initialize TinyMCE for the description field
+tinymce.init({
+    selector: '#editPlanDescription',
+    menubar: false,
+    plugins: 'lists link image charmap preview anchor',
+    toolbar: 'undo redo | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat',
+    height: 300
 });

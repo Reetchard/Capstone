@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PEAK PULSE</title>
     <link rel="stylesheet" href="css/LandStyle.css">
+    <link rel="stylesheet" href="css/media.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <script type="module" src="src/Js/Land.js"></script>
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <style>
         .modal-content {
@@ -58,7 +60,7 @@
         <div class="hero">
             <div class="hero-content">
                 <h1>Transform Your Body, Transform Your Life</h1>
-                <p>Join PEAK PULSE and get access to state-of-the-art equipment, expert trainers, and personalized fitness plans.</p>
+                <p>Join PEAK PULSE and get access to state-of-the-art equipment, expert trainers.</p>
                 <a href="login.html" class="btn btn-primary">Get Started</a>
             </div>
         </div>
@@ -127,56 +129,37 @@
             </div>
         </div>
     </div>
-    <section id="about" class="section">
-        <div class="container">
-            <h2>About Us</h2>
-            <p>At PEAK PULSE, we are committed to helping you achieve your fitness goals. Our gym offers a wide range of equipment, classes, and personal training options to suit your needs. Whether you're a beginner or an experienced athlete, we have something for everyone.</p>
-            <div class="features">
-                <div class="feature">
-                    <h3>Modern Equipment</h3>
-                    <p>Our gym is equipped with the latest fitness technology to ensure you get the best workout experience.</p>
-                </div>
-                <div class="feature">
-                    <h3>Expert Trainers</h3>
-                    <p>Our certified trainers are here to guide you through your fitness journey with personalized training programs.</p>
-                </div>
-                <div class="feature">
-                    <h3>Group Classes</h3>
-                    <p>Join our diverse range of group classes to stay motivated and make new friends.</p>
-                </div>
-            </div>
-        </div>
-    </section>
     
     <section id="membership-section">
-        <div class="container">
-            <h2>Membership</h2>
-            <p>Join the PEAK PULSE family and enjoy a range of benefits designed to fit your fitness needs and lifestyle. Our membership plans are tiered to offer increasing levels of value, with exclusive discounts on products and bookings as you move up the plans. Here's how our plans stack up:</p>
-            <div class="membership-plans">
-                <!-- Membership plans will be dynamically inserted here -->
+        <div class="membership-header">Membership Plans</div>
+        <div class="membership-container">
+            
+            <div class="membership-table" id="membership-table">
+                <!-- Membership plans will be injected here -->
             </div>
         </div>
     </section>
-    
-    
-    
     
     <section id="profiling" class="section">
         <div class="container">
             <h2>Gym Profiling</h2>
-            <p>At PEAK PULSE, we offer detailed gym profiling to tailor our services to your specific fitness needs. Our profiling includes body composition analysis, fitness assessments, and goal setting to help you stay on track and achieve your desired results.</p>
-            <a href="#contact" class="btn btn-primary">Learn More</a>
+            <div class="trainers-scroll-container">
+            <div id="gym-profile" class="gym-profile">
+                <!-- Gym profile content will be dynamically added here -->
+            </div>
         </div>
     </section>
 
     <section id="trainers" class="section bg-light">
-            <div class="container">
-                <h2>Our Trainers </h2>
+        <div class="container">
+            <h2>Our Trainers</h2>
+            <div class="trainers-scroll-container">
                 <div class="trainers-content" id="trainer-profiles">
                     <!-- Trainer profiles will be dynamically added here -->
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
         
     </section>
     <section id="services-promotions" class="section bg-light">
@@ -206,7 +189,26 @@
             </div>
         </div>
     </section>
-
+    <section id="about" class="section"></section>
+        <div class="container">
+            <h2>About Us</h2>
+            <p>At PEAK PULSE, we are committed to helping you achieve your fitness goals. Our gym offers a wide range of equipment, classes, and personal training options to suit your needs. Whether you're a beginner or an experienced athlete, we have something for everyone.</p>
+            <div class="features">
+                <div class="feature">
+                    <h3>Modern Equipment</h3>
+                    <p>Our gym is equipped with the latest fitness technology to ensure you get the best workout experience.</p>
+                </div>
+                <div class="feature">
+                    <h3>Expert Trainers</h3>
+                    <p>Our certified trainers are here to guide you through your fitness journey with personalized training programs.</p>
+                </div>
+                <div class="feature">
+                    <h3>Group Classes</h3>
+                    <p>Join our diverse range of group classes to stay motivated and make new friends.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <footer>
         <div class="container">

@@ -120,37 +120,24 @@
 
     <!-- Edit Plan Modal -->
 
-        <div id="membershipModal" class="modal fade" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Edit Plan</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="editPlanForm">
-                            <input type="hidden" id="editPlanId">
-                            <div class="form-group">
-                                <label for="editPlanName">Plan Name</label>
-                                <input type="text" id="editPlanName" class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <label for="editPlanPrice">Price</label>
-                                <input type="text" id="editPlanPrice" class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <label for="editPlanDescription">Description</label>
-                                <textarea id="editPlanDescription" class="form-control"></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Save</button>
-                            <button type="button" id="clearPlanButton" class="btn btn-danger">Clear</button>
-                        </form>
-                    </div>
+            <form id="editPlanForm">
+                <input type="hidden" id="editPlanId">
+                <div class="form-group">
+                    <label for="editPlanName">Name:</label>
+                    <input type="text" class="form-control" id="editPlanName">
                 </div>
-            </div>
-        </div>
+                <div class="form-group">
+                    <label for="editPlanPrice">Price:</label>
+                    <input type="text" class="form-control" id="editPlanPrice">
+                </div>
+                <div class="form-group">
+                    <label for="editPlanDescription">Description:</label>
+                    <textarea id="editPlanDescription"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="button" id="clearPlanButton" class="btn btn-danger">Clear</button>
+            </form>
+            
 
     <!-- Success and Error Modals (optional) -->
     <div id="successModal" class="modal fade" tabindex="-1" role="dialog">
@@ -189,6 +176,7 @@
     <!-- Scripts -->
         <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.tiny.cloud/1/iku9q3yr6f4yw9tjsxrkkufhwzdxdskma2hatd6t2quztkwb/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
         <script type = "module" src="src/Js/membership.js"></script>
 
 </body>

@@ -1,711 +1,586 @@
-/* General Reset */
-body, h1, h2, h3, p, ul, li, form, input, textarea, button {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
 body {
     font-family: 'Roboto', sans-serif;
-    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    scroll-behavior: smooth;
+    background-color: #f4f4f4;
 }
 
-.container {
-    width: 80%;
-    margin: 0 auto;
-}
-
-/* Header Styles */
-header {
-    position: relative;
-    background-color: #343a40; /* Base background color */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
+/* Navigation */
 nav {
-    background: #343a40;
-    color: #fff;
-    padding: 0.75rem 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    background-color: #343a40;
+    padding: 20px 0;
 }
 
 nav .container {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 100%;
 }
 
 nav h1.logo {
-    font-size: 2.5rem;
+    color: #ffffff;
+    font-size: 1.8rem;
     display: flex;
     align-items: center;
-    font-weight: bold;
-    color: #fff;
+}
+
+nav h1 img {
+    width: 40px;
+    margin-right: 10px;
 }
 
 nav ul {
-    list-style: none;
     display: flex;
-    margin: 0;
+    list-style: none;
     padding: 0;
 }
 
 nav ul li {
-    margin: 0 15px; /* Reduced margin for a tighter layout */
+    margin: 0 15px;
 }
 
 nav ul li a {
-    color: #fff;
+    color: #ffffff;
     text-decoration: none;
-    font-weight: 500; /* Medium weight for better readability */
-    transition: color 0.3s, border-bottom 0.3s;
-    padding: 10px 0;
-    position: relative;
+    font-weight: bold;
+    transition: color 0.3s ease;
 }
 
-nav ul li a::after {
-    content: '';
-    display: block;
-    width: 0;
-    height: 2px;
-    background: #007bff;
-    position: absolute;
-    bottom: -5px;
-    left: 0;
-    transition: width 0.3s ease;
+nav ul li a:hover {
+    color: #ffbe33;
 }
 
-nav ul li a:hover::after,
-nav ul li a.active::after {
-    width: 100%;
-}
-
-/* Responsive Navigation Menu */
-@media (max-width: 992px) {
-    nav .container {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    nav ul {
-        flex-direction: column;
-        width: 100%;
-    }
-
-    nav ul li {
-        margin: 10px 0;
-    }
-}
-
-/* Hero Section Styles */
+/* Hero Section */
 .hero {
-    position: relative;
-    background: #1a18a1;
-    color: #fff;
+    background: url('C:\xampp\htdocs\Capstone\framework\img\LandPage2.jpg') no-repeat center center/cover;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     text-align: center;
-    padding: 150px 20px;
-    background-size: cover;
-    background-attachment: fixed;
-    background-position: center;
-    overflow: hidden;
+    color: #fff;
+    position: relative;
+    z-index: 1;
 }
 
-.hero::before {
+.hero:before {
     content: "";
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.4);
-    z-index: 1;
-}
-
-.hero-content {
-    position: relative;
-    z-index: 2;
-    max-width: 700px;
-    margin: 0 auto;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: -1;
 }
 
 .hero h1 {
-    font-size: 4rem;
+    font-size: 3.5rem;
     margin-bottom: 20px;
+    text-transform: uppercase;
+    animation: fadeInDown 1s ease-out;
 }
 
 .hero p {
-    font-size: 1.75rem;
+    font-size: 1.2rem;
     margin-bottom: 30px;
+    animation: fadeInUp 1s ease-out;
 }
 
-/* Button Styles */
-.btn {
-    display: inline-block;
+.hero .btn-primary {
+    font-size: 1.2rem;
     padding: 10px 20px;
-    text-decoration: none;
-    border-radius: 5px;
-    font-weight: bold;
+    background-color: #ffbe33;
+    border: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.hero .btn-primary:hover {
+    background-color: #ff8e00;
+    transform: scale(1.05);
+}
+
+/* Keyframes */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Section Styling */
+section {
+    padding: 100px 0;
+    background-color: #fff;
+}
+
+section h2 {
     text-align: center;
-    transition: background 0.3s, color 0.3s;
+    margin-bottom: 50px;
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #333;
+    position: relative;
 }
 
-.btn-primary {
-    background: #007bff;
-    color: #fff;
-    border: 2px solid #007bff;
+section h2:after {
+    content: '';
+    display: block;
+    width: 50px;
+    height: 3px;
+    background-color: #ffbe33;
+    margin: 20px auto;
 }
 
-.btn-primary:hover {
-    background: #0056b3;
-    border-color: #0056b3;
-}
-
-.btn-secondary {
-    background: #6c757d;
-    color: #fff;
-    border: 2px solid #6c757d;
-}
-
-.btn-secondary:hover {
-    background: #5a6268;
-    border-color: #5a6268;
-}
-
-/* Section Styles */
-.section {
-    padding: 80px 20px;
+.section.bg-light {
     background-color: #f8f9fa;
 }
 
-.bg-light {
-    background-color: #f8f9fa;
-}
-
-.features {
+.features, .trainers-content {
     display: flex;
     justify-content: space-around;
-    margin-top: 30px;
 }
 
-.feature {
-    flex: 1;
-    margin: 0 15px;
-}
-
-.feature h3 {
-    margin-bottom: 15px;
-    font-size: 1.5rem;
-}
-
-.pricing-cards {
-    display: flex;
-    justify-content: space-between;
-}
-
-.pricing-card {
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    padding: 20px;
-    text-align: center;
-    flex: 1;
-    margin: 0 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.pricing-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-
-.pricing-card h3 {
-    margin-bottom: 15px;
-    font-size: 1.75rem;
-}
-
-.pricing-card ul {
-    list-style: none;
-    padding: 0;
-}
-
-.pricing-card ul li {
-    margin-bottom: 15px;
-    font-size: 1.1rem;
-}
-
-/* Form Styles */
-.form-group {
-    margin-bottom: 20px; /* Increased spacing for better readability */
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-}
-
-.form-group input,
-.form-group textarea {
-    width: 100%;
-    padding: 12px; /* Increased padding */
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-/* Footer Styles */
-footer {
-    background: #343a40;
-    color: #fff;
-    text-align: center;
-    padding: 1rem 0;
-}
-
-/* Services and Promotions Section */
-#services-promotions {
-    padding: 60px 20px;
+.features .feature, .trainers-content .trainer {
     background-color: #f8f9fa;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
 }
 
-.services-promotions-content {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px; /* Space between service items */
+.features .feature:hover, .trainers-content .trainer:hover {
+    transform: translateY(-10px);
 }
 
-.service {
-    flex: 1;
-    min-width: 300px; /* Minimum width for responsive design */
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
+.features .feature h3, .trainers-content .trainer h3 {
+    color: #ffbe33;
+    margin-bottom: 20px;
+}
+
+/* Membership Section */
+.membership-table {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.membership-table div {
     padding: 20px;
+    background-color: #fff;
+    border: 2px solid #ffbe33;
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+
+.membership-table div:hover {
+    transform: scale(1.05);
+}
+
+.modal-content {
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Footer */
+footer {
+    padding: 20px 0;
+    background-color: #343a40;
+    text-align: center;
+    color: #fff;
+}
+
+footer p {
+    margin: 0;
+}
+
+/* General Styles */
+body {
+    font-family: 'Roboto', sans-serif;
+}
+
+h3 {
+    font-weight: bold;
+    color: #333;
+}
+
+p {
+    margin: 10px 0;
+}
+
+/* Trainer Card */
+.trainer-card {
+    background-color: #fff;
+    border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: box-shadow 0.3s, transform 0.3s;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+    margin: 20px;
     overflow: hidden;
     position: relative;
 }
 
-.service::before {
+.trainer-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.trainer-card img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin-bottom: 15px;
+    object-fit: cover;
+    border: 5px solid #ffbe33;
+}
+
+.trainer-card h3 {
+    color: #ff8e00;
+    margin-bottom: 10px;
+    font-size: 1.6rem;
+    letter-spacing: 0.5px;
+}
+
+.trainer-card p {
+    color: #666;
+    font-size: 1rem;
+}
+
+.trainer-card::after {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
-    width: 5px;
+    width: 0;
     height: 100%;
-    background-color: #007bff;
+    background-color: rgba(255, 190, 51, 0.1);
+    transition: width 1.5s ease-in-out;
 }
 
-.service:hover {
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-    transform: translateY(-5px);
+.trainer-card:hover::after {
+    width: 100%;
 }
 
-.service h3 {
-    font-size: 1.75rem;
-    margin-bottom: 15px;
-    color: #007bff;
-    position: relative;
-}
-
-.service p {
-    font-size: 1rem;
-    line-height: 1.6;
-    color: #333;
-}
-
-.service p::before {
-    content: '• ';
-    color: #007bff;
-    font-weight: bold;
-    margin-right: 5px;
-}
-
-/* Membership Section */
-#membership {
-    padding: 60px 20px;
-    background-color: #f8f9fa;
-}
-
-.membership-plans {
+/* Membership Plan */
+/* Container for centering the cards */
+.membership-container {
     display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
+    justify-content: center; /* Centers content horizontally */
+    flex-wrap: wrap; /* Allows wrapping of cards if they overflow */
+    gap: 20px; /* Adds space between the cards */
+    padding: 20px;
 }
 
-.membership-plan {
-    flex: 1;
-    min-width: 300px;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: box-shadow 0.3s, transform 0.3s;
-    overflow: hidden;
+/* Membership Plans Section Header */
+.membership-header {
+    font-size: 2.5rem;
+    color: #333;
     text-align: center;
+    margin-bottom: 30px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* Card styles */
+.membership-plan {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    margin: 15px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    width: 220px; /* Smaller width */
+    display: inline-block;
 }
 
 .membership-plan:hover {
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-    transform: translateY(-5px);
+    transform: scale(1.03);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 .membership-plan h3 {
-    font-size: 1.75rem;
-    margin-bottom: 15px;
-    color: #007bff;
-}
-
-.membership-plan p {
-    font-size: 1.25rem;
-    margin-bottom: 20px;
-    font-weight: bold;
-}
-
-.membership-plan ul {
-    list-style-type: none; /* Remove the default bullets */
-    padding: 0; /* Remove padding */
-    margin: 0; /* Remove margin */
-}
-
-.membership-plan ul li {
-    font-size: 1rem;
-    line-height: 1.6;
+    font-size: 1.4rem;
     color: #333;
+    margin-bottom: 10px;
 }
 
-.btn-secondary {
-    background-color: #007bff;
-    color: #fff;
-    padding: 10px 20px;
-    text-decoration: none;
-    border-radius: 5px;
-    display: inline-block;
-    font-weight: 700;
-    text-align: center;
-    transition: background-color 0.3s;
+.membership-plan .price {
+    font-size: 1.6rem;
+    color: #ff8e00;
+    margin-bottom: 8px;
 }
 
-.btn-secondary:hover {
-    background-color: #0056b3;
-}
-
-html {
-    scroll-behavior: smooth;
-}
-
-/* Centering the "Sign Up" button in Membership Plans */
-.membership-plan .btn-secondary {
-    margin-top: 20px;
-}
-
-/* Error message styling */
-.error-message {
-    display: none; /* Initially hidden */
-    position: fixed;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #ff4d4d;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
-    font-size: 16px;
-    font-weight: bold;
-    z-index: 1000;
-    text-align: center;
-    width: 80%;
-    max-width: 600px;
-    box-shadow: 0px 4px 8px rgba(0,0,0,0.3);
-}
-
-.error-message.show {
-    display: block;
-}
-
-/* Basic styles for the dropdown */
-.dropdown-content {
-    display: none; /* Hidden by default */
-    position: absolute;
-    background-color: #f9f9f9;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
-}
-
-.dropdown-content p {
-    padding: 12px 16px;
-    margin: 0;
-}
-
-.dropdown-content button {
-    padding: 12px 16px;
-    border: none;
-    background: none;
-    cursor: pointer;
-}
-
-/* Show the dropdown when active */
-.dropdown-content.show {
-    display: block;
-}
-
-/* Media Queries for Responsive Design */
-@media (max-width: 1200px) {
-    .container {
-        width: 90%;
-    }
-
-    .hero h1 {
-        font-size: 3rem;
-    }
-
-    .hero p {
-        font-size: 1.5rem;
-    }
-}
-
-@media (max-width: 992px) {
-    nav .container {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    nav ul {
-        flex-direction: column;
-        width: 100%;
-    }
-
-    nav ul li {
-        margin: 10px 0;
-    }
-
-    .features {
-        flex-direction: column;
-    }
-
-    .feature {
-        margin: 10px 0;
-    }
-
-    .pricing-cards {
-        flex-direction: column;
-    }
-
-    .pricing-card {
-        margin: 10px 0;
-    }
-
-    .membership-plans {
-        flex-direction: column;
-    }
-
-    .membership-plan {
-        margin: 10px 0;
-    }
-}
-
-@media (max-width: 768px) {
-    .hero {
-        padding: 100px 10px;
-    }
-
-    .hero h1 {
-        font-size: 2.5rem;
-    }
-
-    .hero p {
-        font-size: 1.25rem;
-    }
-
-    .btn {
-        padding: 8px 16px;
-    }
-
-    .form-group input,
-    .form-group textarea {
-        padding: 10px;
-    }
-
-    .error-message {
-        width: 90%;
-    }
-
-    .guest-id-container {
-        font-size: 1em;
-        text-align: center;
-    }
-}
-
-@media (max-width: 576px) {
-    .hero h1 {
-        font-size: 2rem;
-    }
-
-    .hero p {
-        font-size: 1rem;
-    }
-
-    .btn {
-        padding: 6px 12px;
-        font-size: 0.9rem;
-    }
-
-    .form-group input,
-    .form-group textarea {
-        padding: 8px;
-    }
-
-    .error-message {
-        width: 95%;
-    }
-}
-/* General Trainer Styles */
-.trainers {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-}
-
-.trainer {
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: calc(25% - 20px); /* Adjust width for responsiveness */
-    padding: 20px;
-    text-align: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.trainer:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-}
-
-.trainer-img {
-    width: 100%;
-    height: auto;
-    border-bottom: 1px solid #ddd;
+.membership-plan .description {
+    font-size: 1rem;
+    color: #666;
     margin-bottom: 15px;
 }
 
-.trainer h3 {
-    font-size: 1.5rem;
-    margin: 10px 0;
-}
-
-.trainer p {
-    font-size: 1rem;
-    color: #555;
-}
-
-/* Button Styles */
-.check-info {
-    background: #007bff;
+.membership-plan .btn {
+    background-color: #ffbe33;
     color: #fff;
-    border: none;
-    border-radius: 5px;
-    padding: 10px 20px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background 0.3s ease, transform 0.3s ease;
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    text-transform: uppercase;
 }
 
-.check-info:hover {
-    background: #0056b3;
+.membership-plan .btn:hover {
+    background-color: #ff8e00;
     transform: scale(1.05);
 }
 
-.check-info:active {
-    background: #004080;
-}
-/* Container for the membership plans */
-/* Overall container styling */
-#membership-section {
-    padding: 40px 20px; /* Padding around the section */
-    background-color: #f9f9f9; /* Light background color */
+.membership-plan::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 100%;
+    height: 0;
+    background-color: rgba(255, 190, 51, 0.1);
+    transition: height 0.5s ease, transform 0.5s ease;
+    transform: translateX(-50%);
 }
 
-/* Container for the membership plans */
-.membership-plans {
-    display: flex; /* Use flexbox for horizontal layout */
+.membership-plan:hover::before {
+    height: 100%;
+}
+
+/* Book Me Now Button */
+.btn-book-now {
+    background-color: #ff8e00;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1rem;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    margin-top: 15px;
+}
+
+.btn-book-now:hover {
+    background-color: #ffbe33;
+    transform: scale(1.05);
+}
+.membership-header {
+    font-size: 2.5rem;
+    color: #333;
+    text-align: center;
+    margin: 30px 0;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* Trainers Section */
+/* Trainers Section */
+#trainers {
+    padding: 30px 0;
+    background-color: #f9f9f9; /* Light background for contrast */
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+.trainers-scroll-container {
     overflow-x: auto; /* Enable horizontal scrolling */
-    scroll-snap-type: x mandatory; /* Snap to items */
-    gap: 20px; /* Space between cards */
-    padding: 20px 0; /* Padding around the cards */
+    white-space: nowrap; /* Keep items in a single line */
+    padding: 20px 0; /* Add some vertical padding */
+    scrollbar-width: thin; /* For Firefox */
 }
 
-/* Style for individual membership cards */
-.membership-plan-card {
-    flex: 0 0 auto; /* Prevent cards from shrinking or growing */
-    width: 300px; /* Set a fixed width for the cards */
-    border-radius: 12px; /* Rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Subtle shadow */
-    background-color: #fff; /* White background */
-    overflow: hidden; /* Hide overflow content */
-    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease; /* Smooth transitions */
-    scroll-snap-align: start; /* Snap alignment */
+.trainers-scroll-container::-webkit-scrollbar {
+    height: 8px; /* Height of the scrollbar for WebKit browsers */
 }
 
-/* Card header styling */
-.card-header {
-    background-color: #007bff; /* Primary color */
-    color: #fff; /* White text */
-    padding: 15px; /* Padding */
-    text-align: center; /* Center align text */
-    font-size: 1.2em; /* Larger font size */
-    font-weight: bold; /* Bold text */
+.trainers-scroll-container::-webkit-scrollbar-thumb {
+    background-color: #d1d1d1;
+    border-radius: 10px;
 }
 
-/* Card body styling */
-.card-body {
-    padding: 20px; /* Padding inside card */
-    text-align: center; /* Center align text */
+.trainers-scroll-container::-webkit-scrollbar-track {
+    background: #f0f0f0;
 }
 
-/* Card name styling */
-.card-name {
-    font-size: 1.4em; /* Larger font size */
-    margin-bottom: 10px; /* Space below the name */
-    color: #333; /* Darker text color */
+.trainers-content {
+    display: inline-flex; /* Display trainer cards in a row */
+    flex-wrap: nowrap; /* Ensure items don't wrap to the next line */
+    gap: 20px; /* Spacing between cards */
 }
 
-/* Card price styling */
-.card-price {
-    font-size: 1.3em; /* Larger font size */
-    color: #007bff; /* Primary color */
-    margin-bottom: 15px; /* Space below the price */
+.trainer-card {
+    background-color: #ffffff;
+    border-radius: 12px; /* Slightly rounded corners for a softer look */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Enhanced shadow for depth */
+    padding: 20px; /* Increased padding for better spacing */
+    margin: 10px; /* Reduced margin for closer spacing */
+    text-align: center;
+    flex: 0 0 auto; /* Prevent cards from shrinking */
+    width: 250px; /* Adjusted width */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative; /* For additional design elements if needed */
 }
 
-/* Card description styling */
-.card-description {
-    font-size: 0.9em; /* Smaller font size */
-    color: #666; /* Darker text color */
-    line-height: 1.5; /* Line height for readability */
+.trainer-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
-/* Hover effect */
-.membership-plan-card:hover {
-    transform: scale(1.05); /* Slightly enlarge card */
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25); /* Enhanced shadow */
-    background-color: #e0f7fa; /* Light blue background on hover */
+.trainer-card .trainer-photo {
+    width: 100%;
+    height: 150px; /* Fixed height for uniformity */
+    object-fit: cover; /* Ensures image covers the area without distortion */
+    border-radius: 10px;
+    margin-bottom: 15px; /* Space below the image */
 }
 
-/* Scrollbar styling for better look */
-.membership-plans::-webkit-scrollbar {
-    height: 8px; /* Scrollbar height */
+.trainer-card h3 {
+    font-size: 1.6rem; /* Slightly larger font for emphasis */
+    color: #333;
+    margin-bottom: 10px;
 }
 
-.membership-plans::-webkit-scrollbar-thumb {
-    background-color: #007bff; /* Scrollbar color */
-    border-radius: 4px; /* Rounded corners for scrollbar */
+.trainer-card p {
+    font-size: 1.1rem; /* Slightly larger font for better readability */
+    color: #666;
+    margin-bottom: 10px;
 }
 
-.membership-plans::-webkit-scrollbar-track {
-    background-color: #f0f0f0; /* Track color */
+.btn-book-now {
+    background-color: #ff8e00;
+    color: #fff;
+    padding: 12px 24px; /* Increased padding for a more prominent button */
+    border-radius: 30px; /* More rounded corners */
+    font-size: 1.1rem; /* Slightly larger font for better visibility */
+    text-transform: uppercase;
+    text-decoration: none; /* Remove underline */
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    border: none;
+    cursor: pointer;
+    display: inline-block; /* Align button properly */
+}
+
+.btn-book-now:hover {
+    background-color: #ffbe33;
+    transform: scale(1.1); /* Slightly larger hover effect */
+}
+
+
+/* Profiling Section */
+#profiling {
+    padding: 40px 0;
+    background-color: #f5f5f5;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+/* Scroll Container */
+.trainers-scroll-container {
+    overflow-x: auto; /* Enable horizontal scrolling */
+    white-space: nowrap; /* Keep items in a single line */
+    padding: 20px 0; /* Add some vertical padding */
+    display: flex;
+    justify-content: center; /* Center the content horizontally */
+}
+
+/* Gym Profiles Container */
+.gym-profiles {
+    display: inline-flex; /* Display gym profile cards in a row */
+    gap: 15px; /* Space between cards */
+    flex-wrap: nowrap; /* Prevent wrapping */
+}
+
+/* Gym Profile Card */
+.gym-profile-card {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin: 0 10px; /* Margin to separate cards */
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    flex: 0 0 auto; /* Prevent cards from shrinking */
+    width: 300px; /* Adjust the width as needed */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.gym-profile-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.gym-profile-card .gym-photo {
+    width: 100%;
+    height: 200px; /* Adjust height as needed */
+    object-fit: cover; /* Maintain aspect ratio */
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.gym-profile-card h3 {
+    font-size: 1.6rem;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.gym-profile-card p {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.gym-profile-card strong {
+    color: #333;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-size: 1rem;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    display: inline-block;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
 }
