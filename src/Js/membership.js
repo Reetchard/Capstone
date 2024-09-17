@@ -1,7 +1,8 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-import { getDatabase, ref, onValue, update, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";  // Correct import for database
+// Initialize Firebase
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js";
+import { getDatabase, ref, update, remove, onValue } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-database.js";
 
-// Your Firebase configuration
+// Your web app's Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyAPNGokBic6CFHzuuENDHdJrMEn6rSE92c",
     authDomain: "capstone40-project.firebaseapp.com",
@@ -15,92 +16,97 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+const database = getDatabase(app);
 
-// Function to load plans from Firebase Realtime Database
-function loadPlans() {
-    const plansRef = ref(db, "MembershipPlans");
-    onValue(plansRef, (snapshot) => {
-        snapshot.forEach((childSnapshot) => {
-            const plan = childSnapshot.val();
-            const planId = childSnapshot.key;
+// Handle click to open modal and populate fields
+$(document).on('click', '.transition-button', function() {
+    var card = $(this).closest('.category-plans');
+    var id = card.attr('id'); // Assuming the ID matches the card
+    var name = card.find('.card-text').eq(0).text();
+    var price = card.find('.card-price').text();
+    var description = card.find('.card-text').eq(1).text(); // Fixed variable name
 
-            // Populate the membership cards with the fetched data based on category
-            if (plan.category === "Basic") {
-                document.getElementById("basic-plans").querySelector('.card-title').textContent = plan.name;
-                document.getElementById("basic-plans").querySelector('.card-price').textContent = `Price: ${plan.price}`;
-                document.getElementById("basic-plans").querySelector('.card-text').textContent = plan.description;
-            } else if (plan.category === "Premium") {
-                document.getElementById("premium-plans").querySelector('.card-title').textContent = plan.name;
-                document.getElementById("premium-plans").querySelector('.card-price').textContent = `Price: ${plan.price}`;
-                document.getElementById("premium-plans").querySelector('.card-text').textContent = plan.description;
-            } else if (plan.category === "VIP") {
-                document.getElementById("vip-plans").querySelector('.card-title').textContent = plan.name;
-                document.getElementById("vip-plans").querySelector('.card-price').textContent = `Price: ${plan.price}`;
-                document.getElementById("vip-plans").querySelector('.card-text').textContent = plan.description;
-            }
-        });
-    });
-}
+    $('#editPlanId').val(id);
+    $('#editPlanName').val(name);
+    $('#editPlanPrice').val(price.replace('₱', '')); // Remove the currency symbol if present
+    $('#editPlanDescription').val(description);
 
-// Function to load plan details into the form for editing
-function loadPlanDetails(planCategory) {
-    const categoryRef = query(ref(db, "MembershipPlans"), orderByChild("category"), equalTo(planCategory.charAt(0).toUpperCase() + planCategory.slice(1)));
-    onValue(categoryRef, (snapshot) => {
-        snapshot.forEach((childSnapshot) => {
-            const plan = childSnapshot.val();
-            const planId = childSnapshot.key;
+    $('#membershipModal').modal('show');
+});
 
-            // Populate the modal with plan data for editing
-            document.getElementById("planName").value = plan.name;
-            document.getElementById("planPrice").value = plan.price;
-            document.getElementById("planDescription").value = plan.description;
+// Handle the form submission for editing a plan
+$('#editPlanForm').on('submit', function(e) {
+    e.preventDefault();
 
-            // Save changes when the form is submitted
-            document.getElementById('editPlanForm').onsubmit = (e) => {
-                e.preventDefault();
-                updatePlan(planId);
-            };
-        });
-    });
-}
+    var id = $('#editPlanId').val();
+    var name = $('#editPlanName').val();
+    var price = $('#editPlanPrice').val();
+    var description = $('#editPlanDescription').val();
 
-// Function to update the membership plan details
-function updatePlan(planId) {
-    const updatedPlan = {
-        name: document.getElementById("planName").value,
-        price: document.getElementById("planPrice").value,
-        description: document.getElementById("planDescription").value
-    };
+    // Update the card details in Firebase Realtime Database
+    update(ref(database, 'membershipPlans/' + id), {
+        name: name,
+        price: price,
+        description: description
+    }).then(() => {
+        // Successfully updated in Firebase
+        var card = $('#' + id);
 
-    update(ref(db, "MembershipPlans/" + planId), updatedPlan)
-        .then(() => {
-            // Hide the modal on success
-            $('#editPlanModal').modal('hide');
+        if (card.length) {
+            card.find('.card-header').text(name + ' Plan');
+            card.find('.card-body').eq(0).find('.card-text').eq(0).text(name);
+            card.find('.card-price').text('₱' + price);
+            card.find('.card-body').eq(0).find('.card-text').eq(1).text(description);
 
-            // Show success message
-            document.getElementById("successMessage").textContent = "Plan updated successfully!";
+            // Notify the user of the successful update
+            $('#successMessage').text('Plan updated successfully.');
             $('#successModal').modal('show');
+        } else {
+            // Display an error message if the card is not found
+            $('#errorMessage').text('Plan card not found.');
+            $('#errorModal').modal('show');
+        }
 
-            // Update the corresponding card with the new data
-            loadPlans();  // Reload the membership plans after updating
-        })
-        .catch((error) => {
-            // Show error message
-            document.getElementById("errorMessage").textContent = "Error updating plan: " + error.message;
+        $('#membershipModal').modal('hide');
+    }).catch((error) => {
+        // Handle any errors that occur during the Firebase update
+        $('#errorMessage').text('An error occurred while updating the plan: ' + error.message);
+        $('#errorModal').modal('show');
+    });
+});
+
+// Handle clearing the data from Firebase
+$('#clearPlanButton').on('click', function() {
+    var id = $('#editPlanId').val();
+    if (id) {
+        remove(ref(database, 'membershipPlans/' + id)).then(() => {
+            $('#successMessage').text('Plan data cleared successfully.');
+            $('#successModal').modal('show');
+            $('#' + id).remove(); // Remove the card from the DOM
+            $('#membershipModal').modal('hide');
+        }).catch((error) => {
+            $('#errorMessage').text('An error occurred while clearing the plan: ' + error.message);
             $('#errorModal').modal('show');
         });
-}
+    }
+});
 
-// Load plans on page load
-document.addEventListener("DOMContentLoaded", function() {
-    loadPlans();
+// Fetch and display updated data on landing page
+$(document).ready(function() {
+    const membershipPlansRef = ref(database, 'membershipPlans');
 
-    // Add event listener for all edit buttons
-    document.querySelectorAll('.transition-button').forEach(button => {
-        button.addEventListener('click', (event) => {
-            const category = event.target.closest('.category-plans').id.split('-')[0]; // 'basic', 'premium', 'vip'
-            loadPlanDetails(category); // Load details of the plan into the modal form
-        });
+    onValue(membershipPlansRef, (snapshot) => {
+        const plans = snapshot.val();
+        if (plans) {
+            $.each(plans, function(id, plan) {
+                var card = $('#' + id);
+                if (card.length) {
+                    card.find('.card-header').text(plan.name + ' Plan');
+                    card.find('.card-body').eq(0).find('.card-text').eq(0).text(plan.name);
+                    card.find('.card-price').text('₱' + plan.price);
+                    card.find('.card-body').eq(0).find('.card-text').eq(1).text(plan.description); // Fixed selector
+                }
+            });
+        }
     });
 });

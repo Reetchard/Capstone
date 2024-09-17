@@ -1,4 +1,3 @@
-/* Navigation Bar Styles */
 .navbar {
     background-color: #343a40; /* Dark color to match Bootstrap's default dark navbar */
 }
@@ -9,22 +8,21 @@
     text-decoration: none;
     display: flex;
     align-items: center;
+    font-weight: normal; /* Remove bold */
 }
 
 .navbar-brand img {
     height: 40px;
-    margin-right: 10px;
+    margin-right: 3px;
 }
 
-.navbar-nav .nav-item {
-    margin-left: 1rem; /* Space between nav items */
-}
 
 .navbar-nav .nav-link {
     color: #ffffff;
     font-size: 1rem;
     text-decoration: none;
     padding: 0.5rem 1rem; /* Padding for better spacing */
+    font-weight: normal; /* Remove bold */
 }
 
 .navbar-nav .nav-link:hover {
@@ -40,3 +38,468 @@
 .navbar-toggler-icon {
     background-image: url('data:image/svg+xml;charset=utf8,...'); /* Bootstrap default icon */
 }
+
+.table-container {
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+.table {
+    margin-bottom: 0;
+}
+.table thead th {
+    background-color: #343a40;
+    color: white;
+    text-align: center;
+}
+.table tbody tr {
+    transition: background-color 0.3s ease;
+}
+.table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+.trainer-photo {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+.card-header {
+    background-color: #343a40;
+    color: rgb(8, 8, 8);
+}
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #004085;
+}
+.btn-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+}
+.btn-warning:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+}
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+.form-inline input,
+.form-inline button {
+    margin-right: 0.5rem;
+}
+.photo-preview {
+    max-width: 100px;
+    max-height: 100px;
+    display: block;
+    margin-top: 10px;
+}
+
+/* Modal styles */
+#confirmationModal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: rgba(0,0,0,0.5); /* Semi-transparent background */
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.3s ease, visibility 0.3s ease; /* Smooth transition for visibility */
+}
+
+/* Modal content */
+.modal-content {
+    background-color: #fff;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transform: scale(0.9);
+    transition: transform 0.3s ease; /* Smooth scaling transition */
+    justify-content: center;
+    align-items: center;
+}
+
+/* Show modal effect */
+#confirmationModal.show {
+    display: flex;
+    opacity: 1;
+    visibility: visible;
+}
+
+#confirmationModal.hide {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Modal close button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s ease; /* Smooth color transition */
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+}
+
+/* Modal message */
+#confirmationMessage {
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+/* Action buttons */
+.confirm-btn, .cancel-btn {
+    border: none;
+    padding: 12px 24px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.confirm-btn {
+    background: linear-gradient(145deg, #4CAF50, #388E3C);
+}
+
+.confirm-btn:hover {
+    background: linear-gradient(145deg, #388E3C, #4CAF50);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
+}
+
+.cancel-btn {
+    background: linear-gradient(145deg, #F44336, #C62828);
+}
+
+.cancel-btn:hover {
+    background: linear-gradient(145deg, #C62828, #F44336);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
+}
+#confirmButton {
+    background-color: #4CAF50;
+    color: white;
+}
+
+#cancelButton {
+    background-color: #F44336;
+    color: white;
+}  
+/* Modal styles */
+#confirmationModal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: rgba(0,0,0,0.5); /* Semi-transparent background */
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease; /* Smooth transition for visibility and opacity */
+}
+
+/* Modal content */
+.modal-content {
+    background-color: #fff;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transform: scale(0.9);
+    transition: transform 0.3s ease, opacity 0.3s ease; /* Smooth scaling and opacity transition */
+    opacity: 0;
+    justify-content: center;
+    align-items: center;
+}
+
+#confirmationModal.show {
+    display: flex;
+    opacity: 1;
+    visibility: visible;
+}
+
+#confirmationModal.hide {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Show modal effect */
+#confirmationModal.show .modal-content {
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* Modal close button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s ease; /* Smooth color transition */
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+}
+
+/* Modal message */
+#confirmationMessage {
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+/* Action buttons */
+button {
+    border: none;
+    padding: 12px 24px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+#confirmButton {
+    background: linear-gradient(145deg, #4CAF50, #388E3C);
+    color: #fff;
+}
+
+#confirmButton:hover {
+    background: linear-gradient(145deg, #388E3C, #4CAF50);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
+}
+
+#cancelButton {
+    background: linear-gradient(145deg, #F44336, #C62828);
+    color: #fff;
+}
+
+#cancelButton:hover {
+    background: linear-gradient(145deg, #C62828, #F44336);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
+}
+/* Container for the buttons */
+.button-container {
+    display: flex;
+    gap: 10px; /* Space between buttons */
+    justify-content: center; /* Center align buttons horizontally */
+}
+
+/* Common button styles */
+.status-button {
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-transform: uppercase;
+}
+
+/* Approve button styles */
+.status-button.approved {
+    background: linear-gradient(145deg, #4CAF50, #388E3C);
+}
+
+.status-button.approved:hover {
+    background: linear-gradient(145deg, #388E3C, #4CAF50);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Idle button styles */
+.status-button.idle {
+    background: linear-gradient(145deg, #FFC107, #FFB300);
+}
+
+.status-button.idle:hover {
+    background: linear-gradient(145deg, #FFB300, #FFC107);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Blocked button styles */
+.status-button.blocked {
+    background: linear-gradient(145deg, #F44336, #C62828);
+}
+
+.status-button.blocked:hover {
+    background: linear-gradient(145deg, #C62828, #F44336);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
+}
+/* Centered message container below the table */
+#messageContainer {
+    position: fixed;
+    top: calc(50% + 200px); /* Adjust to move the message container below the table */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000; /* Ensure it sits above other content but below the table */
+    width: 80%; /* Adjust the width as needed */
+    max-width: 500px; /* Optional: Max width to control the size */
+    text-align: center; /* Center align text */
+    pointer-events: none; /* Prevent interaction with the message */
+}
+
+/* Message box styling */
+.message-box {
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 16px;
+    color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    opacity: 0; /* Start as invisible */
+    transition: opacity 0.5s ease-in-out, transform 0.3s ease;
+    transform: translateY(-20px); /* Start position for animation */
+}
+
+/* Success message style */
+.message-box.success {
+    background-color: #4CAF50;
+}
+
+/* Error message style */
+.message-box.error {
+    background-color: #F44336;
+}
+
+/* Warning message style */
+.message-box.warning {
+    background-color: #FF9800;
+}
+
+/* Fade-in effect */
+.message-box.show {
+    opacity: 1;
+    transform: translateY(0); /* Move into place */
+}
+.trainer-details {
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 15px;
+}
+
+.trainer-photo {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+/* Modal container */
+.modal {
+    display: none; 
+    position: fixed;
+    z-index: 1; 
+    padding-top: 100px; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.9); /* Dark background */
+}
+
+/* Modal content (the image) */
+.modal-content {
+    margin: auto;
+    display: block;
+    width: 60%;
+    max-width: 700px;
+    transition: transform 0.25s ease; /* Transition for zoom effect */
+}
+
+/* Add zoom effect on hover */
+.modal-content:hover {
+    transform: scale(1.2); /* Zooms the image by 1.2x when hovered */
+}
+
+/* Close button (X) */
+.close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #fff;
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.close:hover,
+.close:focus {
+    color: #bbb;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* The image will have a slight zoom when hovered */
+.zoomable {
+    transition: transform 0.2s ease; /* Smooth zoom */
+    cursor: pointer; /* Pointer cursor for interactivity */
+}
+
+.zoomable:hover {
+    transform: scale(1.1); /* Slight zoom when hovering outside the modal */
+}
+
+/* Modal image styling */
+#modalImage {
+    width: 100%;
+    height: auto;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

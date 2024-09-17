@@ -70,7 +70,7 @@ window.addEventListener('load', () => {
 });
 
 
-function displayMessages(message, type) {
+//function displayMessages(message, type) {
     const messageArea = document.getElementById('messageArea');
 
     // Clear any previous content and remove previous classes
@@ -94,7 +94,7 @@ function displayMessages(message, type) {
     setTimeout(() => {
         messageArea.classList.remove('show');
     }, 1000); // Disappears after 1 second
-}
+//}
 
 window.deleteSelected = function() {
     const selectedCheckboxes = document.querySelectorAll('.select-gym:checked');

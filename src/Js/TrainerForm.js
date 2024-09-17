@@ -1,4 +1,3 @@
-// Initialize Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyAPNGokBic6CFHzuuENDHdJrMEn6rSE92c",
     authDomain: "capstone40-project.firebaseapp.com",
@@ -12,7 +11,7 @@ const firebaseConfig = {
 
 // Import Firebase services
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-import { getDatabase, ref, set, child, get } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+import { getDatabase, ref, set, push, child, get, runTransaction } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
 
 const app = initializeApp(firebaseConfig);
@@ -20,7 +19,6 @@ const database = getDatabase(app);
 const storage = getStorage(app);
 
 window.addEventListener('load', () => {
-    // Ensure the form is defined correctly
     const form = document.getElementById("TrainerForm");
     if (!form) {
         console.error('Form element not found');
@@ -47,46 +45,50 @@ window.addEventListener('load', () => {
     // Function to check for duplicate data
     async function isDuplicateData() {
         const dbRef = ref(database);
-        const snapshot = await get(child(dbRef, `Trainer`));
-
+        const snapshot = await get(child(dbRef, `TrainerForm`));
         if (snapshot.exists()) {
             const trainersData = snapshot.val();
-            
-            // Loop through existing Trainer data to check for duplicates
             for (const key in trainersData) {
                 const trainer = trainersData[key];
-
-                if (trainer.TrainerName === TrainerName.value &&
-                    trainer.TrainerPhoto === TrainerPhotoInput.value &&
-                    trainer.TrainerPermit === TrainerPermitInput.value &&
+                // Check if all fields match exactly
+                if (
+                    trainer.TrainerName === TrainerName.value &&
                     trainer.Email === Email.value &&
                     trainer.Days === Days.value &&
                     trainer.Experience === Experience.value &&
-                    trainer.Expertise === Expertise.value) {
-                
-                    // Data match found (duplicate)
-                    return true;
+                    trainer.Expertise === Expertise.value
+                ) {
+                    return true; // A duplicate entry is found
                 }
             }
         }
+        return false; // No duplicate found
+    }
 
-        // No duplicate found
-        return false;
+    // Function to generate the next incrementing ID
+    async function getNextTrainerID() {
+        const idRef = ref(database, 'latestTrainerID');
+        const snapshot = await get(idRef);
+
+        let newID = 1; // Default ID if none exists
+        if (snapshot.exists()) {
+            newID = snapshot.val() + 1; // Increment ID
+        }
+
+        // Update the latest ID in the database
+        await set(idRef, newID);
+        return newID;
     }
 
     // Listen for form submit
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
         
-        // Check for duplicate data
         const duplicate = await isDuplicateData();
     
         if (duplicate) {
-            // Display error message if duplicate data is found
-            errorMessage.innerHTML = "Error: This gym information has already been submitted.";
-            successMessage.innerHTML = "";  // Clear any success message
-    
-            // Hide error message after 3 seconds
+            errorMessage.innerHTML = "Error: A trainer with the same information already exists.";
+            successMessage.innerHTML = "";
             setTimeout(() => {
                 errorMessage.innerHTML = "";
             }, 3000);
@@ -94,35 +96,35 @@ window.addEventListener('load', () => {
             try {
                 // Upload files and get URLs
                 const TrainerPhotoURL = TrainerPhotoInput.files[0] ? await uploadFile(TrainerPhotoInput.files[0], `Trainer_photos/${TrainerName.value}`) : "";
-                const TrainerPermitURL = TrainerPhotoInput.files[0] ? await uploadFile(TrainerPhotoInput.files[0], `Trainer_permits/${TrainerName.value}`) : "";
-    
+                const TrainerPermitURL = TrainerPermitInput.files[0] ? await uploadFile(TrainerPermitInput.files[0], `Trainer_permits/${TrainerName.value}`) : "";
+
+                // Generate a unique ID
+                const newTrainerID = await getNextTrainerID();
+                const NewTrainerRef = ref(database, 'TrainerForm/' + newTrainerID);
+
                 // Submit new data if no duplicate is found
-                const NewTrainerRef = ref(database, 'TrainerForm/' + TrainerName.value);
                 await set(NewTrainerRef, {
+                    TrainerID: newTrainerID,  // Use incrementing ID
                     TrainerName: TrainerName.value,
-                    TrainerPhoto: TrainerPhotoURL,  // Store photo URL
-                    TrainerPermit: TrainerPermitURL,  // Store Permit URL
+                    TrainerPhoto: TrainerPhotoURL,
+                    TrainerPermit: TrainerPermitURL,
                     Email: Email.value,
                     Days: Days.value,
                     Experience: Experience.value,
                     Expertise: Expertise.value,
-                    status: "Under Review"  // Set status as "Under Review"
+                    status: "Under Review"
                 });
-    
+
                 successMessage.innerHTML = "Trainer information submitted successfully!";
-                errorMessage.innerHTML = "";  // Clear any error message
-    
-                // Hide success message after 3 seconds
+                errorMessage.innerHTML = "";
                 setTimeout(() => {
                     successMessage.innerHTML = "";
                 }, 3000);
     
-                form.reset();  // Clear the form after successful submission
+                form.reset();
             } catch (error) {
                 errorMessage.innerHTML = "Error: Could not submit the form. " + error.message;
-                successMessage.innerHTML = "";  // Clear any success message
-    
-                // Hide error message after 3 seconds
+                successMessage.innerHTML = "";
                 setTimeout(() => {
                     errorMessage.innerHTML = "";
                 }, 3000);
@@ -130,5 +132,3 @@ window.addEventListener('load', () => {
         }
     });
 });
-
-

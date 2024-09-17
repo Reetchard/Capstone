@@ -4,48 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gym Management System</title>
-    <link rel="stylesheet" href="st.css">
+    <link rel="stylesheet" href="css/trainerinfo.css">
+    <link rel="stylesheet" href="css/media.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-    <style>
-        /* Custom Navbar Styles */
-        .navbar {
-            background-color: #583672;
-            transition: background-color 0.3s ease;
-        }
-        .navbar-brand img {
-            width: 40px;
-            margin-right: 10px;
-        }
-        .navbar-nav .nav-link {
-            color: #fff !important;
-            font-weight: bold;
-            transition: color 0.3s ease;
-        }
-        .navbar-nav .nav-link:hover {
-            color: #f5f5f5 !important;
-        }
-        .navbar-toggler-icon {
-            background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 6h16M4 12h16m-7 6h7' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-        }
-        .btn-secondary {
-            background-color: #f5f5f5;
-            color: #583672;
-            border: none;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-        .btn-secondary:hover {
-            background-color: #e0e0e0;
-            color: #583672;
-        }
-        .modal-header {
-            background-color: #583672;
-            color: #fff;
-        }
-        .modal-footer .btn-secondary {
-            background-color: #e0e0e0;
-            color: #583672;
-        }
-    </style>
 </head>
 <body>
     <!-- Navigation Bar -->
@@ -85,10 +46,12 @@
     <div class="card">
         <div class="card-header">
             <h2 class="text-center">Trainer Information</h2>
-            <div class="form-inline">
-                <input type="text" id="searchId" class="form-control mr-2" placeholder="Search by ID">
-                <button class="btn btn-primary" onclick="searchTrainer()">Search</button>
-                <!-- Add Trainer button removed -->
+            <div class="form-inline justify-content-between">
+                <div>
+                    <input type="text" id="searchId" class="form-control mr-2" placeholder="Search by ID" oninput="searchTrainer()">
+                    <button class="btn btn-primary" onclick="searchTrainer()">Search</button>
+                    <button class="btn btn-primary" onclick="deleteSelected()">Delete Selected</button>
+                </div>
             </div>
         </div>
         <div class="card-body">
@@ -96,67 +59,52 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
+                        <th><input type="checkbox" id="selectAllHeader"></th> <!-- Checkbox column -->
                         <th>ID</th>
                         <th>Photo</th>
                         <th>Name</th>
                         <th>Experience</th>
-                        <th>Works At</th>
+                        <th>Expertise</th>
+                        <th>Days Available</th>
+                        <th>Permit</th>
                         <th>Status</th>
                         <th>Actions</th>
-                    </tr>
+                    </tr>                    
                 </thead>
                 <tbody id="trainerInfoBody">
                     <!-- Table rows will be inserted here by JavaScript -->
                 </tbody>
             </table>
             <input type="hidden" id="trainerKey">
-        </div>
-    </div>
-</div>
-
-<!-- Add/Edit Trainer Modal -->
-<div class="modal fade" id="trainerModal" tabindex="-1" role="dialog" aria-labelledby="trainerModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-body">
-                <form id="trainerForm">
-                    <input type="hidden" id="trainerKey">
-                    <div class="form-group">
-                        <label for="id">ID</label>
-                        <input type="text" name="id" class="form-control" id="id" placeholder="Auto-generated ID" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="name">Name</label>
-                        <input type="text" name="name" class="form-control" id="name" placeholder="Enter Trainer Name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="experience">Experience</label>
-                        <input type="text" name="experience" class="form-control" id="experience" placeholder="Enter Experience" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="worksAt">Works At</label>
-                        <input type="text" name="worksAt" class="form-control" id="worksAt" placeholder="Enter Gym Name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="photo">Photo</label>
-                        <input type="file" name="photo" class="form-control" id="photo" accept="image/*">
-                        <img id="photoPreview" class="photo-preview" alt="Photo Preview">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Save</button>
-                </form>
+            <!-- Modal -->
+            <!-- The Modal -->
+            <div id="imageModal" class="modal">
+                <span class="close">&times;</span>
+                <img class="modal-content" id="modalImage">
             </div>
+
+            <!-- Confirmation Modal -->
+            <div id="confirmationModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <p id="confirmationMessage">Are you sure?</p>
+                    <button id="confirmButton">Yes</button>
+                    <button id="cancelButton">No</button>
+                </div>
+            </div>
+
         </div>
     </div>
+    <div id="messageContainer" style="position: fixed; top: 0; right: 0; padding: 10px; z-index: 1000;"></div>
+    <div id="searchResults"></div>
+
+
 </div>
 
-<!-- Firebase JS SDK -->
-<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-storage.js"></script> <!-- Added Firebase Storage -->
 <!-- Bootstrap JS, Popper.js, and jQuery -->
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script src="trainerinfo.js"></script>
+<script type="module" src="src/Js/trainer.js"></script>
 </body>
 </html>
