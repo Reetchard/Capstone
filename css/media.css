@@ -1,62 +1,35 @@
 
-/* Media Queries for Responsive Design */
-
-/* Tablet (portrait) and up */
-@media (min-width: 576px) {
-    .navbar {
-        padding: 1rem 2rem; /* Increased padding for tablets */
+/* Tablets and below (max-width: 992px) */
+@media (max-width: 992px) {
+    .sidebar {
+        width: 200px; /* Adjust width for tablets and smaller screens */
     }
 
-    .navbar-brand img {
-        height: 45px; /* Adjust logo size for tablets */
+    .sidebar .nav-link {
+        font-size: 0.9rem; /* Adjust font size for smaller screens */
     }
 
-    .navbar-nav .nav-link {
-        font-size: 0.875rem; /* Slightly smaller text for tablets */
-    }
-}
-
-/* Tablet (landscape) and up */
-@media (min-width: 768px) {
-    .navbar {
-        padding: 1rem 2.5rem; /* More padding for larger tablets */
-    }
-
-    .navbar-brand img {
-        height: 50px; /* Adjust logo size for larger tablets */
-    }
-
-    .navbar-nav .nav-link {
-        font-size: 1rem; /* Default font size for larger tablets */
+    .sidebar .nav-icon {
+        width: 20px;
+        height: 20px; /* Icon size adapts */
     }
 }
 
-/* Laptop and up */
-@media (min-width: 992px) {
-    .navbar {
-        padding: 1rem 3rem; /* Extra padding for laptops */
+/* Phones (max-width: 576px) */
+@media (max-width: 576px) {
+    .sidebar {
+        width: 100%; /* Full width for mobile */
+        height: auto; /* Auto height to adjust content */
+        position: relative; /* No fixed position */
     }
 
-    .navbar-brand img {
-        height: 55px; /* Larger logo for laptops */
+    .sidebar .nav-link {
+        font-size: 0.8rem; /* Further reduce font size for mobile */
+        padding: 0.5rem 1rem; /* Adjust padding for compact display */
     }
 
-    .navbar-nav .nav-link {
-        font-size: 1.125rem; /* Larger text for readability on laptops */
-    }
-}
-
-/* Large desktops and up */
-@media (min-width: 1200px) {
-    .navbar {
-        padding: 1rem 3.5rem; /* More padding for large screens */
-    }
-
-    .navbar-brand img {
-        height: 60px; /* Larger logo for large screens */
-    }
-
-    .navbar-nav .nav-link {
-        font-size: 1.25rem; /* Larger text for large desktops */
+    .sidebar .nav-icon {
+        width: 18px;
+        height: 18px; /* Smaller icon size for mobile */
     }
 }

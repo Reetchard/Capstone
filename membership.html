@@ -78,99 +78,91 @@
                 </div>
             </div>
         </div>
-
-    <!-- Add New Plan Modal -->
-    <div id="addPlanModal" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title">Add New Membership Plan</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="addPlanForm">
-                        <div class="form-group">
-                            <label for="newPlanName">Plan Name</label>
-                            <input type="text" class="form-control" id="newPlanName" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="newPlanPrice">Plan Price</label>
-                            <input type="number" class="form-control" id="newPlanPrice" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="newPlanDescription">Plan Description</label>
-                            <textarea class="form-control" id="newPlanDescription" rows="3" required></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="newPlanCategory">Plan Category</label>
-                            <select id="newPlanCategory" class="form-control">
-                                <option value="Basic">Basic</option>
-                                <option value="Premium">Premium</option>
-                                <option value="VIP">VIP</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-success">Add Plan</button>
-                    </form>
+        <!-- Edit Plan Modal -->
+        <div class="modal fade" id="membershipModal" tabindex="-1" role="dialog" aria-labelledby="membershipModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="membershipModalLabel">Edit Membership Plan</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editPlanForm">
+                            <input type="hidden" id="editPlanId">
+                            <div class="form-group">
+                                <label for="membershipType">Membership Type:</label>
+                                <input type="text" class="form-control" id="membershipType" placeholder="Membership Type">
+                            </div>
+                            <div class="form-group">
+                                <label for="editPlanPrice">Price:</label>
+                                <input type="text" class="form-control" id="editPlanPrice">
+                            </div>
+                            <div class="form-group">
+                                <label for="editPlanDescription">Description:</label>
+                                <textarea id="editPlanDescription" class="form-control"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="accessLevel">Access Level:</label>
+                                <input type="text" class="form-control" id="accessLevel" placeholder="Access Level">
+                            </div>
+                            <div class="form-group">
+                                <label for="allowedClasses">Allowed Classes:</label>
+                                <input type="text" class="form-control" id="allowedClasses" placeholder="Allowed Classes">
+                            </div>
+                            <div class="form-group">
+                                <label for="guestPasses">Guest Passes:</label>
+                                <input type="text" class="form-control" id="guestPasses" placeholder="Guest Passes">
+                            </div>
+                            <div class="form-group">
+                                <label for="referralCode">Referral Code:</label>
+                                <input type="text" class="form-control" id="referralCode" placeholder="Referral Code">
+                            </div>
+                            <div class="form-group">
+                                <label for="membershipDays">Membership Days:</label>
+                                <input type="number" class="form-control" id="membershipDays" placeholder="Number of Days or Months">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                            <button type="button" id="clearPlanButton" class="btn btn-danger">Clear</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Edit Plan Modal -->
-
-            <form id="editPlanForm">
-                <input type="hidden" id="editPlanId">
-                <div class="form-group">
-                    <label for="editPlanName">Name:</label>
-                    <input type="text" class="form-control" id="editPlanName">
+        
+                  <!-- Success and Error Modals (optional) -->
+                  <div id="successModal" class="modal fade" tabindex="-1" role="dialog">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header bg-success text-white">
+                                <h5 class="modal-title">Success</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p id="successMessage"></p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="editPlanPrice">Price:</label>
-                    <input type="text" class="form-control" id="editPlanPrice">
-                </div>
-                <div class="form-group">
-                    <label for="editPlanDescription">Description:</label>
-                    <textarea id="editPlanDescription"></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Save</button>
-                <button type="button" id="clearPlanButton" class="btn btn-danger">Clear</button>
-            </form>
             
-
-    <!-- Success and Error Modals (optional) -->
-    <div id="successModal" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title">Success</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                <div id="errorModal" class="modal fade" tabindex="-1" role="dialog">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header bg-danger text-white">
+                                <h5 class="modal-title">Error</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p id="errorMessage"></p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <p id="successMessage"></p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="errorModal" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title">Error</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p id="errorMessage"></p>
-                </div>
-            </div>
-        </div>
-    </div>
     
 
     <!-- Scripts -->

@@ -1,6 +1,7 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
-import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js';
-import { getDatabase, ref, get } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
+import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
+import { getDatabase, ref, onValue , get } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js';
+import { getStorage, ref as storageRef, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-storage.js';
 
 // Your Firebase configuration
 const firebaseConfig = {
@@ -18,351 +19,436 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const database = getDatabase(app);
+const storage = getStorage(app)
 
-// Dropdown menu function
+// Function to create dropdown menu based on user role
 function createDropdownMenu(username, role) {
-    const dropdownButton = document.querySelector('.dropbtn');
-    if (dropdownButton) {
-        dropdownButton.textContent = `Hello, ${username}`;
-    } else {
-        console.error('Dropdown button not found');
-    }
-    
-    const dropdownContent = document.querySelector('.dropdown-content');
-    if (dropdownContent) {
-        dropdownContent.innerHTML = ''; // Clear previous content
-         if (role === 'gym_owner') {
-            dropdownContent.innerHTML += '<a href="gym-profiling.html">Gym Owner Management</a>';
-        } else if (role === 'trainer') {
-            dropdownContent.innerHTML += '<a href="Trainer.html">Personal Information</a>';
-        }
-        
-        dropdownContent.innerHTML += '<a href="index.html" id="logout">Log Out</a>';
+  const dropdownMenu = document.querySelector('.dropdown-menu');
+  if (dropdownMenu) {
+      dropdownMenu.innerHTML = ''; // Clear previous content
+      dropdownMenu.innerHTML += `<a class="dropdown-item" href="#">Hello, ${username}</a>`;
+      
+      // Role-based items in the dropdown
+      if (role === 'gym_owner') {
+          dropdownMenu.innerHTML += '<a class="dropdown-item" href="gym-profiling.html">Gym Owner Management</a>';
+      } else if (role === 'user') {
+          dropdownMenu.innerHTML += '<a class="dropdown-item" href="Pinfo.html">Personal Information</a>';
+          dropdownMenu.innerHTML += '<a class="dropdown-item" href="report.html">Submit a Complaint</a>';
+      }
 
-        // Add event listener for logout
-        document.getElementById('logout')?.addEventListener('click', () => {
-            signOut(auth).then(() => {
-                window.location.href = 'login.html'; // Redirect to login page
-            }).catch((error) => {
-                console.error("Sign Out Error:", error.code, error.message);
-            });
-        });
-    } else {
-        console.error('Dropdown content not found');
-    }
+      // Logout option
+      dropdownMenu.innerHTML += '<a class="dropdown-item" href="login.html" id="logout">Log Out</a>';
+
+      // Add event listener for logout
+      document.getElementById('logout')?.addEventListener('click', () => {
+          signOut(auth).then(() => {
+              window.location.href = 'login.html'; // Redirect to login page
+          }).catch((error) => {
+              console.error("Sign Out Error:", error.code, error.message);
+          });
+      });
+  } else {
+      console.error('Dropdown menu not found');
+  }
 }
 
 // Check user authentication and role
 onAuthStateChanged(auth, (user) => {
-    if (user) {
-        const userId = user.uid;
-        const userRef = ref(database, 'Accounts/' + userId);
-        get(userRef).then((snapshot) => {
-            if (snapshot.exists()) {
-                const userData = snapshot.val();
-                const username = userData.username || 'User'; // Default to 'User' if no username is found
-                const role = userData.role || 'user'; // Default to 'user' if no role is found
-                createDropdownMenu(username, role);
+  if (user) {
+      const userId = user.uid;
+      const userRef = ref(database, 'Accounts/' + userId);
+      get(userRef).then((snapshot) => {
+          if (snapshot.exists()) {
+              const userData = snapshot.val();
+              const username = userData.username || 'User'; // Default to 'User' if no username is found
+              const role = userData.role || 'user'; // Default to 'user' if no role is found
+              createDropdownMenu(username, role);
+          } else {
+              // Redirect to login if no user data is found
+              window.location.href = 'login.html';
+          }
+      }).catch((error) => {
+          console.error("Error fetching user data:", error);
+      });
+  } else {
+      // Redirect to login if no user is authenticated
+      window.location.href = 'login.html';
+  }
+});
+
+
+const profilePicture = document.getElementById('profile-picture');
+
+        // Fetch user data when authenticated
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                const userId = user.uid;
+                const profilePicRef = storageRef(storage, 'profilePictures/' + userId + '/profile.jpg');
+
+                // Fetch and display the profile picture
+                getDownloadURL(profilePicRef)
+                    .then((url) => {
+                        profilePicture.src = url; // Set the profile picture
+                    })
+                    .catch((error) => {
+                        console.error("Error loading profile picture:", error);
+                        profilePicture.src = 'framework/img/Profile.png'; // Default picture if not available
+                    });
             } else {
-                // Redirect to login if no user data is found
-                window.location.href = 'login.html';
+                window.location.href = 'login.html'; // Redirect to login if user is not authenticated
+            }
+        });
+
+        const map = L.map('map').setView([10.3095, 123.8914], 13); // Default coordinates
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        
+        // Function to locate the gym on the map
+        async function locateGym(location) {
+            try {
+                const { lat, lon } = await geocodeAddress(location);
+                if (lat && lon) {
+                    map.setView([lat, lon], 13);
+                    L.marker([lat, lon]).addTo(map).bindPopup(`Gym Location: ${location}`).openPopup();
+                    await fetchWeatherData(lat, lon);
+                } else {
+                    console.error('Unable to locate the gym.');
+                }
+            } catch (error) {
+                console.error('Error locating the gym:', error);
+            }
+        }
+        
+        // Function to fetch weather data
+        async function MapData(lat, lon) {
+            const apiKey = '3c52706688064b3038c2328bbbc4cba0'; // Replace with your OpenWeatherMap API key
+            const url = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude=hourly,daily&appid=${apiKey}&units=metric`;
+        
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                if (data.current && data.current.weather && data.current.weather.length > 0) {
+                    const weatherDescription = data.current.weather[0].description;
+                    const temperature = data.current.temp;
+        
+                    const marker = L.marker([lat, lon]).addTo(map);
+                    marker.bindPopup(`
+                        <b>Weather:</b><br>
+                        ${weatherDescription}<br>
+                        Temperature: ${temperature}°C
+                    `).openPopup();
+                } else {
+                    console.error('Weather data is missing or in an unexpected format:', data);
+                }
+            } catch (error) {
+                console.error('Error fetching weather data:', error);
+            }
+        }
+        // Call the function with the coordinates for Lapu-Lapu City
+        MapData(10.3095, 123.8914); // Coordinates for Lapu-Lapu City
+        
+        // Function to geocode address
+        async function geocodeAddress(address) {
+            const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`;
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                if (data.length > 0) {
+                    return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+                } else {
+                    console.error('Address not found');
+                    return null;
+                }
+            } catch (error) {
+                console.error('Error geocoding address:', error);
+                return null;
+            }
+        }
+        
+        // Event listener for search button
+        document.getElementById('searchButton')?.addEventListener('click', async () => {
+            const address = document.getElementById('searchBar').value;
+            if (address) {
+                try {
+                    const location = await geocodeAddress(address);
+                    if (location) {
+                        map.setView([location.lat, location.lon], 13); // Center map on the searched location
+                        L.marker([location.lat, location.lon]).addTo(map)
+                            .bindPopup(`<b>${address}</b>`)
+                            .openPopup();
+                        
+                        // Optionally fetch weather data for the searched location
+                        await MapData(location.lat, location.lon);
+                    }
+                } catch (error) {
+                    console.error('Error during search:', error);
+                }
+            } else {
+                console.warn('Search input is empty.');
+            }
+        });
+
+        
+        document.addEventListener("DOMContentLoaded", function() {
+            // Reference to the trainers table in Firebase
+            const trainersRef = ref(database, 'TrainerForm');
+            // Reference to the membership plans in Firebase
+            const membershipPlansRef = ref(database, 'membershipPlans');
+            // Reference to the gym profiles in Firebase
+            const GymProfileref = ref(database, 'GymForms');
+          
+            // Function to show the confirmation message
+            function showConfirmationMessage() {
+              const messageElement = document.getElementById('confirmation-message');
+              if (messageElement) {
+                messageElement.classList.add('active');
+                setTimeout(() => {
+                  messageElement.classList.remove('active');
+                }, 5000); // Hide message after 5 seconds
+              }
+            }
+          
+            // Function to redirect to login
+            window.redirectToLogin = function() {
+              window.location.href = 'login.html';
+            }
+          
+            // Function to create HTML for each trainer
+            window.createTrainerCard = function(trainer) {
+              return `
+                <div class="trainer-card">
+                  <img src="${trainer.TrainerPhoto}" alt="${trainer.Name}" class="trainer-photo">
+                  <h3>${trainer.TrainerName}</h3>
+                  <p><strong>Available Only:</strong> ${trainer.Days}</p>
+                  <p><strong>Experience:</strong> ${trainer.Experience}</p>
+                  <p><strong>Expertise:</strong> ${trainer.Expertise}</p>
+                  <a href="#" class="btn-book-now" onclick="showConfirmationMessage()">Book Me Now</a>
+                </div>
+              `;
+            }
+          
+            // Function to create a Membership Plan Card
+            function createMembershipCard(plan) {
+              return `
+                <div class="membership-plan">
+                  <h3>${plan.name}</h3>
+                  <p class="price">₱${plan.price}</p>
+                  <p class="description">${plan.description}</p>
+                  <a href="login.html" class="btn btn-secondary">Apply Now</a>
+                </div>
+              `;
+            }
+          
+            // Function to create Gym Profile Card
+            function createGymProfileCard(gym) {
+                return `
+                  <div class="gym-profile-card">
+                    <div class="gym-profile-header">
+                      <img src="${gym.gymPhoto}" alt="${gym.gymName}" class="gym-photo">
+                      <h3>${gym.gymName}</h3>
+                    </div>
+                    <div class="gym-profile-details">
+                      <p><strong>Location:</strong> ${gym.gymLocation}</p>
+                      <p><strong>Equipment:</strong> ${gym.gymEquipment}</p>
+                      <p><strong>Programs:</strong> ${gym.gymPrograms}</p>
+                      <p><strong>Contact:</strong> ${gym.gymContact}</p>
+                      <p><strong>Opening Time:</strong> ${gym.gymOpeningTime}AM</p>
+                      <p><strong>Closing Time:</strong> ${gym.gymClosingTime}PM</p>
+                      <a href="#" class="btn-primary" onclick="showConfirmationMessage()">Contact Us</a>
+                      <a href="#" class="btn-secondary locate-button" data-location="${gym.gymLocation}">Locate Me</a>
+                    </div>
+                  </div>
+                `;
+            }
+            
+            // Function to handle the click event of "Locate Me" buttons
+            function handleLocateButtonClick(event) {
+                const target = event.target; // Get the actual clicked element
+            
+                // Check if the target is the button we expect
+                if (target && target.classList.contains('locate-button')) {
+                    const location = target.getAttribute('data-location');
+                    if (location) {
+                        const searchBar = document.getElementById('searchBar');
+                        if (searchBar) {
+                            searchBar.value = location; // Update search bar
+            
+                            // Trigger the search functionality
+                            const searchButton = document.getElementById('searchButton');
+                            if (searchButton) {
+                                searchButton.click();
+                            }
+                        } else {
+                            console.error('Search bar not found');
+                        }
+                    } else {
+                        console.error('Location data attribute not found');
+                    }
+                }
+            }
+            
+            // Add event listener for dynamically created "Locate Me" buttons
+            document.addEventListener('click', handleLocateButtonClick);
+            
+                        
+          
+            // Fetch trainers data from Firebase
+            onValue(trainersRef, function(snapshot) {
+              const data = snapshot.val();
+              const trainerProfilesContainer = document.getElementById('trainer-profiles');
+          
+              if (trainerProfilesContainer) {
+                trainerProfilesContainer.innerHTML = ''; // Clear existing content
+          
+                for (const key in data) {
+                  if (data.hasOwnProperty(key)) {
+                    const trainer = data[key];
+                    trainerProfilesContainer.innerHTML += createTrainerCard(trainer);
+                  }
+                }
+              } else {
+                console.error("Trainer profiles container not found in the DOM");
+              }
+            });
+          
+            // Fetch membership plans data from Firebase
+            onValue(membershipPlansRef, function(snapshot) {
+              const data = snapshot.val();
+              const membershipSection = document.getElementById('membership-table');
+              
+              if (membershipSection) {
+                membershipSection.innerHTML = ''; // Clear existing content
+          
+                for (const key in data) {
+                  const plan = data[key];
+                  membershipSection.innerHTML += createMembershipCard(plan);
+                }
+              } else {
+                console.error("Membership section not found in the DOM");
+              }
+            });
+          
+            // Fetch gym profiles data from Firebase
+            onValue(GymProfileref, function(snapshot) {
+                const data = snapshot.val();
+                console.log('Gym profiles data:', data); // Debugging line
+                const gymprofilesection = document.getElementById('gym-profile');
+                
+                if (gymprofilesection) {
+                  gymprofilesection.innerHTML = ''; // Clear existing content
+              
+                  for (const key in data) {
+                    if (data.hasOwnProperty(key)) {
+                      const gym = data[key];
+                      console.log('Processing gym:', gym); // Debugging line
+                      gymprofilesection.innerHTML += createGymProfileCard(gym);
+                    }
+                  }
+                } else {
+                  console.error("Gym Profile section not found in the DOM");
+                }
+              });
+          });
+          document.addEventListener('DOMContentLoaded', () => {
+            const locateButton = document.getElementById('locate-button');
+            if (locateButton) {
+              locateButton.addEventListener('click', function(event) {
+                event.preventDefault(); // Prevent default anchor behavior
+                const location = this.getAttribute('data-location');
+                locateGym(location);
+              });
+            }
+          });
+          const personalInfoLink = document.querySelector('.dropdown-item[href="Pinfo.html"]');
+          if (personalInfoLink) {
+              personalInfoLink.addEventListener('click', function(event) {
+                  window.location.href = 'Pinfo.html'; // Explicitly navigate to the page
+              });
+          }
+
+          window.filterProfiles = function() {
+            const input = document.getElementById('search-input');
+            const filter = input.value.toLowerCase();
+            const profiles = document.querySelectorAll('.gym-profile-item'); // Assuming each gym profile has this class
+    
+            profiles.forEach(profile => {
+                const text = profile.textContent.toLowerCase();
+                profile.style.display = text.includes(filter) ? '' : 'none';
+            });
+        }
+      
+      let selectedDate; // Variable to store the selected date
+
+      document.addEventListener('DOMContentLoaded', function() {
+        const calendarEl = document.getElementById('calendar');
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            events: [], // Initially empty
+            dateClick: function(info) {
+                selectedDate = info.dateStr; // Save the selected date
+                $('#noteModal').modal('show'); // Show the custom modal
+            }
+        });
+    
+        calendar.render();
+    
+        // Load notes from localStorage
+        const savedNotes = JSON.parse(localStorage.getItem('calendarNotes')) || [];
+        savedNotes.forEach(note => {
+            calendar.addEvent({
+                title: note.title,
+                start: note.start,
+                allDay: true
+            });
+        });
+    
+        // Save note button event
+        document.getElementById('saveNote').addEventListener('click', function() {
+            const noteText = document.getElementById('noteText').value;
+            if (noteText) {
+                // Add event to calendar
+                calendar.addEvent({
+                    title: noteText,
+                    start: selectedDate,
+                    allDay: true
+                });
+    
+                // Save to localStorage
+                savedNotes.push({ title: noteText, start: selectedDate });
+                localStorage.setItem('calendarNotes', JSON.stringify(savedNotes));
+    
+                $('#noteModal').modal('hide'); // Hide the modal
+                document.getElementById('noteText').value = ''; // Clear the textarea
+            }
+        });
+    });
+    
+    function updateNotificationBell(userId) {
+        const notificationsRef = ref(database, 'notifications/' + userId);
+        
+        get(notificationsRef).then((snapshot) => {
+            if (snapshot.exists()) {
+                const notifications = snapshot.val();
+                const totalNotifications = notifications.transaction + notifications.emails + notifications.membershipPlans;
+                
+                const notificationBell = document.getElementById('notification-bell');
+                if (totalNotifications > 0) {
+                    notificationBell.innerHTML = `<i class="fas fa-bell"></i> <span class="badge">${totalNotifications}</span>`;
+                } else {
+                    notificationBell.innerHTML = `<i class="fas fa-bell"></i>`;
+                }
+            } else {
+                console.log('No notifications found for user:', userId);
             }
         }).catch((error) => {
-            console.error("Error fetching user data:", error);
+            console.error('Error fetching notifications:', error);
         });
-    } else {
-        // Redirect to login if no user is authenticated
-        window.location.href = 'login.html';
-    }
-});
-
-// Function to display products in the table
-function displayProducts() {
-    const tableBody = document.getElementById('productTableBody');
-    if (!tableBody) {
-        console.error('Element with ID "productTableBody" not found.');
-        return;
-    }
-
-    const productsRef = ref(database, 'dashboard/products');
-    get(productsRef).then((snapshot) => {
-        if (snapshot.exists()) {
-            tableBody.innerHTML = ''; // Clear the table body before reloading
-            snapshot.forEach((childSnapshot) => {
-                const data = childSnapshot.val();
-                const newRow = document.createElement('tr');
-
-                // Ensure 'photoURL' is provided by the gym owner; otherwise, fallback to a default image
-                const photoURL = data.photoURL || 'default-image.png';
-
-                newRow.innerHTML = `
-                    <td><img src="${photoURL}" alt="${data.name}" style="width: 50px; height: auto;"></td>
-                    <td>${data.name}</td>
-                    <td>$${data.price}</td>
-                    <td>${data.description}</td>
-                    <td>${data.category}</td>
-                    <td>${data.quantity}</td>
-                    <td>${data.dateAdded}</td>
-                    <td><button class="btn btn-primary">Buy</button></td>
-                `;
-
-                tableBody.appendChild(newRow);
-            });
-        } else {
-            console.log('No products found.');
-        }
-    }).catch((error) => {
-        console.error('Error loading products:', error);
-    });
-}
-
-
-// Initialize FullCalendar
-document.addEventListener('DOMContentLoaded', function() {
-    var calendarEl = document.getElementById('calendar');
-    if (calendarEl) {
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            height: 'auto',
-            aspectRatio: 1.5,
-            editable: true,
-            selectable: true,
-            events: [
-                { title: 'Gym Session', start: '2024-08-01T10:00:00', end: '2024-08-01T12:00:00' },
-                { title: 'Personal Training', start: '2024-08-05T09:00:00', end: '2024-08-05T10:00:00' }
-            ],
-            dateClick: function(info) {
-                alert('Date clicked: ' + info.dateStr);
-            }
-        });
-        calendar.render();
-    } else {
-        console.error('Calendar element not found');
-    }
-
-    // Call function to display products
-    displayProducts();
-});
-
-// Show/Hide notification dropdown
-document.querySelector('.fa-bell')?.addEventListener('click', () => {
-    const notificationDropdown = document.getElementById('notificationDropdown');
-    if (notificationDropdown) {
-        const isVisible = notificationDropdown.style.display === 'block';
-        notificationDropdown.style.display = isVisible ? 'none' : 'block';
-    } else {
-        console.error('Notification dropdown not found');
-    }
-});
-
-// Render notifications and add show more functionality
-const notifications = [
-    { message: 'New member registration', timestamp: '2024-07-31 10:00' },
-    { message: 'Payment received from John Doe', timestamp: '2024-07-30 14:30' },
-    { message: 'Class schedule updated', timestamp: '2024-07-29 09:00' },
-    { message: 'New promotion added', timestamp: '2024-07-28 16:45' },
-    { message: 'Gym equipment maintenance due', timestamp: '2024-07-27 11:00' }
-];
-
-const notificationList = document.getElementById('notificationList');
-const showMoreButton = document.getElementById('showMore');
-let displayedCount = 3;
-
-function renderNotifications() {
-    if (notificationList) {
-        notificationList.innerHTML = '';
-        notifications.slice(0, displayedCount).forEach((notification) => {
-            const notificationDiv = document.createElement('div');
-            notificationDiv.className = 'notification';
-            notificationDiv.innerHTML = `
-                <p>${notification.message}</p>
-                <small>${notification.timestamp}</small>
-                <button onclick="this.parentElement.remove()">x</button>
-            `;
-            notificationList.appendChild(notificationDiv);
-        });
-
-        // Update Show More button visibility
-        if (displayedCount >= notifications.length) {
-            showMoreButton.style.display = 'none';
-        } else {
-            showMoreButton.style.display = 'block';
-        }
-    } else {
-        console.error('Notification list not found');
-    }
-}
-
-showMoreButton?.addEventListener('click', () => {
-    displayedCount = Math.min(displayedCount + 3, notifications.length);
-    renderNotifications();
-});
-
-renderNotifications();
-
-// Sidebar toggle functionality
-document.addEventListener('DOMContentLoaded', () => {
-    const sidebar = document.querySelector('.sidebar');
-    const openSidebarBtn = document.querySelector('#openSidebar');
-    const mainContent = document.querySelector('.main-content');
-
-    if (openSidebarBtn && sidebar && mainContent) {
-        openSidebarBtn.addEventListener('click', () => {
-            if (sidebar.classList.contains('open')) {
-                sidebar.classList.remove('open');
-                mainContent.classList.remove('shifted');
-            } else {
-                sidebar.classList.add('open');
-                mainContent.classList.add('shifted');
-            }
-        });
-    } else {
-        console.error('Sidebar or openSidebar button not found');
-    }
-});
-
-document.addEventListener('DOMContentLoaded', function () {
-    var dropdownToggle = document.querySelector('.btn-group .dropdown-toggle');
-    var dropdownMenu = document.querySelector('.btn-group .dropdown-menu');
-    
-    // Initialize Bootstrap dropdown
-    var dropdown = new bootstrap.Dropdown(dropdownToggle);
-    
-    // Function to show dropdown
-    function showDropdown() {
-        dropdownMenu.classList.add('show');
     }
     
-    // Function to hide dropdown
-    function hideDropdown() {
-        dropdownMenu.classList.remove('show');
-    }
-    
-    // Show dropdown on hover or click
-    dropdownToggle.addEventListener('mouseover', showDropdown);
-    dropdownToggle.addEventListener('click', showDropdown);
-
-    // Hide dropdown when not hovering over the toggle or menu
-    document.addEventListener('mouseover', function(event) {
-        if (!dropdownToggle.contains(event.target) && !dropdownMenu.contains(event.target)) {
-            hideDropdown();
-        }
-    });
-
-    // Prevent hiding on hover over the dropdown menu
-    dropdownMenu.addEventListener('mouseover', function() {
-        showDropdown();
-    });
-    
-    dropdownMenu.addEventListener('mouseleave', function() {
-        hideDropdown();
-    });
-    
-    function setCurrentUserId(userId) {
-        localStorage.setItem('currentUserId', userId);
-    }
-    
-    function getBillingRecordsForUser(userId) {
-        return JSON.parse(localStorage.getItem(`billingRecords_${userId}`)) || [];
-    }
-    
-    function saveBillingRecordsForUser(userId, records) {
-        localStorage.setItem(`billingRecords_${userId}`, JSON.stringify(records));
-    }
-});
-
-function updateCartCount() {
-    const cartCount = document.getElementById('cartCount');
-    let count = parseInt(cartCount.textContent) + 1;
-    cartCount.textContent = count;
-
-    // Save cart count to localStorage or sessionStorage
-    localStorage.setItem('cartCount', count);
-}
-
-document.querySelector('.fa-shopping-cart').addEventListener('click', function() {
-    window.location.href = 'checkout.html';
-});
-
-let map;
-let searchBox;
-
-function initMap() {
-    // Create a map centered on Lapu-Lapu City, Philippines
-    map = new google.maps.Map(document.getElementById("googleMap"), {
-        center: { lat: 10.2999575, lng: 123.9746768 },
-        zoom: 12
-    });
-
-    // Create a search box and link it to the UI element
-    const input = document.getElementById("search-bar");
-    searchBox = new google.maps.places.SearchBox(input);
-
-    // Bias the SearchBox results towards current map's viewport
-    map.addListener("bounds_changed", () => {
-        searchBox.setBounds(map.getBounds());
-    });
-
-    let markers = [];
-    searchBox.addListener("places_changed", () => {
-        const places = searchBox.getPlaces();
-
-        if (places.length === 0) {
-            return;
-        }
-
-        // Clear out the old markers
-        markers.forEach(marker => marker.setMap(null));
-        markers = [];
-
-        // For each place, get the icon, name, and location
-        const bounds = new google.maps.LatLngBounds();
-        places.forEach(place => {
-            if (!place.geometry || !place.geometry.location) {
-                console.log("Returned place contains no geometry");
-                return;
-            }
-
-            // Create a marker for each place
-            const marker = new google.maps.Marker({
-                map,
-                title: place.name,
-                position: place.geometry.location
-            });
-
-            markers.push(marker);
-
-            if (place.geometry.viewport) {
-                // Only geocodes have viewport
-                bounds.union(place.geometry.viewport);
-            } else {
-                bounds.extend(place.geometry.location);
-            }
-        });
-        map.fitBounds(bounds);
-    });
-}
-
-// Initialize map on page load
-window.onload = initMap;
-
-document.getElementById('notificationBell').addEventListener('click', function() {
-    var notificationList = document.getElementById('notificationList');
-    notificationList.classList.toggle('show');
-});
-
-// Optional: Hide notification list when clicking outside of it
-document.addEventListener('DOMContentLoaded', function() {
-    var notificationBell = document.getElementById('notificationBell');
-    var notificationList = document.getElementById('notificationList');
-
-    notificationBell.addEventListener('click', function() {
-        notificationList.classList.toggle('show');
-    });
-
-    document.addEventListener('click', function(event) {
-        if (!notificationBell.contains(event.target) && !notificationList.contains(event.target)) {
-            notificationList.classList.remove('show');
-        }
-    });
-});

@@ -45,14 +45,6 @@
                     <li><a href="#trainers">Trainers</a></li>
                     <li><a href="#membership-section">Membership</a></li>
                     <li><a href="#about">About</a></li>
-                    <li class="nav-item dropdown" id="guestDropdown" style="display: none;">
-                        <a class="nav dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span id="guest-id">Your Guest ID: N/A</span>
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="#" id="logoutButton">Log Out</a></li>
-                        </ul>
-                    </li>
                 </ul>
                 </div>
             </div>
@@ -66,79 +58,15 @@
         </div>
     </header>
 
-    <div class="modal fade" id="trainer1Modal" tabindex="-1" aria-labelledby="trainer1ModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="trainer1ModalLabel">John Doe</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>John specializes in strength training and nutrition. With over 10 years of experience, he helps clients build muscle and improve their overall health.</p>
-                    <p>Contact: john.doe@example.com</p>
-                    <p>Available Hours: Mon-Fri 9am-6pm</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="modal fade" id="trainer2Modal" tabindex="-1" aria-labelledby="trainer2ModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="trainer2ModalLabel">Jane Smith</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Jane is an expert in yoga and flexibility training. Her classes are designed to improve balance, flexibility, and mental well-being.</p>
-                    <p>Contact: jane.smith@example.com</p>
-                    <p>Available Hours: Mon-Sat 10am-5pm</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="modal fade" id="trainer3Modal" tabindex="-1" aria-labelledby="trainer3ModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="trainer3ModalLabel">Mike Johnson</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Mike is certified in high-intensity interval training (HIIT) and cardiovascular fitness. He provides intense workouts to boost endurance and stamina.</p>
-                    <p>Contact: mike.johnson@example.com</p>
-                    <p>Available Hours: Tue-Sun 8am-7pm</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="modal fade" id="trainer4Modal" tabindex="-1" aria-labelledby="trainer4ModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="trainer4ModalLabel">Emily Davis</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Emily focuses on functional training and injury prevention. She uses her background in sports medicine to help clients recover from injuries and prevent future issues.</p>
-                    <p>Contact: emily.davis@example.com</p>
-                    <p>Available Hours: Mon-Fri 9am-6pm</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    
     <section id="membership-section">
         <div class="membership-header">Membership Plans</div>
         <div class="membership-container">
-            
-            <div class="membership-table" id="membership-table">
-                <!-- Membership plans will be injected here -->
-            </div>
+          <div class="membership-table" id="membership-table">
+            <!-- Membership plans will be injected here -->
+          </div>
         </div>
-    </section>
+      </section>
+      
     
     <section id="profiling" class="section">
         <div class="container">
@@ -152,15 +80,15 @@
 
     <section id="trainers" class="section bg-light">
         <div class="container">
-            <h2>Our Trainers</h2>
-            <div class="trainers-scroll-container">
-                <div class="trainers-content" id="trainer-profiles">
-                    <!-- Trainer profiles will be dynamically added here -->
-                </div>
+          <h2>Our Trainers</h2>
+          <div class="trainers-scroll-container">
+            <div class="trainers-content" id="trainer-profiles">
+              <!-- Trainer profiles will be dynamically added here -->
             </div>
+          </div>
         </div>
-    </section>
-        
+      </section>
+      
     </section>
     <section id="services-promotions" class="section bg-light">
         <div class="container">
@@ -189,26 +117,40 @@
             </div>
         </div>
     </section>
-    <section id="about" class="section"></section>
-        <div class="container">
-            <h2>About Us</h2>
-            <p>At PEAK PULSE, we are committed to helping you achieve your fitness goals. Our gym offers a wide range of equipment, classes, and personal training options to suit your needs. Whether you're a beginner or an experienced athlete, we have something for everyone.</p>
-            <div class="features">
-                <div class="feature">
+    <!-- About Section with Background Image Cards -->
+<section id="about" class="section bg-light">
+    <div class="container">
+        <h2>About Us</h2>
+        <p1>At PEAK PULSE, we are committed to helping you achieve your fitness goals. Our gym offers a wide range of equipment, classes, and personal training options to suit your needs. Whether you're a beginner or an experienced athlete, we have something for everyone.</p1>
+        
+        <div class="features">
+            <!-- Modern Equipment -->
+            <div class="feature" style="background-image: url('framework/img/Dumbbell.jpg');">
+                <div class="overlay">
                     <h3>Modern Equipment</h3>
                     <p>Our gym is equipped with the latest fitness technology to ensure you get the best workout experience.</p>
                 </div>
-                <div class="feature">
+            </div>
+            
+            <!-- Expert Trainers -->
+            <div class="feature" style="background-image: url('framework/img/Trainers.jpg');">
+                <div class="overlay">
                     <h3>Expert Trainers</h3>
                     <p>Our certified trainers are here to guide you through your fitness journey with personalized training programs.</p>
                 </div>
-                <div class="feature">
+            </div>
+            
+            <!-- Group Classes -->
+            <div class="feature" style="background-image: url('framework/img/Classes.jpg');">
+                <div class="overlay">
                     <h3>Group Classes</h3>
                     <p>Join our diverse range of group classes to stay motivated and make new friends.</p>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
+<div id="error-message" class="error-message hidden"></div>
 
     <footer>
         <div class="container">
@@ -216,8 +158,11 @@
         </div>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <!-- Firebase App (the core Firebase SDK) -->
-        
+    <div id="confirmation-message" class="confirmation-message">
+            <p>Please log in to proceed with this action.</p>
+            <button onclick="redirectToLogin()">Log In</button>
+    </div>
+          
 
 </body>
 </html>

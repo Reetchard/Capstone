@@ -98,30 +98,26 @@ window.addEventListener('load', () => {
 
 window.deleteSelected = function() {
     const selectedCheckboxes = document.querySelectorAll('.select-gym:checked');
-
     if (selectedCheckboxes.length === 0) {
-        displayMessage('You need to select at least one gym profile to delete. Please select profiles and try again.', 'error');
+        displayMessages('You need to select at least one gym profile to delete.', 'error');
         return;
     }
 
-    // Display custom confirmation dialog
-    displayConfirmation('Are you sure you want to delete the selected profiles? This action cannot be undone.', () => {
+    // Display confirmation dialog
+    displayConfirmation('Are you sure you want to delete the selected profiles?', () => {
         selectedCheckboxes.forEach(checkbox => {
-            const key = checkbox.getAttribute('data-key'); // Gym profile key (ID)
-            const gymRef = ref(database, 'GymForms/' + key); // Reference to gym profile
-
-            // Remove the gym profile from Firebase
+            const key = checkbox.getAttribute('data-key');
+            const gymRef = ref(database, 'GymForms/' + key);
             set(gymRef, null)
                 .then(() => {
-                    displayMessage(`The profile with key ${key} has been successfully removed.`, 'success');
+                    displayMessages(`Profile with key ${key} has been deleted.`, 'success');
                 })
                 .catch(() => {
-                    displayMessage(`Error deleting profile with key ${key}. Please try again later.`, 'error');
+                    displayMessages(`Error deleting profile with key ${key}.`, 'error');
                 });
         });
 
-        // Reload the gym profiles after deletion
-        loadGymProfiles();
+        loadGymProfiles(); // Reload profiles after deletion
     });
 };
 
@@ -212,35 +208,32 @@ function displayConfirmation(message, callback) {
 }
 
 // Function to display floating success/error messages
-function displayMessage(message, type) {
-    const messageContainer = document.getElementById('message-container');
-    const messageText = document.getElementById('message-text');
+window.displayMessages = function(message, type) {
+    const messageArea = document.getElementById('messageArea');
 
-    messageText.textContent = message;
+    // Clear any previous content and remove previous classes
+    messageArea.textContent = '';
+    messageArea.className = ''; // Reset the class
 
+    // Set the message content
+    messageArea.textContent = message;
+
+    // Add the correct class based on the message type (success or error)
     if (type === 'success') {
-        messageContainer.style.backgroundColor = '#d4edda'; // Light green background for success
-        messageContainer.style.color = '#155724'; // Dark green text color
-        messageContainer.style.border = '1px solid #c3e6cb'; // Border matching the green theme
-    } else {
-        messageContainer.style.backgroundColor = '#f8d7da'; // Light red background for error
-        messageContainer.style.color = '#721c24'; // Dark red text color
-        messageContainer.style.border = '1px solid #f5c6cb'; // Border matching the red theme
+        messageArea.classList.add('success');
+    } else if (type === 'error') {
+        messageArea.classList.add('error');
     }
 
-    // Center the message container
-    messageContainer.style.position = 'fixed';
-    messageContainer.style.top = '20px'; // Adjust as needed
-    messageContainer.style.left = '50%';
-    messageContainer.style.transform = 'translateX(-50%)';
+    // Display the message with the show class
+    messageArea.classList.add('show');
 
-    messageContainer.style.display = 'block'; // Make the message container visible
-
-    // Hide the message after 5 seconds
+    // Automatically hide the message after 1 second (1000ms)
     setTimeout(() => {
-        messageContainer.style.display = 'none';
-    }, 5000);
+        messageArea.classList.remove('show');
+    }, 5000); // Disappears after 5 second
 }
+
 
 window.openModal = function(imageSrc) {
     const modal = document.getElementById('imageModal');
@@ -259,16 +252,16 @@ window.openModal = function(imageSrc) {
 }
 
 window.updateStatus = function(status, key) {
-    const gymRef = ref(database, 'GymForms/' + key); // Reference to the gym profile in Firebase
-
-    // Update only the status field of the gym profile
+    const gymRef = ref(database, 'GymForms/' + key);
     update(gymRef, { status: status })
         .then(() => {
-            displayMessage(`Success! Profile with key ${key} is now marked as ${status}.`, 'success');
-            loadGymProfiles(); // Reload the gym profiles after update
+            displayMessages(`Profile with key ${key} is now marked as ${status}.`, 'success');
+            loadGymProfiles(); // Reload profiles after update
         })
         .catch(() => {
-            displayMessage('Oops! We ran into a hiccup while updating the profile status. Please try again later.', 'error');
+            displayMessages('Error updating status. Please try again.', 'error');
         });
 };
+
+window.onload = loadGymProfiles;
 

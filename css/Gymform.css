@@ -86,3 +86,8 @@ form button:hover {
 #gymOwnerFormSuccessMessage {
     color: #4caf50;
 }
+#map {
+    height: 400px; /* Set a fixed height for the map */
+    width: 100%; /* Make the map responsive */
+    margin-bottom: 20px; /* Space below the map */
+}

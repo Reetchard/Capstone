@@ -39,22 +39,34 @@ $('#editPlanForm').on('submit', function(e) {
     e.preventDefault();
 
     var id = $('#editPlanId').val();
-    var name = $('#editPlanName').val();
+    var membershipType = $('#membershipType').val();
     var price = $('#editPlanPrice').val();
     var description = tinymce.get('editPlanDescription').getContent(); // Get content from TinyMCE
+    var accessLevel = $('#accessLevel').val();
+    var allowedClasses = $('#allowedClasses').val();
+    var guestPasses = $('#guestPasses').val();
+    var membershipType = $('#membershipType').val();
+    var referralCode = $('#referralCode').val();
+    var membershipDays = $('#membershipDays').val();
 
     // Update the card details in Firebase Realtime Database
     update(ref(database, 'membershipPlans/' + id), {
-        name: name,
+        membershipType: membershipType,
         price: price,
-        description: description
+        description: description,
+        accessLevel: accessLevel,
+        allowedClasses: allowedClasses,
+        guestPasses: guestPasses,
+        membershipType: membershipType,
+        referralCode: referralCode,
+        membershipDays:membershipDays
     }).then(() => {
         // Successfully updated in Firebase
         var card = $('#' + id);
 
         if (card.length) {
-            card.find('.card-header').text(name + ' Plan');
-            card.find('.card-body').eq(0).find('.card-text').eq(0).text(name);
+            card.find('.card-header').text(membershipType + ' Plan');
+            card.find('.card-body').eq(0).find('.card-text').eq(0).text(membershipType);
             card.find('.card-price').text('₱' + price);
             card.find('.card-body').eq(0).find('.card-text').eq(1).html(description); // Use .html() to render HTML
 
@@ -74,7 +86,6 @@ $('#editPlanForm').on('submit', function(e) {
         $('#errorModal').modal('show');
     });
 });
-
 // Handle clearing the data from Firebase
 $('#clearPlanButton').on('click', function() {
     var id = $('#editPlanId').val();
@@ -101,8 +112,8 @@ $(document).ready(function() {
             $.each(plans, function(id, plan) {
                 var card = $('#' + id);
                 if (card.length) {
-                    card.find('.card-header').text(plan.name + ' Plan');
-                    card.find('.card-body').eq(0).find('.card-text').eq(0).text(plan.name);
+                    card.find('.card-header').text(plan.membershipType + ' Plan');
+                    card.find('.card-body').eq(0).find('.card-text').eq(0).text(plan.membershipType);
                     card.find('.card-price').text('₱' + plan.price);
                     card.find('.card-body').eq(0).find('.card-text').eq(1).text(plan.description); // Fixed selector
                 }

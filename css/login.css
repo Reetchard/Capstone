@@ -177,20 +177,22 @@ input {
 }
 
 .overlay-panel {
-	position: absolute;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex-direction: column;
-	padding: 0 40px;
-	text-align: center;
-	top: 0;
-	height: 100%;
-	width: 50%;
-	transform: translateX(0);
-	transition: transform 0.6s ease-in-out;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 0 60px; /* Increased padding for more space */
+    text-align: center;
+    top: 0;
+    height: 100%;
+    width: 60%; /* Increased width for a larger overlay panel */
+    transform: translateX(0);
+    transition: transform 0.6s ease-in-out;
 }
-
+.container.right-panel-active .overlay-panel {
+    transform: translateX(0); /* Ensure it stays centered when active */
+}
 .overlay-left {
 	transform: translateX(-20%);
 }
@@ -377,4 +379,32 @@ h2 {
     input, select {
         font-size: 12px; /* Smaller font size for inputs and selects */
     }
+}
+
+.membership-info {
+    margin-top: 10px; /* Space above the message */
+    padding: 10px; /* Padding inside the message box */
+    background-color: #f9f9f9; /* Light background color */
+    border-left: 5px solid #007bff; /* Blue left border */
+    color: #333; /* Dark text color */
+    font-size: 14px; /* Slightly larger font */
+    border-radius: 4px; /* Rounded corners */
+    display: none; /* Hidden by default */
+}
+
+.membership-info.active {
+    display: block; /* Show when active */
+}
+
+.form-control {
+    width: 100%; /* Full width input fields */
+    padding: 8px; /* Padding for inputs */
+    margin-bottom: 15px; /* Space below input fields */
+    border: 1px solid #ccc; /* Light border */
+    border-radius: 4px; /* Rounded corners */
+}
+
+.btn {
+    padding: 10px 15px; /* Button padding */
+    border-radius: 4px; /* Rounded corners */
 }

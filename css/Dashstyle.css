@@ -1,758 +1,811 @@
-/* General styles */
-body {
-    font-family: 'Roboto', sans-serif;
-    margin: 0;
+/* Dropdown Menu */
+.dropdown-menu {
+    position: absolute; /* Ensures the dropdown is positioned relative to its parent */
+    top: 100%; /* Position it below the parent button */
+    left: 0; /* Align with the left edge of the parent button */
+    margin: 0; /* Remove default margin */
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    opacity: 0;
+    transform: translateY(-10px);
+    display: block; /* Use block to ensure it's properly displayed */
+    background-color: #343a40;
+    border: 1px solid #454d55;
+    border-radius: 0.25rem;
+    padding: 0.5rem 0;
+    z-index: 1000; /* Ensure it appears on top of other elements */
+}
+
+.dropdown-menu.show {
+    opacity: 1;
+    transform: translateY(0); /* Reset transform on show */
+}
+
+/* Dropdown Items */
+.dropdown-item {
+    color: #ffffff;
+}
+
+.dropdown-item:hover {
+    background-color: #495057;
+    color: #ffffff;
+    text-decoration: none;
+}
+
+/* Dropdown Divider */
+.dropdown-divider {
+    border-top: 1px solid #495057;
+}
+
+/* Circular Button */
+.btn-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
     padding: 0;
     display: flex;
-    background-color: #f8f9fa;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #ffffff;
+    background-color: #007bff;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.sidebar {
-    height: 100vh;
-    width: 250px;
-    background: #343a40;
+.btn-circle:hover {
+    background-color: #0056b3;
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btn-circle .profile-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+/* Ensure the button containing profile picture has relative positioning */
+.btn-circle {
+    position: relative; /* Needed for absolute positioning of dropdown */
+}
+
+/* Adjusting the button to have a clearer click area */
+.btn-circle .profile-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.notification-bell {
     position: fixed;
-    top: 0;
-    left: 0;
-    padding: 20px;
-    color: #fff;
-    transition: width 0.3s ease, background 0.3s ease;
-}
-
-.sidebar:hover {
-    width: 300px;
-    background: #23272b;
-}
-
-.sidebar img {
-    width: 60px;
-    height: auto;
-    display: block;
-    margin: 0 auto 20px;
-}
-
-.sidebar a {
-    color: #fff;
-    text-decoration: none;
-    display: block;
-    padding: 10px;
-    border-radius: 5px;
-    margin: 5px 0;
-    transition: background 0.3s ease, padding 0.3s ease;
-}
-
-.sidebar a:hover {
-    background: #495057;
-    padding-left: 15px; /* Indentation effect on hover */
-}
-
-.navbar-icons {
+    top: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    background: #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    margin-bottom: 20px;
-}
-
-.navbar-icons i {
-    margin-left: 15px;
+    justify-content: center;
     cursor: pointer;
-    font-size: 1.5rem;
-    color: #fff;
-    transition: color 0.3s ease;
+    z-index: 1000; /* Ensure it's above other elements */
 }
 
-.navbar-icons i:hover {
-    color: #007bff;
-}
-
-.main-content {
-    margin-left: 250px;
-    padding: 20px;
-    width: calc(100% - 250px);
-    transition: margin-left 0.3s ease, width 0.3s ease;
-}
-
-.hero {
-    background: url('framework/img/LandPage1.jpg') no-repeat center center/cover;
-    color: #fff;
-    text-align: center;
-    padding: 150px 0;
-    background-attachment: fixed;
-}
-
-.hero h2 {
-    font-size: 3.5rem;
-    margin-bottom: 20px;
-    transition: font-size 0.3s ease;
-}
-
-.hero p {
-    font-size: 1.5rem;
-    margin-bottom: 30px;
-}
-
-.card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-}
-
-.section {
-    padding: 60px 20px;
-}
-
-/* Dropdown container */
-/* Dropdown container */
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-/* Dropdown button */
-.dropbtn {
-    background-color: #007bff; /* Button background color */
-    color: white; /* Button text color */
-    padding: 10px 20px; /* Button padding */
-    border: none; /* Remove button border */
-    border-radius: 5px; /* Rounded corners */
-    cursor: pointer; /* Pointer cursor on hover */
-    font-size: 1rem; /* Font size */
-    transition: background-color 0.3s ease, transform 0.3s ease;
-    width: 100%; /* Make button take full width of its container */
-    box-sizing: border-box; /* Include padding and border in the element's total width and height */
-}
-
-/* Change button background on hover */
-.dropbtn:hover {
-    background-color: #0056b3; /* Darker blue */
-    transform: scale(1.05); /* Slightly enlarge button on hover */
-}
-
-/* Dropdown content */
-.dropdown-content {
-    display: none; /* Hide dropdown by default */
-    position: absolute;
-    background-color: #343a40; /* Dark background color */
-    min-width: 100%; /* Match width of the button */
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Shadow for depth */
-    z-index: 1000; /* Ensure dropdown appears on top */
-    right: 0; /* Align to the right of the button */
-    border-radius: 8px; /* Rounded corners */
-    border: 1px solid #495057; /* Border to separate from the background */
-    opacity: 0; /* Start with invisible */
-    visibility: hidden; /* Hidden by default */
-    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease; /* Smooth transitions */
-    transform: translateY(10px); /* Start with a slight offset */
-}
-
-/* Show dropdown on hover */
-.dropdown:hover .dropdown-content {
-    display: block; /* Show dropdown */
-    opacity: 1; /* Fully visible */
-    visibility: visible; /* Visible */
-    transform: translateY(0); /* Move to original position */
-}
-
-/* Dropdown links */
-.dropdown-content a {
-    color: #fff; /* White text color */
-    padding: 12px 16px; /* Padding for items */
-    text-decoration: none; /* Remove underline */
-    display: block; /* Block display for full-width clickable area */
-    border-bottom: 1px solid #495057; /* Subtle border between items */
-    transition: background-color 0.3s ease; /* Smooth background color transition */
-    border-radius: 5px; /* Rounded corners for items */
-    margin: 0; /* Remove margin between items */
-}
-
-/* Remove border from the last item */
-.dropdown-content a:last-child {
-    border-bottom: none; /* No border for the last item */
-}
-
-/* Hover effect for dropdown links */
-.dropdown-content a:hover {
-    background-color: #495057; /* Background color on hover */
-    color: #fff; /* Text color on hover */
-}
-
-/* Active item */
-.dropdown-content a.active {
-    background-color: #007bff; /* Highlight active item with a primary color */
-    color: #fff; /* Keep text color white */
-}
-
-/* Optional: Add an arrow for dropdown */
-.dropdown::after {
-    content: '▼'; /* Down arrow symbol */
-    font-size: 0.8rem; /* Adjust size */
-    color: #fff; /* Arrow color */
-    margin-left: 10px; /* Space between button text and arrow */
-    vertical-align: middle; /* Align vertically with text */
-    transition: color 0.3s ease; /* Smooth transition for color */
-}
-
-/* Change arrow color on button hover */
-.dropdown:hover::after {
-    color: #0056b3; /* Darker blue */
-}
-
-/* Calendar styling */
-#calendar {
-    max-width: 90%;
-    margin: 0 auto;
-    height: 500px;
-}
-
-/* Notification Card */
-.notification-card {
-    background: #fff;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-    transition: box-shadow 0.3s ease;
-}
-
-.notification-card:hover {
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-}
-
-.notification-card h3 {
-    margin-bottom: 15px;
-}
-
-.notification {
-    border-bottom: 1px solid #ddd;
-    padding: 10px 0;
-    position: relative;
-}
-
-.notification:last-child {
-    border-bottom: none;
-}
-
-.notification button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    transition: color 0.3s ease;
-}
-
-.notification button:hover {
-    color: #007bff;
-}
-
-.show-more {
-    text-align: center;
-    cursor: pointer;
-    color: #007bff;
-    margin-top: 10px;
-    padding: 10px;
-    background-color: #f1f1f1;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-}
-
-.show-more:hover {
-    background-color: #e9ecef;
-}
-
-.display-section {
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-}
-
-.display-section h3 {
-    margin-bottom: 15px;
-}
-
-.notification-badge {
-    position: absolute;
-    top: -5px;
-    right: -10px;
-    background: red;
-    color: white;
-    border-radius: 50%;
-    padding: 2px 6px;
-    font-size: 12px;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-}
-
-.notification-bell {
-    position: relative;
-    display: inline-block;
-    cursor: pointer;
-    transition: color 0.3s ease;
-}
-
-.notification-bell i {
-    font-size: 1.6rem;
+.notification-bell img {
+    width: 24px;
+    height: 24px;
 }
 
 .notification-bell:hover {
-    color: #ffcc00;
-}
-
-/* Notification dropdown */
-.notification-dropdown {
-    display: none;
-    position: absolute;
-    top: 30px;
-    right: 0;
-    background-color: #343a40;
-    min-width: 200px;
-    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
-    border-radius: 5px;
-    z-index: 1000;
-    overflow-y: auto;
-    max-height: 300px;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-    opacity: 0;
-    visibility: hidden;
-}
-
-.notification-dropdown .notification {
-    border-bottom: 1px solid #495057;
-    padding: 10px;
-    position: relative;
-    color: #fff;
-}
-
-.notification-dropdown .notification:last-child {
-    border-bottom: none;
-}
-
-.notification-dropdown .notification button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-}
-
-.notification-dropdown .notification button:hover {
-    color: #007bff;
-}
-
-.notification-dropdown .show-more {
-    text-align: center;
-    cursor: pointer;
-    color: #007bff;
-    margin-top: 10px;
-    padding: 10px;
-    background-color: #495057;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-}
-
-.notification-dropdown .show-more:hover {
-    background-color: #343a40;
-}
-
-/* Style for the sidebar links */
-.sidebar a {
-    display: flex;
-    align-items: center;
-    color: #ffffff;
-
-    text-decoration: none;
-    padding: 10px;
-    transition: background-color 0.3s ease;
-}
-
-/* Style for the notification bell icon */
-.sidebar .fa-bell {
-    margin-left: 8px;
-    position: relative;
-}
-
-/* Style for the notification badge */
-.notification-badge {
-    position: absolute;
-    top: -5px;
-    right: -10px;
-    background: red;
-    color: white;
-    border-radius: 50%;
-    padding: 2px 6px;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-/* Optional: hover effect for the notification bell */
-.sidebar .fa-bell:hover {
-    color: #ffcc00;
-}
-.dropdown-menu {
-    display: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-.dropdown-menu.show {
-    display: block;
-    opacity: 1;
-}
-.dropdown-item {
-    cursor: pointer;
-}
-
-.membership-section {
     background-color: #f8f9fa;
-    padding: 60px 0;
 }
-.membership-section h2 {
-    margin-bottom: 40px;
-    font-size: 2.5rem;
-    font-weight: 700;
+/* Dropdown Divider */
+.dropdown-divider {
+    border-top: 1px solid #495057;
 }
-.membership-plans {
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-}
-.membership-plan {
-    background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 30px;
-    margin: 15px;
-    flex: 1 1 30%;
-    text-align: center;
-}
-.membership-plan h3 {
-    margin-bottom: 15px;
-    font-size: 1.8rem;
-    font-weight: 600;
-}
-.membership-plan p {
-    font-size: 1.5rem;
-    margin-bottom: 20px;
-    color: #007bff;
-}
-.membership-plan ul {
-    list-style-type: none;
-    padding: 0;
-    margin-bottom: 20px;
-}
-.membership-plan ul li {
-    margin-bottom: 10px;
-    font-size: 1rem;
-}
-.btn-secondary {
-    background-color: #007bff;
-    border-color: #007bff;
-    color: #ffffff;
-}
-.btn-secondary:hover {
-    background-color: #0056b3;
-    border-color: #004085;
-}
-@media (max-width: 768px) {
-    .membership-plan {
-        flex: 1 1 100%;
+
+/* Responsive Navbar Adjustment */
+@media (max-width: 767px) {
+    .navbar-nav .nav-link {
+        padding: 0.5rem 1rem;
+        font-size: 1.1rem;
     }
 }
-/* Footer Styles */
-.footer {
-    background-color: #343a40; /* Dark background color */
-    color: #ffffff; /* White text color */
-    padding: 1.5rem 0; /* Vertical padding */
-    text-align: center; /* Center-align text */
-    position: relative; /* Ensure the footer is positioned at the bottom */
-    bottom: 0;
-    width: 100%;
+.profile-container {
+    position: absolute; /* Use absolute positioning */
+    top: 50%; /* Center vertically */
+    left: 50%; /* Center horizontally */
+    transform: translate(-50%, -50%); /* Adjust for exact center */
+    width: 100vw; /* Full viewport width */
+    height: 100vh; /* Full viewport height */
+    background-color: #f8f9fa; /* Optional: Light background for visibility */
+    z-index: 1000; /* Ensure it appears above other content */
 }
 
-.footer .container {
-    max-width: 1140px; /* Container width */
-    margin: 0 auto; /* Center container */
+
+ #map {
+            height: 500px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .map-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .search-container {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            width: 300px;
+            max-width: 100%;
+        }
+        .search-container input {
+            width: calc(100% - 90px);
+            display: inline-block;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            padding: 10px;
+            margin-right: 5px;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        .search-container button {
+            width: 80px;
+            display: inline-block;
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+        .search-container button:hover {
+            background-color: #0056b3;
+        }
+        .container {
+            position: relative;
+        }
+
+        #profiling {
+            background: linear-gradient(to right, #e0f7fa, #b9fbc0); /* Soft gradient background */
+            padding: 40px 20px; /* Add padding for spacing */
+            border-radius: 10px; /* Rounded corners */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            margin: 20px auto; /* Center the section and add margin */
+            max-width: 1200px; /* Limit the width for large screens */
+          }
+          #profiling h2 {
+            font-size: 2rem; /* Larger font size for header */
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 30px; /* Space below the header */
+            color: #333; /* Dark color for text */
+          }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+/* Container for the entire section */
+.section {
+    padding: 60px 20px;
+    background-color: #f8f9fa; /* Light background color */
 }
 
-.footer-content {
+/* Title styling */
+.container h2 {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 30px;
+    color: #333; /* Darker text color */
+}
+
+/* Container for horizontal scroll */
+.trainers-scroll-container {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    overflow-x: auto;
+    padding: 10px 0;
+    scroll-snap-type: x mandatory;
 }
 
-.footer-content p {
-    margin: 0; /* Remove default margin */
-    font-size: 1rem; /* Font size */
+.trainers-scroll-container::-webkit-scrollbar {
+    display: none; /* Hide scrollbar for a cleaner look */
 }
 
-.footer-links {
-    list-style: none; /* Remove default list styles */
-    padding: 0;
-    margin: 1rem 0; /* Margin above and below the links */
+/* Styling for gym profile cards */
+.gym-profile {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 20px;
+    scroll-snap-type: x mandatory;
 }
 
-.footer-links li {
-    display: inline; /* Display links inline */
-    margin: 0 0.5rem; /* Space between links */
+.gym-profile-card {
+    flex: 0 0 auto;
+    width: 300px; /* Card width */
+    background: #fff; /* Card background color */
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease-in-out;
 }
 
-.footer-links a {
-    color: #ffffff; /* White text color for links */
-    text-decoration: none; /* Remove underline from links */
-    font-size: 0.875rem; /* Font size */
+.gym-profile-card:hover {
+    transform: scale(1.05); /* Slight zoom effect on hover */
 }
 
-.footer-links a:hover {
-    text-decoration: underline; /* Underline on hover */
+.gym-profile-header {
+    position: relative;
+    overflow: hidden;
 }
 
-.footer-social {
-    margin-top: 1rem; /* Margin above social icons */
-}
-
-.footer-social .social-icon {
-    color: #ffffff; /* White color for social icons */
-    font-size: 1.5rem; /* Icon size */
-    margin: 0 0.5rem; /* Space between icons */
-    text-decoration: none; /* Remove underline from social links */
-}
-
-.footer-social .social-icon:hover {
-    color: #007bff; /* Change color on hover */
-}
-/* Dropdown Styles */
-.sidebar .dropdown-toggle {
-    cursor: pointer;
-}
-
-.sidebar .dropdown-menu {
-    display: none; /* Hidden by default */
-    position: absolute;
-    background-color: #343a40;
-    border: none;
-    border-radius: 0.25rem;
-    padding: 0.5rem 0;
+.gym-photo {
     width: 100%;
+    height: 200px;
+    object-fit: cover;
 }
 
-.sidebar .dropdown-menu.show {
-    display: block; /* Display when active */
+.gym-profile-details {
+    padding: 15px;
 }
 
-.sidebar .dropdown-item {
-    color: #fffafa;
-    padding: 0.5rem 1rem;
+.gym-profile-details p {
+    margin: 5px 0;
+    color: #555; /* Slightly lighter text color */
+}
+
+.btn-primary {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007bff; /* Primary button color */
+    color: #fff;
+    text-align: center;
+    border-radius: 4px;
     text-decoration: none;
-    display: block;
+    transition: background-color 0.3s ease-in-out;
 }
 
-.sidebar .dropdown-item:hover {
-    background-color: #000000;
+.btn-primary:hover {
+    background-color: #0056b3; /* Darker shade on hover */
 }
+.locate-button {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 10px 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #007bff; /* Bootstrap primary color or choose your own */
+    border: none;
+    border-radius: 5px;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.locate-button:hover {
+    background-color: #0056b3; /* Darker shade for hover */
+    transform: scale(1.05);
+}
+
+.locate-button:active {
+    background-color: #004085; /* Even darker shade for active state */
+    transform: scale(1);
+}
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    font-size: 1.25rem;
+    color: #f8f9fa;
+    text-decoration: none;
+}
+
+.sidebar-brand img {
+    margin-right: 0.5rem;
+}
+
+/* Sidebar container */
 .sidebar {
-    width: 250px;
     height: 100vh;
-    background-color: #020202;
+    width: 250px; /* Adjust the width of the sidebar */
     position: fixed;
     top: 0;
     left: 0;
-    padding-top: 20px;
-}
-.sidebar a {
-    display: block;
-    padding: 10px;
-    color: #ffffff;
-    text-decoration: none;
-}
-.sidebar a:hover {
-    background-color: #050505;
-}
-.sidebar { width: 250px; position: fixed; top: 0; left: 0; height: 100vh; background: #343a40; color: #fff; }
-.sidebar.open { width: 300px; }
-.main-content { margin-left: 250px; transition: margin-left 0.3s; }
-.main-content.shifted { margin-left: 300px; }
-.section {
-    padding: 40px 20px;
-    background-color: #f4f4f4;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
-}
-
-.text-center {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.services-content {
+    background: linear-gradient(180deg, #343a40, #212529); /* Gradient background */
+    color: #fff;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    align-items: center; /* Center items horizontally */
+    padding-top: 20px; /* Spacing from top */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3); /* Optional: Add shadow for depth */
+    z-index: 1000; /* Ensure it appears above other content */
 }
 
-.service-item {
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.sidebar .container {
+    margin-bottom: 1rem;
 }
 
-.service-item h3 {
+.sidebar .nav-item {
+    list-style: none;
+}
+.sidebar .nav-link {
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.25rem;
+    text-decoration: none;
+}
+.sidebar .nav-link:hover {
+    background-color: #495057;
+    border-radius: 0.25rem;
+}
+.sidebar .nav-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+}
+.sidebar .profile-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.sidebar .profile-picture {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+}
+.sidebar .dropdown-menu {
+    background-color: #343a40;
+    border: none;
+}
+/* Navigation list */
+.sidebar-nav {
+    list-style: none; /* Remove default list styling */
+    padding: 0;
+    margin: 0;
+}
+.nav-icon {
+    width: 1.5rem; /* Adjust size as needed */
+    height: auto; /* Maintain aspect ratio */
+    margin-right: 0.75rem; /* Space between icon and text */
+}
+/* Navigation items */
+.nav-item {
+    margin-bottom: 1rem; /* Space between items */
+}
+/* Navigation links */
+.sidebar-nav .nav-item {
+    margin: 20px 0;
+}
+
+.sidebar-nav .nav-link {
+    color: #ffffff;
+
+}
+
+.sidebar-nav .nav-link:hover {
+    color: #f8f9fa;
+
+}
+
+
+/* Footer section at the bottom */
+.sidebar-footer {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem 0; /* Add padding for footer */
+    border-top: 1px solid #495057; /* Add a separator line */
+    background-color: rgba(0, 0, 0, 0.1); /* Subtle background for footer */
+}
+
+/* Optional: Add footer text styling */
+.sidebar-footer p {
+    color: #fff;
+    font-size: 0.9rem; /* Font size for footer text */
+    margin: 0; /* Remove margin */
+}
+
+
+.sidebar-footer-item {
+    margin: 0.5rem 0;
+}
+
+.btn-circle {
+    border-radius: 50%;
+    background-color: #495057;
+    border: none;
+    padding: 0.5rem;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn-circle:hover {
+    background-color: #6c757d;
+    transform: scale(1.05);
+}
+
+.button-container {
+    display: flex;
+    justify-content: center; /* Centers the button horizontally */
+    align-items: center; /* Centers the button vertically */
+    position: relative; /* Required for dropdown positioning */
+    height: 100vh; /* Full viewport height for centering */
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    opacity: 0;
+    transform: translateY(-10px);
+    display: none;
+    background-color: #343a40;
+    border: 1px solid #454d55;
+    border-radius: 0.25rem;
+    padding: 0.5rem 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: absolute; /* Position absolute to align properly */
+    top: 100%; /* Positions the dropdown directly below the button */
+    left: 50%; /* Centers the dropdown horizontally */
+    transform: translateX(-50%) translateY(0); /* Centers the dropdown horizontally */
+    z-index: 1000; /* Ensures dropdown appears on top of other content */
+    min-width: 160px; /* Ensures the dropdown has enough width */
+    width: max-content; /* Adjusts width to fit content */
+}
+
+/* Show Dropdown Menu */
+.dropdown-menu.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0); /* Center dropdown horizontally */
+    display: block;
+}
+
+/* Circular Button */
+.btn-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #ffffff;
+    background-color: #007bff;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    position: relative; /* Needed for absolute positioning of dropdown */
+}
+
+.btn-circle:hover {
+    background-color: #0056b3;
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+}
+
+
+.profile-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-picture {
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+}
+.btn-circle {
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    background-color: transparent;
+}
+.dropdown-menu {
+    background-color: #343a40;
+    color: white;
+}
+
+.dropdown-item {
+    color: #f8f9fa;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dropdown-item:hover {
+    background-color: #6c757d;
+    color: #ffffff;
+}
+ 
+/* Nav */
+.navbar {
+    transition: background-color 0.3s ease, padding 0.3s ease;
+}
+
+.navbar-brand img {
+    height: 40px; /* Adjust logo size as needed */
+    transition: transform 0.3s ease;
+}
+
+.navbar-brand img:hover {
+    transform: scale(1.1);
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 0.25rem;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 1.1rem;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.nav-link:hover,
+.nav-link:focus {
+    background-color: #495057; /* Darker background on hover/focus */
+    color: #ffffff; /* Ensure text color remains white */
+}
+
+.navbar-nav {
+    position :absolute;
+    justify-content: center;
+    margin-left: 1px;
+    border-spacing: 10cap;
+}
+
+.navbar-toggler {
+    border-color: #fff;
+}
+
+.navbar-toggler-icon {
+    background-image: url('data:image/svg+xml;base64,...'); /* Add a custom hamburger icon */
+}
+
+.nav-link.active {
+    background-color: #007bff; /* Highlight active link with a primary color */
+    color: #ffffff; /* Ensure text color is white for active link */
+    font-weight: bold; /* Bold text for the active link */
+}
+.nav-link::before {
+    content: "\f005"; /* Font Awesome star icon */
+    font-family: "Font Awesome 6 Free"; /* Font Awesome font family */
+    font-weight: 900; /* Use solid style */
+    display: inline-block;
+    margin-right: 0.5rem;
+    font-size: 1.5rem;
+    color: #007bff; /* Icon color */
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover::before,
+.nav-link:focus::before {
+    color: #ffffff; /* Change icon color on hover/focus */
+}
+.chat-icon {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    background: #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1000; /* Ensure it's above other elements */
+}
+
+.chat-icon i {
     font-size: 24px;
-    margin-bottom: 10px;
     color: #333;
 }
 
-.service-item p {
-    font-size: 16px;
-    color: #666;
+.chat-icon:hover {
+    background-color: #f8f9fa;
 }
-
-.service-item ul {
-    list-style-type: disc;
-    padding-left: 20px;
-}
-
-.service-item ul li {
-    font-size: 16px;
-    color: #666;
-}
-
-#map-container {
-    height: 400px;
-    width: 100%;
-    position: relative;
-}
-#googleMap {
-    height: 100%;
-    width: 100%;
-}
-#search-container {
-    position: absolute;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1;
-    background-color: white;
-    border-radius: 5px;
-    box-shadow: 0px 2px 5px rgba(0,0,0,0.3);
-    padding: 5px;
-    width: 300px;
-}
-#search-bar {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-#search-button {
-    display: none;
-}
-
-.floating-icon {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: linear-gradient(135deg, #00bcd4, #8e2de2);
-    color: #fff;
-    border-radius: 50%;
-    width: 70px;
-    height: 70px;
+.page {
     display: flex;
+    justify-content: center; /* Center the pagination */
     align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0px 6px 12px rgba(0,0,0,0.2);
-    font-size: 28px;
-    z-index: 1000;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-top: 20px; /* Space above pagination */
 }
 
-.floating-icon {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: linear-gradient(135deg, #00bcd4, #8e2de2);
+.page button {
+    background-color: #007bff; /* Blue background */
+    color: white; /* White text */
+    border: none; /* Remove default border */
+    border-radius: 5px; /* Rounded corners */
+    padding: 10px 15px; /* Padding for buttons */
+    margin: 0 10px; /* Space between buttons */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s; /* Smooth background color transition */
+}
+
+.page button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+.page #pageIndicator {
+    font-size: 1.2em; /* Slightly larger font for page indicator */
+    margin: 0 15px; /* Space around the page indicator */
+}
+
+
+#trainers {
+    background: linear-gradient(to right, #fff, #e0f7fa); /* Soft gradient background */
+    padding: 40px 20px; /* Add padding for spacing */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    margin: 20px auto; /* Center the section and add margin */
+    max-width: 1200px; /* Limit the width for large screens */
+    position: relative; /* For additional design elements if needed */
+}
+
+#trainers h2 {
+    font-size: 2rem; /* Larger font size for header */
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 30px; /* Space below the header */
+    color: #333; /* Dark color for text */
+}
+
+/* Container for horizontal scrolling */
+.trainers-scroll-container {
+    overflow-x: auto; /* Enable horizontal scrolling */
+    white-space: nowrap; /* Keep items in a single line */
+    padding: 0 20px; /* Adjust horizontal padding */
+    scrollbar-width: thin; /* For Firefox */
+    display: flex; /* Ensure items align properly */
+    align-items: center; /* Align items vertically in the center */
+    background: transparent; /* Transparent background for troubleshooting */
+    position: relative; /* Position relative for any additional styling */
+}
+
+/* Custom scrollbar for WebKit browsers */
+.trainers-scroll-container::-webkit-scrollbar {
+    height: 12px; /* Height of the scrollbar for WebKit browsers */
+}
+
+.trainers-scroll-container::-webkit-scrollbar-thumb {
+    background-color: #d1d1d1;
+    border-radius: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.trainers-scroll-container::-webkit-scrollbar-thumb:hover {
+    background-color: #b0b0b0;
+}
+
+.trainers-scroll-container::-webkit-scrollbar-track {
+    background: #f0f0f0;
+}
+
+/* Trainer items alignment and spacing */
+.trainers-content {
+    display: flex; /* Display trainer cards in a row */
+    flex-wrap: nowrap; /* Ensure items don't wrap to the next line */
+    gap: 20px; /* Spacing between cards */
+}
+
+/* Individual trainer card */
+.trainer-card {
+    background-color: #ffffff;
+    border-radius: 12px; /* Slightly rounded corners for a softer look */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Enhanced shadow for depth */
+    padding: 20px; /* Increased padding for better spacing */
+    margin: 10px; /* Reduced margin for closer spacing */
+    text-align: center;
+    flex: 0 0 auto; /* Prevent cards from shrinking */
+    width: 250px; /* Adjusted width */
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease; /* Smooth transitions */
+    position: relative; /* For additional design elements if needed */
+    overflow: hidden; /* Ensure content doesn't overflow */
+}
+
+.trainer-card:hover {
+    transform: scale(1.05); /* Slightly enlarged on hover */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
+    background-color: #f9f9f9; /* Light background color on hover */
+}
+
+/* Trainer photo styling */
+.trainer-card .trainer-photo {
+    width: 100%;
+    height: 150px; /* Fixed height for uniformity */
+    object-fit: cover; /* Ensures image covers the area without distortion */
+    border-radius: 10px;
+    margin-bottom: 15px; /* Space below the image */
+    transition: transform 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.trainer-card:hover .trainer-photo {
+    transform: scale(1.05); /* Slightly enlarged on hover */
+}
+
+/* Trainer name and description */
+.trainer-card h3 {
+    font-size: 1.6rem; /* Slightly larger font for emphasis */
+    color: #333;
+    margin-bottom: 10px;
+    transition: color 0.3s ease; /* Smooth color transition */
+}
+
+.trainer-card p {
+    font-size: 1.1rem; /* Slightly larger font for better readability */
+    color: #666;
+    margin-bottom: 10px;
+    transition: color 0.3s ease; /* Smooth color transition */
+}
+
+/* Button styling */
+.btn-book-now {
+    background-color: #ff8e00;
     color: #fff;
-    border-radius: 50%;
-    width: 70px;
-    height: 70px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    padding: 12px 24px; /* Increased padding for a more prominent button */
+    border-radius: 30px; /* More rounded corners */
+    font-size: 1.1rem; /* Slightly larger font for better visibility */
+    text-transform: uppercase;
+    text-decoration: none; /* Remove underline */
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transitions */
+    border: none;
     cursor: pointer;
-    box-shadow: 0px 6px 12px rgba(0,0,0,0.2);
-    font-size: 28px;
-    z-index: 1000;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: inline-block; /* Align button properly */
 }
 
-.floating-icon:hover {
-    transform: scale(1.1);
-    box-shadow: 0px 8px 16px rgba(0,0,0,0.3);
+.btn-book-now:hover {
+    background-color: #ffbe33;
+    transform: scale(1.1); /* Slightly larger hover effect */
 }
+/* Calendar */
 
-.notification-list {
-    display: none;
-    position: absolute;
-    bottom: 90px;
-    right: 0;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    width: 300px;
-    box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
-    max-height: 300px;
-    overflow-y: auto;
-    z-index: 1000;
-}
-
-.notification-item {
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-}
-
-.notification-item:last-child {
-    border-bottom: none;
-}
-
-.notification-item p {
-    margin: 0;
-    font-size: 14px;
-}
-
-.notification-item .time {
-    color: #888;
-    font-size: 12px;
-}
-
-.notification-list.show {
-    display: block;
-}
-
-.section {
+#calendar {
+    max-width: 100%;
+    margin: 20px auto;
     padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.fc-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 20px;
 }
-
-.gym-profile, .services-content {
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+.fc-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    margin: 0 5px;
+    transition: background-color 0.3s, transform 0.2s;
+}
+.fc-button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+.fc-button:focus {
+    outline: none;
+}
+.fc-button.fc-prev-button,
+.fc-button.fc-next-button {
+    background-color: #6c757d;
+}
+.fc-button.fc-prev-button:hover,
+.fc-button.fc-next-button:hover {
+    background-color: #5a6268;
 }
 
-.gym-profile {
-    background-color: #f9f9f9;
-}
-
-.section .row > div {
-    padding: 20px;
-}
