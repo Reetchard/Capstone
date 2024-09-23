@@ -32,30 +32,57 @@
         }
     </style>
 </head>
-<body>
+<body onload="slider()">
     <header>
         <nav>
             <div class="container">
-                <h1 class="logo"><img src="framework/img/Logoo.ico" alt="PeakPulse">PEAK PULSE</h1>
+                <h1 class="logo"><img src="framework/img/peak1.png" alt="PeakPulse">PEAK PULSE</h1>
                 <ul>
                     <li><a href="#home">Home</a></li>
-                    <li><a href="#services-promotions">Services and Promotions</a></li>
-                    <li><a href="#pricing">Pricing</a></li>
+                    <li><a href="#membership-section">Membership</a></li>
                     <li><a href="#profiling">Gym Profiling</a></li>
                     <li><a href="#trainers">Trainers</a></li>
-                    <li><a href="#membership-section">Membership</a></li>
+                    <li><a href="#services-promotions">Services and Promotions</a></li>
+                    <!-- <li><a href="#pricing">Pricing</a></li> -->
                     <li><a href="#about">About</a></li>
                 </ul>
                 </div>
             </div>
         </nav>
         <div class="hero">
+            <div class ="slider"></div>
+                <img src="Image/train.jpg" id="slideImg">
+            </div>
+        </div>
+
             <div class="hero-content">
                 <h1>Transform Your Body, Transform Your Life</h1>
                 <p>Join PEAK PULSE and get access to state-of-the-art equipment, expert trainers.</p>
                 <a href="login.html" class="btn btn-primary">Get Started</a>
             </div>
-        </div>
+
+             <script>
+            var slideImg = document.getElementById("slideImg");
+
+            var Image = new Array(
+                "Image/train.jpg",
+                "Image/running.jpg",
+                "Image/boxing.jpg",
+                "Image/strength.jpg",
+                "Image/workout.jpg",
+            );
+
+            var len = Image.length;
+            var i = 0;
+            function slider(){
+                if(i > len - 1){
+                    i = 0;
+                }
+                slideImg.src = Image[i];
+                i++;
+                setTimeout('slider()',3000);
+            }
+        </script>
     </header>
 
     <section id="membership-section">
