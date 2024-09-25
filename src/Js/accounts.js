@@ -61,7 +61,7 @@ const accountRef = database.ref('Accounts');
                 });
             }     
  // Function to get the next ID
-    function getNextId(callback) {
+ function getNextId(callback) {
         accountRef.once('value', function(snapshot) {
             const accounts = snapshot.val();
             let maxId = 0;
@@ -84,7 +84,7 @@ const accountRef = database.ref('Accounts');
             showToast('Error', 'Unable to determine next ID. Defaulting to 1.');
             callback(1);
         });
-    }
+ }
 // Function to add or edit account
 document.getElementById('accountForm').addEventListener('submit', function(e) {
     e.preventDefault();

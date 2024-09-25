@@ -52,32 +52,32 @@ function createDropdownMenu(username, role) {
   }
 }
 
-// Check user authentication and role
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-      const userId = user.uid;
-      const userRef = ref(database, 'Accounts/' + userId);
-      get(userRef).then((snapshot) => {
-          if (snapshot.exists()) {
-              const userData = snapshot.val();
-              const username = userData.username || 'User'; // Default to 'User' if no username is found
-              const role = userData.role || 'user'; // Default to 'user' if no role is found
-              createDropdownMenu(username, role);
-          } else {
-              // Redirect to login if no user data is found
-              window.location.href = 'login.html';
-          }
-      }).catch((error) => {
-          console.error("Error fetching user data:", error);
-      });
-  } else {
-      // Redirect to login if no user is authenticated
-      window.location.href = 'login.html';
-  }
-});
+    // Check user authentication and role
+        onAuthStateChanged(auth, (user) => {
+        if (user) {
+            const userId = user.uid;
+            const userRef = ref(database, 'Accounts/' + userId);
+            get(userRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    const userData = snapshot.val();
+                    const username = userData.username || 'User'; // Default to 'User' if no username is found
+                    const role = userData.role || 'user'; // Default to 'user' if no role is found
+                    createDropdownMenu(username, role);
+                } else {
+                    // Redirect to login if no user data is found
+                    window.location.href = 'login.html';
+                }
+            }).catch((error) => {
+                console.error("Error fetching user data:", error);
+            });
+        } else {
+            // Redirect to login if no user is authenticated
+            window.location.href = 'login.html';
+        }
+        });
 
 
-const profilePicture = document.getElementById('profile-picture');
+        const profilePicture = document.getElementById('profile-picture');
 
         // Fetch user data when authenticated
         auth.onAuthStateChanged((user) => {
@@ -124,14 +124,19 @@ const profilePicture = document.getElementById('profile-picture');
         // Function to fetch weather data
         async function MapData(lat, lon) {
             const apiKey = '3c52706688064b3038c2328bbbc4cba0'; // Replace with your OpenWeatherMap API key
-            const url = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude=hourly,daily&appid=${apiKey}&units=metric`;
+            const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
         
             try {
                 const response = await fetch(url);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`Error ${response.status}: ${errorData.message}`);
+                }
+                
                 const data = await response.json();
-                if (data.current && data.current.weather && data.current.weather.length > 0) {
-                    const weatherDescription = data.current.weather[0].description;
-                    const temperature = data.current.temp;
+                if (data.weather && data.weather.length > 0) {
+                    const weatherDescription = data.weather[0].description;
+                    const temperature = data.main.temp;
         
                     const marker = L.marker([lat, lon]).addTo(map);
                     marker.bindPopup(`
@@ -145,7 +150,7 @@ const profilePicture = document.getElementById('profile-picture');
             } catch (error) {
                 console.error('Error fetching weather data:', error);
             }
-        }
+        }        
         // Call the function with the coordinates for Lapu-Lapu City
         MapData(10.3095, 123.8914); // Coordinates for Lapu-Lapu City
         
@@ -198,18 +203,7 @@ const profilePicture = document.getElementById('profile-picture');
             const membershipPlansRef = ref(database, 'membershipPlans');
             // Reference to the gym profiles in Firebase
             const GymProfileref = ref(database, 'GymForms');
-          
-            // Function to show the confirmation message
-            function showConfirmationMessage() {
-              const messageElement = document.getElementById('confirmation-message');
-              if (messageElement) {
-                messageElement.classList.add('active');
-                setTimeout(() => {
-                  messageElement.classList.remove('active');
-                }, 5000); // Hide message after 5 seconds
-              }
-            }
-          
+
             // Function to redirect to login
             window.redirectToLogin = function() {
               window.location.href = 'login.html';
@@ -230,7 +224,7 @@ const profilePicture = document.getElementById('profile-picture');
             }
           
             // Function to create a Membership Plan Card
-            function createMembershipCard(plan) {
+            window.createMembershipCard =function(plan) {
               return `
                 <div class="membership-plan">
                   <h3>${plan.name}</h3>
@@ -242,7 +236,7 @@ const profilePicture = document.getElementById('profile-picture');
             }
           
             // Function to create Gym Profile Card
-            function createGymProfileCard(gym) {
+            window. createGymProfileCard = function(gym) {
                 return `
                   <div class="gym-profile-card">
                     <div class="gym-profile-header">
@@ -250,17 +244,40 @@ const profilePicture = document.getElementById('profile-picture');
                       <h3>${gym.gymName}</h3>
                     </div>
                     <div class="gym-profile-details">
-                      <p><strong>Location:</strong> ${gym.gymLocation}</p>
-                      <p><strong>Equipment:</strong> ${gym.gymEquipment}</p>
-                      <p><strong>Programs:</strong> ${gym.gymPrograms}</p>
-                      <p><strong>Contact:</strong> ${gym.gymContact}</p>
-                      <p><strong>Opening Time:</strong> ${gym.gymOpeningTime}AM</p>
-                      <p><strong>Closing Time:</strong> ${gym.gymClosingTime}PM</p>
-                      <a href="#" class="btn-primary" onclick="showConfirmationMessage()">Contact Us</a>
-                      <a href="#" class="btn-secondary locate-button" data-location="${gym.gymLocation}">Locate Me</a>
+                        <a href="#" class="btn-primary view-button" onclick='showGymProfileModal(${JSON.stringify(gym).replace(/"/g, '&quot;')})'>View</a>
                     </div>
                   </div>
                 `;
+            }
+            window.showGymProfileModal = function(gym) {
+                document.getElementById('modalGymPhoto').src = gym.gymPhoto;
+                document.getElementById('modalGymName').textContent = gym.gymName;
+                document.getElementById('modalGymLocation').textContent = gym.gymLocation;
+                document.getElementById('modalGymEquipment').textContent = gym.gymEquipment;
+                document.getElementById('modalGymPrograms').textContent = gym.gymPrograms;
+                document.getElementById('modalGymContact').textContent = gym.gymContact;
+                document.getElementById('modalGymOpeningTime').textContent = `${gym.gymOpeningTime} AM`;
+                document.getElementById('modalGymClosingTime').textContent = `${gym.gymClosingTime} PM`;
+    
+                // Set the map URL using the gym location
+                const mapSrc = `https://www.google.com/maps/embed/v1/place?key=3c52706688064b3038c2328bbbc4cba0&q=${encodeURIComponent(gym.gymLocation)}`;
+                document.getElementById('modalGymMap').src = mapSrc;
+            
+                const modal = document.getElementById('gymProfileModal');
+                modal.style.display = 'block'; // Show the modal
+            }   
+    
+            window.closeModal = function() {
+                const modal = document.getElementById('gymProfileModal');
+                modal.style.display = 'none'; // Hide the modal
+            }            
+    
+            // Close the modal when clicking outside of the modal content
+            window.onclick = function(event) {
+                const modal = document.getElementById('gymProfileModal');
+                if (event.target === modal) {
+                    closeModal();
+                }
             }
             
             // Function to handle the click event of "Locate Me" buttons

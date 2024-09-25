@@ -21,14 +21,14 @@ const database = getDatabase(app);
 // Handle click to open modal and populate fields
 $(document).on('click', '.transition-button', function() {
     var card = $(this).closest('.category-plans');
-    var id = card.attr('id'); // Assuming the ID matches the card
+    var id = card.attr('id'); 
     var name = card.find('.card-text').eq(0).text();
     var price = card.find('.card-price').text();
     var description = card.find('.card-text').eq(1).text(); // Fixed variable name
 
     $('#editPlanId').val(id);
     $('#editPlanName').val(name);
-    $('#editPlanPrice').val(price.replace('₱', '')); // Remove the currency symbol if present
+    $('#editPlanPrice').val(price.replace('₱', '')); 
     $('#editPlanDescription').val(description);
 
     $('#membershipModal').modal('show');
@@ -103,29 +103,29 @@ $('#clearPlanButton').on('click', function() {
 });
 
 // Fetch and display updated data on landing page
-$(document).ready(function() {
-    const membershipPlansRef = ref(database, 'membershipPlans');
+        $(document).ready(function() {
+            const membershipPlansRef = ref(database, 'membershipPlans');
 
-    onValue(membershipPlansRef, (snapshot) => {
-        const plans = snapshot.val();
-        if (plans) {
-            $.each(plans, function(id, plan) {
-                var card = $('#' + id);
-                if (card.length) {
-                    card.find('.card-header').text(plan.membershipType + ' Plan');
-                    card.find('.card-body').eq(0).find('.card-text').eq(0).text(plan.membershipType);
-                    card.find('.card-price').text('₱' + plan.price);
-                    card.find('.card-body').eq(0).find('.card-text').eq(1).text(plan.description); // Fixed selector
+            onValue(membershipPlansRef, (snapshot) => {
+                const plans = snapshot.val();
+                if (plans) {
+                    $.each(plans, function(id, plan) {
+                        var card = $('#' + id);
+                        if (card.length) {
+                            card.find('.card-header').text(plan.membershipType + ' Plan');
+                            card.find('.card-body').eq(0).find('.card-text').eq(0).text(plan.membershipType);
+                            card.find('.card-price').text('₱' + plan.price);
+                            card.find('.card-body').eq(0).find('.card-text').eq(1).text(plan.description); // Fixed selector
+                        }
+                    });
                 }
             });
-        }
-    });
-});
-    // Initialize TinyMCE for the description field
-tinymce.init({
-    selector: '#editPlanDescription',
-    menubar: false,
-    plugins: 'lists link image charmap preview anchor',
-    toolbar: 'undo redo | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat',
-    height: 300
-});
+        });
+            // Initialize TinyMCE for the description field
+        tinymce.init({
+            selector: '#editPlanDescription',
+            menubar: false,
+            plugins: 'lists link image charmap preview anchor',
+            toolbar: 'undo redo | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat',
+            height: 300
+        });

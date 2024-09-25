@@ -114,16 +114,33 @@
                 </div>
             </div>
         </div>
-    <section id="profiling" class="section">
-        <div class="container-2">
-            <h2>Gym Profiles</h2>
-            <div class="trainers-scroll-container">
-                <div id="gym-profile" class="gym-profile">
-                    <!-- Gym profile content will be dynamically added here -->
-                </div>
-            </div>                 
-        </div>
+     <section id="profiling" class="section">
+            <div class="container-2">
+                <h2>Gym Profiles</h2>
+                <div class="trainers-scroll-container">
+                    <div id="gym-profile" class="gym-profile">
+                        <!-- Gym profile content will be dynamically added here -->
+                    </div>
+                </div>                 
+            </div>
     </section>
+    <!-- Modal for Gym Description -->
+            <div id="gymProfileModal" class="modal">
+                <div class="modal-content">
+                    <span class="close-button" onclick="closeModal()">&times;</span>
+                    <h3 id="modalGymName"></h3>
+                    <img id="modalGymPhoto" src="" alt="" class="gym-photo">
+                    <p><strong>Location:</strong> <span id="modalGymLocation"></span></p>
+                    <p><strong>Equipment:</strong> <span id="modalGymEquipment"></span></p>
+                    <p><strong>Programs:</strong> <span id="modalGymPrograms"></span></p>
+                    <p><strong>Contact:</strong> <span id="modalGymContact"></span></p>
+                    <p><strong>Opening Time:</strong> <span id="modalGymOpeningTime"></span></p>
+                    <p><strong>Closing Time:</strong> <span id="modalGymClosingTime"></span></p>
+                    <h4>Location on Map:</h4>
+                    <iframe id="modalGymMap" class="map" src="" frameborder="0" allowfullscreen></iframe>
+                </div>
+            </div>
+      
     <section id="trainers" class="section bg-light">
         <div class="container">
           <h2>Our Trainers</h2>
