@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PEAK PULSE</title>
+    <link rel="icon" type="Image/png" href="framework/img/peak1.png">
+    <title>PeakPulse</title>
     <link rel="stylesheet" href="css/LandStyle.css">
     <link rel="stylesheet" href="css/media.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
@@ -39,7 +40,7 @@
                 <h1 class="logo"><img src="framework/img/peak1.png" alt="PeakPulse">PEAK PULSE</h1>
                 <ul>
                     <li><a href="#home">Home</a></li>
-                    <li><a href="#membership-section">Membership</a></li>
+                    <!-- <li><a href="#membership-section">Membership</a></li> -->
                     <li><a href="#profiling">Gym Profiling</a></li>
                     <li><a href="#trainers">Trainers</a></li>
                     <li><a href="#services-promotions">Services and Promotions</a></li>
@@ -85,14 +86,14 @@
         </script>
     </header>
 
-    <section id="membership-section">
+    <!-- <section id="membership-section">
         <div class="membership-header">Membership Plans</div>
         <div class="membership-container">
           <div class="membership-table" id="membership-table">
-            <!-- Membership plans will be injected here -->
+            
           </div>
         </div>
-      </section>
+      </section> -->
       
     
     <section id="profiling" class="section">
@@ -120,35 +121,50 @@
     <section id="services-promotions" class="section bg-light">
         <div class="container">
             <h2>Services and Promotions</h2>
-            <div class="services-promotions-content">
-                <div class="service">
-                    <h3>Personal Training</h3>
-                    <p>Our certified personal trainers offer one-on-one sessions to help you achieve your fitness goals more efficiently. Tailored workout plans and nutritional advice are included.</p>
+            <div class="services">
+                <div class="service" style="background-image: url('Image/personal.jpg');">
+                    <div class="overlay">
+                        <h3>Personal Training</h3>
+                        <p>Our certified personal trainers offer one-on-one sessions to help you achieve your fitness goals more efficiently. Tailored workout plans and nutritional advice are included.</p>
+                    </div>
                 </div>
-                <div class="service">
-                    <h3>Group Classes</h3>
-                    <p>Join our dynamic group classes, ranging from high-intensity interval training (HIIT) to yoga. Enjoy the camaraderie and motivation of working out with others.</p>
+    
+                <div class="service" style="background-image: url('Image/Group.jpg');">
+                    <div class="overlay">
+                        <h3>Group Classes</h3>
+                        <p>Join our dynamic group classes, ranging from high-intensity interval training (HIIT) to yoga. Enjoy the camaraderie and motivation of working out with others.</p>
+                    </div>
                 </div>
-                <div class="service">
-                    <h3>Gym Promotions</h3>
-                    <p>Take advantage of our ongoing promotions! We offer seasonal discounts, referral bonuses, and special deals for new members. Don't miss out on the chance to save while getting fit!</p>
+    
+                <div class="service" style="background-image: url('Image/supplements.jpg');">
+                    <div class="overlay">
+                        <h3>Products</h3>
+                        <p>Gym-goers can conveniently purchase supplement products directly at their chosen gym location. Don't miss out to buy while getting fit!</p>
+                    </div>
                 </div>
-                <div class="service">
-                    <h3>Trainer Booking</h3>
-                    <p>Conveniently book your personal trainer online or through our app. Choose from a variety of time slots and trainers to fit your schedule and fitness needs.</p>
+    
+                <div class="service" style="background-image: url('Image/trainer.jpg');">
+                    <div class="overlay">
+                        <h3>Trainer Booking</h3>
+                        <p>Conveniently book your personal trainer online or through our app. Choose from a variety of time slots and trainers to fit your schedule and fitness needs.</p>
+                    </div>
                 </div>
-                <div class="service">
-                    <h3>Special Promotions</h3>
-                    <p>Explore our limited-time offers including discounts on membership plans and exclusive packages. Check our website regularly for the latest deals and updates!</p>
+    
+                <div class="service" style="background-image: url('Image/paper.jpg');">
+                    <div class="overlay">
+                        <h3>Special Promotions</h3>
+                        <p>Explore our limited-time offers including discounts on membership plans and exclusive packages. Check our website regularly for the latest deals and updates!</p>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
+    
     <!-- About Section with Background Image Cards -->
 <section id="about" class="section bg-light">
     <div class="container">
         <h2>About Us</h2>
-        <p1>At PEAK PULSE, we are committed to helping you achieve your fitness goals. Our gym offers a wide range of equipment, classes, and personal training options to suit your needs. Whether you're a beginner or an experienced athlete, we have something for everyone.</p1>
+        <p1> Peak Pulse, We are committed to helping you achieve your fitness goals. Our gym offers a wide range of equipment, classes, and personal training options to suit your needs. Whether you're a beginner or an experienced athlete, we have something for everyone.</p1>
         
         <div class="features">
             <!-- Modern Equipment -->
