@@ -45,31 +45,15 @@
                     Book a Trainer
                 </a>
             </li>
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="pricingDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <img src="framework/img/Products.svg" alt="Products Icon" class="nav-icon">
-                    Products
-                </a>
-                <ul class="dropdown-menu" aria-labelledby="pricingDropdown">
-                    <li><a class="dropdown-item" href="#basicPlan">Protein</a></li>
-                    <li><a class="dropdown-item" href="#premiumPlan">Supliments</a></li>
-                </ul>
-            </li>
+
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="memberStatusDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <img src="framework/img/Membership.svg" alt="Member Status Icon" class="nav-icon">
                     Member Status
                 </a>
                 <ul class="dropdown-menu" aria-labelledby="memberStatusDropdown">
-                    <li><a class="dropdown-item" href="ApplyMembership.html">Current Membership Plan</a></li>
                     <li><a class="dropdown-item" href="#membershipHistory">Membership History</a></li>
                 </ul>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#calendar">
-                    <img src="framework/img/Calendar.svg" alt="Calendar Icon" class="nav-icon" >
-                    Calendar
-                </a>
             </li>
         </ul>     
     </nav>
@@ -125,22 +109,46 @@
             </div>
     </section>
     <!-- Modal for Gym Description -->
-            <div id="gymProfileModal" class="modal">
-                <div class="modal-content">
-                    <span class="close-button" onclick="closeModal()">&times;</span>
-                    <h3 id="modalGymName"></h3>
-                    <img id="modalGymPhoto" src="" alt="" class="gym-photo">
-                    <p><strong>Location:</strong> <span id="modalGymLocation"></span></p>
-                    <p><strong>Equipment:</strong> <span id="modalGymEquipment"></span></p>
-                    <p><strong>Programs:</strong> <span id="modalGymPrograms"></span></p>
-                    <p><strong>Contact:</strong> <span id="modalGymContact"></span></p>
-                    <p><strong>Opening Time:</strong> <span id="modalGymOpeningTime"></span></p>
-                    <p><strong>Closing Time:</strong> <span id="modalGymClosingTime"></span></p>
-                    <h4>Location on Map:</h4>
-                    <iframe id="modalGymMap" class="map" src="" frameborder="0" allowfullscreen></iframe>
-                </div>
-            </div>
-      
+    <div id="gymProfileModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal()">&times;</span>
+            <h3 id="modalGymName"></h3>
+            <img id="modalGymPhoto" src="" alt="" class="gym-photo">
+            <p><strong>Location:</strong> <span id="modalGymLocation"></span></p>
+            <p><strong>Equipment:</strong> <span id="modalGymEquipment"></span></p>
+            <p><strong>Programs:</strong> <span id="modalGymPrograms"></span></p>
+            <p><strong>Contact:</strong> <span id="modalGymContact"></span></p>
+            <p><strong>Opening Time:</strong> <span id="modalGymOpeningTime"></span></p>
+            <p><strong>Closing Time:</strong> <span id="modalGymClosingTime"></span></p>
+            <h4>Location on Map:</h4>
+                        <!-- Buttons for View Products and View Membership Plans -->
+                        <div class="modal-buttons" style="margin-top: 20px;">
+                            <button id="viewProductsButton" class="btn btn-primary" onclick="viewProducts()">View Products</button>
+                            <a id="viewMembershipPlansButton" class="btn btn-secondary" onclick="viewMembershipPlans()">View Membership Plans</a>
+                        </div>
+            <iframe id="modalGymMap" class="map" src="" frameborder="0" allowfullscreen></iframe>
+            
+        </div>
+    </div>
+    <!-- Membership Plans Modal -->
+    <div id="membershipPlansModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeMembershipPlansModal()">&times;</span>
+            <h3>Membership Plans</h3>
+            <div id="membershipPlansContent"></div>
+        </div>
+    </div>
+    <div id="checkoutModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeCheckoutModal()">&times;</span>
+            <h2>Checkout</h2>
+            <div id="checkoutDetails"></div>
+            <h3>Payment Method</h3>
+            <p>Over The Counter Payment</p>
+            <button id="confirmPayment">Confirm Payment</button>
+        </div>
+    </div>
+    
     <section id="trainers" class="section bg-light">
         <div class="container">
           <h2>Our Trainers</h2>
@@ -154,9 +162,19 @@
     
 
     <!-- Floating Notification Bell -->
-    <div id="notification-bell" class="notification-bell">
-        <i class="fas fa-bell"></i>
+    <div id="notification-container">
+        <div id="notification-bell" class="notification-bell" style="cursor: pointer;">
+            <i class="fas fa-bell" style="font-size: 24px;"></i>
+            <span class="badge" style="display: inline-block; background: red; color: white; border-radius: 50%; padding: 5px 10px;">0</span>
+        </div>
+        <div id="notification-dropdown" style="display: none; position: absolute; background: white; border: 1px solid #ccc; z-index: 100; width: 200px;">
+            <div style="padding: 10px; font-weight: bold;">Notifications</div>
+            <div id="notification-content" style="max-height: 300px; overflow-y: auto;"></div>
+        </div>
     </div>
+    
+    
+    
     <div class="chat-icon">
         <i class="fas fa-comments"></i>
     </div>

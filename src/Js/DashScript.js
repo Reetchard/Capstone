@@ -258,20 +258,44 @@ function createDropdownMenu(username, role) {
                 document.getElementById('modalGymContact').textContent = gym.gymContact;
                 document.getElementById('modalGymOpeningTime').textContent = `${gym.gymOpeningTime} AM`;
                 document.getElementById('modalGymClosingTime').textContent = `${gym.gymClosingTime} PM`;
-    
-                // Set the map URL using the gym location
-                const mapSrc = `https://www.google.com/maps/embed/v1/place?key=3c52706688064b3038c2328bbbc4cba0&q=${encodeURIComponent(gym.gymLocation)}`;
-                document.getElementById('modalGymMap').src = mapSrc;
+            
+                // Get the gym location
+                const location = gym.gymLocation;
+            
+                // Fetch coordinates from OpenWeatherMap Geocoding API
+                const apiKey = '3c52706688064b3038c2328bbbc4cba0'; // Replace with your OpenWeatherMap API key
+                const geocodingUrl = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(location)}&appid=${apiKey}`;
+            
+                fetch(geocodingUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.coord) {
+                            const lat = data.coord.lat;
+                            const lon = data.coord.lon;
+            
+                            // Set the map URL using OpenStreetMap
+                            const mapSrc = `https://www.openstreetmap.org/export/embed.html?bbox=${lon - 0.01},${lat - 0.01},${lon + 0.01},${lat + 0.01}&layer=mapnik&marker=${lat},${lon}`;
+                            document.getElementById('modalGymMap').src = mapSrc;
+                        } else {
+                            document.getElementById('modalGymMap').src = "";
+                            alert("Unable to retrieve location data.");
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching geocoding data:', error);
+                        document.getElementById('modalGymMap').src = "";
+                        alert("Failed to load location information.");
+                    });
             
                 const modal = document.getElementById('gymProfileModal');
                 modal.style.display = 'block'; // Show the modal
-            }   
-    
+            }
+            
             window.closeModal = function() {
                 const modal = document.getElementById('gymProfileModal');
                 modal.style.display = 'none'; // Hide the modal
-            }            
-    
+            }
+            
             // Close the modal when clicking outside of the modal content
             window.onclick = function(event) {
                 const modal = document.getElementById('gymProfileModal');
@@ -280,6 +304,113 @@ function createDropdownMenu(username, role) {
                 }
             }
             
+            let membershipPlans = []; // Global array to hold membership plans
+
+            // Function to fetch membership plans from Firebase
+            function fetchMembershipPlans() {
+                onValue(membershipPlansRef, function(snapshot) {
+                    const data = snapshot.val();
+                    membershipPlans = []; // Clear previous data
+
+                    for (const key in data) {
+                        membershipPlans.push(data[key]); // Push each plan into the array
+                    }
+
+                    // Update the main section if necessary
+                    updateMembershipSection();
+                });
+            }
+
+            // Function to update the membership section
+            function updateMembershipSection() {
+                const membershipSection = document.getElementById('membership-table');
+                if (membershipSection) {
+                    membershipSection.innerHTML = ''; // Clear existing content
+
+                    membershipPlans.forEach(plan => {
+                        membershipSection.innerHTML += createMembershipCard(plan);
+                    });
+                } else {
+                    console.error("Membership section not found in the DOM");
+                }
+            }
+            // Function to view membership plans in modal
+            window.viewMembershipPlans = function() {
+                const content = membershipPlans.map(plan => `
+                    <div class="membership-plan">
+                        <h3>${plan.membershipType}</h3>
+                        <p class="price">₱${plan.price}</p>
+                        <p class="description">${plan.description}</p>
+                        <a href="#" class="btn btn-secondary" onclick="applyForMembership(event, '${plan.membershipType}', ${plan.price})">Apply Now</a>
+                    </div>
+                `).join(""); // Join array to a single string
+            
+                document.getElementById('membershipPlansContent').innerHTML = content;
+            
+                const modal = document.getElementById('membershipPlansModal');
+                modal.style.display = 'block'; // Show the modal
+            }
+            
+            // Function to handle membership application
+            window.applyForMembership = function(event, membershipType, price) {
+                event.preventDefault(); // Prevent default anchor behavior
+            
+                // Show checkout modal with the selected membership details
+                const checkoutDetails = `
+                    <p>Membership Type: ${membershipType}</p>
+                    <p>Price: ₱${price}</p>
+                `;
+                document.getElementById('checkoutDetails').innerHTML = checkoutDetails;
+            
+                const modal = document.getElementById('checkoutModal');
+                modal.style.display = 'block'; // Show the checkout modal
+            }
+            
+            // Close checkout modal
+            window.closeCheckoutModal = function() {
+                const modal = document.getElementById('checkoutModal');
+                modal.style.display = 'none'; // Hide the modal
+            }
+            
+            // Confirm payment button event
+            document.getElementById('confirmPayment').addEventListener('click', function() {
+                const successMessage = 'Great news! Your membership is officially active. We’re excited to have you join our community!'; // Customized message
+                displaySuccessMessage(successMessage); // Display the success message
+                closeCheckoutModal(); // Close the modal
+            });
+            
+            // Function to display success message in the center
+            function displaySuccessMessage(message) {
+                const messageContainer = document.createElement('div');
+                messageContainer.innerText = message;
+                messageContainer.style.position = 'fixed';
+                messageContainer.style.top = '50%';
+                messageContainer.style.left = '50%';
+                messageContainer.style.transform = 'translate(-50%, -50%)';
+                messageContainer.style.padding = '20px';
+                messageContainer.style.backgroundColor = '#4CAF50'; // Green background
+                messageContainer.style.color = 'white';
+                messageContainer.style.borderRadius = '5px';
+                messageContainer.style.zIndex = '1000';
+                
+                document.body.appendChild(messageContainer);
+            
+                // Remove message after 3 seconds
+                setTimeout(() => {
+                    document.body.removeChild(messageContainer);
+                }, 3000);
+            }
+            
+            // Load membership plans when the page is ready
+            window.onload = fetchMembershipPlans;
+            
+            // Close membership plans modal
+            window.closeMembershipPlansModal = function() {
+                const modal = document.getElementById('membershipPlansModal');
+                modal.style.display = 'none'; // Hide the modal
+            }
+            
+          
             // Function to handle the click event of "Locate Me" buttons
             function handleLocateButtonClick(event) {
                 const target = event.target; // Get the actual clicked element
@@ -308,9 +439,8 @@ function createDropdownMenu(username, role) {
             
             // Add event listener for dynamically created "Locate Me" buttons
             document.addEventListener('click', handleLocateButtonClick);
-            
-                        
-          
+
+     
             // Fetch trainers data from Firebase
             onValue(trainersRef, function(snapshot) {
               const data = snapshot.val();
@@ -446,20 +576,31 @@ function createDropdownMenu(username, role) {
             }
         });
     });
-    
-    function updateNotificationBell(userId) {
+    window.updateNotificationBell = function(userId) {
         const notificationsRef = ref(database, 'notifications/' + userId);
         
         get(notificationsRef).then((snapshot) => {
+            const notificationContent = document.getElementById('notification-content');
+            notificationContent.innerHTML = ''; // Clear existing content
+    
             if (snapshot.exists()) {
                 const notifications = snapshot.val();
                 const totalNotifications = notifications.transaction + notifications.emails + notifications.membershipPlans;
-                
+    
                 const notificationBell = document.getElementById('notification-bell');
+                notificationBell.querySelector('.badge').textContent = totalNotifications > 0 ? totalNotifications : '';
+    
+                // Populate the dropdown
                 if (totalNotifications > 0) {
-                    notificationBell.innerHTML = `<i class="fas fa-bell"></i> <span class="badge">${totalNotifications}</span>`;
-                } else {
-                    notificationBell.innerHTML = `<i class="fas fa-bell"></i>`;
+                    if (notifications.transaction > 0) {
+                        notificationContent.innerHTML += `<div>New Transactions: ${notifications.transaction}</div>`;
+                    }
+                    if (notifications.emails > 0) {
+                        notificationContent.innerHTML += `<div>New Emails: ${notifications.emails}</div>`;
+                    }
+                    if (notifications.membershipPlans > 0) {
+                        notificationContent.innerHTML += `<div>New Membership Plans: ${notifications.membershipPlans}</div>`;
+                    }
                 }
             } else {
                 console.log('No notifications found for user:', userId);
@@ -467,5 +608,22 @@ function createDropdownMenu(username, role) {
         }).catch((error) => {
             console.error('Error fetching notifications:', error);
         });
-    }
+    };
+    
+    window.toggleDropdown = function() {
+        const dropdown = document.getElementById('notification-dropdown');
+        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+    };
+    
+    window.onclick = function(event) {
+        const dropdown = document.getElementById('notification-dropdown');
+        const bell = document.getElementById('notification-bell');
+    
+        if (!bell.contains(event.target) && !dropdown.contains(event.target)) {
+            dropdown.style.display = 'none'; // Close the dropdown
+        }
+    };
+    
+    // Attach click event to the bell
+    document.getElementById('notification-bell').addEventListener('click', toggleDropdown);
     

@@ -75,30 +75,7 @@
     border-radius: 50%;
     object-fit: cover;
 }
-.notification-bell {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    width: 50px;
-    height: 50px;
-    background: #ffffff;
-    border-radius: 50%;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 1000; /* Ensure it's above other elements */
-}
 
-.notification-bell img {
-    width: 24px;
-    height: 24px;
-}
-
-.notification-bell:hover {
-    background-color: #f8f9fa;
-}
 /* Dropdown Divider */
 .dropdown-divider {
     border-top: 1px solid #495057;
@@ -882,4 +859,131 @@
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
+}
+#notification-bell {
+    position: relative;
+    cursor: pointer;
+}
+
+.badge {
+    display: inline-block;
+    background: red;
+    color: white;
+    border-radius: 50%;
+    padding: 5px 10px;
+    position: absolute;
+    top: -5px;
+    right: -10px;
+}
+
+.notification-bell {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    background: #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1000; /* Ensure it's above other elements */
+}
+
+.notification-bell img {
+    width: 24px;
+    height: 24px;
+}
+
+.notification-bell:hover {
+    background-color: #f8f9fa;
+}
+#notification-container {
+    position: fixed; /* Changed from absolute to fixed */
+    top: 20px;       /* Distance from the top */
+    right: 20px;     /* Distance from the right */
+    z-index: 1000;   /* Ensure it appears above other content */
+}
+
+.notification-bell {
+    cursor: pointer;
+    position: relative; /* Necessary for the dropdown positioning */
+}
+
+#notification-dropdown {
+    display: none; /* Initially hidden */
+    position: absolute; /* Position relative to the bell */
+    top: 70px; /* Position it below the bell */
+    right: 0; /* Aligns with the right edge of the bell */
+    background: white;
+    border: 1px solid #ccc;
+    width: 200px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.badge {
+    display: inline-block;
+    background: red;
+    color: white;
+    border-radius: 50%;
+    padding: 5px 10px;
+    position: absolute;
+    top: -5px; /* Adjust for proper placement */
+    right: -10px; /* Adjust for proper placement */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    display: flex; /* Use flexbox */
+    flex-wrap: wrap; /* Allow wrapping */
+    justify-content: space-between; /* Space out items */
+}
+
+.membership-plan {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    margin: 10px; /* Space around each plan */
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    flex: 1 1 calc(30% - 20px); /* Responsive sizing */
+    /* Adjust the width of each plan as needed */
+    max-width: calc(30% - 20px); /* Prevent exceeding 30% width */
+}
+
+.price {
+    font-size: 20px;
+    color: #28a745; /* Green color for price */
+}
+.error-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #f44336; /* Red background */
+    color: white;
+    padding: 15px;
+    border-radius: 5px;
+    z-index: 1001; /* Ensure it appears above other content */
+    transition: opacity 0.5s ease;
+}
+.success-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #28a745; /* Green background */
+    color: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    z-index: 1001; /* Ensure it appears above other content */
+    opacity: 1;
+    transition: opacity 1s ease-out; /* For fade out effect */
 }
