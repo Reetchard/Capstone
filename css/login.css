@@ -11,6 +11,7 @@ body {
 
 h1 {
 	font-weight: bold;
+    font-size: 30px;
 	margin: 0;
 }
 
@@ -29,18 +30,26 @@ p {
 span {
 	font-size: 12px;
 }
+.forgot-password-container{
+    text-align: right;
+    width: 100%;
+}
 
 a {
-	color: #333;
-	font-size: 14px;
+	color: #1877F2;
+	font-size: 11px;
 	text-decoration: none;
 	margin: 15px 0;
+    text-align: center;
+}
+a:hover{
+    text-decoration: underline;
 }
 
 button {
     border-radius: 20px;
-    border: 1px solid #FF4B2B;
-    background-color: #FF4B2B;
+    border: 1px solid #274046;
+    background-color: #274046;
     color: #FFFFFF;
     font-size: 14px; /* Increased font size for better readability */
     font-weight: bold;
@@ -51,8 +60,13 @@ button {
     margin: 10px; /* Added margin for spacing around the button */
     width: auto; /* Allows the button to resize based on content */
     display: inline-block; /* Ensures the button does not stretch to full width */
+    margin-top: 30px;
 }
-
+button:hover{
+    background-color: #4A6B72; /* Lighter shade for hover effect */
+    border-color: #4A6B72; /* Matching border for hover */
+    transform: scale(1.05); /* Slightly enlarges the button on hover */
+}
 
 button:active {
 	transform: scale(0.95);
@@ -75,15 +89,29 @@ form {
 	flex-direction: column;
 	padding: 0 50px;
 	height: 100%;
-	text-align: center;
+	text-align:center;
+}
+.input-container {
+    width: 100%; /* Full width for the container */
+    margin-bottom: 2px; /* Space between input fields */
+    
 }
 
 input {
-	background-color: #eee;
-	border: none;
-	padding: 12px 15px;
-	margin: 8px 0;
+	/* background-color: #eee; */
+	border: 1px solid #222831 ;
+	padding: 8px 10px;
+	margin: 5px 0;
 	width: 100%;
+    border-radius: 10px;
+}
+label{
+   display: block; /* Make the label take the full width */
+    margin-bottom: 1px; /* Space between label and input */
+    font-weight: normal; /* Optional: change to normal for less emphasis */
+    font-size: 12px; /* Smaller text size for labels */
+    color: #333; /* Color of the labels */
+    text-align: left; /* Align text to the left */
 }
 
 .container {
@@ -157,11 +185,11 @@ input {
 }
 
 .overlay {
-	background: #9b1c39;
-	background: -webkit-linear-gradient(to right, #e6ff03, #FF416C);
-	background: linear-gradient(to right, #FF4B2B, #eaee08);
+	background: #E6DADA;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #274046, #E6DADA);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #274046, #E6DADA); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 	background-repeat: no-repeat;
-	background-size: cover;
+	background-size: 200% 100%; /* This allows the animation to be more visible */
 	background-position: 0 0;
 	color: #FFFFFF;
 	position: relative;
@@ -170,6 +198,19 @@ input {
 	width: 200%;
   	transform: translateX(0);
 	transition: transform 0.6s ease-in-out;
+    animation: gradientAnimation 6s ease infinite; /* Add animation */
+}
+/* Keyframes for gradient animation */
+@keyframes gradientAnimation {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
 }
 
 .container.right-panel-active .overlay {
@@ -186,7 +227,7 @@ input {
     text-align: center;
     top: 0;
     height: 100%;
-    width: 60%; /* Increased width for a larger overlay panel */
+    width: 40%; /* Increased width for a larger overlay panel */
     transform: translateX(0);
     transition: transform 0.6s ease-in-out;
 }
@@ -382,19 +423,20 @@ h2 {
 }
 
 .membership-info {
-    margin-top: 10px; /* Space above the message */
-    padding: 10px; /* Padding inside the message box */
+    margin-bottom: 3px; /* Reduced space above the message */
+    padding: 10px; /* Reduced padding inside the message box */
     background-color: #f9f9f9; /* Light background color */
-    border-left: 5px solid #007bff; /* Blue left border */
+    border-left: 3px solid #007bff; /* Thinner blue left border */
     color: #333; /* Dark text color */
-    font-size: 14px; /* Slightly larger font */
-    border-radius: 4px; /* Rounded corners */
+    font-size: 12px; /* Smaller font size */
+    border-radius: 3px; /* Smaller border radius */
     display: none; /* Hidden by default */
 }
 
 .membership-info.active {
     display: block; /* Show when active */
 }
+
 
 .form-control {
     width: 100%; /* Full width input fields */
