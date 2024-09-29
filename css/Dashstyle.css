@@ -569,24 +569,42 @@
     color: #ffffff; /* Change icon color on hover/focus */
 }
 .chat-icon {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 50px;
-    height: 50px;
-    background: #ffffff;
-    border-radius: 50%;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: fixed; /* Fixed position */
+    bottom: 20px; /* Adjust as needed */
+    right: 20px; /* Adjust as needed */
+    z-index: 1000; /* Ensure it's above other content */
     cursor: pointer;
-    z-index: 1000; /* Ensure it's above other elements */
+    background: #007bff; /* Example background color */
+    border-radius: 50%; /* Round icon */
+    padding: 10px; /* Spacing around icon */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
-.chat-icon i {
-    font-size: 24px;
-    color: #333;
+.chat-box {
+    position: fixed; /* Fixed position */
+    bottom: 70px; /* Position it above the chat icon */
+    right: 20px; /* Align with the chat icon */
+    width: 300px; /* Width of the chat box */
+    max-height: 400px; /* Limit height */
+    overflow-y: auto; /* Scrollable messages */
+    background: white; /* Background color */
+    border: 1px solid #ccc; /* Border styling */
+    border-radius: 8px; /* Rounded corners */
+    display: none; /* Initially hidden */
+    z-index: 1000; /* Ensure it's above other content */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.chat-header {
+    background: #007bff; /* Header background color */
+    color: white; /* Text color */
+    padding: 10px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.messages {
+    padding: 10px; /* Space around messages */
 }
 
 .chat-icon:hover {
@@ -986,4 +1004,238 @@
     z-index: 1001; /* Ensure it appears above other content */
     opacity: 1;
     transition: opacity 1s ease-out; /* For fade out effect */
+}
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 20px;
+}
+
+/* Trainer Card Styles */
+.trainer-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin: 10px;
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+.trainer-card:hover {
+    transform: translateY(-5px);
+}
+
+.trainer-photo {
+    width: 100%;
+    height: auto;
+    border-bottom: 2px solid #007bff;
+}
+
+.trainer-card h3 {
+    margin: 15px 0;
+    color: #333;
+}
+
+/* Button Styles */
+.btn-book-now, .btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+/* Modal Styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.7); /* Black w/ opacity */
+    padding-top: 60px;
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+    border-radius: 8px;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Booking Details */
+#bookingDetails {
+    margin-top: 20px;
+    text-align: center;
+}
+
+/* Modal Styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.7); /* Black w/ opacity */
+    padding-top: 60px;
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 5% auto; /* Centering the modal vertically and horizontally */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 90%; /* Width of the modal */
+    max-width: 500px; /* Maximum width for larger screens */
+    border-radius: 8px;
+    text-align: center; /* Center text within the modal */
+}
+
+.trainer-photo {
+    width: 100%;
+    height: auto;
+    border-radius: 8px; /* Rounded corners for the photo */
+    margin-bottom: 15px; /* Space between photo and text */
+}
+
+.modal h3 {
+    margin: 15px 0;
+    color: #333;
+}
+
+.modal p {
+    margin: 10px 0;
+    color: #555;
+}
+
+.payment-select {
+    width: 100%; /* Full width */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin: 15px 0; /* Space above and below */
+    font-size: 16px;
+}
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0, 0, 0, 0.5); /* Dark background with opacity */
+}
+
+.modal-content {
+    background-color: #ffffff; /* White background */
+    margin: 10% auto; /* Center it vertically and horizontally */
+    padding: 20px;
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Soft shadow */
+    width: 300px; /* Width of the modal */
+    animation: fadeIn 0.3s; /* Fade in animation */
+}
+
+.close {
+    color: #aaa; /* Close button color */
+    float: right; /* Position to the right */
+    font-size: 28px; /* Size of the close icon */
+    font-weight: bold; /* Bold font */
+}
+
+.close:hover,
+.close:focus {
+    color: black; /* Change color on hover */
+    text-decoration: none; /* No underline */
+    cursor: pointer; /* Pointer cursor */
+}
+
+h3 {
+    margin-bottom: 15px; /* Space below header */
+    color: #333; /* Header color */
+}
+
+label {
+    font-weight: bold; /* Bold label */
+}
+
+.payment-select {
+    width: 100%; /* Full width */
+    padding: 10px; /* Padding inside the dropdown */
+    border: 1px solid #ccc; /* Light border */
+    border-radius: 5px; /* Rounded edges */
+    margin: 10px 0; /* Space around the dropdown */
+    font-size: 16px; /* Font size */
+    background-color: #f9f9f9; /* Light background */
+}
+
+.btn {
+    background-color: #007bff; /* Button background color */
+    color: white; /* Button text color */
+    padding: 10px 15px; /* Padding inside the button */
+    border: none; /* No border */
+    border-radius: 5px; /* Rounded edges */
+    cursor: pointer; /* Pointer cursor */
+    transition: background-color 0.3s; /* Transition effect */
+    width: 100%; /* Full width */
+}
+
+.btn:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.confirmation-area {
+    display: none; /* Hidden by default */
+    background-color: #f9f9f9; /* Light background */
+    border: 1px solid #ccc; /* Light border */
+    padding: 15px; /* Padding */
+    margin: 20px; /* Space around */
+    border-radius: 5px; /* Rounded edges */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    
+    /* Centering Styles */
+    position: fixed; /* Fixed positioning */
+    top: 50%; /* Center vertically */
+    left: 50%; /* Center horizontally */
+    transform: translate(-50%, -50%); /* Offset by half its size */
+    z-index: 1000; /* Ensure it’s above other elements */
 }

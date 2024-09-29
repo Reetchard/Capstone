@@ -32,6 +32,7 @@ window.addEventListener('load', () => {
     const Days = document.getElementById("Days");
     const Experience = document.getElementById("Experience");
     const Expertise = document.getElementById("Expertise");
+    const rate = document.getElementById("rate");
     const errorMessage = document.getElementById("TrainerFormErrorMessage");
     const successMessage = document.getElementById("TrainerFormSuccessMessage");
 
@@ -56,7 +57,8 @@ window.addEventListener('load', () => {
                     trainer.Email === Email.value &&
                     trainer.Days === Days.value &&
                     trainer.Experience === Experience.value &&
-                    trainer.Expertise === Expertise.value
+                    trainer.Expertise === Expertise.value &&
+                    trainer.rate === rate.value
                 ) {
                     return true; // A duplicate entry is found
                 }
@@ -67,7 +69,7 @@ window.addEventListener('load', () => {
 
     // Function to generate the next incrementing ID
     async function getNextTrainerID() {
-        const idRef = ref(database, 'latestTrainerID');
+        const idRef = ref(database, 'TrainerID');
         const snapshot = await get(idRef);
 
         let newID = 1; // Default ID if none exists
@@ -112,6 +114,7 @@ window.addEventListener('load', () => {
                     Days: Days.value,
                     Experience: Experience.value,
                     Expertise: Expertise.value,
+                    rate: rate.value,
                     status: "Under Review"
                 });
 

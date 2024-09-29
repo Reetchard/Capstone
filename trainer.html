@@ -3,94 +3,11 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trainer Dashboard - Gym Management System</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/trainer.css">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            overflow-x: hidden;
-        }
-        .sidebar {
-            height: 100vh;
-            width: 250px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: #343a40;
-            color: white;
-            padding: 15px;
-            overflow-y: auto;
-        }
-        .sidebar a {
-            color: white;
-            text-decoration: none;
-            display: block;
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 4px;
-        }
-        .sidebar a:hover {
-            background-color: #495057;
-        }
-        .main-content {
-            margin-left: 250px;
-            padding: 20px;
-        }
-        .card-header {
-            background-color: #343a40;
-            color: white;
-        }
-        .card {
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-        .form-control-file {
-            margin-bottom: 15px;
-        }
-        #photoPreview {
-            display: block;
-            width: 100px;
-            margin-top: 10px;
-        }
-        .btn-block {
-            margin-top: 20px;
-        }
-        .alert {
-            margin-top: 20px;
-        }
-        .notification-icon {
-            color: white;
-            font-size: 1.5rem;
-            margin-right: 15px;
-        }
-        .notification-icon:hover {
-            color: #ddd;
-        }
-        .chat-box {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 10px;
-            max-height: 400px;
-            overflow-y: auto;
-            margin-bottom: 20px;
-        }
-        .chat-message {
-            margin-bottom: 10px;
-        }
-        .chat-message .message {
-            border-radius: 8px;
-            padding: 10px;
-            background-color: #f1f1f1;
-        }
-        .chat-message .trainer {
-            text-align: right;
-        }
-        .chat-input {
-            margin-top: 10px;
-        }
-    </style>
+
 </head>
 <body>
 
@@ -100,8 +17,6 @@
     <a href="dashboard.html"><i class="fas fa-home"></i> Home</a>
     <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
     <a href="members.html"><i class="fas fa-users"></i> Members</a>
-    <a href="trainers.html"><i class="fas fa-chalkboard-teacher"></i> Trainers</a>
-    <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
     <button class="btn btn-secondary btn-block" onclick="window.location.href='login.html';"><i class="fas fa-sign-out-alt"></i> Log out</button>
 </div>
 <!-- Sidebar Ends -->
@@ -110,7 +25,7 @@
 <div class="main-content">
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="#"><img src="Styles/Logoo.ico" alt="Logo"> Peak Pulse</a>
+        <a class="navbar-brand" href="#"><img src="framework/img/peak1.png" alt="Logo"> Peak Pulse</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -181,73 +96,10 @@
         </div>
     </div>
 </div>
-<!-- Main Content Ends -->
 
-<!-- Firebase JS SDK -->
-<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-storage.js"></script>
-
-<script>
-    // Your web app's Firebase configuration
-    const firebaseConfig = {
-        apiKey: "AIzaSyAPNGokBic6CFHzuuENDHdJrMEn6rSE92c",
-        authDomain: "capstone40-project.firebaseapp.com",
-        databaseURL: "https://capstone40-project-default-rtdb.firebaseio.com",
-        projectId: "capstone40-project",
-        storageBucket: "capstone40-project.appspot.com",
-        messagingSenderId: "399081968589",
-        appId: "1:399081968589:web:5b502a4ebf245e817aaa84",
-        measurementId: "G-CDP5BCS8EY"
-    };
-
-    // Initialize Firebase
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    } else {
-        firebase.app();
-    }
-
-    const database = firebase.database();
-    const storage = firebase.storage();
-
-    // Chat functionality
-    const chatBox = document.getElementById('chatBox');
-    const chatInput = document.getElementById('chatInput');
-    const chatRef = database.ref('chats');
-
-    function sendMessage() {
-        const message = chatInput.value.trim();
-        if (message) {
-            chatRef.push({
-                message: message,
-                sender: 'trainer', // Change to 'user' as needed
-                timestamp: new Date().toISOString()
-            });
-            chatInput.value = '';
-        }
-    }
-
-    chatRef.on('child_added', function(snapshot) {
-        const chatMessage = snapshot.val();
-        const messageElement = document.createElement('div');
-        messageElement.classList.add('chat-message');
-        messageElement.classList.add(chatMessage.sender);
-        messageElement.innerHTML = `<div class="message">${chatMessage.message}</div>`;
-        chatBox.appendChild(messageElement);
-        chatBox.scrollTop = chatBox.scrollHeight;
-    });
-
-    // Notifications (Dummy example)
-    document.querySelector('.notification-icon').addEventListener('click', function() {
-        alert('You have new notifications!');
-    });
-</script>
-
-<!-- Bootstrap JS and dependencies -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
+<script src="src/Js/trainerDash.js"></script>
 </body>
 </html>

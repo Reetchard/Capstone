@@ -130,6 +130,41 @@
             
         </div>
     </div>
+    <!--  Trainer Profile Modal Structure -->
+    <div id="trainerProfileModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeTrainerModal()">&times;</span>
+            <img id="modalTrainerPhoto" src="" alt="Trainer Photo" class="trainer-photo">
+            <h3 id="modalTrainerName"></h3>
+            <p><strong>Experience:</strong> <span id="modalTrainerExperience"></span></p>
+            <p><strong>Expertise:</strong> <span id="modalTrainerExpertise"></span></p>
+            <p><strong>Available On:</strong> <span id="modalTrainerDays"></span></p>
+            <p><strong>Rate Per:</strong> <span id="modalTrainerRate"></span></p>
+            <div id="bookingDetails"></div>  
+            <a href="#" class="btn btn-secondary" onclick="bookTrainer('')">Book now</a>
+        </div>
+    </div>
+    
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closePaymentModal()">&times;</span>
+            <h3>Checkout</h3>
+            <p><strong>Trainer:</strong> <span id="TrainerName"></span></p>
+            <p><strong>Rate:</strong> <span id="Rate"></span></p>
+            <label for="paymentMethod">Payment Method:</label>
+            <select id="paymentMethod" class="payment-select">
+                <option value="cash">Cash Only</option>
+                <!-- Additional payment options can be added here -->
+            </select>
+            <div id="paymentDetails"></div>
+            <button id="trainerPayment" class="btn">Confirm Payment</button>
+        </div>
+    </div>
+    
+    
+    
     <!-- Membership Plans Modal -->
     <div id="membershipPlansModal" class="modal">
         <div class="modal-content">
@@ -175,10 +210,14 @@
     
     
     
-    <div class="chat-icon">
+    <div class="chat-icon" onclick="toggleChat()">
         <i class="fas fa-comments"></i>
     </div>
-    
+    <div class="chat-box" id="chatBox">
+        <div class="chat-header">Chat Room</div>
+        <div class="messages" id="messages"></div>
+    </div>
+    <div id="confirmationArea" class="confirmation-area"></div>
     <!-- Include jQuery before Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

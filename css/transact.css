@@ -1,0 +1,63 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+#transactionTabs {
+    margin: 20px 0;
+}
+
+button {
+    margin-right: 10px;
+    padding: 10px 15px;
+    cursor: pointer;
+}
+
+#transactionsDisplay {
+    margin-top: 20px;
+    border-top: 1px solid #ccc;
+    padding-top: 10px;
+}
+
+.navbar {
+    background-color: #343a40; /* Dark color for the navbar */
+    padding: 0.75rem 1.5rem; /* Added padding for better spacing */
+    border-bottom: 2px solid #6c757d; /* Slightly darker bottom border */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow for a floating effect */
+}
+
+.navbar-brand img {
+    height: 40px; /* Logo size */
+    margin-right: 10px; /* Space between logo and brand name */
+    transition: transform 0.3s ease; /* Smooth scale effect */
+}
+
+.navbar-brand img:hover {
+    transform: scale(1.1); /* Slightly enlarge logo on hover */
+}
+
+.navbar-nav .nav-link {
+    color: #ffffff; /* Light color for text */
+    font-size: 1rem; /* Font size for readability */
+    text-decoration: none; /* Remove underline from links */
+    padding: 0.5rem 1rem; /* Padding for better spacing */
+    transition: color 0.3s ease, background-color 0.3s ease; /* Smooth color transition */
+}
+
+.navbar-nav .nav-link:hover {
+    color: #f8f9fa; /* Lighten color on hover */
+    background-color: #495057; /* Slightly lighter background on hover */
+    border-radius: 4px; /* Rounded corners on hover */
+}
+
+.navbar-nav .nav-item {
+    margin-left: 1rem; /* Spacing between menu items */
+}
+
+.navbar-toggler {
+    border: none; /* Remove border from the toggle button */
+    background: transparent; /* Ensure no background */
+}
+
+.navbar-toggler-icon {
+    background-image: url('data:image/svg+xml;charset=utf8,...'); /* Custom icon if needed */
+}

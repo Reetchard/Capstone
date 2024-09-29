@@ -211,18 +211,89 @@ function createDropdownMenu(username, role) {
           
             // Function to create HTML for each trainer
             window.createTrainerCard = function(trainer) {
-              return `
-                <div class="trainer-card">
-                  <img src="${trainer.TrainerPhoto}" alt="${trainer.Name}" class="trainer-photo">
-                  <h3>${trainer.TrainerName}</h3>
-                  <p><strong>Available Only:</strong> ${trainer.Days}</p>
-                  <p><strong>Experience:</strong> ${trainer.Experience}</p>
-                  <p><strong>Expertise:</strong> ${trainer.Expertise}</p>
-                  <a href="#" class="btn-book-now" onclick="showConfirmationMessage()">Book Me Now</a>
-                </div>
-              `;
+                return `
+                    <div class="trainer-card">
+                        <img src="${trainer.TrainerPhoto}" alt="${trainer.TrainerName}" class="trainer-photo">
+                        <h3>${trainer.TrainerName}</h3>
+                        <a href="#" class="btn-book-now" onclick='showTrainerProfileModal(${JSON.stringify(trainer).replace(/"/g, '&quot;')})'>View</a>
+                    </div>
+                `;
+            };
+            
+            window.showTrainerProfileModal = function(trainer) {
+                document.getElementById('modalTrainerPhoto').src = trainer.TrainerPhoto;
+                document.getElementById('modalTrainerName').textContent = trainer.TrainerName;
+                document.getElementById('modalTrainerExperience').textContent = trainer.Experience;
+                document.getElementById('modalTrainerExpertise').textContent = trainer.Expertise;
+                document.getElementById('modalTrainerDays').textContent = trainer.Days; // Correct element for days
+                document.getElementById('modalTrainerRate').textContent = trainer.rate; // Ensure this is set
+            
+                const modal = document.getElementById('trainerProfileModal');
+                modal.style.display = 'block'; // Show the modal
+            };
+            
+            window.closeTrainerModal = function() {
+                const modal = document.getElementById('trainerProfileModal');
+                modal.style.display = 'none'; // Hide the modal
             }
-          
+            
+            // Close the modal when clicking outside of the modal content
+            window.onclick = function(event) {
+                const modal = document.getElementById('trainerProfileModal');
+                if (event.target === modal) {
+                    closeTrainerModal();
+                }
+            }
+            window.bookTrainer = function(TrainerName, rate) {
+                const confirmationMessage = `
+                    <p>Do you want to book ${TrainerName}?</p>
+                    <button id="confirmBookingYes" class="btn">Yes</button>
+                    <button id="confirmBookingNo" class="btn">No</button>
+                `;
+                
+                const confirmationArea = document.getElementById('confirmationArea');
+                confirmationArea.innerHTML = confirmationMessage;
+                confirmationArea.style.display = 'block'; // Show the confirmation area
+            
+                closeTrainerModal();
+            
+                document.getElementById('confirmBookingYes').onclick = function() {
+                    confirmBooking(TrainerName, rate); // Pass both name and rate
+                    confirmationArea.style.display = 'none'; // Hide confirmation area after confirmation
+                };
+                
+                document.getElementById('confirmBookingNo').onclick = function() {
+                    confirmationArea.style.display = 'none'; // Hide confirmation area if no
+                };
+            };
+            
+            function confirmBooking(TrainerName, rate) {
+                const bookingDetails = `
+                    <p>Your booking for ${TrainerName} is confirmed!</p>
+                    <p>Proceed to payment (Cash Only).</p>
+                `;
+                document.getElementById('bookingDetails').innerHTML = bookingDetails;
+            
+                // Set Trainer's name and Rate in the payment modal
+                document.getElementById('paymentTrainerName').textContent = TrainerName;
+                document.getElementById('paymentTrainerRate').textContent = rate;
+            
+                // Show the payment modal
+                const paymentModal = document.getElementById('paymentModal');
+                paymentModal.style.display = 'block'; // Show the payment modal
+            }
+            
+            window.closePaymentModal = function() {
+                const paymentModal = document.getElementById('paymentModal');
+                paymentModal.style.display = 'none'; // Hide the payment modal
+            };
+            document.getElementById('trainerPayment').addEventListener('click', function() {
+                const paymentMethod = document.getElementById('paymentMethod').value;
+                const successMessage = `Your booking with the trainer is confirmed! Payment Method: ${paymentMethod}`;
+                displaySuccessMessage(successMessage);
+                closePaymentModal(); // Close the payment modal
+            });
+                        
             // Function to create a Membership Plan Card
             window.createMembershipCard =function(plan) {
               return `
@@ -627,3 +698,19 @@ function createDropdownMenu(username, role) {
     // Attach click event to the bell
     document.getElementById('notification-bell').addEventListener('click', toggleDropdown);
     
+
+    window.toggleChat = function() {
+        const chatBox = document.getElementById('chatBox');
+        chatBox.style.display = chatBox.style.display === 'none' || chatBox.style.display === '' ? 'block' : 'none';
+    }
+    window. receiveMessage = function(message) {
+        const messagesContainer = document.getElementById('messages');
+        
+        // Create a new message element
+        const messageElement = document.createElement('div');
+        messageElement.textContent = message;
+        messagesContainer.appendChild(messageElement);
+    
+        // Open the chat box when a message is received
+        toggleChat();
+    }

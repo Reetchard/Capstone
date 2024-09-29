@@ -49,31 +49,43 @@
 </head>
 <body>
     <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <a class="navbar-brand" href="#">
-            <img src="Styles/Logoo.ico" alt="Logo"> PEAK PULSE
-        </a>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="#"><img src="framework/img/Logoo.ico" alt="Logo"> PEAK PULSE</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <!-- Left-aligned items can go here if needed -->
+            </ul>
+            <span class="navbar-text mx-auto text-white">
+                Gym Management Dashboard
+            </span>
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
                     <a class="nav-link" href="member.html">Manage Members</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="trainer-info.html">Manage Trainer</a>
+                    <a class="nav-link" href="trainer-info.html">Manage Trainer Profile</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="Products.html">Manage Products</a>
                 </li>
                 <li class="nav-item">
-                    <button class="btn btn-secondary" onclick="window.location.href='login.html'">Log out </button>
+                    <a class="nav-link" href="membership.html">Manage Memberships</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="membership.html">Manage Transactions</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="membership.html">Conflict Manageent</a>
+                </li>
+                <div class="nav-link">
+                    <button class="btn btn-secondary mb-2" onclick="window.location.href='login.html'">Log out</button>
+                </div>
             </ul>
         </div>
     </nav>
-<body>
     <div class="container">
         <div class="card mb-4">
             <div class="card-header">
