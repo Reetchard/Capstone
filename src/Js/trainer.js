@@ -229,12 +229,21 @@ window.openModal = function(imageSrc) {
 // Function to search for a trainer by ID
 window.searchTrainer = async function() {
     const searchId = document.getElementById('searchId').value; // Get the search input value
+
+    // Convert to number if needed, or ensure the type matches what's in Firestore
+    // const searchIdNumber = Number(searchId); // Uncomment if TrainerId is a number
+
     const trainerRef = collection(db, 'TrainerForm');
-    const q = query(trainerRef, where("TrainerId", "==", searchId)); // Query to find trainer by TrainerID
+    const q = query(trainerRef, where("TrainerId", "==", searchId)); // Ensure "TrainerId" matches Firestore exactly
+
+    console.log(`Searching for TrainerId: ${searchId}`); // Log the search ID
 
     const snapshot = await getDocs(q);
+    console.log(`Found ${snapshot.size} trainer(s)`); // Log how many trainers were found
+
     if (!snapshot.empty) {
         const doc = snapshot.docs[0]; // Get the first matching document
+        console.log(`Found trainer data:`, doc.data()); // Log the found trainer data
         displayTrainerData(doc.data(), doc.id); // Display the trainer data
     } else {
         console.log('Trainer not found, updating message.');
@@ -242,6 +251,7 @@ window.searchTrainer = async function() {
         document.getElementById('trainerInfoBody').innerHTML = ''; // Clear previous results
     }
 };
+
 // Function to display trainer data
 
 async function displayTrainerData(trainerData, trainerId) {

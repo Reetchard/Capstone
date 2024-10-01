@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDocs, query, where, collection } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDocs, getDoc,query, where, collection ,updateDoc} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
 // Your Firebase config
 const firebaseConfig = {
@@ -33,10 +33,24 @@ function showSuccessMessage(element, message) {
     }
 }
 
-// Function to get the next unique role ID
-async function getNextRoleId() {
-    const usersSnapshot = await getDocs(collection(db, 'Users'));
-    return usersSnapshot.size; // Magkuha sa total count sa users ug magamit kini as unique ID
+// Function to get the next role ID based on role
+async function getNextRoleId(role) {
+    const counterDoc = await getDoc(doc(db, 'Counters', role));
+
+    // If the counter document does not exist, create it with an initial value of 0
+    if (!counterDoc.exists()) {
+        await setDoc(doc(db, 'Counters', role), { count: 0 });
+        return 1; // First ID is 1
+    }
+
+    // Get the current count, increment it, and update the document
+    const currentCount = counterDoc.data().count;
+    const newCount = currentCount + 1;
+
+    // Update the counter in Firestore
+    await updateDoc(doc(db, 'Counters', role), { count: newCount });
+
+    return newCount; // Return the new ID
 }
 
 // Function to sign up with email and password
@@ -50,134 +64,148 @@ async function signUpWithEmailorUsername(email, password, username, role, errorM
             return; // Exit if the username exists
         }
 
-        // If the username is 'Admin', set role to 'admin' and ignore role input
-        if (username.toLowerCase() === 'admin') {
-            role = 'admin'; // Set role to 'admin' for Admin username
-        }
-
-        // Proceed with user creation
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const userId = userCredential.user.uid;
-
-        // Get the next unique user ID
-        const nextuserId = await getNextRoleId();
-
-        let initialStatus = 'Under review'; // Default status for all roles
-
-        // Save user data to Firestore in the 'Users' collection
-        await setDoc(doc(db, 'Users', userId), {
+        // Use the username as the document name
+        const documentName = username; // Set documentName to username
+        
+        // Get the next unique ID for the user based on their role
+        const userId = await getNextRoleId(role.toLowerCase());
+        
+        // Store user data in Firestore using the username as the document ID
+        await setDoc(doc(db, 'Users', documentName), {
             username,
             email,
+            password, // Optional: Consider storing only hashed passwords
             role, // Role will be 'admin' if the username is 'Admin'
-            userId: nextuserId, // Unique ID
-            status: initialStatus
-        });
-
-        // Create custom document names based on the user's role
-        let rolesDocName;
-        let rolesData = {
-        };
-
-        if (role === 'gym_owner') {
-            rolesDocName = `Gym_Owner`; // Custom document name for gym owners
-            rolesData.GymId = nextuserId; // Store GymId
-        } else if (role === 'trainer') {
-            rolesDocName = `Trainer`; // Custom document name for trainers
-            rolesData.TrainerId = nextuserId; // Store TrainerId
-        } else {
-            rolesDocName = `User`; // Custom document name for regular users
-            rolesData.userId = nextuserId;
-        }
-
-        // Create or update the Roles document with custom name
-        const rolesDocRef = doc(db, 'Roles', rolesDocName);
-        await setDoc(rolesDocRef, rolesData);
-
-        // Add notification for the user
-        await setDoc(doc(db, 'UserNotifications', userId), {
-            notificationCount: 1,
-            notifications: [{ message: `Welcome aboard, ${username}! You've successfully registered as a ${role}.`, timestamp: new Date().toISOString() }]
+            userId,
+            status: 'Under review' // Default status
         });
 
         // Show success message
-        let successMessage = `🎉 Awesome! You've signed up successfully, ${username}. Your account is under review.`;
-        showSuccessMessage(successMessageElement, successMessage);
+        showSuccessMessage(successMessageElement, `🎉 Awesome! You've signed up successfully, ${username}. Your account is under review.`);
 
-        // Redirect after a delay
-        setTimeout(() => {
-            if (role === 'gym_owner') {
+        // Clear the input fields
+        clearSignUpFields();
+
+        // Redirect based on role
+        switch (role.toLowerCase()) {
+            case 'admin':
+                window.location.href = 'Accounts.html';
+                break;
+            case 'gym_owner':
                 window.location.href = 'GymForm.html';
-            } else if (role === 'trainer') {
+                break;
+            case 'trainer':
                 window.location.href = 'TrainerForm.html';
-            } else {
-                window.location.href = 'Dashboard.html'; 
-            }
-        }, 5000);
+                break;
+            default:
+                // Default redirect can be added if needed
+                window.location.href = 'login.html'; // For regular users
+                break;
+        }
 
     } catch (error) {
         showErrorMessage(errorMessageElement, `🚫 Oops! There was an issue with your sign-up: ${error.message}`);
     }
 }
 
+// Clear the sign-up form fields
+function clearSignUpFields() {
+    document.getElementById('signupUsername').value = '';
+    document.getElementById('signupEmail').value = '';
+    document.getElementById('signupPassword').value = '';
+    document.getElementById('confirmPassword').value = '';
+    document.getElementById('role').value = '';
+}
 
-// Function to sign in with email or username
-async function signInWithEmailOrUsername(username, password, errorMessageElement, successMessageElement) {
+
+async function signInWithUsername(username, password, errorMessageElement, successMessageElement) {
     try {
-        const normalizedUsername = username.toLowerCase();
-        const isEmail = normalizedUsername.includes('@');
-        let userDoc;
+        const Username = username.trim().toLowerCase();
 
-        // Check if the input is an email
-        const userQuery = isEmail
-            ? query(collection(db, 'Users'), where('email', '==', normalizedUsername))
-            : query(collection(db, 'Users'), where('username', '==', normalizedUsername));
-
+        // Fetch the associated user document from Firestore using username
+        const userQuery = query(collection(db, 'Users'), where('username', '==', Username));
         const querySnapshot = await getDocs(userQuery);
-        if (!querySnapshot.empty) {
-            userDoc = querySnapshot.docs[0];
+
+        console.log("Query snapshot size:", querySnapshot.size); // Log the size of the snapshot
+        querySnapshot.forEach(doc => {
+            console.log("Found user document:", doc.data()); // Log each found user document
+        });
+
+        // If username was not found, show error message
+        if (querySnapshot.empty) {
+            showErrorMessage(errorMessageElement, `🚫 Sorry, we couldn't find an account with the username "${username}".`);
+            return;
         }
 
-        // If the user document was found
-        if (userDoc) {
-            const email = userDoc.data().email;
-            const role = userDoc.data().role;
-            const status = userDoc.data().status;
+        const userDoc = querySnapshot.docs[0]; // Get the first matching user document
+        const email = userDoc.data().email; // Get email associated with the username
 
-            // Check if the status is 'Under review' for Gym Owner or Trainer
-            if ((role === 'trainer' || role === 'gym_owner') && status === 'Under review') {
-                showErrorMessage(errorMessageElement, `🚫 Your account is currently under review. Please wait for the Admin's approval.`);
-                return; // Exit the function
-            }
+        console.log("Retrieved email from Firestore:", email); // Log the email fetched from Firestore
 
-            await setPersistence(auth, browserSessionPersistence);
-            await signInWithEmailAndPassword(auth, email, password);
-            showSuccessMessage(successMessageElement, `✅ Welcome back, ${userDoc.data().username}! You have logged in successfully.`);
+        // Proceed to sign in with Firebase Authentication
+        await setPersistence(auth, browserSessionPersistence);
+        
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        console.log("User authenticated:", userCredential.user); // Log successful authentication
 
-            // Redirect based on role
-            switch (role) {
-                case 'user':
-                    window.location.href = 'Dashboard.html';
-                    break;
-                case 'gym_owner':
-                    window.location.href = 'membership.html'; // Use specific GymId page
-                    break;
-                case 'admin':
-                    window.location.href = 'Accounts.html';
-                    break;
-                case 'trainer':
-                    window.location.href = 'TrainerDash.html'; // Use specific TrainerId page
-                    break;
-                default:
-                    console.warn('Unrecognized role:', role);
-                    break;
-            }
-        } else {
-            showErrorMessage(errorMessageElement, `🚫 Sorry, we couldn't find an account with that username or email.`);
+        // Fetch user details from Firestore using the document ID from Firestore
+        const userRef = doc(db, 'Users', userDoc.id);
+        const userSnapshot = await getDoc(userRef);
+
+        if (!userSnapshot.exists()) {
+            showErrorMessage(errorMessageElement, `🚫 No user data found in Firestore for UID: ${userCredential.user.uid}.`);
+            return;
         }
+
+        const userData = userSnapshot.data();
+        const role = userData.role;
+        const status = userData.status;
+
+        // Check if the account is under review
+        if (status === 'Under review') {
+            showErrorMessage(errorMessageElement, `🚫 Your account is currently under review. Please wait for the Admin's approval.`);
+            return;
+        }
+
+        showSuccessMessage(successMessageElement, `✅ Welcome back, ${userData.username}! You have logged in successfully.`);
+        
+        // Redirect based on role
+        switch (role) {
+            case 'user':
+                window.location.href = 'Dashboard.html';
+                break;
+            case 'gym_owner':
+                window.location.href = 'membership.html';
+                break;
+            case 'admin':
+                window.location.href = 'Accounts.html';
+                break;
+            case 'trainer':
+                window.location.href = 'TrainerDash.html';
+                break;
+            default:
+                console.warn('Unrecognized role:', role);
+                break;
+        }
+
     } catch (error) {
-        showErrorMessage(errorMessageElement, `🚫 Sign-in failed: ${error.message}`);
+        // Handle specific errors for more informative messages
+        if (error.code === 'auth/user-not-found') {
+            showErrorMessage(errorMessageElement, '🚫 User not found. Please check your username.');
+        } else if (error.code === 'auth/wrong-password') {
+            showErrorMessage(errorMessageElement, '🚫 Incorrect password. Please try again.');
+        } else {
+            showErrorMessage(errorMessageElement, `🚫 Sign-in failed: ${error.message}`);
+        }
+        console.error("Sign-in error:", error);
     }
 }
+
+
+
+
+
+
 
 // Add event listeners for form submissions
 document.addEventListener('DOMContentLoaded', function() {
@@ -189,7 +217,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const password = document.getElementById('loginPassword')?.value;
             const errorMessage = document.getElementById('error-message');
 
-            signInWithEmailOrUsername(username, password, errorMessage);
+            signInWithUsername(username, password, errorMessage);
         });
     } else {
         console.error('Login form with ID "loginForm" not found.');
