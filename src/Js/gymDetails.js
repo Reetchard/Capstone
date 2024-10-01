@@ -1,14 +1,11 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
-import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js';
-import { getDatabase, ref, onValue, set ,get } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js';
-import { update } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js';
-
+import { getAuth, } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js';
+import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, deleteDoc , } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js';
 
 // Your Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyAPNGokBic6CFHzuuENDHdJrMEn6rSE92c",
     authDomain: "capstone40-project.firebaseapp.com",
-    databaseURL: "https://capstone40-project-default-rtdb.firebaseio.com",
     projectId: "capstone40-project",
     storageBucket: "capstone40-project.appspot.com",
     messagingSenderId: "399081968589",
@@ -19,58 +16,60 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const database = getDatabase(app);
+const db = getFirestore(app);
 
-function loadGymProfiles() {
+async function loadGymProfiles() {
     const gymListBody = document.getElementById('gymList');
-
-    // Reference to the gyms data in the database
-    const gymsRef = ref(database, 'GymForms');
+    const gymsRef = collection(db, 'GymForms');
 
     // Fetch and display gym profiles
-    onValue(gymsRef, (snapshot) => {
-        gymListBody.innerHTML = ''; // Clear previous data
-        snapshot.forEach((childSnapshot) => {
-            const gym = childSnapshot.val();
-            const gymKey = childSnapshot.key;
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td><input type="checkbox" class="select-gym" data-key="${gymKey}"></td>
-                <td>${gym.gymName}</td>
-                <td><a href="#" onclick="openModal('${gym.gymPhoto}')"><img src="${gym.gymPhoto}" alt="Gym Photo" style="max-width: 100px;"></a></td>
-                <td><a href="#" onclick="openModal('${gym.gymCertifications}')"><img src="${gym.gymCertifications}" alt="Certification Image" style="max-width: 100px;"></a></td>
-                <td>${gym.gymEquipment}</td>
-                <td>${gym.gymContact}</td>
-                <td>${gym.gymPrograms}</td>
-                <td>${gym.gymOpeningTime}</td>
-                <td>${gym.gymClosingTime}</td>
-                <td>${gym.gymLocation}</td>
-                <td>${gym.status}</td>
-                <td>
-                    <button class="btn btn-success btn-sm mx-1" onclick="updateStatus('approve', '${gymKey}')">Approve</button>
-                    <button class="btn btn-secondary btn-sm mx-1" onclick="updateStatus('idle', '${gymKey}')">Idle</button>
-                </td>
-            `;
-            gymListBody.appendChild(row);
-        });
-    });
+    const snapshot = await getDocs(gymsRef);
+    gymListBody.innerHTML = ''; // Clear previous data
+
+    // Fetch the Gym ID from the Roles collection directly
+    const rolesDocRef = doc(db, 'Roles', 'Gym_Owner'); // Reference to the Gym_Owner document
+    const rolesDoc = await getDoc(rolesDocRef);
+
+    let gymId = 'N/A'; // Default value if no Gym ID is found
+    if (rolesDoc.exists()) {
+        gymId = rolesDoc.data().GymId; // Adjust the field name if necessary
+    }
+
+    // Loop through the GymForms documents
+    for (const doc of snapshot.docs) {
+        const gym = doc.data();
+        const gymKey = doc.id;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><input type="checkbox" class="select-gym" data-key="${gymKey}"></td>
+            <td>${gymId}</td> <!-- Displaying the Gym ID from Roles -->
+            <td>${gym.gymName}</td>
+            <td><a href="#" onclick="openModal('${gym.gymPhoto}')"><img src="${gym.gymPhoto}" alt="Gym Photo" style="max-width: 100px;"></a></td>
+            <td><a href="#" onclick="openModal('${gym.gymCertifications}')"><img src="${gym.gymCertifications}" alt="Certification Image" style="max-width: 100px;"></a></td>
+            <td>${gym.gymEquipment}</td>
+            <td>${gym.gymContact}</td>
+            <td>${gym.gymPrograms}</td>
+            <td>${gym.gymOpeningTime}</td>
+            <td>${gym.gymClosingTime}</td>
+            <td>${gym.gymLocation}</td>
+            <td>${gym.status}</td>
+            <td>
+                <button class="btn btn-success btn-sm mx-1" onclick="updateStatus('approve', '${gymKey}')">Approve</button>
+                <button class="btn btn-secondary btn-sm mx-1" onclick="updateStatus('idle', '${gymKey}')">Idle</button>
+                <button class="btn btn-warning btn-sm mx-1" onclick="updateStatus('Block', '${gymKey}')">Block</button>
+            </td>
+        `;
+        gymListBody.appendChild(row);
+    }
 }
 
-// Function to open the modal and display the image
 
 // Load gym profiles when the page loads
 window.onload = loadGymProfiles;
 
-
-
-
-// Ensure that this function is called when the page is loaded and actions are added to the table
-window.addEventListener('load', () => {
-    // Initialize any event listeners or additional setup here if needed
-});
-
-
-//function displayMessages(message, type) {
+// Function to display messages
+window.displayMessages = function(message, type) {
     const messageArea = document.getElementById('messageArea');
 
     // Clear any previous content and remove previous classes
@@ -90,13 +89,14 @@ window.addEventListener('load', () => {
     // Display the message with the show class
     messageArea.classList.add('show');
 
-    // Automatically hide the message after 1 second (1000ms)
+    // Automatically hide the message after 5 seconds
     setTimeout(() => {
         messageArea.classList.remove('show');
-    }, 1000); // Disappears after 1 second
-//}
+    }, 5000);
+};
 
-window.deleteSelected = function() {
+// Delete selected gym profiles
+window.deleteSelected = async function() {
     const selectedCheckboxes = document.querySelectorAll('.select-gym:checked');
     if (selectedCheckboxes.length === 0) {
         displayMessages('You need to select at least one gym profile to delete.', 'error');
@@ -104,19 +104,18 @@ window.deleteSelected = function() {
     }
 
     // Display confirmation dialog
-    displayConfirmation('Are you sure you want to delete the selected profiles?', () => {
-        selectedCheckboxes.forEach(checkbox => {
+    displayConfirmation('Are you sure you want to delete the selected profiles?', async () => {
+        for (const checkbox of selectedCheckboxes) {
             const key = checkbox.getAttribute('data-key');
-            const gymRef = ref(database, 'GymForms/' + key);
-            set(gymRef, null)
+            const gymRef = doc(db, 'GymForms', key);
+            await deleteDoc(gymRef)
                 .then(() => {
                     displayMessages(`Profile with key ${key} has been deleted.`, 'success');
                 })
                 .catch(() => {
                     displayMessages(`Error deleting profile with key ${key}.`, 'error');
                 });
-        });
-
+        }
         loadGymProfiles(); // Reload profiles after deletion
     });
 };
@@ -207,42 +206,13 @@ function displayConfirmation(message, callback) {
     });
 }
 
-// Function to display floating success/error messages
-window.displayMessages = function(message, type) {
-    const messageArea = document.getElementById('messageArea');
-
-    // Clear any previous content and remove previous classes
-    messageArea.textContent = '';
-    messageArea.className = ''; // Reset the class
-
-    // Set the message content
-    messageArea.textContent = message;
-
-    // Add the correct class based on the message type (success or error)
-    if (type === 'success') {
-        messageArea.classList.add('success');
-    } else if (type === 'error') {
-        messageArea.classList.add('error');
-    }
-
-    // Display the message with the show class
-    messageArea.classList.add('show');
-
-    // Automatically hide the message after 1 second (1000ms)
-    setTimeout(() => {
-        messageArea.classList.remove('show');
-    }, 5000); // Disappears after 5 second
-}
-
-
+// Function to open the modal and display the image
 window.openModal = function(imageSrc) {
     const modal = document.getElementById('imageModal');
     const modalImg = document.getElementById('modalImage');
-    // const captionText = document.getElementById('caption'); // Remove or comment out this line
 
     modal.style.display = "block";
     modalImg.src = imageSrc;
-    // captionText.innerHTML = imageSrc; // Remove or comment out this line
 
     // Close the modal when the user clicks on <span> (x)
     const span = document.getElementsByClassName("close")[0];
@@ -251,9 +221,10 @@ window.openModal = function(imageSrc) {
     }
 }
 
-window.updateStatus = function(status, key) {
-    const gymRef = ref(database, 'GymForms/' + key);
-    update(gymRef, { status: status })
+// Function to update status of a gym
+window.updateStatus = async function(status, key) {
+    const gymRef = doc(db, 'GymForms', key);
+    await updateDoc(gymRef, { status: status })
         .then(() => {
             displayMessages(`Profile with key ${key} is now marked as ${status}.`, 'success');
             loadGymProfiles(); // Reload profiles after update
@@ -263,5 +234,5 @@ window.updateStatus = function(status, key) {
         });
 };
 
+// Load gym profiles when the page loads
 window.onload = loadGymProfiles;
-

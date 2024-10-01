@@ -1,11 +1,11 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.2.0/firebase-app.js';
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, setPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/9.2.0/firebase-auth.js';
-import { getDatabase, ref, set, get, query, orderByChild, equalTo } from 'https://www.gstatic.com/firebasejs/9.2.0/firebase-database.js';
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDocs, query, where, collection } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
+// Your Firebase config
 const firebaseConfig = {
     apiKey: "AIzaSyAPNGokBic6CFHzuuENDHdJrMEn6rSE92c",
     authDomain: "capstone40-project.firebaseapp.com",
-    databaseURL: "https://capstone40-project-default-rtdb.firebaseio.com",
     projectId: "capstone40-project",
     storageBucket: "capstone40-project.appspot.com",
     messagingSenderId: "399081968589",
@@ -16,260 +16,172 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const database = getDatabase(app);
+const db = getFirestore(app);
 
-// Function to sign up with email and password
-function signUpWithEmail(email, password, username, role, errorMessageElement, successMessageElement) {
-    function getNextRoleId(callback) {
-        const roleIdsRef = ref(database, 'RoleIds');
-        get(roleIdsRef).then((snapshot) => {
-            const roleIds = snapshot.val();
-            let maxRoleId = 0;
-
-            if (roleIds) {
-                for (const key in roleIds) {
-                    if (roleIds.hasOwnProperty(key)) {
-                        const roleId = parseInt(roleIds[key], 10);
-                        if (!isNaN(roleId) && roleId > maxRoleId) {
-                            maxRoleId = roleId;
-                        }
-                    }
-                }
-            }
-
-            callback(maxRoleId + 1);
-        }).catch((error) => {
-            console.error('Error fetching data for roleId:', error);
-            showErrorMessage(errorMessageElement, 'Unable to determine next roleId. Defaulting to 1.');
-            callback(1);
-        });
-    }
-
-    function showErrorMessage(element, message) {
-        if (element) {
-            element.textContent = message;
-            element.style.display = 'block'; // Ensure it's visible
-            setTimeout(() => {
-                element.textContent = '';
-                element.style.display = 'none'; // Hide after timeout
-            }, 2000); // Display for 2 seconds
-        } else {
-            console.error('Error message element not found.');
-        }
-    }
-
-    function showSuccessMessage(element, message) {
-        if (element) {
-            element.textContent = message;
-            element.style.display = 'block'; // Ensure it's visible
-            setTimeout(() => {
-                element.textContent = '';
-                element.style.display = 'none'; // Hide after timeout
-            }, 2000); // Display for 2 seconds
-        } else {
-            console.error('Success message element not found.');
-        }
-    }
-
-    createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-            const user = userCredential.user;
-            const userId = user.uid;
-            const userRef = ref(database, 'Accounts/' + userId);
-
-            return new Promise((resolve, reject) => {
-                getNextRoleId((nextRoleId) => {
-                    let initialStatus = 'Under review'; // Default status for all roles
-
-                    // Use switch-case for different roles
-                    switch (role.toLowerCase()) {
-                        case 'gym_owner':
-                        case 'trainer':
-                        case 'user':
-                            initialStatus = 'Under review';
-                            break;
-                        default:
-                            initialStatus = 'pending'; // Add a fallback if role is undefined
-                    }
-
-                    set(userRef, {
-                        username: username,
-                        email: email,
-                        role: role,
-                        roleId: nextRoleId,
-                        status: initialStatus
-                    }).then(() => {
-                        // Add notification for the user
-                        const notificationsRef = ref(database, 'UserNotifications/' + userId);
-                        const notificationMessage = `You signed up for the ${role} plan.`;
-
-                        // Set initial notification count and notification message
-                        return set(notificationsRef, {
-                            notificationCount: 1,
-                            notifications: [{ message: notificationMessage, timestamp: new Date().toISOString() }]
-                        });
-                    }).then(() => {
-                        // Set the roleId in the RoleIds node
-                        const roleIdRef = ref(database, 'RoleIds/role_' + userId);
-                        set(roleIdRef, nextRoleId).then(() => resolve(nextRoleId)).catch(reject);
-                    }).catch(reject);
-                });
-            });
-        })
-        .then((roleId) => {
-            showSuccessMessage(successMessageElement, 'Sign up successful!');
-
-            switch (role.toLowerCase()) {
-                case 'gym_owner':
-                    setTimeout(() => {
-                        window.location.href = 'GymForm.html';
-                    }, 2000);
-                    break;
-                case 'trainer':
-                    setTimeout(() => {
-                        window.location.href = 'TrainerForm.html';
-                    }, 2000);
-                    break;
-                case 'user':
-                    setTimeout(() => {
-                        document.getElementById('signupForm').reset();
-                    }, 2000);
-                    break;
-                default:
-                    console.log('No valid role selected for redirection.');
-            }
-        })
-        .catch((error) => {
-            showErrorMessage(errorMessageElement, 'PeakPulse says: ' + error.message);
-        });
-}
-
-// Function to fetch notifications
-function fetchNotifications(userId) {
-    const notificationsRef = ref(database, 'UserNotifications/' + userId);
-    get(notificationsRef).then((snapshot) => {
-        if (snapshot.exists()) {
-            const userNotifications = snapshot.val();
-            const notificationCount = userNotifications.notificationCount || 0;
-
-            // Update the notification bell
-            const notificationBell = document.getElementById('notification-bell');
-            if (notificationBell) {
-                notificationBell.textContent = notificationCount > 0 ? notificationCount : '';
-            }
-        }
-    }).catch((error) => {
-        console.error("Error fetching notifications:", error);
-    });
-}
-
-// Function to sign in with email or username
-function signInWithEmailOrUsername(username, password, errorMessageElement, successMessageElement) {
-    if (!username || !password) {
-        if (errorMessageElement) {
-            showErrorMessage(errorMessageElement, 'Please enter both username and password.');
-        }
-        return;
-    }
-
-    const normalizedUsername = username.toLowerCase();
-    const isAdminUsername = normalizedUsername === 'admin';
-    const isEmail = username.includes('@');
-    const userRef = ref(database, 'Accounts');
-    const userQuery = isEmail 
-        ? query(userRef, orderByChild('email'), equalTo(username))
-        : query(userRef, orderByChild('username'), equalTo(username));
-
-    get(userQuery).then((snapshot) => {
-        if (snapshot.exists()) {
-            const userData = snapshot.val();
-            const userId = Object.keys(userData)[0]; // Get the first matching user ID
-            const user = userData[userId];
-            const email = user.email;
-            const role = (user.role || 'user').toUpperCase();
-            const status = user.status || 'active';
-
-            setPersistence(auth, browserSessionPersistence)
-                .then(() => signInWithEmailAndPassword(auth, email, password))
-                .then(() => {
-                    console.log('Sign-in successful!'); // Debugging line
-                    updateNotificationBell(userId); // Update the notification bell
-
-                    if (successMessageElement) {
-                        showSuccessMessage(successMessageElement, 'Sign-in successful!');
-                    }
-
-                    if (isAdminUsername) {
-                        window.location.href = "accounts.html";
-                        return;
-                    }
-
-                    if (status === 'Under review') {
-                        if (errorMessageElement) {
-                            showErrorMessage(errorMessageElement, 'Your account is under review. Please wait until it is approved by an admin.');
-                        }
-                        return;
-                    }
-
-                    switch (role) {
-                        case 'GYM_OWNER':
-                            window.location.href = "member.html";
-                            break;
-                        case 'TRAINER':
-                            window.location.href = "trainer.html";
-                            break;
-                        default:
-                            window.location.href = "Dashboard.html";
-                            break;
-                    }
-                })
-                .catch((error) => {
-                    console.error("SignIn Error:", error.code, error.message);
-                    if (errorMessageElement) {
-                        showErrorMessage(errorMessageElement, 'PeakPulse says: ' + error.message);
-                    }
-                });
-        } else {
-            if (errorMessageElement) {
-                showErrorMessage(errorMessageElement, 'User not found.');
-            }
-        }
-    }).catch((error) => {
-        console.error("Query Error:", error.code, error.message);
-        if (errorMessageElement) {
-            showErrorMessage(errorMessageElement, 'PeakPulse says: ' + error.message);
-        }
-    });
-}
-
-
-// Show error and success messages
 function showErrorMessage(element, message) {
     if (element) {
         element.textContent = message;
-        setTimeout(() => {
-            element.textContent = '';
-        }, 2000); // Hide after 2 seconds
-    } else {
-        console.error('Element not found for showing error message.');
+        element.style.color = 'red'; // Optional
     }
 }
 
 function showSuccessMessage(element, message) {
     if (element) {
         element.textContent = message;
-        setTimeout(() => {
-            element.textContent = '';
-        }, 2000); // Hide after 2 seconds
-    } else {
-        console.error('Element not found for showing success message.');
+        element.style.color = 'green';
+        element.style.display = 'block'; // Ensure it is visible
     }
 }
 
-// Add event listener for login form submission
+// Function to get the next unique role ID
+async function getNextRoleId() {
+    const usersSnapshot = await getDocs(collection(db, 'Users'));
+    return usersSnapshot.size; // Magkuha sa total count sa users ug magamit kini as unique ID
+}
+
+// Function to sign up with email and password
+async function signUpWithEmailorUsername(email, password, username, role, errorMessageElement, successMessageElement) {
+    try {
+        // Check if the username already exists
+        const usernameQuery = query(collection(db, 'Users'), where('username', '==', username));
+        const usernameSnapshot = await getDocs(usernameQuery);
+        if (!usernameSnapshot.empty) {
+            showErrorMessage(errorMessageElement, '🚫 This username is already taken. Please choose another one.');
+            return; // Exit if the username exists
+        }
+
+        // If the username is 'Admin', set role to 'admin' and ignore role input
+        if (username.toLowerCase() === 'admin') {
+            role = 'admin'; // Set role to 'admin' for Admin username
+        }
+
+        // Proceed with user creation
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const userId = userCredential.user.uid;
+
+        // Get the next unique user ID
+        const nextuserId = await getNextRoleId();
+
+        let initialStatus = 'Under review'; // Default status for all roles
+
+        // Save user data to Firestore in the 'Users' collection
+        await setDoc(doc(db, 'Users', userId), {
+            username,
+            email,
+            role, // Role will be 'admin' if the username is 'Admin'
+            userId: nextuserId, // Unique ID
+            status: initialStatus
+        });
+
+        // Create custom document names based on the user's role
+        let rolesDocName;
+        let rolesData = {
+        };
+
+        if (role === 'gym_owner') {
+            rolesDocName = `Gym_Owner`; // Custom document name for gym owners
+            rolesData.GymId = nextuserId; // Store GymId
+        } else if (role === 'trainer') {
+            rolesDocName = `Trainer`; // Custom document name for trainers
+            rolesData.TrainerId = nextuserId; // Store TrainerId
+        } else {
+            rolesDocName = `User`; // Custom document name for regular users
+            rolesData.userId = nextuserId;
+        }
+
+        // Create or update the Roles document with custom name
+        const rolesDocRef = doc(db, 'Roles', rolesDocName);
+        await setDoc(rolesDocRef, rolesData);
+
+        // Add notification for the user
+        await setDoc(doc(db, 'UserNotifications', userId), {
+            notificationCount: 1,
+            notifications: [{ message: `Welcome aboard, ${username}! You've successfully registered as a ${role}.`, timestamp: new Date().toISOString() }]
+        });
+
+        // Show success message
+        let successMessage = `🎉 Awesome! You've signed up successfully, ${username}. Your account is under review.`;
+        showSuccessMessage(successMessageElement, successMessage);
+
+        // Redirect after a delay
+        setTimeout(() => {
+            if (role === 'gym_owner') {
+                window.location.href = 'GymForm.html';
+            } else if (role === 'trainer') {
+                window.location.href = 'TrainerForm.html';
+            } else {
+                window.location.href = 'Dashboard.html'; 
+            }
+        }, 5000);
+
+    } catch (error) {
+        showErrorMessage(errorMessageElement, `🚫 Oops! There was an issue with your sign-up: ${error.message}`);
+    }
+}
+
+
+// Function to sign in with email or username
+async function signInWithEmailOrUsername(username, password, errorMessageElement, successMessageElement) {
+    try {
+        const normalizedUsername = username.toLowerCase();
+        const isEmail = normalizedUsername.includes('@');
+        let userDoc;
+
+        // Check if the input is an email
+        const userQuery = isEmail
+            ? query(collection(db, 'Users'), where('email', '==', normalizedUsername))
+            : query(collection(db, 'Users'), where('username', '==', normalizedUsername));
+
+        const querySnapshot = await getDocs(userQuery);
+        if (!querySnapshot.empty) {
+            userDoc = querySnapshot.docs[0];
+        }
+
+        // If the user document was found
+        if (userDoc) {
+            const email = userDoc.data().email;
+            const role = userDoc.data().role;
+            const status = userDoc.data().status;
+
+            // Check if the status is 'Under review' for Gym Owner or Trainer
+            if ((role === 'trainer' || role === 'gym_owner') && status === 'Under review') {
+                showErrorMessage(errorMessageElement, `🚫 Your account is currently under review. Please wait for the Admin's approval.`);
+                return; // Exit the function
+            }
+
+            await setPersistence(auth, browserSessionPersistence);
+            await signInWithEmailAndPassword(auth, email, password);
+            showSuccessMessage(successMessageElement, `✅ Welcome back, ${userDoc.data().username}! You have logged in successfully.`);
+
+            // Redirect based on role
+            switch (role) {
+                case 'user':
+                    window.location.href = 'Dashboard.html';
+                    break;
+                case 'gym_owner':
+                    window.location.href = 'membership.html'; // Use specific GymId page
+                    break;
+                case 'admin':
+                    window.location.href = 'Accounts.html';
+                    break;
+                case 'trainer':
+                    window.location.href = 'TrainerDash.html'; // Use specific TrainerId page
+                    break;
+                default:
+                    console.warn('Unrecognized role:', role);
+                    break;
+            }
+        } else {
+            showErrorMessage(errorMessageElement, `🚫 Sorry, we couldn't find an account with that username or email.`);
+        }
+    } catch (error) {
+        showErrorMessage(errorMessageElement, `🚫 Sign-in failed: ${error.message}`);
+    }
+}
+
+// Add event listeners for form submissions
 document.addEventListener('DOMContentLoaded', function() {
     const loginForm = document.getElementById('loginForm');
-    
     if (loginForm) {
         loginForm.addEventListener('submit', function(event) {
             event.preventDefault();
@@ -282,12 +194,8 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         console.error('Login form with ID "loginForm" not found.');
     }
-});
 
-// Add event listener for signup form submission
-document.addEventListener('DOMContentLoaded', () => {
     const signupForm = document.getElementById('signupForm');
-
     if (signupForm) {
         signupForm.addEventListener('submit', function(event) {
             event.preventDefault();
@@ -307,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let messages = [];
 
             if (!username || !email || !password || !confirmPassword || !role) {
-                messages.push('All fields are required. Please fill them up before signing up.');
+                messages.push('🚫 All fields must be filled in! Please complete the form before signing up.');
             }
 
             if (messages.length > 0) {
@@ -316,63 +224,24 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (password !== confirmPassword) {
-                showErrorMessage(errorMessage, 'Passwords do not match.');
+                showErrorMessage(errorMessage, '🚫 Your passwords do not match. Please try again.');
                 return;
             }
 
             if (!validatePassword(password)) {
-                showErrorMessage(errorMessage, 'Password must be at least 8 characters long, include an uppercase letter, a digit, and a special character.');
+                showErrorMessage(errorMessage, '🚫 Password must be at least 8 characters long, with an uppercase letter, a digit, and a special character.');
                 return;
             }
 
-            signUpWithEmail(email, password, username, role, errorMessage, successMessage);
+            signUpWithEmailorUsername(email, password, username, role, errorMessage, successMessage);
         });
     } else {
         console.error('Signup form with ID "signupForm" not found.');
     }
-
-    function validatePassword(password) {
-        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-        return regex.test(password);
-    }
 });
 
-// Fetch notifications on dashboard load
-document.addEventListener('DOMContentLoaded', function() {
-    const userId = auth.currentUser?.uid; // Get the current user's ID
-
-    if (userId) {
-        fetchNotifications(userId); // Fetch notifications if the user is logged in
-    }
-});
-
-// Update membership info
-document.addEventListener("DOMContentLoaded", function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const planName = urlParams.get('plan');
-
-    if (planName) {
-        const membershipInfo = document.getElementById('membership-info');
-        membershipInfo.innerHTML = `You are applying for: <strong>${planName}</strong>`;
-        membershipInfo.classList.add('active'); // Show the message
-    }
-});
-function updateNotificationBell(userId) {
-    const notificationsRef = ref(database, 'notifications/' + userId);
-    get(notificationsRef).then((snapshot) => {
-        if (snapshot.exists()) {
-            const notifications = snapshot.val();
-            const totalNotifications = notifications.transaction + notifications.emails + notifications.membershipPlans;
-
-            const notificationBell = document.getElementById('notification-bell');
-            if (notificationBell) {
-                // Update the bell with the total notification count
-                notificationBell.innerHTML = `<i class="fas fa-bell"></i> ${totalNotifications}`;
-            }
-        } else {
-            console.log('No notifications found for user:', userId);
-        }
-    }).catch((error) => {
-        console.error('Error fetching notifications:', error);
-    });
+// Password validation function
+function validatePassword(password) {
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return regex.test(password);
 }

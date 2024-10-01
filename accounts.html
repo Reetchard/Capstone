@@ -6,9 +6,7 @@
     <title>Admin Management Dashboard</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/media.css">
-    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- FontAwesome CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
@@ -20,30 +18,18 @@
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav mr-auto">
-            <!-- Left-aligned items can go here if needed -->
-        </ul>
-        <span class="navbar-text mx-auto text-white">
-            Admin Management Dashboard
-        </span>
+        <ul class="navbar-nav mr-auto"></ul>
+        <span class="navbar-text mx-auto text-white">Admin Management Dashboard</span>
         <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
-                <a class="nav-link" href="accounts.html">Manage Account</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="Gym-Profile.html">Manage Gym Profile</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="reports.html">Manage Reports</a>
-            </li>
+            <li class="nav-item"><a class="nav-link" href="accounts.html">Manage Account</a></li>
+            <li class="nav-item"><a class="nav-link" href="Gym-Profile.html">Manage Gym Profile</a></li>
+            <li class="nav-item"><a class="nav-link" href="reports.html">Manage Reports</a></li>
             <div class="nav-link">
                 <button class="btn btn-secondary mb-2" onclick="window.location.href='login.html'">Log out</button>
             </div>
         </ul>
     </div>
-</div>
 </nav>
-<!-- Navigation Bar Ends -->
 
 <!-- Manage Account Section -->
 <div class="container mt-4">
@@ -52,7 +38,7 @@
             <h2 class="text-center">Manage Account</h2>
             <div class="form-inline">
                 <input type="text" id="searchAccountId" class="form-control mr-2" placeholder="Search by ID">
-                <button class="btn btn-primary" onclick="searchAccount()">Search</button>
+                <button class="btn btn-primary" onclick="handleSearch()">Search</button>
                 <button class="btn btn-danger ml-2 delete-all-btn" onclick="deleteSelected()">Delete All</button>
             </div>
         </div>
@@ -74,43 +60,44 @@
         </div>
     </div>
 </div>
-    <!-- Add/Edit Account Modal -->
-    <div class="modal fade" id="accountModal" tabindex="-1" role="dialog" aria-labelledby="accountModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="accountModalLabel">Account Details</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="accountForm">
-                        <input type="hidden" id="accountKey">
-                        <div class="form-group">
-                            <label for="username">Username</label>
-                            <input type="text" name="username" class="form-control" id="username" readonly>
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" name="email" class="form-control" id="email" readonly>
-                        </div>
-                        <div class="form-group">
-                            <label for="status">Status</label>
-                            <input type="text" name="status" class="form-control" id="status" readonly>
-                        </div>
-                        <div class="form-group">
-                            <label for="role">Role</label>
-                            <input type="text" name="role" class="form-control" id="role" readonly>
-                        </div>
-                        <div class="form-group" id="specialFieldGroup"></div>
-                        <button type="button" class="btn btn-success" id="approveBtn" onclick="approveAccount()">Approve</button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    </form>
-                </div>
+
+<!-- Add/Edit Account Modal -->
+<div class="modal fade" id="accountModal" tabindex="-1" role="dialog" aria-labelledby="accountModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="accountModalLabel">Account Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="accountForm">
+                    <input type="hidden" id="accountKey">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" name="username" class="form-control" id="username" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" name="email" class="form-control" id="email" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <input type="text" name="status" class="form-control" id="status" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="role">Role</label>
+                        <input type="text" name="role" class="form-control" id="role" readonly>
+                    </div>
+                    <button type="button" class="btn btn-success" id="approveBtn" onclick="approveAccount()">Approve</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </form>
             </div>
         </div>
     </div>
+</div>
+
 <!-- Floating Notification Container -->
 <div id="notification-container" class="fixed-bottom d-flex justify-content-center align-items-center">
     <div id="notification-message" class="alert alert-dismissible fade show" role="alert" style="display: none;">
@@ -121,18 +108,11 @@
     </div>
 </div>
 
-
-<!-- Firebase App (the core Firebase SDK) -->
-<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
-
 <!-- Bootstrap JS and dependencies -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-<script src="src/Js/accounts.js"></script>
+<script type="module" src="src/Js/accounts.js"></script>
 
 </body>
 </html>

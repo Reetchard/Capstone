@@ -8,29 +8,49 @@
 </head>
 <body>
     <header>
-        <h1>Trainer Form</h1>
+        <h1>Trainer  Form</h1>
     </header>
     <div class="form-container">
         <form id="TrainerForm">
-            <!-- Form inputs for trainer details -->
-            <input type="text" id="TrainerName" placeholder="Trainer Name" required>
-            <label for="TrainerPhoto">Trainer Photo</label>
-            <input type="file" id="TrainerPhoto" accept="image/*" required>
-            <label for="TrainerPermit">Trainer permit or Certification</label>
-            <input type="file" id="TrainerPermit" accept="application/pdf, image/*" required>
-            <input type="text" id="Email" placeholder="Email" required>
-            <label for="Days">Days Available </label>
-            <input type="text" id="Days" placeholder="Day Available" required>
+            <div class="profile-pic-container">
+                <img src="framework/img/Profile.png" alt="Trainer Photo" class="profile-pic" id="profilePic">         
+                <label for="TrainerPhoto" class="change-photo-button">Change Photo</label>
+                <input type="file" id="TrainerPhoto" accept="image/*" style="display: none;" required>
+            </div>
+            
+            <div class="file-input-container">
+                <label for="TrainerPermit">Trainer Permit or Certification</label>
+                <input type="file" id="TrainerPermit" accept="application/pdf, image/*" required>
+            </div>
+
+            <label for="TrainerName">Full Name</label>
+            <input type="text" id="TrainerName" placeholder="Trainer's Full Name" required>
+            
+            <label for="TrainerEmail">Email</label>
+            <input type="email" id="TrainerEmail" placeholder="Trainer's Email" required>
+            
+            <label for="Days">Days Available</label>
+            <input type="text" id="Days" placeholder="Days Available" required>
+            
+            <label for="Contact">Contact Number</label>
+            <input type="text" id="Contact" placeholder="Contact Number" required>
+            
+            <label for="Experience">Experience/s</label>
             <input type="text" id="Experience" placeholder="Experience/s" required>
+            
+            <label for="Expertise">Expertise</label>
             <input type="text" id="Expertise" placeholder="Expertise" required>
-            <input type="number" id="rate" placeholder="Hourly Rate" required min="0" step="0.01">
-            <button type="submit">Submit</button>
-            <p id="TrainerFormErrorMessage"></p>
-            <p id="TrainerFormSuccessMessage"></p>
+            
+            <label for="rate">Rate</label>
+            <input type="number" id="rate" placeholder="Rate" required min="0" step="0.01">
+            
+            <button type="submit" class="submit-button">Submit</button>
+            
+            <p id="TrainerFormErrorMessage" class="error-message"></p>
+            <p id="TrainerFormSuccessMessage" class="success-message"></p>
         </form>
     </div>
 
-    <!-- Link to external JS file -->
     <script type="module" src="src/Js/TrainerForm.js"></script>
 </body>
 </html>

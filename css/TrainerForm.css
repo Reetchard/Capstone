@@ -1,88 +1,103 @@
-/* General styling */
 body {
-    background-color: #35257A;
-    font-family: Arial, sans-serif;
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
     margin: 0;
-    padding: 0;
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
+    padding: 20px;
 }
 
-/* Header styling */
 header {
     text-align: center;
     margin-bottom: 20px;
 }
 
-header h1 {
-    font-size: 2.5rem;
-    color: #f4f4f9;
-    margin: 0;
+h1 {
+    color: #333;
 }
 
-/* Form container styling */
 .form-container {
-    background-color: #4A3A99;
-    padding: 40px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
-    width: 400px;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: auto;
 }
 
-form {
+.profile-pic-container {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
 }
 
-/* Input fields styling */
-form input[type="text"],
-form input[type="file"],
-form input[type="time"] {
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 5px;
-    border: none;
-    font-size: 1rem;
+.profile-pic {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 2px solid #007bff;
 }
 
-input[type="file"] {
-    background-color: #fff;
-    color: #333;
-    padding: 5px;
-}
-
-/* Button styling */
-form button {
-    padding: 10px;
-    background-color: #f4f4f9;
-    color: #35257A;
-    font-size: 1.2rem;
+.change-photo-button {
+    margin-top: 10px;
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.change-photo-button:hover {
+    background-color: #0056b3;
+}
+
+label {
+    font-weight: bold;
+    margin-top: 10px;
+    display: block;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="number"]:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.submit-button {
     margin-top: 20px;
+    padding: 10px 15px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s ease;
 }
 
-form button:hover {
-    background-color: #fff;
-    color: #35257A;
+.submit-button:hover {
+    background-color: #218838;
 }
 
-/* Error and success messages */
-#TrainerFormErrorMessage,
-#TrainerFormSuccessMessage {
-    font-size: 0.9rem;
+.error-message {
+    color: red;
     margin-top: 10px;
 }
 
-#TrainerFormErrorMessage {
-    color: #ff4c4c;
-}
-
-#TrainerFormSuccessMessage {
-    color: #4caf50;
+.success-message {
+    color: green;
+    margin-top: 10px;
 }

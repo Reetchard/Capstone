@@ -1,7 +1,6 @@
 const firebaseConfig = {
     apiKey: "AIzaSyAPNGokBic6CFHzuuENDHdJrMEn6rSE92c",
     authDomain: "capstone40-project.firebaseapp.com",
-    databaseURL: "https://capstone40-project-default-rtdb.firebaseio.com",
     projectId: "capstone40-project",
     storageBucket: "capstone40-project.appspot.com",
     messagingSenderId: "399081968589",
@@ -11,11 +10,11 @@ const firebaseConfig = {
 
 // Import Firebase services
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-import { getDatabase, ref, set, push, child, get, runTransaction } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+import { getFirestore, collection, addDoc, getDocs, query, where ,doc , getDoc} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
 
 const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
+const db = getFirestore(app);
 const storage = getStorage(app);
 
 window.addEventListener('load', () => {
@@ -26,66 +25,47 @@ window.addEventListener('load', () => {
     }
 
     const TrainerName = document.getElementById("TrainerName");
+    const TrainerEmail = document.getElementById("TrainerEmail");
     const TrainerPhotoInput = document.getElementById("TrainerPhoto");
     const TrainerPermitInput = document.getElementById("TrainerPermit");
-    const Email = document.getElementById("Email");
     const Days = document.getElementById("Days");
     const Experience = document.getElementById("Experience");
     const Expertise = document.getElementById("Expertise");
     const rate = document.getElementById("rate");
     const errorMessage = document.getElementById("TrainerFormErrorMessage");
     const successMessage = document.getElementById("TrainerFormSuccessMessage");
+    const profilePic = document.getElementById("profilePic");
 
-    // Function to handle image upload
+    TrainerPhotoInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                profilePic.src = e.target.result; // Update the image preview
+            };
+            reader.readAsDataURL(file);
+        } else {
+            profilePic.src = "framework/img/Profile.png"; // Reset to default image
+        }
+    });
+
     async function uploadFile(file, path) {
         const storageReference = storageRef(storage, path);
         const snapshot = await uploadBytes(storageReference, file);
         return await getDownloadURL(snapshot.ref);
     }
 
-    // Function to check for duplicate data
     async function isDuplicateData() {
-        const dbRef = ref(database);
-        const snapshot = await get(child(dbRef, `TrainerForm`));
-        if (snapshot.exists()) {
-            const trainersData = snapshot.val();
-            for (const key in trainersData) {
-                const trainer = trainersData[key];
-                // Check if all fields match exactly
-                if (
-                    trainer.TrainerName === TrainerName.value &&
-                    trainer.Email === Email.value &&
-                    trainer.Days === Days.value &&
-                    trainer.Experience === Experience.value &&
-                    trainer.Expertise === Expertise.value &&
-                    trainer.rate === rate.value
-                ) {
-                    return true; // A duplicate entry is found
-                }
-            }
-        }
-        return false; // No duplicate found
+        const q = query(collection(db, 'TrainerForm'), 
+            where('TrainerName', '==', TrainerName.value), 
+            where('TrainerEmail', '==', TrainerEmail.value));
+        const querySnapshot = await getDocs(q);
+        return !querySnapshot.empty; // Returns true if a duplicate is found
     }
 
-    // Function to generate the next incrementing ID
-    async function getNextTrainerID() {
-        const idRef = ref(database, 'TrainerID');
-        const snapshot = await get(idRef);
-
-        let newID = 1; // Default ID if none exists
-        if (snapshot.exists()) {
-            newID = snapshot.val() + 1; // Increment ID
-        }
-
-        // Update the latest ID in the database
-        await set(idRef, newID);
-        return newID;
-    }
-
-    // Listen for form submit
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
-        
+    
         const duplicate = await isDuplicateData();
     
         if (duplicate) {
@@ -96,35 +76,45 @@ window.addEventListener('load', () => {
             }, 3000);
         } else {
             try {
-                // Upload files and get URLs
+                // Fetch the Trainer ID from Roles collection
+                const rolesDocRef = doc(db, 'Roles', 'Trainer'); // Reference to the Gym_Owner document
+                const rolesDoc = await getDoc(rolesDocRef);
+    
+                let trainerId = 'N/A'; // Default value if no Trainer ID is found
+                if (rolesDoc.exists()) {
+                    trainerId = rolesDoc.data().TrainerId; // Adjust if the field name is different
+                }
+    
                 const TrainerPhotoURL = TrainerPhotoInput.files[0] ? await uploadFile(TrainerPhotoInput.files[0], `Trainer_photos/${TrainerName.value}`) : "";
                 const TrainerPermitURL = TrainerPermitInput.files[0] ? await uploadFile(TrainerPermitInput.files[0], `Trainer_permits/${TrainerName.value}`) : "";
-
-                // Generate a unique ID
-                const newTrainerID = await getNextTrainerID();
-                const NewTrainerRef = ref(database, 'TrainerForm/' + newTrainerID);
-
-                // Submit new data if no duplicate is found
-                await set(NewTrainerRef, {
-                    TrainerID: newTrainerID,  // Use incrementing ID
+    
+                const docRef = await addDoc(collection(db, 'TrainerForm'), {
+                    TrainerId: trainerId, // Save Trainer ID
                     TrainerName: TrainerName.value,
+                    TrainerEmail: TrainerEmail.value,
                     TrainerPhoto: TrainerPhotoURL,
                     TrainerPermit: TrainerPermitURL,
-                    Email: Email.value,
                     Days: Days.value,
                     Experience: Experience.value,
                     Expertise: Expertise.value,
                     rate: rate.value,
                     status: "Under Review"
                 });
-
-                successMessage.innerHTML = "Trainer information submitted successfully!";
+    
+                const trainerFormId = docRef.id;
+                console.log('Trainer Form ID:', trainerFormId);
+    
+                // Custom success message
+                successMessage.innerHTML = `Trainer information submitted successfully! Your information is currently under review and awaiting approval from the Gym Owner.`;
                 errorMessage.innerHTML = "";
                 setTimeout(() => {
                     successMessage.innerHTML = "";
-                }, 3000);
+                    // Redirect to login.html
+                    window.location.href = "login.html";
+                }, 5000); // Display for 5 seconds
     
                 form.reset();
+                profilePic.src = "framework/img/Profile.png"; // Reset to default image
             } catch (error) {
                 errorMessage.innerHTML = "Error: Could not submit the form. " + error.message;
                 successMessage.innerHTML = "";
@@ -134,4 +124,5 @@ window.addEventListener('load', () => {
             }
         }
     });
+    
 });

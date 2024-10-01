@@ -1,8 +1,13 @@
-// Initialize Firebase
+// Import Firebase services
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { getFirestore, collection, addDoc, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
+
+
+// Your Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyAPNGokBic6CFHzuuENDHdJrMEn6rSE92c",
     authDomain: "capstone40-project.firebaseapp.com",
-    databaseURL: "https://capstone40-project-default-rtdb.firebaseio.com",
     projectId: "capstone40-project",
     storageBucket: "capstone40-project.appspot.com",
     messagingSenderId: "399081968589",
@@ -10,17 +15,12 @@ const firebaseConfig = {
     measurementId: "G-CDP5BCS8EY"
 };
 
-// Import Firebase services
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-import { getDatabase, ref, set, child, get } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
-
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
+const firestore = getFirestore(app);
 const storage = getStorage(app);
 
 window.addEventListener('load', () => {
-    // Ensure the form is defined correctly
     const form = document.getElementById("gymOwnerDetailsForm");
     if (!form) {
         console.error('Form element not found');
@@ -48,35 +48,34 @@ window.addEventListener('load', () => {
 
     // Function to check for duplicate data
     async function isDuplicateData() {
-        const dbRef = ref(database);
-        const snapshot = await get(child(dbRef, `GymForms`));
-
-        if (snapshot.exists()) {
-            const gymsData = snapshot.val();
-            
-            // Loop through existing gym data to check for duplicates
-            for (const key in gymsData) {
-                const gym = gymsData[key];
-
-                if (gym.gymName === gymName.value &&
-                    gym.gymPhoto === gymPhotoInput.value &&
-                    gym.gymCertifications === gymCertificationsInput.value &&
-                    gym.gymEquipment === gymEquipment.value &&
-                    gym.gymContact === gymContact.value &&
-                    gym.gymPrograms === gymPrograms.value &&
-                    gym.gymOpeningTime === gymOpeningTime.value &&
-                    gym.gymClosingTime === gymClosingTime.value &&
-                    gym.gymLocation === gymLocation.value) {
-                
-                    // Data match found (duplicate)
-                    return true;
-                }
-            }
-        }
-
-        // No duplicate found
-        return false;
+        const gymsQuery = query(collection(firestore, 'GymForms'), where('gymName', '==', gymName.value));
+        const querySnapshot = await getDocs(gymsQuery);
+        return !querySnapshot.empty; // Return true if duplicate exists
     }
+
+    // Function to get the GymOwner ID from the Roles collection
+    async function getGymOwnerId() {
+        const gymOwnerDocRef = doc(firestore, 'Roles', 'Gym_Owner'); // Direct reference to the Gym_Owner document
+        const gymOwnerDoc = await getDoc(gymOwnerDocRef); // Fetch the document
+    
+        if (!gymOwnerDoc.exists()) {
+            console.error('No Gym_Owner found in Roles collection');
+            return null; // Handle this case as needed
+        }
+    
+        // Assuming GymId is a field in the Gym_Owner document
+        return gymOwnerDoc.data().GymId; // Return the GymId from the document
+    }  
+    async function logRolesCollection() {
+    const rolesSnapshot = await getDocs(collection(firestore, 'Roles'));
+    rolesSnapshot.forEach(doc => {
+        console.log(doc.id, " => ", doc.data());
+    });
+}
+
+// Call this function to check the collection
+logRolesCollection();
+
 
     // Listen for form submit
     form.addEventListener("submit", async (e) => {
@@ -86,7 +85,6 @@ window.addEventListener('load', () => {
         const duplicate = await isDuplicateData();
     
         if (duplicate) {
-            // Display error message if duplicate data is found
             errorMessage.innerHTML = "Error: This gym information has already been submitted.";
             successMessage.innerHTML = "";  // Clear any success message
     
@@ -96,13 +94,20 @@ window.addEventListener('load', () => {
             }, 3000);
         } else {
             try {
+                const gymOwnerId = await getGymOwnerId(); // Get the GymOwner ID (GymId)
+    
+                if (!gymOwnerId) {
+                    errorMessage.innerHTML = "Error: Unable to find Gym_Owner ID.";
+                    return;
+                }
+    
                 // Upload files and get URLs
                 const gymPhotoURL = gymPhotoInput.files[0] ? await uploadFile(gymPhotoInput.files[0], `gym_photos/${gymName.value}`) : "";
                 const gymCertificationsURL = gymCertificationsInput.files[0] ? await uploadFile(gymCertificationsInput.files[0], `gym_certifications/${gymName.value}`) : "";
     
                 // Submit new data if no duplicate is found
-                const newGymRef = ref(database, 'GymForms/' + gymName.value);
-                await set(newGymRef, {
+                await addDoc(collection(firestore, 'GymForms'), {
+                    gymOwnerId: gymOwnerId,  // Store the GymId
                     gymName: gymName.value,
                     gymPhoto: gymPhotoURL,  // Store photo URL
                     gymCertifications: gymCertificationsURL,  // Store certification URL
@@ -115,12 +120,14 @@ window.addEventListener('load', () => {
                     status: "Under Review"  // Set status as "Under Review"
                 });
     
-                successMessage.innerHTML = "Gym information submitted successfully!";
+                // Update the success message to indicate pending approval
+                successMessage.innerHTML = "Gym information submitted successfully! Please wait for admin's approval.";
                 errorMessage.innerHTML = "";  // Clear any error message
     
-                // Hide success message after 3 seconds
+                // Hide success message after 3 seconds and redirect
                 setTimeout(() => {
                     successMessage.innerHTML = "";
+                    window.location.href = "login.html"; // Redirect to login.html
                 }, 3000);
     
                 form.reset();  // Clear the form after successful submission
@@ -135,6 +142,23 @@ window.addEventListener('load', () => {
             }
         }
     });
-});
 
-    
+    // Add functionality to trigger file input click
+    document.getElementById('uploadPhotoButton').addEventListener('click', function() {
+        document.getElementById('gymPhoto').click();
+    });
+
+    // Preview selected image
+    document.getElementById('gymPhoto').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        const preview = document.getElementById('photoPreview');
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.style.backgroundImage = `url(${e.target.result})`;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+});

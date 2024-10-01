@@ -12,10 +12,16 @@
     </header>
     <div class="form-container">
         <form id="gymOwnerDetailsForm">
+            <!-- Gym Photo -->
+            <div class="photo-section">
+                <label for="gymPhoto">Gym Photo</label>
+                <button type="button" id="uploadPhotoButton">Upload Gym Photo</button>
+                <input type="file" id="gymPhoto" accept="image/*" required style="display: none;">
+                <div id="photoPreview" class="photo-preview"></div>
+            </div>
+            
             <!-- Form inputs for gym details -->
             <input type="text" id="gymName" placeholder="Gym Name" required>
-            <label for="GymPhoto">Gym Photo</label>
-            <input type="file" id="gymPhoto" accept="image/*" required>
             <label for="gymCertifications">Gym Certifications</label>
             <input type="file" id="gymCertifications" accept="application/pdf, image/*" required>
             <input type="text" id="gymEquipment" placeholder="Gym Equipment" required>
