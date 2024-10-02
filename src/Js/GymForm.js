@@ -1,6 +1,6 @@
 // Import Firebase services
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-import { getFirestore, collection, setDoc, query, where, getDocs, doc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+import { getFirestore, collection, setDoc, query, where, getDocs, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js"; // Import Auth
 
@@ -56,32 +56,34 @@ window.addEventListener('load', () => {
         return !querySnapshot.empty; // Return true if duplicate exists
     }
 
-    // Function to get UserId of GymOwner from Users collection
-    async function getGymOwnerUserId(gymEmail) {
+    // Function to check if the authenticated user's email matches the gymEmail
+    async function isUserEmailValid(gymEmail) {
         const user = auth.currentUser; // Get the current authenticated user
         if (user) {
             const userEmail = user.email;
             console.log("Authenticated User Email:", userEmail); // Log authenticated email
 
-            // Query to find users with the matching email
-            const userQuery = query(
-                collection(firestore, 'Users'),
-                where('email', '==', gymEmail) // Check against the GymForms email
-            );
-
-            const querySnapshot = await getDocs(userQuery);
-            console.log("Query Snapshot:", querySnapshot); // Log the query snapshot for debugging
-
-            if (!querySnapshot.empty) {
-                const userDoc = querySnapshot.docs[0];
-                return userDoc.id; // Return the UserId as a string
-            } else {
-                console.error("No user found with email:", gymEmail); // Log if no user is found
-            }
+            // Check if the authenticated user's email matches the provided gymEmail
+            return userEmail === gymEmail; // Email matches
         } else {
             console.error("No user is authenticated."); // Log if no user is authenticated
+            return false; // Not authenticated
         }
-        return null; // Return null if no user found
+    }
+
+    // Function to get the next gym ID
+    async function getNextGymId() {
+        const counterDocRef = doc(firestore, 'GymIdCounter', 'counter');
+        const counterDoc = await getDoc(counterDocRef);
+
+        let nextId = 1; // Default to 1 if the document does not exist
+        if (counterDoc.exists()) {
+            nextId = counterDoc.data().lastId + 1; // Increment the last ID
+        }
+
+        // Update the counter document
+        await setDoc(counterDocRef, { lastId: nextId }, { merge: true });
+        return nextId; // Return the new ID
     }
 
     // Listen for form submit
@@ -90,7 +92,7 @@ window.addEventListener('load', () => {
         
         // Check for duplicate data
         const duplicate = await isDuplicateData();
-    
+
         if (duplicate) {
             errorMessage.innerHTML = "Error: This gym information has already been submitted.";
             successMessage.innerHTML = "";  // Clear any success message
@@ -100,28 +102,24 @@ window.addEventListener('load', () => {
                 const gymEmail = gymEmailInput.value; // Get the gym email value
                 console.log("Gym Email:", gymEmail); // Log the gym email for debugging
                 
-                // Get UserId of GymOwner
-                const gymOwnerId = await getGymOwnerUserId(gymEmail); // Pass the gym email
-                if (!gymOwnerId) {
-                    errorMessage.innerHTML = "Error: Unable to find GymOwner UserId.";
+                // Validate the user's email
+                const isValidEmail = await isUserEmailValid(gymEmail);
+                if (!isValidEmail) {
+                    errorMessage.innerHTML = "Error: User email does not match the GymForm email.";
                     return;
                 }
-
-                // Convert gymOwnerId to number (if that's required by your Firestore structure)
-                const gymOwnerIdNumber = parseInt(gymOwnerId, 10);
 
                 // Upload files and get URLs
                 const gymPhotoURL = gymPhotoInput.files[0] ? await uploadFile(gymPhotoInput.files[0], `gym_photos/${gymName.value}`) : "";
                 const gymCertificationsURL = gymCertificationsInput.files[0] ? await uploadFile(gymCertificationsInput.files[0], `gym_certifications/${gymName.value}`) : "";
 
-                // Generate a new gymId
-                const newGymDocRef = doc(collection(firestore, 'GymForms')); // Create a reference for a new document
-                const gymId = newGymDocRef.id; // Get the generated ID
+                // Get the next gym ID
+                const gymId = await getNextGymId(); // Get the next available ID
 
                 // Submit new data if no duplicate is found
+                const newGymDocRef = doc(collection(firestore, 'GymForms'), `${gymId}`); // Use the custom gymId for document reference
                 await setDoc(newGymDocRef, {
-                    gymId: gymId,  // Save the generated gymId
-                    gymOwnerId: gymOwnerIdNumber,  // Save the GymOwner UserId as a number
+                    gymId: gymId,  // Save the custom gymId
                     gymName: gymName.value,
                     gymPhoto: gymPhotoURL,  // Store photo URL
                     gymCertifications: gymCertificationsURL,  // Store certification URL

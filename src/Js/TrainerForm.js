@@ -1,6 +1,6 @@
 // Import Firebase services
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, where, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, query, where, doc, updateDoc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
 
 const firebaseConfig = {
@@ -57,6 +57,12 @@ window.addEventListener('load', () => {
         return await getDownloadURL(snapshot.ref);
     }
 
+    async function isEmailValid(email) {
+        const userQuery = query(collection(db, 'Users'), where('email', '==', email));
+        const querySnapshot = await getDocs(userQuery);
+        return !querySnapshot.empty; // Returns true if the email exists
+    }
+
     async function isDuplicateData() {
         const q = query(collection(db, 'TrainerForm'), 
             where('TrainerName', '==', TrainerName.value), 
@@ -65,25 +71,37 @@ window.addEventListener('load', () => {
         return !querySnapshot.empty; // Returns true if a duplicate is found
     }
 
-    // Function to get UserId of Trainer from Users collection
-    async function getUserIdByEmail(email) {
-        const userQuery = query(
-            collection(db, 'Users'),
-            where('email', '==', email) // Check against the Trainer email
-        );
-
-        const querySnapshot = await getDocs(userQuery);
-        if (!querySnapshot.empty) {
-            const userDoc = querySnapshot.docs[0];
-            return userDoc.id; // Return the UserId
+    async function getNextTrainerID() {
+        const trainerIdDocRef = doc(db, 'TrainerIDs', 'currentId');
+        const docSnap = await getDoc(trainerIdDocRef);
+        
+        if (docSnap.exists()) {
+            const currentId = docSnap.data().id; // Get the current TrainerID
+            await updateDoc(trainerIdDocRef, { id: currentId + 1 }); // Increment for next use
+            return currentId; // Return the current ID before incrementing
         } else {
-            console.error("No user found with email:", email); // Log if no user is found
-            return null; // Return null if no user found
+            // If the document does not exist, create it with the initial ID of 1
+            await setDoc(trainerIdDocRef, { id: 2 }); // Next will be 2
+            return 1; // Return the first ID
         }
     }
 
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
+
+        const trainerEmail = TrainerEmail.value;
+        
+        // Validate the Trainer's email against Users collection
+        const validEmail = await isEmailValid(trainerEmail);
+
+        if (!validEmail) {
+            errorMessage.innerHTML = "Error: Trainer email does not match any user in the system.";
+            successMessage.innerHTML = "";
+            setTimeout(() => {
+                errorMessage.innerHTML = "";
+            }, 3000);
+            return; // Exit if the email is invalid
+        }
 
         const duplicate = await isDuplicateData();
 
@@ -95,31 +113,16 @@ window.addEventListener('load', () => {
             }, 3000);
         } else {
             try {
-                // Get UserId based on TrainerEmail
-                const trainerEmail = TrainerEmail.value;
-                const userId = await getUserIdByEmail(trainerEmail);
-                if (!userId) {
-                    errorMessage.innerHTML = "Error: Unable to find User ID for the Trainer.";
-                    return;
-                }
-
-                // Fetch the Trainer ID from Roles collection
-                const rolesDocRef = doc(db, 'Roles', 'Trainer');
-                const rolesDoc = await getDoc(rolesDocRef);
-
-                let trainerId = 'N/A'; // Default value if no Trainer ID is found
-                if (rolesDoc.exists()) {
-                    trainerId = rolesDoc.data().TrainerId; // Adjust if the field name is different
-                }
+                // Generate a new TrainerID
+                const trainerId = await getNextTrainerID();
 
                 const TrainerPhotoURL = TrainerPhotoInput.files[0] ? await uploadFile(TrainerPhotoInput.files[0], `Trainer_photos/${TrainerName.value}`) : "";
                 const TrainerPermitURL = TrainerPermitInput.files[0] ? await uploadFile(TrainerPermitInput.files[0], `Trainer_permits/${TrainerName.value}`) : "";
 
                 const docRef = await addDoc(collection(db, 'TrainerForm'), {
-                    UserId: userId, // Save UserId from Users collection
-                    TrainerId: trainerId, // Save Trainer ID
+                    TrainerID: trainerId, // Use the generated TrainerID
                     TrainerName: TrainerName.value,
-                    TrainerEmail: TrainerEmail.value,
+                    TrainerEmail: trainerEmail,
                     TrainerPhoto: TrainerPhotoURL,
                     TrainerPermit: TrainerPermitURL,
                     Days: Days.value,
@@ -132,14 +135,12 @@ window.addEventListener('load', () => {
                 const trainerFormId = docRef.id;
                 console.log('Trainer Form ID:', trainerFormId);
 
-                // Custom success message
                 successMessage.innerHTML = `Trainer information submitted successfully! Your information is currently under review and awaiting approval from the Gym Owner.`;
                 errorMessage.innerHTML = "";
                 setTimeout(() => {
                     successMessage.innerHTML = "";
-                    // Redirect to login.html
                     window.location.href = "login.html";
-                }, 5000); // Display for 5 seconds
+                }, 5000);
 
                 form.reset();
                 profilePic.src = "framework/img/Profile.png"; // Reset to default image

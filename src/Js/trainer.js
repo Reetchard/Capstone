@@ -1,5 +1,5 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
-import { getFirestore, collection, getDocs, doc, getDoc, query, updateDoc, deleteDoc ,where} from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js';
+import { getFirestore, collection, getDocs, doc, getDoc, query, updateDoc, deleteDoc, where } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js';
 
 // Your Firebase configuration
 const firebaseConfig = {
@@ -37,14 +37,13 @@ async function fetchTrainerData() {
         if (!snapshot.empty) {
             snapshot.forEach(doc => {
                 const trainer = doc.data();
-                const trainerId = doc.id;
-                trainerIdFromRoles = rolesDoc.data().TrainerId; 
+                const TrainerID = trainer.TrainerID || 'N/A'; // Access TrainerID from trainer data
                 console.log('Trainer Data:', trainer); // Log trainer data for debugging
-
+        
                 let row = `
                     <tr>
-                        <td><input type="checkbox" class="rowCheckbox" data-id="${trainerId}"></td>
-                        <td>${trainerIdFromRoles || 'N/A'}</td>
+                        <td><input type="checkbox" class="rowCheckbox" data-id="${doc.id}"></td>
+                        <td>${TrainerID}</td>
                         <td>
                             <img src="${trainer.TrainerPhoto || 'default-image.jpg'}" 
                                 alt="Trainer Photo" 
@@ -63,15 +62,14 @@ async function fetchTrainerData() {
                         </td>
                         <td>${trainer.status || 'Under Review'}</td>
                         <td class="button-container">
-                            <button class="status-button approved" onclick="updateTrainerStatus('${trainerId}', 'Approved')">Approve</button>
-                            <button class="status-button idle" onclick="updateTrainerStatus('${trainerId}', 'Idle')">Idle</button>
-                            <button class="status-button blocked" onclick="updateTrainerStatus('${trainerId}', 'Blocked')">Block</button>
+                            <button class="status-button approved" onclick="updateTrainerStatus('${doc.id}', 'Approved')">Approve</button>
+                            <button class="status-button idle" onclick="updateTrainerStatus('${doc.id}', 'Idle')">Idle</button>
+                            <button class="status-button blocked" onclick="updateTrainerStatus('${doc.id}', 'Blocked')">Block</button>
                         </td>
                     </tr>
                 `;
                 trainerInfoBody.innerHTML += row;
             });
-
             const selectAllCheckbox = document.getElementById('selectAllHeader');
             selectAllCheckbox.addEventListener('change', function() {
                 const checkboxes = document.querySelectorAll('input.rowCheckbox');
@@ -87,7 +85,6 @@ async function fetchTrainerData() {
     }
 }
 
-
 fetchTrainerData();
 
 // Function to delete selected trainers
@@ -97,8 +94,8 @@ window.deleteSelected = function() {
         displayMessage('No trainers selected for deletion.', 'warning');
     } else {
         checkboxes.forEach(checkbox => {
-            const trainerId = checkbox.getAttribute('data-id');
-            confirmDelete(trainerId);
+            const TrainerID = checkbox.getAttribute('data-id');
+            confirmDelete(TrainerID);
         });
     }
 };
@@ -192,19 +189,19 @@ function showConfirmationModal(message, onConfirm) {
 }
 
 // Function to confirm delete action
-function confirmDelete(trainerId) {
+function confirmDelete(TrainerID) {
     showConfirmationModal('Are you sure you want to delete this trainer?', function() {
-        deleteTrainer(trainerId);
+        deleteTrainer(TrainerID);
     });
 }
 
 // Function to delete a trainer
-async function deleteTrainer(trainerId) {
-    const trainerRef = doc(db, 'TrainerForm', trainerId);
+async function deleteTrainer(TrainerID) {
+    const trainerRef = doc(db, 'TrainerForm', TrainerID);
 
     try {
         await deleteDoc(trainerRef);
-        displayMessage(`Trainer with ID ${trainerId} was successfully removed.`, 'success');
+        displayMessage(`Trainer with ID ${TrainerID} was successfully removed.`, 'success');
         fetchTrainerData(); // Refresh the trainer data
     } catch (error) {
         displayMessage('Failed to delete the trainer. Please try again later.', 'error');
@@ -230,9 +227,6 @@ window.openModal = function(imageSrc) {
 window.searchTrainer = async function() {
     const searchId = document.getElementById('searchId').value; // Get the search input value
 
-    // Convert to number if needed, or ensure the type matches what's in Firestore
-    // const searchIdNumber = Number(searchId); // Uncomment if TrainerId is a number
-
     const trainerRef = collection(db, 'TrainerForm');
     const q = query(trainerRef, where("TrainerId", "==", searchId)); // Ensure "TrainerId" matches Firestore exactly
 
@@ -253,13 +247,12 @@ window.searchTrainer = async function() {
 };
 
 // Function to display trainer data
-
-async function displayTrainerData(trainerData, trainerId) {
+async function displayTrainerData(trainerData, TrainerID) {
     const trainerInfoBody = document.getElementById('trainerInfoBody');
     trainerInfoBody.innerHTML = '';  // Clear previous search results
 
     // Fetch the Trainer ID from the Roles collection
-    const rolesDocRef = doc(db, 'Roles', 'Trainer'); // Adjust this line to match how you structure your Roles collection
+    const rolesDocRef = doc(db, 'Roles', 'Trainer');
     const rolesDoc = await getDoc(rolesDocRef);
 
     let trainerIdFromRoles = 'N/A'; // Default value if no Trainer ID is found
@@ -269,8 +262,9 @@ async function displayTrainerData(trainerData, trainerId) {
 
     let row = `
         <tr>
-            <td>${trainerId || 'N/A'}</td>
-            <td>${trainerIdFromRoles}</td> <!-- Displaying the Trainer ID from Roles -->
+            <td><input type="checkbox" class="rowCheckbox" data-id="${TrainerID}"></td>
+            <td>${trainerData.TrainerID || 'N/A'}</td> <!-- Display Trainer ID from the document -->
+            <td>${trainerIdFromRoles}</td>
             <td>
                 <img src="${trainerData.TrainerPhoto || 'default-image.jpg'}" 
                     alt="Trainer Photo" 
@@ -289,9 +283,9 @@ async function displayTrainerData(trainerData, trainerId) {
             </td>
             <td>${trainerData.status || 'Under Review'}</td>
             <td class="button-container">
-                <button class="status-button approved" onclick="updateTrainerStatus('${trainerId}', 'Approved')">Approve</button>
-                <button class="status-button idle" onclick="updateTrainerStatus('${trainerId}', 'Idle')">Idle</button>
-                <button class="status-button blocked" onclick="updateTrainerStatus('${trainerId}', 'Blocked')">Block</button>
+                <button class="status-button approved" onclick="updateTrainerStatus('${TrainerID}', 'Approved')">Approve</button>
+                <button class="status-button idle" onclick="updateTrainerStatus('${TrainerID}', 'Idle')">Idle</button>
+                <button class="status-button blocked" onclick="updateTrainerStatus('${TrainerID}', 'Blocked')">Block</button>
             </td>
         </tr>
     `;

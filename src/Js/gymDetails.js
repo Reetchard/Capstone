@@ -26,24 +26,18 @@ async function loadGymProfiles() {
     const snapshot = await getDocs(gymsRef);
     gymListBody.innerHTML = ''; // Clear previous data
 
-    // Fetch the Gym ID from the Roles collection directly
-    const rolesDocRef = doc(db, 'Roles', 'Gym_Owner'); // Reference to the Gym_Owner document
-    const rolesDoc = await getDoc(rolesDocRef);
-
-    let gymId = 'N/A'; // Default value if no Gym ID is found
-    if (rolesDoc.exists()) {
-        gymId = rolesDoc.data().GymId; // Adjust the field name if necessary
-    }
-
     // Loop through the GymForms documents
     for (const doc of snapshot.docs) {
         const gym = doc.data();
         const gymKey = doc.id;
 
+        // Get the gymId directly from the gym data (assuming it's part of the GymForms)
+        const gymId = gym.gymId || 'N/A'; // Replace 'gymId' with the correct field name if needed
+
         const row = document.createElement('tr');
         row.innerHTML = `
             <td><input type="checkbox" class="select-gym" data-key="${gymKey}"></td>
-            <td>${gymId}</td> <!-- Displaying the Gym ID from Roles -->
+            <td>${gymId}</td> <!-- Displaying the Gym ID from GymForms -->
             <td>${gym.gymName}</td>
             <td><a href="#" onclick="openModal('${gym.gymPhoto}')"><img src="${gym.gymPhoto}" alt="Gym Photo" style="max-width: 100px;"></a></td>
             <td><a href="#" onclick="openModal('${gym.gymCertifications}')"><img src="${gym.gymCertifications}" alt="Certification Image" style="max-width: 100px;"></a></td>
@@ -63,6 +57,7 @@ async function loadGymProfiles() {
         gymListBody.appendChild(row);
     }
 }
+
 
 
 // Load gym profiles when the page loads
