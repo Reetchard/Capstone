@@ -1,8 +1,8 @@
 // Import Firebase services
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-import { getFirestore, collection, addDoc, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+import { getFirestore, collection, setDoc, query, where, getDocs, doc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
-
+import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js"; // Import Auth
 
 // Your Firebase configuration
 const firebaseConfig = {
@@ -19,6 +19,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const firestore = getFirestore(app);
 const storage = getStorage(app);
+const auth = getAuth(app); // Initialize Auth
 
 window.addEventListener('load', () => {
     const form = document.getElementById("gymOwnerDetailsForm");
@@ -27,9 +28,11 @@ window.addEventListener('load', () => {
         return;
     }
 
+    // Element declarations
     const gymName = document.getElementById("gymName");
     const gymPhotoInput = document.getElementById("gymPhoto");
     const gymCertificationsInput = document.getElementById("gymCertifications");
+    const gymEmailInput = document.getElementById("gymemail");
     const gymEquipment = document.getElementById("gymEquipment");
     const gymContact = document.getElementById("gymContact");
     const gymPrograms = document.getElementById("gymPrograms");
@@ -53,29 +56,33 @@ window.addEventListener('load', () => {
         return !querySnapshot.empty; // Return true if duplicate exists
     }
 
-    // Function to get the GymOwner ID from the Roles collection
-    async function getGymOwnerId() {
-        const gymOwnerDocRef = doc(firestore, 'Roles', 'Gym_Owner'); // Direct reference to the Gym_Owner document
-        const gymOwnerDoc = await getDoc(gymOwnerDocRef); // Fetch the document
-    
-        if (!gymOwnerDoc.exists()) {
-            console.error('No Gym_Owner found in Roles collection');
-            return null; // Handle this case as needed
+    // Function to get UserId of GymOwner from Users collection
+    async function getGymOwnerUserId(gymEmail) {
+        const user = auth.currentUser; // Get the current authenticated user
+        if (user) {
+            const userEmail = user.email;
+            console.log("Authenticated User Email:", userEmail); // Log authenticated email
+
+            // Query to find users with the matching email
+            const userQuery = query(
+                collection(firestore, 'Users'),
+                where('email', '==', gymEmail) // Check against the GymForms email
+            );
+
+            const querySnapshot = await getDocs(userQuery);
+            console.log("Query Snapshot:", querySnapshot); // Log the query snapshot for debugging
+
+            if (!querySnapshot.empty) {
+                const userDoc = querySnapshot.docs[0];
+                return userDoc.id; // Return the UserId as a string
+            } else {
+                console.error("No user found with email:", gymEmail); // Log if no user is found
+            }
+        } else {
+            console.error("No user is authenticated."); // Log if no user is authenticated
         }
-    
-        // Assuming GymId is a field in the Gym_Owner document
-        return gymOwnerDoc.data().GymId; // Return the GymId from the document
-    }  
-    async function logRolesCollection() {
-    const rolesSnapshot = await getDocs(collection(firestore, 'Roles'));
-    rolesSnapshot.forEach(doc => {
-        console.log(doc.id, " => ", doc.data());
-    });
-}
-
-// Call this function to check the collection
-logRolesCollection();
-
+        return null; // Return null if no user found
+    }
 
     // Listen for form submit
     form.addEventListener("submit", async (e) => {
@@ -87,27 +94,34 @@ logRolesCollection();
         if (duplicate) {
             errorMessage.innerHTML = "Error: This gym information has already been submitted.";
             successMessage.innerHTML = "";  // Clear any success message
-    
-            // Hide error message after 3 seconds
-            setTimeout(() => {
-                errorMessage.innerHTML = "";
-            }, 3000);
+            setTimeout(() => { errorMessage.innerHTML = ""; }, 3000);
         } else {
             try {
-                const gymOwnerId = await getGymOwnerId(); // Get the GymOwner ID (GymId)
-    
+                const gymEmail = gymEmailInput.value; // Get the gym email value
+                console.log("Gym Email:", gymEmail); // Log the gym email for debugging
+                
+                // Get UserId of GymOwner
+                const gymOwnerId = await getGymOwnerUserId(gymEmail); // Pass the gym email
                 if (!gymOwnerId) {
-                    errorMessage.innerHTML = "Error: Unable to find Gym_Owner ID.";
+                    errorMessage.innerHTML = "Error: Unable to find GymOwner UserId.";
                     return;
                 }
-    
+
+                // Convert gymOwnerId to number (if that's required by your Firestore structure)
+                const gymOwnerIdNumber = parseInt(gymOwnerId, 10);
+
                 // Upload files and get URLs
                 const gymPhotoURL = gymPhotoInput.files[0] ? await uploadFile(gymPhotoInput.files[0], `gym_photos/${gymName.value}`) : "";
                 const gymCertificationsURL = gymCertificationsInput.files[0] ? await uploadFile(gymCertificationsInput.files[0], `gym_certifications/${gymName.value}`) : "";
-    
+
+                // Generate a new gymId
+                const newGymDocRef = doc(collection(firestore, 'GymForms')); // Create a reference for a new document
+                const gymId = newGymDocRef.id; // Get the generated ID
+
                 // Submit new data if no duplicate is found
-                await addDoc(collection(firestore, 'GymForms'), {
-                    gymOwnerId: gymOwnerId,  // Store the GymId
+                await setDoc(newGymDocRef, {
+                    gymId: gymId,  // Save the generated gymId
+                    gymOwnerId: gymOwnerIdNumber,  // Save the GymOwner UserId as a number
                     gymName: gymName.value,
                     gymPhoto: gymPhotoURL,  // Store photo URL
                     gymCertifications: gymCertificationsURL,  // Store certification URL
@@ -119,26 +133,16 @@ logRolesCollection();
                     gymLocation: gymLocation.value,
                     status: "Under Review"  // Set status as "Under Review"
                 });
-    
-                // Update the success message to indicate pending approval
+
+                // Success message logic
                 successMessage.innerHTML = "Gym information submitted successfully! Please wait for admin's approval.";
                 errorMessage.innerHTML = "";  // Clear any error message
-    
-                // Hide success message after 3 seconds and redirect
-                setTimeout(() => {
-                    successMessage.innerHTML = "";
-                    window.location.href = "login.html"; // Redirect to login.html
-                }, 3000);
-    
+                setTimeout(() => { successMessage.innerHTML = ""; window.location.href = "login.html"; }, 3000);
                 form.reset();  // Clear the form after successful submission
             } catch (error) {
                 errorMessage.innerHTML = "Error: Could not submit the form. " + error.message;
                 successMessage.innerHTML = "";  // Clear any success message
-    
-                // Hide error message after 3 seconds
-                setTimeout(() => {
-                    errorMessage.innerHTML = "";
-                }, 3000);
+                setTimeout(() => { errorMessage.innerHTML = ""; }, 3000);
             }
         }
     });

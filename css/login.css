@@ -466,28 +466,6 @@ h2 {
     margin: 0; /* Remove any default margin */
 }
 
-/* Google icon styling */
-.google-icon {
-    margin-right: 8px; /* Space between icon and text */
-}
-
-/* Change background color on hover */
-.google-button:hover {
-    background-color: #357AE8; /* Darker blue on hover */
-}
-
-/* Change background color on active */
-.google-button:active {
-    background-color: #2B6BBF; /* Even darker blue on click */
-}
-
-/* Center the button without unnecessary space */
-.button-container {
-    display: flex;
-    justify-content: center;
-    margin: 10px 0; /* Reduced margin to minimize space */
-}
-
 /* Optional: Style for role and signup buttons */
 .role-button,
 .signup-button {

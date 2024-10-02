@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, setPersistence, browserSessionPersistence ,createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDocs, getDoc, query, where, collection, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
 // Your Firebase config
 const firebaseConfig = {
@@ -18,104 +18,98 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-function showErrorMessage(element, message) {
+// Helper functions
+function showMessage(element, message, isError = false) {
     if (element) {
         element.textContent = message;
-        element.style.color = 'red'; // Optional
+        element.style.color = isError ? 'red' : 'green';
+        element.style.display = 'block';
+    } else {
+        console.error("Element not found:", element);
     }
 }
 
-function showSuccessMessage(element, message) {
-    if (element) {
-        element.textContent = message;
-        element.style.color = 'green';
-        element.style.display = 'block'; // Ensure it is visible
+function clearMessages(errorElement, successElement) {
+    if (errorElement) {
+        errorElement.textContent = '';
+        errorElement.style.display = 'none';
+    }
+    if (successElement) {
+        successElement.textContent = '';
+        successElement.style.display = 'none';
     }
 }
 
-// Function to sign up with email and password
 async function getNextRoleId(role) {
-    const counterDoc = await getDoc(doc(db, 'Counters', role));
+    const counterDoc = await getDoc(doc(db, 'RoleId', role));
 
     if (!counterDoc.exists()) {
         await setDoc(doc(db, 'Counters', role), { count: 0 });
-        return 1; // First ID is 1
+        return 1;
     }
 
     const currentCount = counterDoc.data().count;
     const newCount = currentCount + 1;
 
-    await updateDoc(doc(db, 'Counters', role), { count: newCount });
-    return newCount; // Return the new ID
+    await updateDoc(doc(db, 'RoleId', role), { count: newCount });
+    return newCount;
 }
 
-async function signUpWithEmailorUsername(email, password, username, role, errorMessageElementId, successMessageElementId) {
-    const errorMessageElement = document.getElementById(errorMessageElementId);
-    const successMessageElement = document.getElementById(successMessageElementId);
-
-    try {
-        // Check if username is already taken
-        const usernameQuery = query(collection(db, 'Users'), where('username', '==', username));
-        const usernameSnapshot = await getDocs(usernameQuery);
-        if (!usernameSnapshot.empty) {
-            showErrorMessage(errorMessageElement, '🚫 This username is already taken. Please choose another one.');
-            return; // Exit if the username exists
-        }
-
-        // Check if email is already in use
-        const emailQuery = query(collection(db, 'Users'), where('email', '==', email));
-        const emailSnapshot = await getDocs(emailQuery);
-        if (!emailSnapshot.empty) {
-            showErrorMessage(errorMessageElement, '🚫 This email is already in use. Please use a different email address.');
-            return; // Exit if the email exists
-        }
-
-        // Create user in Firebase Auth
-        await createUserWithEmailAndPassword(auth, email, password);
-
-        // Get the next custom role ID
-        const customRoleId = await getNextRoleId(role); // Get the next ID for the role
-
-        // Save the new user data in Firestore with custom role ID
-        await setDoc(doc(db, 'Users', `${role.toLowerCase()}_${customRoleId}`), { // Use custom role ID as the document ID
-            userId: customRoleId, // Use the custom ID as userId
-            username,
-            email,
-            password, // Storing password in plain text (not recommended)
-            role,
-            status: 'Under review' // Default status
-        });
-
-        // Display success message
-        showSuccessMessage(successMessageElement, `🎉 Awesome! You've signed up successfully, ${username}. Your account is under review.`);
-        clearSignUpFields();
-
-        // Redirect based on role
-        switch (role.toLowerCase()) {
-            case 'admin':
-                window.location.href = 'Accounts.html';
-                break;
-            case 'gym_owner':
-                window.location.href = 'GymForm.html';
-                break;
-            case 'trainer':
-                window.location.href = 'TrainerForm.html';
-                break;
-            default:
-                window.location.href = 'login.html'; // For regular users
-                break;
-        }
-
-    } catch (error) {
-        console.error('Error during signup:', error);
-        showErrorMessage(errorMessageElement, `🚫 Oops! There was an issue with your sign-up: ${error.message}`);
+function redirectUser(role) {
+    switch (role.toLowerCase()) {
+        case 'admin':
+            window.location.href = 'Accounts.html';
+            break;
+        case 'gym_owner':
+            window.location.href = 'GymForm.html';
+            break;
+        case 'trainer':
+            window.location.href = 'TrainerForm.html';
+            break;
+        default:
+            window.location.href = 'Dashboard.html'; // Default for regular users
+            break;
     }
 }
 
+// Sign up function
+async function signUpWithEmail(username, email, password, role, errorMessageElement, successMessageElement) {
+    clearMessages(errorMessageElement, successMessageElement);
 
+    if (!isValidEmail(email)) {
+        showMessage(errorMessageElement, '🚫 Please enter a valid email address.', true);
+        return;
+    }
 
+    if (password.length < 6) {
+        showMessage(errorMessageElement, '🚫 Password must be at least 6 characters long.', true);
+        return;
+    }
 
-// Clear the sign-up form fields
+    try {
+        const roleId = await getNextRoleId(role);
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await setDoc(doc(db, 'Users', userCredential.user.uid), {
+            userId: roleId,
+            username,
+            email,
+            role,
+            status: 'Under review'
+        });
+
+        showMessage(successMessageElement, `🎉 Awesome! You've signed up successfully, ${username}. Your account is under review.`);
+        clearSignUpFields();
+        redirectUser(role);
+    } catch (error) {
+        console.error('Error during signup:', error);
+        const errorMsg = error.code === 'auth/email-already-in-use'
+            ? '🚫 This email is already in use. Please use a different email address.'
+            : `🚫 Oops! There was an issue with your sign-up: ${error.message}`;
+        showMessage(errorMessageElement, errorMsg, true);
+    }
+}
+
+// Clear form fields
 function clearSignUpFields() {
     document.getElementById('signupUsername').value = '';
     document.getElementById('signupEmail').value = '';
@@ -124,32 +118,17 @@ function clearSignUpFields() {
     document.getElementById('role').value = '';
 }
 
-async function signInWithUsername(username, password, errorMessageElement, successMessageElement) {
+// Sign in function
+async function signInWithEmail(email, password, errorMessageElement, successMessageElement) {
     try {
-        const normalizedUsername = username.trim().toLowerCase();
-
-        // Fetch the associated user document from Firestore using username
-        const userQuery = query(collection(db, 'Users'), where('username', '==', normalizedUsername));
-        const querySnapshot = await getDocs(userQuery);
-
-        if (querySnapshot.empty) {
-            showErrorMessage(errorMessageElement, `🚫 Sorry, we couldn't find an account with the username "${username}".`);
-            return;
-        }
-
-        const userDoc = querySnapshot.docs[0];
-        const email = userDoc.data().email;
-
-        // Sign in with Firebase Authentication using the retrieved email
         await setPersistence(auth, browserSessionPersistence);
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
 
-        // Check user data
-        const userRef = doc(db, 'Users', userDoc.id);
+        const userRef = doc(db, 'Users', userCredential.user.uid);
         const userSnapshot = await getDoc(userRef);
 
         if (!userSnapshot.exists()) {
-            showErrorMessage(errorMessageElement, `🚫 No user data found in Firestore for UID: ${userCredential.user.uid}.`);
+            showMessage(errorMessageElement, `🚫 No user data found in Firestore for UID: ${userCredential.user.uid}.`, true);
             return;
         }
 
@@ -158,25 +137,25 @@ async function signInWithUsername(username, password, errorMessageElement, succe
         const status = userData.status;
 
         if (status === 'Under review') {
-            showErrorMessage(errorMessageElement, `🚫 Your account is currently under review. Please wait for the Admin's approval.`);
+            showMessage(errorMessageElement, `🚫 Your account is currently under review. Please wait for the Admin's approval.`, true);
             return;
         }
 
-        showSuccessMessage(successMessageElement, `✅ Welcome back, ${userData.username}! You have logged in successfully.`);
+        showMessage(successMessageElement, `✅ Welcome back, ${userData.username}! You have logged in successfully.`);
 
-        // Redirect based on role
+        // Redirect based on user role
         switch (role) {
-            case 'user':
-                window.location.href = 'Dashboard.html';
-                break;
             case 'gym_owner':
-                window.location.href = 'membership.html';
+                window.location.href = 'trainer-info.html';
+                break;
+            case 'trainer':
+                window.location.href = 'trainer.html';
                 break;
             case 'admin':
                 window.location.href = 'Accounts.html';
                 break;
-            case 'trainer':
-                window.location.href = 'TrainerDash.html';
+            case 'user':
+                window.location.href = 'Dashboard.html';
                 break;
             default:
                 console.warn('Unrecognized role:', role);
@@ -184,65 +163,51 @@ async function signInWithUsername(username, password, errorMessageElement, succe
         }
 
     } catch (error) {
-        // Improved error handling
-        if (error.code === 'auth/user-not-found') {
-            showErrorMessage(errorMessageElement, '🚫 User not found. Please check your username.');
-        } else if (error.code === 'auth/wrong-password') {
-            showErrorMessage(errorMessageElement, '🚫 Incorrect password. Please try again.');
-        } else if (error.code === 'auth/invalid-email') {
-            showErrorMessage(errorMessageElement, '🚫 The email address is not valid.');
-        } else {
-            showErrorMessage(errorMessageElement, `🚫 Sign-in failed: ${error.message}`);
-        }
+        const errorMsg = error.code === 'auth/user-not-found'
+            ? '🚫 User not found. Please check your email.'
+            : error.code === 'auth/wrong-password'
+                ? '🚫 Incorrect password. Please try again.'
+                : `🚫 Sign-in failed: ${error.message}`;
+        showMessage(errorMessageElement, errorMsg, true);
         console.error("Sign-in error:", error);
     }
 }
 
 
-async function signInWithGoogle(errorMessageElement, successMessageElement) {
-    const provider = new GoogleAuthProvider();
-
-    try {
-        const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-
-        // Attempt to set username and email input fields
-        const usernameInput = document.getElementById('signupUsername');
-        const emailInput = document.getElementById('signupEmail');
-
-        if (usernameInput) {
-            usernameInput.value = user.email.split('@')[0]; // Set username based on email
-        } else {
-            console.error('Username input not found.');
+        // Email format validation
+        function isValidEmail(email) {
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailPattern.test(email);
         }
 
-        if (emailInput) {
-            emailInput.value = user.email; // Set email field
-        } else {
-            console.error('Email input not found.');
+        // Password validation
+        function validatePassword(password) {
+            const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+            return regex.test(password);
         }
 
-        // Show a success message
-        showSuccessMessage(successMessageElement, `✅ Welcome back, ${user.displayName || user.email.split('@')[0]}! Please enter your password and role to continue.`);
-
-    } catch (error) {
-        showErrorMessage(errorMessageElement, `🚫 Google sign-in failed: ${error.message}`);
-        console.error("Google sign-in error:", error);
-    }
-}
-
-// Add event listeners for form submissions
+// Event listeners for forms
 document.addEventListener('DOMContentLoaded', function() {
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', function(event) {
             event.preventDefault();
-            const username = document.getElementById('loginUsername')?.value.trim();
+            const email = document.getElementById('loginEmail')?.value.trim();
             const password = document.getElementById('loginPassword')?.value;
             const errorMessage = document.getElementById('error-message');
             const successMessage = document.getElementById('success-message');
 
-            signInWithUsername(username, password, errorMessage, successMessage);
+            if (!email) {
+                showMessage(errorMessage, '🚫 Please enter your email address.', true);
+                return;
+            }
+
+            if (!validatePassword(password)) {
+                showMessage(errorMessage, '🚫 Password must be at least 6 characters long.', true);
+                return;
+            }
+
+            signInWithEmail(email, password, errorMessage, successMessage);
         });
     } else {
         console.error('Login form with ID "loginForm" not found.');
@@ -262,48 +227,26 @@ document.addEventListener('DOMContentLoaded', function() {
             const errorMessage = document.getElementById('signupErrorMessage');
             const successMessage = document.getElementById('signupSuccessMessage');
 
-            if (errorMessage) errorMessage.textContent = '';
-            if (successMessage) successMessage.textContent = '';
-
-            let messages = [];
+            clearMessages(errorMessage, successMessage);
 
             if (!username || !email || !password || !confirmPassword || !role) {
-                messages.push('🚫 All fields must be filled in! Please complete the form before signing up.');
-            }
-
-            if (messages.length > 0) {
-                showErrorMessage(errorMessage, messages.join(' '));
+                showMessage(errorMessage, '🚫 All fields must be filled in! Please complete the form before signing up.', true);
                 return;
             }
 
             if (password !== confirmPassword) {
-                showErrorMessage(errorMessage, '🚫 Your passwords do not match. Please try again.');
+                showMessage(errorMessage, '🚫 Your passwords do not match. Please try again.', true);
                 return;
             }
 
             if (!validatePassword(password)) {
-                showErrorMessage(errorMessage, '🚫 Password must be at least 8 characters long, with an uppercase letter, a digit, and a special character.');
+                showMessage(errorMessage, '🚫 Password must be at least 8 characters long, with an uppercase letter, a digit, and a special character.', true);
                 return;
             }
 
-            signUpWithEmailorUsername(email, password, username, role, errorMessage, successMessage);
+            signUpWithEmail(username, email, password, role, errorMessage, successMessage);
         });
     } else {
         console.error('Signup form with ID "signupForm" not found.');
     }
-
-    // Add event listener for Google sign-in button
-    document.getElementById('googleSignInButton').addEventListener('click', function(event) {
-        event.preventDefault();
-        const errorMessage = document.getElementById('error-message');
-        const successMessage = document.getElementById('success-message');
-        
-        signInWithGoogle(errorMessage, successMessage);
-    });
 });
-
-// Password validation function
-function validatePassword(password) {
-    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    return regex.test(password);
-}
