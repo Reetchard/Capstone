@@ -450,3 +450,69 @@ h2 {
     padding: 10px 15px; /* Button padding */
     border-radius: 4px; /* Rounded corners */
 }
+
+/* Google Sign-In Button Styles */
+.google-button {
+    display: flex;
+    align-items: center; /* Center icon and text vertically */
+    background-color: #4285F4; /* Google Blue */
+    color: white; /* Text color */
+    border: none; /* No border */
+    border-radius: 5px; /* Rounded corners */
+    padding: 6px 12px; /* Compact padding */
+    font-size: 16px; /* Font size */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+    margin: 0; /* Remove any default margin */
+}
+
+/* Google icon styling */
+.google-icon {
+    margin-right: 8px; /* Space between icon and text */
+}
+
+/* Change background color on hover */
+.google-button:hover {
+    background-color: #357AE8; /* Darker blue on hover */
+}
+
+/* Change background color on active */
+.google-button:active {
+    background-color: #2B6BBF; /* Even darker blue on click */
+}
+
+/* Center the button without unnecessary space */
+.button-container {
+    display: flex;
+    justify-content: center;
+    margin: 10px 0; /* Reduced margin to minimize space */
+}
+
+/* Optional: Style for role and signup buttons */
+.role-button,
+.signup-button {
+    border: none;
+    border-radius: 5px; /* Rounded corners */
+    padding: 6px 10px; /* Compact padding */
+    font-size: 14px; /* Slightly smaller font size */
+    margin: 0 5px; /* Tight margin between buttons */
+    cursor: pointer; /* Pointer cursor on hover */
+}
+
+.role-button {
+    background-color: #4CAF50; /* Green */
+    color: white; /* Text color */
+}
+
+.role-button:hover {
+    background-color: #45A049; /* Darker green on hover */
+}
+
+.signup-button {
+    background-color: #f44336; /* Red */
+    color: white; /* Text color */
+}
+
+.signup-button:hover {
+    background-color: #e53935; /* Darker red on hover */
+}

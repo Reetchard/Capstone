@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="Image/png" href="framework/img/peak1.png">
     <title>Login & Sign Up</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="css/login.css">
 </head>
 <body>
@@ -19,6 +20,7 @@
         <!-- Sign Up Form -->
         <div class="container" id="container">
             <!-- Sign Up Form -->
+
             <div class="form-container sign-up-container">
                 <form id="signupForm">
                     <h1>Create Account</h1>
@@ -28,20 +30,25 @@
 
                     <div class="input-container">
                         <label for="signupUsername">Name</label>
-                            <input type="text" id="signupUsername"/>
+                        <input type="text" id="signupUsername" placeholder="Username (auto-filled)" />
                     </div>
                     <div class="input-container">
                         <label for="signupEmail">Email</label>
-                            <input type="email" id="signupEmail"/>
+                        <input type="email" id="signupEmail" placeholder="Email (auto-filled)" />
                     </div>
                     <div class="input-container">
                         <label for="signupPassword">Password</label>
-                            <input type="password" id="signupPassword"/>
+                        <input type="password" id="signupPassword" placeholder="Password" />
                     </div>
                     <div class="input-container">
                         <label for="confirmPassword">Confirm Password</label>
                             <input type="password" id="confirmPassword"/>
                     </div>
+                    <div class="button-container">
+                        <button id="googleSignInButton" class="google-button">
+                            <i class="fab fa-google"></i></button>
+                    </div>
+                    
                     <select id="role">
                         <option value="">Select role (optional)</option>
                         <option value="user">User</option>
@@ -113,7 +120,7 @@
     <!-- Example of an element that should exist in the HTML -->
     <div id="loginErrorMessage" class="error-message"></div>
     <div id="membership-info"></div>
-
+    
 
     <script>
         const signUpButton = document.getElementById('signUp');
