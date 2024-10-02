@@ -33,7 +33,7 @@ function showSuccessMessage(element, message) {
     }
 }
 
-// Function to get the next role ID based on role
+// Function to sign up with email and password
 async function getNextRoleId(role) {
     const counterDoc = await getDoc(doc(db, 'Counters', role));
 
@@ -49,7 +49,6 @@ async function getNextRoleId(role) {
     return newCount; // Return the new ID
 }
 
-// Function to sign up with email and password
 async function signUpWithEmailorUsername(email, password, username, role, errorMessageElementId, successMessageElementId) {
     const errorMessageElement = document.getElementById(errorMessageElementId);
     const successMessageElement = document.getElementById(successMessageElementId);
@@ -72,17 +71,22 @@ async function signUpWithEmailorUsername(email, password, username, role, errorM
         }
 
         // Create user in Firebase Auth
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const userId = userCredential.user.uid; // Get the user ID
+        await createUserWithEmailAndPassword(auth, email, password);
 
-        // Save the new user data in Firestore
-        await setDoc(doc(db, 'Users', userId), {
+        // Get the next custom role ID
+        const customRoleId = await getNextRoleId(role); // Get the next ID for the role
+
+        // Save the new user data in Firestore with custom role ID
+        await setDoc(doc(db, 'Users', `${role.toLowerCase()}_${customRoleId}`), { // Use custom role ID as the document ID
+            userId: customRoleId, // Use the custom ID as userId
             username,
-            email, // Save the email to Firestore
+            email,
+            password, // Storing password in plain text (not recommended)
             role,
             status: 'Under review' // Default status
         });
 
+        // Display success message
         showSuccessMessage(successMessageElement, `🎉 Awesome! You've signed up successfully, ${username}. Your account is under review.`);
         clearSignUpFields();
 
@@ -103,6 +107,7 @@ async function signUpWithEmailorUsername(email, password, username, role, errorM
         }
 
     } catch (error) {
+        console.error('Error during signup:', error);
         showErrorMessage(errorMessageElement, `🚫 Oops! There was an issue with your sign-up: ${error.message}`);
     }
 }
