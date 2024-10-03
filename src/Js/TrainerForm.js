@@ -72,13 +72,13 @@ window.addEventListener('load', () => {
     }
 
     async function getNextTrainerID() {
-        const trainerIdDocRef = doc(db, 'TrainerIDs', 'currentId');
+        const trainerIdDocRef = doc(db, 'TrainerFormId', 'trainerForm');
         const docSnap = await getDoc(trainerIdDocRef);
         
         if (docSnap.exists()) {
-            const currentId = docSnap.data().id; // Get the current TrainerID
-            await updateDoc(trainerIdDocRef, { id: currentId + 1 }); // Increment for next use
-            return currentId; // Return the current ID before incrementing
+            const trainerId = docSnap.data().id; // Get the current TrainerID
+            await updateDoc(trainerIdDocRef, { id: trainerId + 1 }); // Increment for next use
+            return trainerId; // Return the current ID before incrementing
         } else {
             // If the document does not exist, create it with the initial ID of 1
             await setDoc(trainerIdDocRef, { id: 2 }); // Next will be 2

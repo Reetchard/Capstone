@@ -73,19 +73,21 @@ window.addEventListener('load', () => {
 
     // Function to get the next gym ID
     async function getNextGymId() {
-        const counterDocRef = doc(firestore, 'GymIdCounter', 'counter');
+        const counterDocRef = doc(firestore, 'GymFormID', 'gymForm');
         const counterDoc = await getDoc(counterDocRef);
-
-        let nextId = 1; // Default to 1 if the document does not exist
+    
+        let gymId; // Declare a new variable to hold the incremented ID
         if (counterDoc.exists()) {
-            nextId = counterDoc.data().lastId + 1; // Increment the last ID
+            gymId = counterDoc.data().GymFormId + 1; // Increment the last ID
+        } else {
+            gymId = 1; // Default to 1 if the document does not exist
         }
-
+    
         // Update the counter document
-        await setDoc(counterDocRef, { lastId: nextId }, { merge: true });
-        return nextId; // Return the new ID
+        await setDoc(counterDocRef, { GymFormId: gymId }, { merge: true });
+        return gymId; // Return the new ID
     }
-
+    
     // Listen for form submit
     form.addEventListener("submit", async (e) => {
         e.preventDefault();

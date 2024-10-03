@@ -231,3 +231,5 @@ window.updateStatus = async function(status, key) {
 
 // Load gym profiles when the page loads
 window.onload = loadGymProfiles;
+
+

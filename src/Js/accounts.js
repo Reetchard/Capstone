@@ -21,17 +21,22 @@ const accountRef = collection(db, 'Users');
 async function displayAccountInfo(searchQuery = '') {
     const snapshot = await getDocs(accountRef);
     const accountInfoBody = document.getElementById('accountInfoBody');
-    accountInfoBody.innerHTML = '';
+    accountInfoBody.innerHTML = ''; // Clear previous results
 
     snapshot.forEach(doc => {
         const account = doc.data();
-        if (searchQuery && !account.username.toLowerCase().includes(searchQuery.toLowerCase())) {
-            return; // Skip if search query does not match
+        console.log('Account Data:', account); // Log each account's data
+
+        // Ensure userId exists and filter based on the search query
+        if (searchQuery && account.userId && !account.userId.toString().includes(searchQuery)) {
+            return; // Skip if the userId doesn't match
         }
+
+        // Create the row for matched accounts
         const row = document.createElement('tr');
         row.innerHTML = `
             <td><input type="checkbox" class="selectAccount" value="${doc.id}"></td>
-            <td>${account.userId || 'N/A'}</td> <!-- Display userId instead of doc.id -->
+            <td>${account.userId || 'N/A'}</td>
             <td><a href="#" onclick="viewAccountDetails('${doc.id}'); return false;">${account.username || 'N/A'}</a></td>
             <td>${account.status || 'N/A'}</td>
             <td>
@@ -43,9 +48,11 @@ async function displayAccountInfo(searchQuery = '') {
         accountInfoBody.appendChild(row);
     });
 }
+
 // Function to handle search
 window.handleSearch = function() {
     const searchQuery = document.getElementById('searchAccountId').value.trim();
+    console.log('Search Query:', searchQuery); // Log to check if the search query is retrieved
     displayAccountInfo(searchQuery);
 };
 
@@ -70,22 +77,28 @@ window.deleteSelected = async function() {
         return;
     }
 
-    const confirmation = confirm('Are you sure you want to delete the selected accounts?');
-    if (!confirmation) return;
+    // Show the custom confirmation modal
+    const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+    confirmationModal.show();
 
-    for (const checkbox of selectedCheckboxes) {
-        const key = checkbox.value;
-        try {
-            await deleteDoc(doc(db, 'Users', key));
-        } catch (error) {
-            console.error('Error deleting account:', error);
-            showToast('Error', '❌ An error occurred while deleting accounts. Please try again later.');
+    // Wait for the user to confirm deletion
+    document.getElementById('confirmDeleteBtn').onclick = async function() {
+        for (const checkbox of selectedCheckboxes) {
+            const key = checkbox.value;
+            try {
+                await deleteDoc(doc(db, 'Users', key));
+            } catch (error) {
+                console.error('Error deleting account:', error);
+                showToast('Error', '❌ An error occurred while deleting accounts. Please try again later.');
+            }
         }
-    }
 
-    displayAccountInfo();
-    showToast('Success', '✅ The selected accounts have been deleted successfully.');
+        displayAccountInfo();
+        showToast('Success', '✅ The selected accounts have been deleted successfully.');
+        confirmationModal.hide(); // Hide the modal after deletion
+    };
 };
+
 
 // Function to view detailed account information
 window.viewAccountDetails = async function(key) {
@@ -94,12 +107,22 @@ window.viewAccountDetails = async function(key) {
         const account = docSnap.data();
 
         if (account) {
-            document.getElementById('username').value = account.username || 'N/A';
-            document.getElementById('email').value = account.email || 'N/A';
-            document.getElementById('status').value = account.status || 'N/A';
-            document.getElementById('role').value = account.role || 'N/A';
-            document.getElementById('userId').value = key;
-            $('#accountModal').modal('show');
+            const usernameField = document.getElementById('username');
+            const emailField = document.getElementById('email');
+            const statusField = document.getElementById('status');
+            const roleField = document.getElementById('role');
+            const userIdField = document.getElementById('userId');
+
+            if (usernameField) usernameField.value = account.username || 'N/A';
+            if (emailField) emailField.value = account.email || 'N/A';
+            if (statusField) statusField.value = account.status || 'N/A';
+            if (roleField) roleField.value = account.role || 'N/A';
+            if (userIdField) userIdField.value = key;
+
+            // Show the modal using Bootstrap's JS
+            const modal = document.getElementById('accountModal');
+            const bootstrapModal = new bootstrap.Modal(modal);
+            bootstrapModal.show();
         } else {
             showToast('Error', 'Account not found.');
         }
@@ -108,6 +131,8 @@ window.viewAccountDetails = async function(key) {
         showToast('Error', 'Error fetching account data. Please try again later.');
     }
 };
+
+
 
 // Function to handle select all functionality
 document.getElementById('selectAll').addEventListener('change', function(e) {
@@ -135,11 +160,11 @@ function showToast(title, message) {
         }, 150);
     }, 3000);
 }
-
-function hideNotification() {
-    const notificationMessage = document.getElementById('notification-message');
-    notificationMessage.style.display = 'none';
-}
-
 // Call to display accounts on page load
 displayAccountInfo();
+window. toggleSelectAll = function(selectAllCheckbox) {
+    const checkboxes = document.querySelectorAll('.selectAccount');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAllCheckbox.checked;
+    });
+}

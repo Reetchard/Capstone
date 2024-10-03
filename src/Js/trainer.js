@@ -225,26 +225,42 @@ window.openModal = function(imageSrc) {
 
 // Function to search for a trainer by ID
 window.searchTrainer = async function() {
-    const searchId = document.getElementById('searchId').value; // Get the search input value
+    const searchId = document.getElementById('trainer').value.trim(); // Get the search input value
+
+    // Check if the searchId is not empty
+    if (!searchId) {
+        document.getElementById('trainerInfoBody').innerHTML = 'Please enter a Trainer ID.';
+        return;
+    }
 
     const trainerRef = collection(db, 'TrainerForm');
-    const q = query(trainerRef, where("TrainerId", "==", searchId)); // Ensure "TrainerId" matches Firestore exactly
+    const q = query(trainerRef, where("TrainerID", "==", searchId)); // Query Firestore
 
     console.log(`Searching for TrainerId: ${searchId}`); // Log the search ID
 
-    const snapshot = await getDocs(q);
-    console.log(`Found ${snapshot.size} trainer(s)`); // Log how many trainers were found
+    try {
+        const snapshot = await getDocs(q);
+        console.log(`Found ${snapshot.size} trainer(s)`); // Log how many trainers were found
 
-    if (!snapshot.empty) {
-        const doc = snapshot.docs[0]; // Get the first matching document
-        console.log(`Found trainer data:`, doc.data()); // Log the found trainer data
-        displayTrainerData(doc.data(), doc.id); // Display the trainer data
-    } else {
-        console.log('Trainer not found, updating message.');
-        displayMessage('Trainer not found.', 'warning'); // Update message if not found
-        document.getElementById('trainerInfoBody').innerHTML = ''; // Clear previous results
+        const trainerInfoBody = document.getElementById('trainerInfoBody');
+        trainerInfoBody.innerHTML = ''; // Clear previous results
+
+        if (!snapshot.empty) {
+            snapshot.forEach(doc => {
+                const trainerData = doc.data();
+                console.log(`Found trainer data:`, trainerData); // Log the found trainer data
+                displayTrainerData(trainerData, doc.id); // Display the trainer data
+            });
+        } else {
+            console.log('Trainer not found, updating message.');
+            trainerInfoBody.innerHTML = 'Trainer not found.'; // Update message if not found
+        }
+    } catch (error) {
+        console.error('Error fetching trainer data:', error);
+        document.getElementById('trainerInfoBody').innerHTML = 'Error fetching trainer data.';
     }
 };
+
 
 // Function to display trainer data
 async function displayTrainerData(trainerData, TrainerID) {

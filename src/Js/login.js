@@ -40,34 +40,63 @@ function clearMessages(errorElement, successElement) {
     }
 }
 
-async function getNextRoleId(role) {
-    const counterDoc = await getDoc(doc(db, 'RoleId', role));
+async function getNextUserId(role) {
+    console.log('Received role in getNextUserId:', role); // Log received role
 
-    if (!counterDoc.exists()) {
-        await setDoc(doc(db, 'Counters', role), { count: 0 });
-        return 1;
+    const counterRef = doc(db, 'RoleId', 'Users');
+    const counterSnapshot = await getDoc(counterRef);
+
+    let newId;
+    if (counterSnapshot.exists()) {
+        const currentData = counterSnapshot.data();
+        if (role === 'gymowner') { // Adjusted for lowercase comparison
+            newId = currentData.gymOwnerId + 1;
+            await setDoc(counterRef, { gymOwnerId: newId, trainerId: currentData.trainerId, userId: currentData.userId }, { merge: true });
+        } else if (role === 'trainer') {
+            newId = currentData.trainerId + 1;
+            await setDoc(counterRef, { trainerId: newId, gymOwnerId: currentData.gymOwnerId, userId: currentData.userId }, { merge: true });
+        } else if (role === 'user') { // New case for user role
+            newId = currentData.userId + 1;
+            await setDoc(counterRef, { userId: newId, gymOwnerId: currentData.gymOwnerId, trainerId: currentData.trainerId }, { merge: true });
+        } else {
+            console.error('Invalid role specified:', role); // Log invalid role for debugging
+            throw new Error('Invalid role specified.');
+        }
+    } else {
+        // Initialize the counter if it doesn't exist
+        if (role === 'gymowner') {
+            newId = 1;
+            await setDoc(counterRef, { gymOwnerId: newId, trainerId: 0, userId: 0 });
+        } else if (role === 'trainer') {
+            newId = 1;
+            await setDoc(counterRef, { gymOwnerId: 0, trainerId: newId, userId: 0 });
+        } else if (role === 'user') {
+            newId = 1;
+            await setDoc(counterRef, { gymOwnerId: 0, trainerId: 0, userId: newId });
+        } else {
+            console.error('Invalid role specified during initialization:', role); // Log invalid role for debugging
+            throw new Error('Invalid role specified.');
+        }
     }
 
-    const currentCount = counterDoc.data().count;
-    const newCount = currentCount + 1;
-
-    await updateDoc(doc(db, 'RoleId', role), { count: newCount });
-    return newCount;
+    return newId;
 }
+
+
 
 function redirectUser(role) {
     switch (role.toLowerCase()) {
         case 'admin':
             window.location.href = 'Accounts.html';
             break;
-        case 'gym_owner':
+        case 'gymowner':
             window.location.href = 'GymForm.html';
             break;
         case 'trainer':
             window.location.href = 'TrainerForm.html';
             break;
         default:
-            window.location.href = 'Dashboard.html'; // Default for regular users
+            window.location.href = 'Login.html'; // Default for regular users
             break;
     }
 }
@@ -75,7 +104,11 @@ function redirectUser(role) {
 // Sign up function
 async function signUpWithEmail(username, email, password, role, errorMessageElement, successMessageElement) {
     clearMessages(errorMessageElement, successMessageElement);
-
+    const validRoles = ['gymowner', 'trainer' , 'user']; // Define valid roles
+    if (!validRoles.includes(role.toLowerCase())) {
+        showMessage(errorMessageElement, '🚫 Invalid role specified. Please choose either Gym Owner or Trainer.', true);
+        return;
+    }
     if (!isValidEmail(email)) {
         showMessage(errorMessageElement, '🚫 Please enter a valid email address.', true);
         return;
@@ -87,10 +120,10 @@ async function signUpWithEmail(username, email, password, role, errorMessageElem
     }
 
     try {
-        const roleId = await getNextRoleId(role);
+        const userId = await getNextUserId(role); // Use the new function
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         await setDoc(doc(db, 'Users', userCredential.user.uid), {
-            userId: roleId,
+            userId,
             username,
             email,
             role,
@@ -109,6 +142,7 @@ async function signUpWithEmail(username, email, password, role, errorMessageElem
     }
 }
 
+
 // Clear form fields
 function clearSignUpFields() {
     document.getElementById('signupUsername').value = '';
@@ -120,6 +154,17 @@ function clearSignUpFields() {
 
 // Sign in function
 async function signInWithEmail(email, password, errorMessageElement, successMessageElement) {
+    // Validate email and password
+    if (!email || !password) {
+        showMessage(errorMessageElement, '🚫 Email and password cannot be empty.', true);
+        return;
+    }
+
+    if (!isValidEmail(email)) {
+        showMessage(errorMessageElement, '🚫 Please enter a valid email address.', true);
+        return;
+    }
+
     try {
         await setPersistence(auth, browserSessionPersistence);
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -145,8 +190,8 @@ async function signInWithEmail(email, password, errorMessageElement, successMess
 
         // Redirect based on user role
         switch (role) {
-            case 'gym_owner':
-                window.location.href = 'trainer-info.html';
+            case 'gymowner':
+                window.location.href = 'membership.html';
                 break;
             case 'trainer':
                 window.location.href = 'trainer.html';
@@ -163,24 +208,33 @@ async function signInWithEmail(email, password, errorMessageElement, successMess
         }
 
     } catch (error) {
-        const errorMsg = error.code === 'auth/user-not-found'
-            ? '🚫 User not found. Please check your email.'
-            : error.code === 'auth/wrong-password'
-                ? '🚫 Incorrect password. Please try again.'
-                : `🚫 Sign-in failed: ${error.message}`;
+        console.error("Sign-in error:", error); // Log full error for debugging
+        let errorMsg;
+        switch (error.code) {
+            case 'auth/user-not-found':
+                errorMsg = '🚫 User not found. Please check your email.';
+                break;
+            case 'auth/wrong-password':
+                errorMsg = '🚫 Incorrect password. Please try again.';
+                break;
+            case 'auth/invalid-email':
+                errorMsg = '🚫 Invalid email format. Please enter a valid email.';
+                break;
+            case 'auth/too-many-requests':
+                errorMsg = '🚫 Too many attempts. Please try again later.';
+                break;
+            default:
+                errorMsg = `🚫 Sign-in failed: ${error.message}`;
+        }
         showMessage(errorMessageElement, errorMsg, true);
-        console.error("Sign-in error:", error);
     }
 }
 
-
-        // Email format validation
-        function isValidEmail(email) {
-            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailPattern.test(email);
-        }
-
-        // Password validation
+// Email validation function
+function isValidEmail(email) {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+}        // Password validation
         function validatePassword(password) {
             const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
             return regex.test(password);
