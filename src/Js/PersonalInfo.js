@@ -1,13 +1,12 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
-import { getDatabase, ref, get, update } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js';
+import { getFirestore, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
 import { getStorage, ref as storageRef, getDownloadURL, uploadBytesResumable } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-storage.js';
 
 // Your Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyAPNGokBic6CFHzuuENDHdJrMEn6rSE92c",
     authDomain: "capstone40-project.firebaseapp.com",
-    databaseURL: "https://capstone40-project-default-rtdb.firebaseio.com",
     projectId: "capstone40-project",
     storageBucket: "capstone40-project.appspot.com",
     messagingSenderId: "399081968589",
@@ -18,7 +17,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const database = getDatabase(app);
+const firestore = getFirestore(app);
 const storage = getStorage(app);
 
 // Get DOM elements
@@ -32,28 +31,26 @@ const heightInput = document.getElementById('height');
 const medicationInput = document.getElementById('medication');
 const allergiesInput = document.getElementById('allergies');
 const statusMessage = document.getElementById('status-message');
-const profilePicture = document.getElementById('profile-picture'); // Define profilePicture
-const profilePictureInput = document.getElementById('profile-picture-input'); // Assuming there's an input for file upload
+const profilePicture = document.getElementById('profile-picture');
+const profilePictureInput = document.getElementById('profile-picture-input');
 
 // Fetch user data when authenticated
 onAuthStateChanged(auth, (user) => {
     if (user) {
         const userId = user.uid;
-        const userRef = ref(database, 'Accounts/' + userId);
+        const userDocRef = doc(firestore, 'Users', userId);
         const profilePicRef = storageRef(storage, 'profilePictures/' + userId + '/profile.jpg');
 
-        get(userRef).then((snapshot) => {
+        getDoc(userDocRef).then((snapshot) => {
             if (snapshot.exists()) {
-                const userData = snapshot.val();
-                
+                const userData = snapshot.data();
+
                 // Debugging: Log the data to check if it's fetched correctly
                 console.log("Fetched user data:", userData);
 
                 // Assign data to input fields
-                usernameInput.value = userData.username || ''; // Check if username exists in Firebase data
+                usernameInput.value = userData.username || '';
                 emailInput.value = user.email || ''; // Use Firebase Auth email
-                
-                // Populate other fields
                 phoneInput.value = userData.phone || '';
                 addressInput.value = userData.address || '';
                 weightInput.value = userData.weight || '';
@@ -90,13 +87,12 @@ profilePicture.addEventListener('click', () => {
 profilePictureInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
-        // Optionally add cropping functionality here using a library like CropperJS
         uploadProfilePicture(file);
     }
 });
 
 // Update profile information
-personalInfoForm.addEventListener('submit', (e) => {
+personalInfoForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const username = usernameInput.value;
@@ -110,28 +106,29 @@ personalInfoForm.addEventListener('submit', (e) => {
 
     if (user) {
         const userId = user.uid;
-        const userRef = ref(database, 'Accounts/' + userId);
+        const userDocRef = doc(firestore, 'Users', userId); // Use 'Users' collection
 
-        // Update user profile in the database
-        update(userRef, {
-            username: username,
-            phone: phone,
-            address: address,
-            weight: weight,
-            height: height,
-            medication: medication,
-            allergies: allergies
-        }).then(() => {
+        // Update user profile in Firestore
+        try {
+            await setDoc(userDocRef, {
+                username: username,
+                phone: phone,
+                address: address,
+                weight: weight,
+                height: height,
+                medication: medication,
+                allergies: allergies
+            }, { merge: true }); // Use merge to avoid overwriting the entire document
             statusMessage.textContent = "Profile updated successfully!";
             statusMessage.style.color = 'green';
             setTimeout(() => {
                 window.location.href = 'dashboard.html'; // Redirect to dashboard after 3 seconds
             }, 3000);
-        }).catch((error) => {
+        } catch (error) {
             console.error("Error updating profile:", error);
             statusMessage.textContent = "Error updating profile.";
             statusMessage.style.color = 'red';
-        });
+        }
     }
 });
 

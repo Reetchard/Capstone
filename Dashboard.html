@@ -22,7 +22,7 @@
         <div class="container mt-5 d-flex justify-content-center">
             <button class="btn btn-circle dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <div class="profile-container">
-                    <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" class="profile-picture">
+                    <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture">
                 </div>
             </button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
@@ -61,15 +61,6 @@
     <!-- Main Content -->
     <div class="container mt-4">
         <div class="row">
-            <div class="col-lg-8">
-                <div class="map-container">
-                    <div class="search-container">
-                        <input type="text" id="searchBar" class="form-control" placeholder="Enter gym location">
-                        <button id="searchButton" class="btn btn-primary mt-2">Search</button>
-                    </div>
-                    <div id="map" style="height: 500px; width: 100%;"></div>
-                </div>
-            </div>
             <div class="col-lg-4">
                 <div class="calendar-container">
                     <h3>Calendar</h3>
@@ -78,36 +69,30 @@
             </div>
         </div>
     </div>
-        <!-- Modal for adding notes -->
-    <div class="modal fade" id="noteModal" tabindex="-1" aria-labelledby="noteModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="noteModalLabel">Add a Note</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span>&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <textarea id="noteText" class="form-control" rows="4" placeholder="Write your note here..."></textarea>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" id="saveNote" class="btn btn-primary">Save Note</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+
      <section id="profiling" class="section">
             <div class="container-2">
                 <h2>Gym Profiles</h2>
                 <div class="trainers-scroll-container">
-                    <div id="gym-profile" class="gym-profile">
+                    <div id="gym-profiles" class="gym-profile">
                         <!-- Gym profile content will be dynamically added here -->
                     </div>
                 </div>                 
             </div>
     </section>
+
+    <section id="trainers" class="section bg-light">
+        <div class="container">
+          <h2>Our Trainers</h2>
+          <div class="trainers-scroll-container">
+            <div class="trainers-content" id="trainer-profiles">
+              <!-- Trainer profiles will be dynamically added here -->
+            </div>
+          </div>
+        </div>
+    </section>
+
+
     <!-- Modal for Gym Description -->
     <div id="gymProfileModal" class="modal">
         <div class="modal-content">
@@ -130,6 +115,29 @@
             
         </div>
     </div>
+    
+            <!-- Modal for adding notes -->
+            <div class="modal fade" id="noteModal" tabindex="-1" aria-labelledby="noteModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="noteModalLabel">Add a Note</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span>&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <textarea id="noteText" class="form-control" rows="4" placeholder="Write your note here..."></textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" id="saveNote" class="btn btn-primary">Save Note</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
     <!--  Trainer Profile Modal Structure -->
     <div id="trainerProfileModal" class="modal">
         <div class="modal-content">
@@ -145,6 +153,8 @@
         </div>
     </div>
     
+
+
 
     <!-- Payment Modal -->
     <div id="paymentModal" class="modal">
@@ -184,16 +194,7 @@
         </div>
     </div>
     
-    <section id="trainers" class="section bg-light">
-        <div class="container">
-          <h2>Our Trainers</h2>
-          <div class="trainers-scroll-container">
-            <div class="trainers-content" id="trainer-profiles">
-              <!-- Trainer profiles will be dynamically added here -->
-            </div>
-          </div>
-        </div>
-      </section>
+   
     
 
     <!-- Floating Notification Bell -->
