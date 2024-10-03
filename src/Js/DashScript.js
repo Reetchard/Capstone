@@ -47,10 +47,10 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 // Function to create dropdown menu based on user role and email
-function createDropdownMenu(email, role) {
+function createDropdownMenu(username, role) {
     const dropdownMenu = document.querySelector('.dropdown-menu');
     if (dropdownMenu) {
-        dropdownMenu.innerHTML = `<a class="dropdown-item" href="#">Hello: ${email}</a>`;
+        dropdownMenu.innerHTML = `<a class="dropdown-item" href="#">Hello, ${username}</a>`; 
         if (role === 'gym_owner') {
             dropdownMenu.innerHTML += '<a class="dropdown-item" href="gym-profiling.html">Gym Owner Management</a>';
         } else {
@@ -114,37 +114,48 @@ function displayProfilePicture(user) {
             });
         }
         window.viewMembershipPlans = async function (gymId) {
-            // Display the modal
             const modal = document.getElementById('membershipPlansModal');
             modal.style.display = 'block';
         
-            // Fetch and display membership plans for the selected gym
-            await fetchMembershipPlans(gymId);
+            const gymRef = doc(db, 'GymForms', gymId);
+            const gymSnapshot = await getDoc(gymRef);
         
-            // Ensure the confirmEmail button exists
-            const confirmEmailButton = document.getElementById('confirmEmail');
-            if (confirmEmailButton) {
-                confirmEmailButton.onclick = async () => {
-                    const emailInput = document.getElementById('ownerEmail').value;
+            if (gymSnapshot.exists()) {
+                const gymData = gymSnapshot.data();
+                const gymOwnerEmail = gymData.ownerEmail;
         
-                    // Fetch gym details to verify the email
-                    const gymRef = doc(db, 'GymForms', gymId);
-                    const gymSnapshot = await getDoc(gymRef);
+                const membershipPlans = await fetchMembershipPlans(gymId);
+                console.log("Membership Plans:", membershipPlans); // Debugging line
         
-                    if (gymSnapshot.exists()) {
-                        const gymData = gymSnapshot.data();
-                        if (emailInput === gymData.ownerEmail) {
-                            alert("Email verified!"); // Or handle success appropriately
-                            // Display membership plans
-                            await fetchMembershipPlans(gymId);
-                        } else {
-                            alert("Email does not match the gym owner's email.");
-                        }
-                    }
-                };
+                if (!membershipPlans || membershipPlans.length === 0) {
+                    alert("No membership plans found for this gym.");
+                    return;
+                }
+        
+                if (membershipPlans.some(plan => plan.email === gymOwnerEmail)) {
+                    alert("Email verified!");
+                    displayMembershipPlans(membershipPlans);
+                } else {
+                    alert("Email does not match the gym owner's email.");
+                }
             } else {
-                console.error("Confirm Email button not found");
+                console.error("Gym not found");
             }
+        };
+        
+        
+        function displayMembershipPlans(plans) {
+            const plansContainer = document.getElementById('membershipPlansContent'); // Adjust to your modal's content area
+            plansContainer.innerHTML = ''; // Clear existing content
+        
+            plans.forEach(plan => {
+                plansContainer.innerHTML += `
+                    <div class="membership-plan">
+                        <h4>${plan.name}</h4>
+                        <p>${plan.details}</p>
+                    </div>
+                `;
+            });
         }
         // Fetch Trainers
         async function fetchTrainers() {
