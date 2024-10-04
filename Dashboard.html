@@ -38,7 +38,7 @@
             <li class="nav-item">
                 <a class="nav-link" href="#trainers">
                     <img src="framework/img/Trainer.svg" alt="Trainer Icon" class="nav-icon">
-                    Book a Trainer
+                    Trainer Profile
                 </a>
             </li>
             <li class="nav-item dropdown">
@@ -50,24 +50,25 @@
                     <li><a class="dropdown-item" href="#membershipHistory">Membership History</a></li>
                 </ul>
             </li>
+            <li class="nav-item"></li>
+                <a class="nav-link" href="#trainers">
+                    <img src="framework/img/notification.svg" alt="Trainer Icon" class="nav-icon">
+                    Notification
+                </a>
+            </li>
+            <li class="nav-item"></li>
+                <a class="nav-link" href="#trainers">
+                    <img src="framework/img/message.svg" alt="Trainer Icon" class="nav-icon">
+                    Message
+                </a>
+            </li>
         </ul>
     </nav>
     
     <!-- Main Content -->
-    <div class="container mt-4">
-        <div class="row">
-            <div class="col-lg-4">
-                <div class="calendar-container">
-                    <h3>Calendar</h3>
-                    <div id="calendar"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
      <section id="profiling" class="section">
             <div class="container-2">
-                <h2>Gym Profiles</h2>
+                <h2>Gym Profile</h2>
                 <div class="trainers-scroll-container">
                     <div id="gym-profiles" class="gym-profile">
                         <!-- Gym profile content will be dynamically added here -->
@@ -76,9 +77,9 @@
             </div>
     </section>
 
-    <section id="trainers" class="section bg-light">
-        <div class="container">
-          <h2>Our Trainers</h2>
+    <section id="trainers" class="section">
+        <div class="container-2">
+          <h2>Trainer Profile</h2>
           <div class="trainers-scroll-container">
             <div class="trainers-content" id="trainer-profiles">
               <!-- Trainer profiles will be dynamically added here -->
@@ -147,10 +148,18 @@
             <a href="#" class="btn btn-secondary" onclick="bookTrainer('')">Book now</a>
         </div>
     </div>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="calendar-container">
+                    <h3>Calendar</h3>
+                    <div id="calendar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
     
-
-
-
     <!-- Payment Modal -->
     <div id="paymentModal" class="modal">
         <div class="modal-content">

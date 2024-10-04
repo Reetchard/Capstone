@@ -196,11 +196,13 @@ function displayProfilePicture(user) {
         gymList.forEach(gym => {
             const gymDiv = document.createElement('div');
             gymDiv.classList.add('gym-profile');    
+
             gymDiv.innerHTML = `
                 <img src="${gym.gymPhoto}" alt="${gym.name || 'Gym'}" class="gym-photo" />
                 <h4>${gym.gymName || 'N/A'}</h4>
                 <button class="btn btn-primary" onclick="viewProducts('${gym.id}')">View Products</button>
                 <button class="btn btn-secondary" onclick="viewMembershipPlans('${gym.id}')">View Membership Plans</button>
+                <button class= "btn btn-primary" onclick="viewTrainerDetails('${gym.id}')">Gym Info</button>
             `;
     
             gymProfilesContainer.appendChild(gymDiv);

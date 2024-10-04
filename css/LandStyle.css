@@ -12,7 +12,7 @@ body {
 
 /* Navigation */
 nav {
-    background-color: #222831;
+    background-color: #161a2d;
     padding: 1px 0;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Added shadow for depth */
     transition: background-color 0.3s ease;
@@ -93,7 +93,7 @@ nav ul li a:hover {
 }
 
 nav:hover {
-    background-color: #292d31; /* Slightly darken nav on hover */
+    background-color: #161a2d; /* Slightly darken nav on hover */
 }
 
 /* Hero Section */
@@ -319,7 +319,7 @@ section h2:after {
 /* Footer */
 footer {
     padding: 20px 0;
-    background-color: #343a40;
+    background-color: #161a2d;
     text-align: center;
     color: #fff;
 }
@@ -516,7 +516,7 @@ p {
 
 /* Trainers Section */
 #trainers {
-    background: linear-gradient(to right, #222831, #222831); /* Soft gradient background */
+    background: #161a2d; /* Soft gradient background */
     padding: 40px 20px; /* Add padding for spacing */
     border-radius: 10px; /* Rounded corners */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
@@ -647,7 +647,7 @@ p {
 
 /* Profiling Section */
 #profiling {
-    background: linear-gradient(to right, #222831, #222831); /* Soft gradient background */
+    background: #161a2d; /* Soft gradient background */
     padding: 40px 20px; /* Add padding for spacing */
     border-radius: 10px; /* Rounded corners */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */

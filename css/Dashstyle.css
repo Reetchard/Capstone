@@ -148,19 +148,22 @@
         }
 
         #profiling {
-            background: linear-gradient(to right, #e0f7fa, #b9fbc0); /* Soft gradient background */
+            background: #161a2d; /* Soft gradient background */
             padding: 40px 20px; /* Add padding for spacing */
             border-radius: 10px; /* Rounded corners */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-            margin: 20px auto; /* Center the section and add margin */
-            max-width: 1200px; /* Limit the width for large screens */
-          }
+            margin: 20px auto 20px 260px; /* Adjust margin to account for the sidebar width */
+            max-width: 900px; /* Reduce the width to fit next to the sidebar */
+            width: calc(100% - 280px); /* Responsive width adjustment */
+            box-sizing: border-box; /* Ensure padding doesn't affect the total width */
+        }
+        
           #profiling h2 {
             font-size: 2rem; /* Larger font size for header */
             font-weight: bold;
             text-align: center;
             margin-bottom: 30px; /* Space below the header */
-            color: #333; /* Dark color for text */
+            color: #dbd4d4e3; /* Dark color for text */
           }
         .container {
             max-width: 1200px;
@@ -607,13 +610,14 @@
 
 
 #trainers {
-    background: linear-gradient(to right, #fff, #e0f7fa); /* Soft gradient background */
-    padding: 40px 20px; /* Add padding for spacing */
-    border-radius: 10px; /* Rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-    margin: 20px auto; /* Center the section and add margin */
-    max-width: 1200px; /* Limit the width for large screens */
-    position: relative; /* For additional design elements if needed */
+    background: #161a2d; /* Soft gradient background */
+            padding: 40px 20px; /* Add padding for spacing */
+            border-radius: 10px; /* Rounded corners */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            margin: 20px auto 20px 260px; /* Adjust margin to account for the sidebar width */
+            max-width: 900px; /* Reduce the width to fit next to the sidebar */
+            width: calc(100% - 280px); /* Responsive width adjustment */
+            box-sizing: border-box; /* Ensure padding doesn't affect the total width */
 }
 
 #trainers h2 {
@@ -621,7 +625,8 @@
     font-weight: bold;
     text-align: center;
     margin-bottom: 30px; /* Space below the header */
-    color: #333; /* Dark color for text */
+    color: #dbd4d4e3; /* Dark color for text */
+
 }
 
 /* Container for horizontal scrolling */
