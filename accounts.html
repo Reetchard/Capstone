@@ -21,7 +21,7 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav mr-auto"></ul>
-        <span class="navbar-text mx-auto text-white">Admin Management Dashboard</span>
+        <!-- <span class="navbar-text mx-auto text-white">Admin Management Dashboard</span> -->
         <ul class="navbar-nav ml-auto">
             <li class="nav-item"><a class="nav-link" href="accounts.html">Manage Account</a></li>
             <li class="nav-item"><a class="nav-link" href="Gym-Profile.html">Manage Gym Profile</a></li>
@@ -41,14 +41,17 @@
                 <div class="form-inline">
                     <input type="text" id="searchAccountId" class="form-control mr-2" placeholder="Search by ID">
                     <button class="btn btn-primary" onclick="handleSearch()">Search</button>
-                    <button class="btn btn-danger ml-2 delete-all-btn" onclick="deleteSelected()">Delete All</button>
+                    <button class="btn btn-danger ml-2 delete-all-btn" onclick="deleteSelected()">Delete</button>
                 </div>
             </div>
             <div class="card-body">
                 <table class="table table-bordered">
                     <thead>
                         <tr>
-                            <th><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)"></th>
+                            <th>
+                                <label for="selectAll">Select All</label><br>
+                                <input type="checkbox" id="selectAll" onclick="selectAllProfiles(this)">
+                            </th>
                             <th>ID</th>
                             <th>Username</th>
                             <th>Status</th>

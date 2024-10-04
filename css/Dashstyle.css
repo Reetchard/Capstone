@@ -38,48 +38,35 @@
 
 /* Circular Button */
 .btn-circle {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid #ffffff;
-    background-color: #007bff;
-    overflow: hidden;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 50px;  /* Width of the circle */
+    height: 50px; /* Height of the circle */
+    border-radius: 50%; /* Ensures the button is a perfect circle */
+    padding: 0; /* Removes extra padding */
+    display: flex; /* Center content inside the circle */
+    align-items: center; /* Vertical center */
+    justify-content: center; /* Horizontal center */
+    border: 2px solid #ffffff; /* White border around the circle */
+    background-color: transparent !important; /* Set the background to transparent */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Box shadow effect */
+    overflow: hidden; /* Ensures content doesn't overflow the circle */
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.btn-circle:hover {
-    background-color: #0056b3;
-    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
-}
-
-.btn-circle .profile-img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-}
-/* Ensure the button containing profile picture has relative positioning */
-.btn-circle {
     position: relative; /* Needed for absolute positioning of dropdown */
 }
 
-/* Adjusting the button to have a clearer click area */
-.btn-circle .profile-img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
+/* Add hover effect */
+.btn-circle:hover {
+    background-color: transparent !important; /* Keep background transparent on hover */
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
 }
 
-/* Dropdown Divider */
-.dropdown-divider {
-    border-top: 1px solid #495057;
+/* Profile image inside the button */
+.btn-circle .profile-img {
+    width: 100%; /* Full width of the button */
+    height: 100%; /* Full height of the button */
+    border-radius: 50%; /* Circular image */
+    object-fit: cover; /* Ensures the image fits and maintains aspect ratio */
 }
+
 
 /* Responsive Navbar Adjustment */
 @media (max-width: 767px) {
@@ -89,16 +76,25 @@
     }
 }
 .profile-container {
-    position: absolute; /* Use absolute positioning */
-    top: 50%; /* Center vertically */
-    left: 50%; /* Center horizontally */
-    transform: translate(-50%, -50%); /* Adjust for exact center */
-    width: 100vw; /* Full viewport width */
-    height: 100vh; /* Full viewport height */
+    position: relative; /* Adjusted to relative for simplicity */
+    width: 130px; /* Set a fixed width for the container */
+    height: 130px; /* Set a fixed height for the container */
+    overflow: hidden; /* Ensures the image doesn't overflow the container */
+    border-radius: 50%; /* Makes the container circular */
     background-color: #f8f9fa; /* Optional: Light background for visibility */
     z-index: 1000; /* Ensure it appears above other content */
+    display: flex; /* Centers content inside */
+    align-items: center; /* Vertically center the image */
+    justify-content: center; /* Horizontally center the image */
+    background-color: transparent;
 }
 
+#profile-picture {
+    width: 100%; /* Make sure the image fits the container */
+    height: 100%; /* Ensure the height fits as well */
+    object-fit: cover; /* Maintain aspect ratio and cover the circle */
+    border-radius: 50%; /* Make the image circular */
+}
 
  #map {
             height: 500px;
@@ -297,8 +293,8 @@
     position: fixed;
     top: 0;
     left: 0;
-    background: linear-gradient(180deg, #343a40, #212529); /* Gradient background */
-    color: #fff;
+    background: #161a2d; /* Gradient background */
+    color: #dbd4d4e3;
     display: flex;
     flex-direction: column;
     align-items: center; /* Center items horizontally */
@@ -315,7 +311,7 @@
     list-style: none;
 }
 .sidebar .nav-link {
-    color: #ffffff;
+    color: #dbd4d4e3;
     display: flex;
     align-items: center;
     padding: 0.75rem 1.25rem;
@@ -326,9 +322,10 @@
     border-radius: 0.25rem;
 }
 .sidebar .nav-icon {
-    width: 24px;
-    height: 24px;
-    margin-right: 10px;
+    width: 40px;
+    height: 40px;
+    margin-right: 10px; /* Spacing between icon and text */
+    filter: invert(60%); /* Invert the color to make it white */
 }
 .sidebar .profile-container {
     display: flex;
@@ -351,9 +348,11 @@
     margin: 0;
 }
 .nav-icon {
-    width: 1.5rem; /* Adjust size as needed */
-    height: auto; /* Maintain aspect ratio */
-    margin-right: 0.75rem; /* Space between icon and text */
+    display: inline-block; /* Ensure it's treated as inline */
+    margin: 0; /* Remove margins */
+    padding: 0; /* Remove padding */
+    border: none; /* Remove borders */
+    background: transparent; /* Remove background */
 }
 /* Navigation items */
 .nav-item {
@@ -467,20 +466,6 @@
     background-color: #0056b3;
     box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
 }
-
-
-.profile-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.profile-picture {
-    border-radius: 50%;
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-}
 .btn-circle {
     border-radius: 50%;
     width: 100px;
@@ -547,23 +532,6 @@
 .navbar-toggler-icon {
     background-image: url('data:image/svg+xml;base64,...'); /* Add a custom hamburger icon */
 }
-
-.nav-link.active {
-    background-color: #007bff; /* Highlight active link with a primary color */
-    color: #ffffff; /* Ensure text color is white for active link */
-    font-weight: bold; /* Bold text for the active link */
-}
-.nav-link::before {
-    content: "\f005"; /* Font Awesome star icon */
-    font-family: "Font Awesome 6 Free"; /* Font Awesome font family */
-    font-weight: 900; /* Use solid style */
-    display: inline-block;
-    margin-right: 0.5rem;
-    font-size: 1.5rem;
-    color: #007bff; /* Icon color */
-    transition: color 0.3s ease;
-}
-
 .nav-link:hover::before,
 .nav-link:focus::before {
     color: #ffffff; /* Change icon color on hover/focus */

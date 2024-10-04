@@ -47,10 +47,10 @@ document.addEventListener("DOMContentLoaded", function() {
       <div class="trainer-card">
         <img src="${trainer.TrainerPhoto}" alt="${trainer.Name}" class="trainer-photo">
         <h3>${trainer.TrainerName}</h3>
-        <p><strong>Available Only:</strong> ${trainer.Days}</p>
-        <p><strong>Experience:</strong> ${trainer.Experience}</p>
-        <p><strong>Expertise:</strong> ${trainer.Expertise}</p>
-        <a href="login.html" class="btn-book-now" onclick="checkLoginBeforeBooking()">Book Me Now</a>
+        <!-- <p><strong>Available Only:</strong> ${trainer.Days}</p> -->
+        <!-- <p><strong>Experience:</strong> ${trainer.Experience}</p> -->
+        <!-- <p><strong>Expertise:</strong> ${trainer.Expertise}</p> -->
+        <a href="login.html" class="btn-book-now" onclick="checkLoginBeforeBooking()">Trainer Info</a>
       </div>
     `;
   }
@@ -90,13 +90,13 @@ document.addEventListener("DOMContentLoaded", function() {
           <h3>${gym.gymName}</h3>
         </div>
         <div class="gym-profile-details">
-          <p><strong>Location:</strong> ${gym.gymLocation}</p>
-          <p><strong>Equipment:</strong> ${gym.gymEquipment}</p>
-          <p><strong>Programs:</strong> ${gym.gymPrograms}</p>
-          <p><strong>Contact:</strong> ${gym.gymContact}</p>
-          <p><strong>Opening Time:</strong> ${gym.gymOpeningTime}</p>
-          <p><strong>Closing Time:</strong> ${gym.gymClosingTime}</p>
-          <a href="login.html" class="btn-primary" onclick="showConfirmationMessage()">Contact Us</a>
+          <!-- <p><strong>Location:</strong> ${gym.gymLocation}</p> -->
+          <!-- <p><strong>Equipment:</strong> ${gym.gymEquipment}</p> -->
+          <!-- <p><strong>Programs:</strong> ${gym.gymPrograms}</p> -->
+          <!-- <p><strong>Contact:</strong> ${gym.gymContact}</p> -->
+          <!-- <p><strong>Opening Time:</strong> ${gym.gymOpeningTime}</p> -->
+          <!-- <p><strong>Closing Time:</strong> ${gym.gymClosingTime}</p> -->
+          <a href="login.html" class="btn-primary" onclick="showConfirmationMessage()">GYM INFO</a>
         </div>
       </div>
     `;

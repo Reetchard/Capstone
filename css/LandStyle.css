@@ -121,7 +121,7 @@ nav:hover {
     height: 100vh;
     position: relative;
     z-index: -1;
-    opacity: 0.6;
+    opacity: 0.4;
     animation: zoom 3s linear infinite;
 }
 .overlay{
@@ -610,6 +610,7 @@ p {
 .trainer-card h3 {
     font-size: 1.6rem; /* Slightly larger font for emphasis */
     color: #333;
+    font-weight: bold;
     margin-bottom: 10px;
     transition: color 0.3s ease; /* Smooth color transition */
 }
@@ -626,7 +627,7 @@ p {
     background-color: #ff8e00;
     color: #fff;
     padding: 12px 24px; /* Increased padding for a more prominent button */
-    border-radius: 30px; /* More rounded corners */
+    border-radius: 25px; /* More rounded corners */
     font-size: 1.1rem; /* Slightly larger font for better visibility */
     text-transform: uppercase;
     text-decoration: none; /* Remove underline */
@@ -634,6 +635,7 @@ p {
     border: none;
     cursor: pointer;
     display: inline-block; /* Align button properly */
+    margin-top: 20px;
 }
 
 .btn-book-now:hover {
@@ -708,11 +710,12 @@ p {
     object-fit: cover; /* Maintain aspect ratio */
     border-radius: 10px;
     margin-bottom: 15px;
-    
+    border: 2px solid #ffbe33 ;
 }
 
 .gym-profile-card h3 {
     font-size: 1.6rem;
+    font-weight: bold;
     color: #333;
     margin-bottom: 15px;
 }
@@ -738,7 +741,7 @@ p {
     border: none;
     cursor: pointer;
     display: inline-block; /* Align button properly */
-
+    margin-top: 20px;
 }
 
 .btn-primary:hover {
