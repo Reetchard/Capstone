@@ -1212,3 +1212,20 @@ label {
     transform: translate(-50%, -50%); /* Offset by half its size */
     z-index: 1000; /* Ensure it’s above other elements */
 }
+.gym-profile {
+    width: 300px; /* Set card width */
+    margin: 1rem; /* Space between cards */
+    border: 1px solid #ddd; /* Card border */
+    border-radius: 8px; /* Rounded corners */
+    overflow: hidden; /* Ensure the content fits nicely */
+}
+
+.gym-photo {
+    width: 100%; /* Make image fill the card width */
+    height: auto; /* Maintain aspect ratio */
+}
+
+.card-body {
+    padding: 1rem; /* Space inside card */
+    padding-right: 10rem;
+}

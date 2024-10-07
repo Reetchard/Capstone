@@ -195,23 +195,69 @@ function displayProfilePicture(user) {
     
         gymList.forEach(gym => {
             const gymDiv = document.createElement('div');
-            gymDiv.classList.add('gym-profile');    
-
+            gymDiv.classList.add('card', 'gym-profile', 'mb-3'); // Add Bootstrap card classes
+    
             gymDiv.innerHTML = `
-                <img src="${gym.gymPhoto}" alt="${gym.name || 'Gym'}" class="gym-photo" />
-                <h4>${gym.gymName || 'N/A'}</h4>
-                <button class="btn btn-primary" onclick="viewProducts('${gym.id}')">View Products</button>
-                <button class="btn btn-secondary" onclick="viewMembershipPlans('${gym.id}')">View Membership Plans</button>
-                <button class= "btn btn-primary" onclick="viewTrainerDetails('${gym.id}')">Gym Info</button>
+                <img src="${gym.gymPhoto}" alt="${gym.name || 'Gym'}" class="card-img-top gym-photo" />
+                <div class="card-body">
+                    <h5 class="card-title">${gym.gymName || 'N/A'}</h5>
+                    <button class="btn btn-primary" onclick="viewMore('${gym.id}')">View More</button>
+                </div>
             `;
     
             gymProfilesContainer.appendChild(gymDiv);
         });
     }
+    
     window.closeMembershipPlansModal = function() {
         document.getElementById('membershipPlansModal').style.display = 'none';
     };
-        
+     
+    window.viewMore = async function(gymId) {
+        // Fetch gym data from Firestore
+        const gymDoc = await getDoc(doc(db, 'GymForms', gymId));
+    
+        // Check if the document exists
+        if (!gymDoc.exists()) {
+            console.error('No such document!');
+            return; // Exit if the document doesn't exist
+        }
+    
+        const gymData = gymDoc.data();
+    
+        // Populate the modal with gym data
+        document.getElementById('modalGymName').textContent = gymData.gymName || 'N/A';
+        document.getElementById('modalGymPhoto').src = gymData.gymPhoto || '';
+        document.getElementById('modalGymLocation').textContent = gymData.gymLocation || 'N/A';
+        document.getElementById('modalGymEquipment').textContent = gymData.gymEquipment || 'N/A';
+        document.getElementById('modalGymPrograms').textContent = gymData.gymPrograms || 'N/A';
+        document.getElementById('modalGymContact').textContent = gymData.gymContact || 'N/A';
+        document.getElementById('modalGymOpeningTime').textContent = gymData.gymOpeningTime || 'N/A';
+        document.getElementById('modalGymClosingTime').textContent = gymData.gymClosingTime || 'N/A'; // Corrected typo
+    
+        // Set up the map using Google Maps
+        const mapUrl = `https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=${encodeURIComponent(gymData.gymLocation)}`;
+        document.getElementById('modalGymMap').src = mapUrl;
+    
+        // Show the modal
+        document.getElementById('gymProfileModal').style.display = 'block';
+    }
+    
+    // Function to close the modal
+    window.closeModal = function() {
+        const modal = document.getElementById('gymProfileModal');
+        modal.style.display = 'none'; // Hide the modal
+    }
+    
+    // Close the modal when clicking outside of the modal content
+    window.onclick = function(event) {
+        const modal = document.getElementById('gymProfileModal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    }
+    
+
     // Initialize and Fetch Data
     document.addEventListener('DOMContentLoaded', () => {
         fetchTrainers();

@@ -20,43 +20,45 @@ const db = getFirestore(app);
 
 async function loadGymProfiles() {
     const gymListBody = document.getElementById('gymList');
-    const gymsRef = collection(db, 'GymForms');
-
-    // Fetch and display gym profiles
-    const snapshot = await getDocs(gymsRef);
+    const usersRef = collection(db, 'Users');
+    
+    // Fetch gym owners from Users collection
+    const usersSnapshot = await getDocs(usersRef);
     gymListBody.innerHTML = ''; // Clear previous data
 
-    // Loop through the GymForms documents
-    for (const doc of snapshot.docs) {
-        const gym = doc.data();
-        const gymKey = doc.id;
+    // Loop through the Users documents
+    for (const userDoc of usersSnapshot.docs) {
+        const userData = userDoc.data();
 
-        // Get the gymId directly from the gym data (assuming it's part of the GymForms)
-        const gymId = gym.gymId || 'N/A'; // Replace 'gymId' with the correct field name if needed
+        // Only process users with the 'gymowner' role
+        if (userData.role === 'gymowner') {
+            const gymId = userData.userId || 'N/A'; // Assuming you have a gymId in user data
 
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td><input type="checkbox" class="select-gym" data-key="${gymKey}"></td>
-            <td>${gymId}</td> <!-- Displaying the Gym ID from GymForms -->
-            <td>${gym.gymName}</td>
-            <td><a href="#" onclick="openModal('${gym.gymPhoto}')"><img src="${gym.gymPhoto}" alt="Gym Photo" style="max-width: 100px;"></a></td>
-            <td><a href="#" onclick="openModal('${gym.gymCertifications}')"><img src="${gym.gymCertifications}" alt="Certification Image" style="max-width: 100px;"></a></td>
-            <td>${gym.gymEquipment}</td>
-            <td>${gym.gymContact}</td>
-            <td>${gym.gymPrograms}</td>
-            <td>${gym.gymOpeningTime}</td>
-            <td>${gym.gymClosingTime}</td>
-            <td>${gym.gymLocation}</td>
-            <td>${gym.status}</td>
-            <td>
-                <button class="btn btn-success btn-sm mx-1" onclick="updateStatus('approve', '${gymKey}')">Approve</button>
-                <button class="btn btn-secondary btn-sm mx-1" onclick="updateStatus('idle', '${gymKey}')">Idle</button>
-                <button class="btn btn-warning btn-sm mx-1" onclick="updateStatus('Block', '${gymKey}')">Block</button>
-            </td>
-        `;
-        gymListBody.appendChild(row);
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><input type="checkbox" class="select-gym" data-key="${userDoc.id}"></td>
+                <td>${gymId}</td>
+                <td>${userData.gymName}</td> <!-- Assuming gymName is stored in user data -->
+                <td><a href="#" onclick="openModal('${userData.gymPhoto}')"><img src="${userData.gymPhoto}" alt="Gym Photo" style="max-width: 100px;"></a></td>
+                <td><a href="#" onclick="openModal('${userData.gymCertifications}')"><img src="${userData.gymCertifications}" alt="Certification Image" style="max-width: 100px;"></a></td>
+                <td>${userData.gymEquipment}</td>
+                <td>${userData.gymContact}</td>
+                <td>${userData.gymPrograms}</td>
+                <td>${userData.gymOpeningTime}</td>
+                <td>${userData.gymClosingTime}</td>
+                <td>${userData.gymLocation}</td>
+                <td>${userData.status}</td>
+                <td>
+                    <button class="btn btn-success btn-sm mx-1" onclick="updateStatus('approve', '${userDoc.id}')">Approve</button>
+                    <button class="btn btn-secondary btn-sm mx-1" onclick="updateStatus('idle', '${userDoc.id}')">Idle</button>
+                    <button class="btn btn-warning btn-sm mx-1" onclick="updateStatus('Block', '${userDoc.id}')">Block</button>
+                </td>
+            `;
+            gymListBody.appendChild(row);
+        }
     }
 }
+
 
 
 
@@ -206,20 +208,27 @@ window.openModal = function(imageSrc) {
     const modal = document.getElementById('imageModal');
     const modalImg = document.getElementById('modalImage');
 
-    modal.style.display = "block";
-    modalImg.src = imageSrc;
+    if (modal && modalImg) { // Check if modal and modalImg exist
+        modal.style.display = "block";
+        modalImg.src = imageSrc;
 
-    // Close the modal when the user clicks on <span> (x)
-    const span = document.getElementsByClassName("close")[0];
-    span.onclick = function() {
-        modal.style.display = "none";
+        // Close the modal when the user clicks on <span> (x)
+        const span = document.getElementsByClassName("close")[0];
+        if (span) { // Check if span exists
+            span.onclick = function() {
+                modal.style.display = "none";
+            }
+        }
+    } else {
+        console.error("Modal or modal image element not found!");
     }
 }
 
+
 // Function to update status of a gym
 window.updateStatus = async function(status, key) {
-    const gymRef = doc(db, 'GymForms', key);
-    await updateDoc(gymRef, { status: status })
+    const userRef = doc(db, 'Users', key);
+    await updateDoc(userRef, { status: status })
         .then(() => {
             displayMessages(`Profile with key ${key} is now marked as ${status}.`, 'success');
             loadGymProfiles(); // Reload profiles after update
@@ -231,4 +240,3 @@ window.updateStatus = async function(status, key) {
 
 // Load gym profiles when the page loads
 window.onload = loadGymProfiles;
-
