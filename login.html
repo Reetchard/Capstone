@@ -18,44 +18,42 @@
     <h2>PEAKPULSE</h2>
     <div class="container" id="container">
         <!-- Sign Up Form -->
-        <div class="container" id="container">
-            <!-- Sign Up Form -->
-
-            <div class="form-container sign-up-container">
-                <form id="signupForm">
-                    <h1>Create Account</h1>
-                    <div class="social-container">
-                        <!-- Social login buttons can go here -->
-                    </div>
-
-                    <div class="input-container">
-                        <label for="signupUsername">Name</label>
-                        <input type="text" id="signupUsername" placeholder="Username" />
-                    </div>
-                    <div class="input-container">
-                        <label for="signupEmail">Email</label>
-                        <input type="email" id="signupEmail" placeholder="Email" />
-                    </div>
-                    <div class="input-container">
-                        <label for="signupPassword">Password</label>
-                        <input type="password" id="signupPassword" placeholder="Password" />
-                    </div>
-                    <div class="input-container">
-                        <label for="confirmPassword">Confirm Password</label>
-                            <input type="password" id="confirmPassword" placeholder="Confirm Password"/>
-                    </div>
-                    <select id="role">
-                        <option value="">Select role (optional)</option>
-                        <option value="user">User</option>
-                        <option value="gymowner">Gym Owner</option>
-                        <option value="trainer">Trainer</option>
-                    </select>
-
-                    <button type="submit">Sign Up</button>
-                    <div id="signupErrorMessage" class="error-message"></div>
-                    <div id="signupSuccessMessage" class="success-message"></div>
-                </form>
-            </div>
+        <div class="form-container sign-up-container">
+            <form id="signupForm">
+                <h1>Create Account</h1>
+                <div class="social-container">
+                    <!-- Social login buttons can go here -->
+                </div>
+        
+                <div class="input-container">
+                    <label for="signupUsername">Name</label>
+                    <input type="text" id="signupUsername" placeholder="Username" required />
+                </div>
+                <div class="input-container">
+                    <label for="signupEmail">Email</label>
+                    <input type="email" id="signupEmail" placeholder="Email" required />
+                </div>
+                <div class="input-container">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" placeholder="Password" required />
+                </div>
+                <div class="input-container">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" placeholder="Confirm Password" required />
+                </div>
+                <select id="role">
+                    <option value="">Select role (optional)</option>
+                    <option value="user">Customer</option>
+                    <option value="gymowner">Gym Owner</option>
+                    <option value="trainer">Trainer</option>
+                </select>
+        
+                <button type="submit">Sign Up</button>
+                <div id="signupErrorMessage" class="error-message"></div>
+                <div id="signupSuccessMessage" class="success-message"></div>
+            </form>
+        </div>
+        
         <!-- Sign In Form -->
         <div class="form-container sign-in-container">
             <form id="loginForm">
@@ -81,7 +79,8 @@
                 </div>
                 
                 <button type="submit">Log in</button>
-                <div id="error-message" class="error-message"></div>
+                <div id="error-message" class="alert alert-danger mt-3" style="display: none;"></div>
+                <div id="success-message" class="alert alert-success mt-3" style="display: none;"></div>
             </form>
         </div>
         
@@ -90,23 +89,23 @@
         <div class="overlay-container">
             <div class="overlay">
                 <div class="overlay-panel overlay-left">
-                    <h1>Welcome Back!</h1>
-                    <p>Enhance your Strength</p>
-                    <button class="ghost" id="signIn">Sign In</button>
+                    <h1>Your Adventure Continues!</h1>
+                    <p>We've been looking forward to your return! Your dedication and diligence motivate us every day. </p>
+                    <button class="ghost" id="signIn">Let’s Do This, Sign Me In!</button>
                 </div>
                 <div class="overlay-panel overlay-right">
-                    <h1>Hello, Friend!</h1>
-                    <p>We keep your Account Safe!</p>
-                    <button class="ghost" id="signUp">Sign Up</button>
+                    <h1>Ready to Embark on an Epic Journey?</h1>
+                    <p>Are you new here? We are so happy to have you here! Come along with us as we collaborate to create greatness.</p>
+                    <button class="ghost" id="signUp">I’m In, Let’s Begin!</button>
                 </div>
             </div>
         </div>
+        
+        
     </div>
-        <!-- Error message container -->
-    <div id="error-message" class="message-container error-container"style="display:none;></div>
 
     <!-- Success message container -->
-    <div id="signupSuccessMessage class="message-container success-container"></div>
+    <div id= "signupSuccessMessage class="message-container success-container"></div>
 
     <!-- Gym owner form container -->
     <div class="gym-owner-form-container" style="display: none;">

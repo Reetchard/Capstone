@@ -1,13 +1,13 @@
 /* Dropdown Menu */
 .dropdown-menu {
-    position: absolute; /* Ensures the dropdown is positioned relative to its parent */
-    top: 100%; /* Position it below the parent button */
+    position: absolute; /* Positioned relative to its parent */
+    top: 100%; /* Aligns the dropdown below the parent button */
     left: 0; /* Align with the left edge of the parent button */
     margin: 0; /* Remove default margin */
     transition: opacity 0.4s ease, transform 0.4s ease;
     opacity: 0;
     transform: translateY(-10px);
-    display: block; /* Use block to ensure it's properly displayed */
+    display: none; /* Set display to none initially */
     background-color: #343a40;
     border: 1px solid #454d55;
     border-radius: 0.25rem;
@@ -15,9 +15,11 @@
     z-index: 1000; /* Ensure it appears on top of other elements */
 }
 
+/* Show the dropdown when it has the class 'show' */
 .dropdown-menu.show {
     opacity: 1;
     transform: translateY(0); /* Reset transform on show */
+    display: block; /* Ensure the dropdown is displayed */
 }
 
 /* Dropdown Items */
@@ -35,6 +37,7 @@
 .dropdown-divider {
     border-top: 1px solid #495057;
 }
+
 
 /* Circular Button */
 .btn-circle {
@@ -75,26 +78,44 @@
         font-size: 1.1rem;
     }
 }
+/* Profile Container */
 .profile-container {
-    position: relative; /* Adjusted to relative for simplicity */
-    width: 130px; /* Set a fixed width for the container */
-    height: 130px; /* Set a fixed height for the container */
-    overflow: hidden; /* Ensures the image doesn't overflow the container */
-    border-radius: 50%; /* Makes the container circular */
-    background-color: #f8f9fa; /* Optional: Light background for visibility */
-    z-index: 1000; /* Ensure it appears above other content */
-    display: flex; /* Centers content inside */
-    align-items: center; /* Vertically center the image */
-    justify-content: center; /* Horizontally center the image */
-    background-color: transparent;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100px; /* Reduced size for a smaller profile picture */
+    height: 100px;
+    border-radius: 100%; /* Make the container circular */
+    overflow: hidden; /* Ensures the image fits inside the circle */
+    border: 3px solid #3ddc97; /* Add a bold accent border */
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3); /* Add subtle shadow for depth */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth animation */
+    cursor: pointer; /* Make it clickable */
 }
 
-#profile-picture {
-    width: 100%; /* Make sure the image fits the container */
-    height: 100%; /* Ensure the height fits as well */
-    object-fit: cover; /* Maintain aspect ratio and cover the circle */
-    border-radius: 50%; /* Make the image circular */
+.profile-container:hover {
+    transform: scale(1.05); /* Slight zoom effect on hover */
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4); /* Deepen the shadow on hover */
 }
+
+/* Profile Image */
+#profile-picture {
+    width: 120%; /* Full width of the container */
+    height: 100%; /* Full height of the container */
+    object-fit: cover; /* Ensures the image fills the container without distortion */
+    border-radius: 50%; /* Make the image circular */
+    transition: transform 0.3s ease; /* Smooth animation for image */
+}
+
+.profile-container img {
+    width: 100%; /* Full width of the container */
+    height: 120%; /* Full height of the container */
+    object-fit: cover; /* Ensures the image fills the container without distortion */
+    border-radius: 50%; /* Make the image circular */
+    transition: transform 0.3s ease; /* Smooth animation for image */
+}
+
 
  #map {
             height: 500px;
@@ -170,11 +191,14 @@
             margin: 0 auto;
             padding: 0 15px;
         }
-/* Container for the entire section */
-.section {
-    padding: 60px 20px;
-    background-color: #f8f9fa; /* Light background color */
-}
+        .section {
+            background: linear-gradient(135deg, #1e2d38, #1c2833); /* Darker tones for strength and focus */
+            padding: 60px 0;
+            min-height: 100vh;
+            color: #fff; /* White text for contrast */
+        }
+        
+
 
 /* Title styling */
 .container h2 {
@@ -203,7 +227,18 @@
     gap: 20px;
     scroll-snap-type: x mandatory;
 }
+.gym-card {
+    border: none; /* Remove default border */
+    background: #2c3e50; /* Darker, steel-like background for the cards */
+    border-radius: 15px; /* Keep smooth rounded corners */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25); /* Slightly deeper shadow for a bold effect */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
 
+.gym-card:hover {
+    transform: translateY(-12px); /* Lift more on hover */
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3); /* Stronger shadow on hover */
+}
 .gym-profile-card {
     flex: 0 0 auto;
     width: 300px; /* Card width */
@@ -213,11 +248,22 @@
     overflow: hidden;
     transition: transform 0.3s ease-in-out;
 }
-
-.gym-profile-card:hover {
-    transform: scale(1.05); /* Slight zoom effect on hover */
+.gym-title {
+    font-size: 2.5rem; /* Bold and large title */
+    font-weight: 900; /* Extra bold font */
+    color: #e74c3c; /* Energetic red color */
+    margin-bottom: 30px;
+    position: relative;
+    text-transform: uppercase; /* Gym-like strong text */
 }
-
+.gym-title:after {
+    content: '';
+    display: block;
+    width: 100px;
+    height: 4px;
+    background: #e74c3c; /* Match the title color */
+    margin: 15px auto;
+}
 .gym-profile-header {
     position: relative;
     overflow: hidden;

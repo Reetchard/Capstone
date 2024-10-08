@@ -68,7 +68,7 @@ window.setStatus = async function(key, status) {
     }
 };
 
-// Function to delete selected accounts
+// Function to delete selected accounts with a delay
 window.deleteSelected = async function() {
     const selectedCheckboxes = document.querySelectorAll('.selectAccount:checked');
     
@@ -83,19 +83,22 @@ window.deleteSelected = async function() {
 
     // Wait for the user to confirm deletion
     document.getElementById('confirmDeleteBtn').onclick = async function() {
-        for (const checkbox of selectedCheckboxes) {
-            const key = checkbox.value;
-            try {
+        try {
+            for (const checkbox of selectedCheckboxes) {
+                const key = checkbox.value;
                 await deleteDoc(doc(db, 'Users', key));
-            } catch (error) {
-                console.error('Error deleting account:', error);
-                showToast('Error', '❌ An error occurred while deleting accounts. Please try again later.');
             }
-        }
 
-        displayAccountInfo();
-        showToast('Success', '✅ The selected accounts have been deleted successfully.');
-        confirmationModal.hide(); // Hide the modal after deletion
+            // Add 3-second delay before showing results
+            setTimeout(() => {
+                displayAccountInfo();
+                showToast('Success', '✅ The selected accounts have been deleted successfully.');
+                confirmationModal.hide(); // Hide the modal after deletion
+            }, 3000); // 3-second delay
+        } catch (error) {
+            console.error('Error deleting accounts:', error);
+            showToast('Error', '❌ We were unable to delete the selected accounts. Please try again later.');
+        }
     };
 };
 

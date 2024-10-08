@@ -19,14 +19,17 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 // Helper functions
-function showMessage(element, message, isError = false) {
-    if (element) {
-        element.textContent = message;
-        element.style.color = isError ? 'red' : 'green';
-        element.style.display = 'block';
-    } else {
-        console.error("Element not found:", element);
-    }
+function showMessage(element, message, isError = false, duration = 3000) {
+    if (!element) return;
+
+    element.textContent = message;
+    element.style.display = 'block';
+    element.style.color = isError ? 'red' : 'green';
+
+    // Hide the message after the specified duration
+    setTimeout(() => {
+        element.style.display = 'none';
+    }, duration);
 }
 
 function clearMessages(errorElement, successElement) {
@@ -96,7 +99,7 @@ function redirectUser(role) {
             window.location.href = 'TrainerForm.html';
             break;
         default:
-            window.location.href = 'Login.html'; // Default for regular users
+            window.location.href = 'Login.html'; // Default for regular users/customers
             break;
     }
 }
@@ -104,43 +107,59 @@ function redirectUser(role) {
 // Sign up function
 async function signUpWithEmail(username, email, password, role, errorMessageElement, successMessageElement) {
     clearMessages(errorMessageElement, successMessageElement);
-    const validRoles = ['gymowner', 'trainer' , 'user']; // Define valid roles
+
+    // Define valid roles
+    const validRoles = ['gymowner', 'trainer', 'user']; 
+    
     if (!validRoles.includes(role.toLowerCase())) {
-        showMessage(errorMessageElement, '🚫 Invalid role specified. Please choose either Gym Owner or Trainer.', true);
+        showMessage(errorMessageElement, '🚫 Uh-oh! That role doesn’t exist in our system. Please select "Gym Owner," "Trainer," or "User" and try again.', true);
         return;
     }
+
     if (!isValidEmail(email)) {
-        showMessage(errorMessageElement, '🚫 Please enter a valid email address.', true);
+        showMessage(errorMessageElement, '📧 Hold on! That email doesn’t seem right. Double-check it and give it another go!', true);
         return;
     }
 
     if (password.length < 6) {
-        showMessage(errorMessageElement, '🚫 Password must be at least 6 characters long.', true);
+        showMessage(errorMessageElement, '🔑 Password’s too short! You need at least 6 characters for a strong start. Let’s fix that and try again!', true);
         return;
     }
 
     try {
         const userId = await getNextUserId(role); // Use the new function
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
         await setDoc(doc(db, 'Users', userCredential.user.uid), {
             userId,
             username,
             email,
             role,
-            status: 'Under review'
+            status: 'Under review' // Initial status is 'Under review'
         });
 
-        showMessage(successMessageElement, `🎉 Awesome! You've signed up successfully, ${username}. Your account is under review.`);
-        clearSignUpFields();
-        redirectUser(role);
+        // Store the notification in localStorage
+        localStorage.setItem('signupNotification', `🎉 Welcome aboard, ${username}! Your account has been created successfully. Hold tight, it's under review and we'll notify you soon!`);
+
+        showMessage(successMessageElement, `🎉 Welcome aboard, ${username}! Your account has been created successfully. Hold tight, it's under review and we'll notify you soon!`);
+        clearSignUpFields(); // Clear form fields
+        redirectUser(role); // Redirect based on the role
+
     } catch (error) {
         console.error('Error during signup:', error);
-        const errorMsg = error.code === 'auth/email-already-in-use'
-            ? '🚫 This email is already in use. Please use a different email address.'
-            : `🚫 Oops! There was an issue with your sign-up: ${error.message}`;
+
+        let errorMsg;
+        if (error.code === 'auth/email-already-in-use') {
+            errorMsg = '🚫 Uh-oh! This email is already taken. How about using another one to continue your journey?';
+        } else {
+            errorMsg = `⚠️ Yikes! Something went wrong: ${error.message}. Don’t worry, we’ll help you fix it!`;
+        }
+
         showMessage(errorMessageElement, errorMsg, true);
     }
 }
+
+
 
 
 // Clear form fields
@@ -152,16 +171,16 @@ function clearSignUpFields() {
     document.getElementById('role').value = '';
 }
 
-// Sign in function
+
 async function signInWithEmail(email, password, errorMessageElement, successMessageElement) {
     // Validate email and password
     if (!email || !password) {
-        showMessage(errorMessageElement, '🚫 Email and password cannot be empty.', true);
+        showMessage(errorMessageElement, '⚠️ Oops! Both email and password are required to proceed. Double-check and try again!', true);
         return;
     }
 
     if (!isValidEmail(email)) {
-        showMessage(errorMessageElement, '🚫 Please enter a valid email address.', true);
+        showMessage(errorMessageElement, '📧 Hmm, that doesn’t look like a valid email. Let’s make sure we’ve got it right!', true);
         return;
     }
 
@@ -173,7 +192,7 @@ async function signInWithEmail(email, password, errorMessageElement, successMess
         const userSnapshot = await getDoc(userRef);
 
         if (!userSnapshot.exists()) {
-            showMessage(errorMessageElement, `🚫 No user data found in Firestore for UID: ${userCredential.user.uid}.`, true);
+            showMessage(errorMessageElement, `🚨 User profile not found! Looks like we couldn’t retrieve your data. Please contact support with UID: ${userCredential.user.uid}.`, true);
             return;
         }
 
@@ -182,28 +201,41 @@ async function signInWithEmail(email, password, errorMessageElement, successMess
         const status = userData.status;
 
         if (status === 'Under review') {
-            showMessage(errorMessageElement, `🚫 Your account is currently under review. Please wait for the Admin's approval.`, true);
+            showMessage(errorMessageElement, `🚧 Hold on! Your account is currently under review. We’ll notify you as soon as it’s ready.`, true);
             return;
         }
 
-        showMessage(successMessageElement, `✅ Welcome back, ${userData.username}! You have logged in successfully.`);
+        showMessage(successMessageElement, `🎉 Welcome back, ${userData.username}! We're thrilled to see you again!`);
 
         // Redirect based on user role
         switch (role) {
             case 'gymowner':
-                window.location.href = 'membership.html';
+                showMessage(successMessageElement, '🏋️‍♂️ Redirecting you to manage your gym profile. Get ready to flex those managerial muscles!');
+                setTimeout(() => {
+                    window.location.href = 'membership.html';
+                }, 3000);
                 break;
             case 'trainer':
-                window.location.href = 'trainer.html';
+                showMessage(successMessageElement, '💪 Trainer dashboard loading. Time to help others crush their fitness goals!');
+                setTimeout(() => {
+                    window.location.href = 'trainer.html';
+                }, 3000);
                 break;
             case 'admin':
-                window.location.href = 'Accounts.html';
+                showMessage(successMessageElement, '🛠 Admin panel is just a moment away. Let’s get managing!');
+                setTimeout(() => {
+                    window.location.href = 'Accounts.html';
+                }, 3000);
                 break;
             case 'user':
-                window.location.href = 'Dashboard.html';
+                showMessage(successMessageElement, '🏠 Taking you to your dashboard. Let’s dive into your fitness journey!');
+                setTimeout(() => {
+                    window.location.href = 'Dashboard.html';
+                }, 3000);
                 break;
             default:
                 console.warn('Unrecognized role:', role);
+                showMessage(errorMessageElement, `🤔 Role not recognized. Please contact support if you believe this is an error.`, true);
                 break;
         }
 
@@ -212,23 +244,25 @@ async function signInWithEmail(email, password, errorMessageElement, successMess
         let errorMsg;
         switch (error.code) {
             case 'auth/user-not-found':
-                errorMsg = '🚫 User not found. Please check your email.';
+                errorMsg = '❌ We couldn’t find an account with that email. Try again or sign up for a new account!';
                 break;
             case 'auth/wrong-password':
-                errorMsg = '🚫 Incorrect password. Please try again.';
+                errorMsg = '🔐 Incorrect password. Let’s give it another shot!';
                 break;
             case 'auth/invalid-email':
-                errorMsg = '🚫 Invalid email format. Please enter a valid email.';
+                errorMsg = '📧 That email doesn’t seem right. Can you check it again?';
                 break;
             case 'auth/too-many-requests':
-                errorMsg = '🚫 Too many attempts. Please try again later.';
+                errorMsg = '⏳ Whoa, slow down! Too many attempts. Take a break and try later.';
                 break;
             default:
-                errorMsg = `🚫 Sign-in failed: ${error.message}`;
+                errorMsg = `⚠️ Oops! Something went wrong: ${error.message}. Please try again or contact support.`;
         }
         showMessage(errorMessageElement, errorMsg, true);
     }
 }
+
+
 
 // Email validation function
 function isValidEmail(email) {
@@ -241,66 +275,96 @@ function isValidEmail(email) {
         }
 
 // Event listeners for forms
-document.addEventListener('DOMContentLoaded', function() {
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', function(event) {
-            event.preventDefault();
-            const email = document.getElementById('loginEmail')?.value.trim();
-            const password = document.getElementById('loginPassword')?.value;
-            const errorMessage = document.getElementById('error-message');
-            const successMessage = document.getElementById('success-message');
+    document.addEventListener('DOMContentLoaded', function() {
+        const loginForm = document.getElementById('loginForm');
 
-            if (!email) {
-                showMessage(errorMessage, '🚫 Please enter your email address.', true);
-                return;
-            }
+        if (loginForm) {
+            loginForm.addEventListener('submit', function(event) {
+                event.preventDefault();
 
-            if (!validatePassword(password)) {
-                showMessage(errorMessage, '🚫 Password must be at least 6 characters long.', true);
-                return;
-            }
+                // Fetch email and password fields
+                const email = document.getElementById('loginEmail')?.value.trim();
+                const password = document.getElementById('loginPassword')?.value;
+                const errorMessage = document.getElementById('error-message');
+                const successMessage = document.getElementById('success-message');
 
-            signInWithEmail(email, password, errorMessage, successMessage);
-        });
-    } else {
-        console.error('Login form with ID "loginForm" not found.');
-    }
+                // Ensure both errorMessage and successMessage elements exist
+                if (!errorMessage || !successMessage) {
+                    console.error('Error: Missing error or success message element.');
+                    return;
+                }
 
-    const signupForm = document.getElementById('signupForm');
-    if (signupForm) {
-        signupForm.addEventListener('submit', function(event) {
-            event.preventDefault();
+                // Check for email input
+                if (!email) {
+                    showMessage(errorMessage, '📧 Oops! Looks like you forgot your email. Let’s fix that and try again!', true);
+                    return;
+                }
 
-            const username = document.getElementById('signupUsername')?.value.trim();
-            const email = document.getElementById('signupEmail')?.value.trim();
-            const password = document.getElementById('signupPassword')?.value;
-            const confirmPassword = document.getElementById('confirmPassword')?.value;
-            const role = document.getElementById('role')?.value;
+                // Check for password validity
+                if (!validatePassword(password)) {
+                    showMessage(errorMessage, '🔒 Hmm, your password needs a little boost! It must be at least 6 characters long. Give it another shot!', true);
+                    return;
+                }
 
-            const errorMessage = document.getElementById('signupErrorMessage');
-            const successMessage = document.getElementById('signupSuccessMessage');
+                // Perform sign-in process
+                signInWithEmail(email, password, errorMessage, successMessage);
+            });
+        } else {
+            console.error('🚨 Error: Login form with ID "loginForm" not found! Make sure your form is correctly named.');
+        }
+    });
 
-            clearMessages(errorMessage, successMessage);
+    document.addEventListener('DOMContentLoaded', function() {
+        const signupForm = document.getElementById('signupForm');
+        
+        if (signupForm) {
+            signupForm.addEventListener('submit', function(event) {
+                event.preventDefault(); // Prevent the form from submitting the default way
+    
+                // Check if fields exist before accessing their values
+                const usernameField = document.getElementById('signupUsername');
+                const emailField = document.getElementById('signupEmail');
+                const passwordField = document.getElementById('signupPassword');
+                const confirmPasswordField = document.getElementById('confirmPassword');
+                const roleField = document.getElementById('role');
+                
+                if (usernameField && emailField && passwordField && confirmPasswordField && roleField) {
+                    // Get values from form inputs
+                    const username = usernameField.value.trim();
+                    const email = emailField.value.trim();
+                    const password = passwordField.value.trim();
+                    const confirmPassword = confirmPasswordField.value.trim();
+                    const role = roleField.value.trim();
+    
+                    // Error and success message elements
+                    const errorMessageElement = document.getElementById('signupErrorMessage');
+                    const successMessageElement = document.getElementById('signupSuccessMessage');
+    
+                    // Clear previous messages
+                    errorMessageElement.textContent = '';
+                    successMessageElement.textContent = '';
+    
+                    // Validation checks
+                    if (password !== confirmPassword) {
+                        showMessage(errorMessageElement, 'Passwords do not match. Please try again.', true);
+                        return;
+                    }
+    
+                    if (password.length < 6) {
+                        showMessage(errorMessageElement, 'Password must be at least 6 characters long.', true);
+                        return;
+                    }
+    
+                    // Call the signUpWithEmail function (assuming it's already defined)
+                    signUpWithEmail(username, email, password, role, errorMessageElement, successMessageElement);
+                } else {
+                    console.error('One or more input fields are missing.');
+                }
+            });
+        } else {
+            console.error('Signup form not found.');
+        }
+    });
 
-            if (!username || !email || !password || !confirmPassword || !role) {
-                showMessage(errorMessage, '🚫 All fields must be filled in! Please complete the form before signing up.', true);
-                return;
-            }
 
-            if (password !== confirmPassword) {
-                showMessage(errorMessage, '🚫 Your passwords do not match. Please try again.', true);
-                return;
-            }
-
-            if (!validatePassword(password)) {
-                showMessage(errorMessage, '🚫 Password must be at least 8 characters long, with an uppercase letter, a digit, and a special character.', true);
-                return;
-            }
-
-            signUpWithEmail(username, email, password, role, errorMessage, successMessage);
-        });
-    } else {
-        console.error('Signup form with ID "signupForm" not found.');
-    }
-});
+    

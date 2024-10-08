@@ -28,14 +28,8 @@
             var forgotPasswordForm = document.getElementById('forgotPasswordForm');
             var messageElement = document.getElementById('message');
 
-            if (!messageElement) {
-                console.error('Element with ID "message" not found.');
-                return;
-            }
-
             forgotPasswordForm.addEventListener('submit', function(event) {
                 event.preventDefault();
-                var username = document.getElementById('username').value;
                 var email = document.getElementById('email').value;
 
                 if (!email) {
@@ -48,127 +42,188 @@
                         messageElement.textContent = 'Password reset email sent. Please check your inbox.';
                     })
                     .catch(function(error) {
-                        messageElement.textContent = 'SignIn Error: ' + error.message;
+                        messageElement.textContent = 'Error: ' + error.message;
                     });
             });
         });
     </script>
     <style>
+        /* Global Styles */
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
+            font-family: 'Poppins', sans-serif;
             margin: 0;
+            height: 100vh;
+            color: #333;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
             overflow: hidden;
+            position: relative;
         }
-        .container {
-            background: #ffffff;
-            padding: 40px;
-            padding-left: 15px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+        /* Background Video */
+        video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            min-width: 100%;
+            min-height: 100%;
+            z-index: -1;
+            object-fit: cover;
+        }
+
+        /* Overlay to make the form more readable */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+            z-index: -1;
+        }
+
+        /* Back Button */
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 18px;
+            background-color: #ff7e5f;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: #eb6e4a;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             max-width: 400px;
-            margin: 20px;
+            text-align: center;
+            z-index: 1; /* Stay on top of the video */
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
+
         .container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            transform: translateY(-10px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
         }
+
         h1 {
-            font-size: 26px;
+            font-size: 28px;
             margin-bottom: 20px;
-            color: #333;
-            text-align: center;
-            font-weight: 600;
+            color: #ff7e5f;
+            font-weight: 700;
         }
+
         form {
             display: flex;
             flex-direction: column;
+            gap: 20px;
         }
+
         label {
-            font-size: 15px;
+            font-size: 14px;
             color: #555;
-            margin-bottom: 8px;
         }
+
         input[type="text"],
         input[type="email"] {
             padding: 12px;
-            font-size: 15px;
+            font-size: 16px;
             border: 1px solid #ddd;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            outline: none;
-            width: 100%;
+            border-radius: 8px;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            width: 90%;
+            margin: 0 auto;
         }
+
         input[type="text"]:focus,
         input[type="email"]:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+            border-color: #ff7e5f;
+            box-shadow: 0 0 8px rgba(255, 126, 95, 0.3);
         }
+
         button {
-            padding: 12px;
-            padding-right: 20px;
-            font-size: 17px;
+            padding: 12px 20px;
+            font-size: 18px;
             color: #ffffff;
-            background-color: #007bff;
+            background-color: #ff7e5f;
             border: none;
-            border-radius: 40px;
+            border-radius: 30px;
             cursor: pointer;
             transition: background-color 0.3s ease, transform 0.2s ease;
             width: 100%;
+            font-weight: bold;
         }
+
         button:hover {
-            background-color: #0056b3;
-            transform: scale(1.02);
+            background-color: #eb6e4a;
+            transform: scale(1.03);
         }
+
+        button:active {
+            background-color: #d65e3c;
+        }
+
         #message {
-            font-size: 15px;
+            font-size: 14px;
             color: #d9534f;
-            text-align: center;
-            margin-top: 15px;
+            margin-top: 20px;
         }
 
         /* Media Queries for Responsiveness */
         @media (max-width: 600px) {
             h1 {
-                font-size: 22px;
+                font-size: 24px;
             }
-            label {
-                font-size: 14px;
-            }
-            input[type="text"],
-            input[type="email"] {
-                font-size: 14px;
-            }
+
             button {
                 font-size: 16px;
+            }
+
+            .container {
+                padding: 30px;
             }
         }
 
         @media (min-width: 601px) and (max-width: 1024px) {
             h1 {
-                font-size: 24px;
+                font-size: 26px;
             }
-            label {
-                font-size: 15px;
-            }
-            input[type="text"],
-            input[type="email"] {
-                font-size: 15px;
-            }
+
             button {
-                font-size: 16px;
+                font-size: 17px;
+            }
+
+            .container {
+                padding: 35px;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Background Video -->
+    <video autoplay muted loop id="backgroundVideo">
+        <source src="video/GymLog.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <!-- Back Button -->
+    <a href="login.html" class="back-button">← Back to Login</a>
+
+    <!-- Dark overlay for readability -->
+    <div class="overlay"></div>
+
     <div class="container">
         <h1>Forgot Your Password?</h1>
         <form id="forgotPasswordForm">
@@ -180,6 +235,5 @@
         </form>
         <p id="message"></p>
     </div>
-    <script src="src/Js/forgot.js" type="module"></script>
 </body>
 </html>

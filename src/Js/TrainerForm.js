@@ -57,10 +57,14 @@ window.addEventListener('load', () => {
         return await getDownloadURL(snapshot.ref);
     }
 
-    async function isEmailValid(email) {
+    async function getUserDocByEmail(email) {
         const userQuery = query(collection(db, 'Users'), where('email', '==', email));
         const querySnapshot = await getDocs(userQuery);
-        return !querySnapshot.empty; // Returns true if the email exists
+        if (!querySnapshot.empty) {
+            return querySnapshot.docs[0]; // Return the first document that matches the email
+        } else {
+            return null;
+        }
     }
 
     async function isDuplicateData() {
@@ -92,9 +96,9 @@ window.addEventListener('load', () => {
         const trainerEmail = TrainerEmail.value;
         
         // Validate the Trainer's email against Users collection
-        const validEmail = await isEmailValid(trainerEmail);
+        const userDoc = await getUserDocByEmail(trainerEmail);
 
-        if (!validEmail) {
+        if (!userDoc) {
             errorMessage.innerHTML = "Error: Trainer email does not match any user in the system.";
             successMessage.innerHTML = "";
             setTimeout(() => {
@@ -119,8 +123,24 @@ window.addEventListener('load', () => {
                 const TrainerPhotoURL = TrainerPhotoInput.files[0] ? await uploadFile(TrainerPhotoInput.files[0], `Trainer_photos/${TrainerName.value}`) : "";
                 const TrainerPermitURL = TrainerPermitInput.files[0] ? await uploadFile(TrainerPermitInput.files[0], `Trainer_permits/${TrainerName.value}`) : "";
 
-                const docRef = await addDoc(collection(db, 'TrainerForm'), {
-                    TrainerID: trainerId, // Use the generated TrainerID
+                // Update Users collection with the new trainer data
+                const userRef = doc(db, 'Users', userDoc.id); // Get reference to the user document
+                await updateDoc(userRef, {
+                    TrainerID: trainerId,
+                    TrainerName: TrainerName.value,
+                    TrainerPhoto: TrainerPhotoURL,
+                    TrainerPermit: TrainerPermitURL,
+                    Days: Days.value,
+                    Experience: Experience.value,
+                    Expertise: Expertise.value,
+                    rate: rate.value,
+                    role: "trainer", // Set role as trainer
+                    status: "Under Review"
+                });
+
+                // Store trainer data in TrainerForm collection (optional)
+                await addDoc(collection(db, 'TrainerForm'), {
+                    TrainerID: trainerId,
                     TrainerName: TrainerName.value,
                     TrainerEmail: trainerEmail,
                     TrainerPhoto: TrainerPhotoURL,
@@ -131,9 +151,6 @@ window.addEventListener('load', () => {
                     rate: rate.value,
                     status: "Under Review"
                 });
-
-                const trainerFormId = docRef.id;
-                console.log('Trainer Form ID:', trainerFormId);
 
                 successMessage.innerHTML = `Trainer information submitted successfully! Your information is currently under review and awaiting approval from the Gym Owner.`;
                 errorMessage.innerHTML = "";

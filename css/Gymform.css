@@ -1,36 +1,31 @@
-/* General styling */
+/* Font and global styles */
 body {
-    background-color: #35257A;
-    font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
+    background: linear-gradient(135deg, #0e1419, #222);
+    font-family: 'Roboto', sans-serif;
     color: #fff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
 }
 
-/* Header styling */
 header {
     text-align: center;
-    margin-bottom: 20px;
-}
-
-header h1 {
+    padding: 30px 0;
+    background: #0e1419;
+    color: #2ecc71;
     font-size: 2.5rem;
-    color: #f4f4f9;
-    margin: 0;
+    letter-spacing: 2px;
+    font-weight: bold;
 }
 
-/* Form container styling */
 .form-container {
-    background-color: #4A3A99;
-    padding: 40px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
-    width: 400px;
+    width: 100%;
+    max-width: 700px;
+    margin: 40px auto;
+    background: #1c1e22;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    border: 1px solid #2ecc71;
 }
 
 form {
@@ -38,104 +33,130 @@ form {
     flex-direction: column;
 }
 
-/* Input fields styling */
-form input[type="text"],
-form input[type="file"],
-form input[type="time"] {
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 5px;
-    border: none;
-    font-size: 1rem;
-}
-
-input[type="file"] {
-    background-color: #fff;
-    color: #333;
-    padding: 5px;
-}
-
-/* Button styling */
-form button {
-    padding: 10px;
-    background-color: #f4f4f9;
-    color: #35257A;
-    font-size: 1.2rem;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 20px;
-}
-
-form button:hover {
-    background-color: #fff;
-    color: #35257A;
-}
-
-/* Error and success messages */
-#gymOwnerFormErrorMessage,
-#gymOwnerFormSuccessMessage {
-    font-size: 0.9rem;
-    margin-top: 10px;
-}
-
-#gymOwnerFormErrorMessage {
-    color: #ff4c4c;
-}
-
-#gymOwnerFormSuccessMessage {
-    color: #4caf50;
-}
-#map {
-    height: 400px; /* Set a fixed height for the map */
-    width: 100%; /* Make the map responsive */
-    margin-bottom: 20px; /* Space below the map */
-}
-.form-container {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
+.input-container {
+    margin-bottom: 20px;
 }
 
 label {
-    display: block;
-    margin: 10px 0 5px;
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+    color: #2ecc71;
 }
 
-input[type="file"] {
-    margin-bottom: 10px;
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="time"] {
+    width: 100%;
+    padding: 10px 9px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 6px;
+    background: #333;
+    color: #fff;
+    border: 1px solid #2ecc71;
+    transition: all 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="tel"]:focus,
+input[type="time"]:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 8px rgba(46, 204, 113, 0.8);
+}
+
+.custom-file-upload {
+    cursor: pointer;
+    background-color: #2ecc71;
+    color: #0e1419;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 1rem;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.custom-file-upload:hover {
+    background-color: #27ae60;
+    color: #fff;
 }
 
 .photo-preview {
-    width: 400px; /* Set the desired width for rectangular shape */
-    height: 150px; /* Set the desired height for rectangular shape */
-    border: 2px solid #ccc; /* Border styling */
-    border-radius: 10px; /* Rounded corners */
-    margin-bottom: 20px;
-    background-size: cover;
-    background-position: center;
+    width: 100%; /* Adjust the width as per your requirement */
+    height: 200px;
+    margin-top: 10px;
+    background-color: #333;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    color: #7f8c8d;
+    border: 1px dashed #2ecc71;
+    background-size: contain; /* Ensures the entire image fits inside the container */
+    background-position: center; /* Centers the image in the container */
+    background-repeat: no-repeat; /* Prevents image repetition */
 }
 
-
-input[type="text"], input[type="time"] {
-    width: calc(100% - 20px);
-    padding: 10px;
-    margin-bottom: 10px;
+.time-container {
+    display: flex;
+    justify-content: space-between;
 }
 
-button {
-    margin-bottom: 10px;
-    padding: 10px 15px;
-    background-color: #007bff;
-    color: white;
+.time-container div {
+    width: 48%;
+}
+
+button.submit-btn {
+    width: 100%;
+    background-color: #2ecc71;
+    padding: 15px;
+    font-size: 1.2rem;
+    color: #fff;
+    font-weight: bold;
     border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    position: center;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
 }
 
-button:hover {
-    background-color: #218838;
-}   
+button.submit-btn:hover {
+    background-color: #27ae60;
+    cursor: pointer;
+}
+
+.form-message {
+    margin-top: 20px;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.error-message {
+    color: #e74c3c;
+}
+
+.success-message {
+    color: #2ecc71;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .form-container {
+        display: flex;
+        justify-content: center;  /* Horizontally center the content */
+        align-items: center;      /* Vertically center the content (if needed) */
+        height: 100vh;            /* Full viewport height to ensure vertical centering */
+        text-align: center;       /* Center text inside the container */
+    }
+    header {
+        font-size: 2rem;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="time"],
+    button.submit-btn {
+        font-size: 2rem;
+    }
+}

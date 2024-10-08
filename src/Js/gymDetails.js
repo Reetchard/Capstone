@@ -69,9 +69,9 @@ window.onload = loadGymProfiles;
 window.displayMessages = function(message, type) {
     const messageArea = document.getElementById('messageArea');
 
-    // Clear any previous content and remove previous classes
+    // Clear previous content and remove classes
     messageArea.textContent = '';
-    messageArea.className = ''; // Reset the class
+    messageArea.className = 'message-area'; // Reset the class
 
     // Set the message content
     messageArea.textContent = message;
@@ -83,13 +83,18 @@ window.displayMessages = function(message, type) {
         messageArea.classList.add('error');
     }
 
-    // Display the message with the show class
+    // Add the 'show' class to display the message
     messageArea.classList.add('show');
 
     // Automatically hide the message after 5 seconds
     setTimeout(() => {
-        messageArea.classList.remove('show');
-    }, 5000);
+        messageArea.classList.add('fade-out'); // Start fading out
+
+        // Remove the message from the view after the fade-out transition
+        setTimeout(() => {
+            messageArea.classList.remove('show', 'fade-out');
+        }, 500); // Ensure this matches the fade-out duration (0.5s)
+    }, 5000); // Show the message for 5 seconds
 };
 
 // Delete selected gym profiles

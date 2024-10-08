@@ -23,6 +23,7 @@ const auth = getAuth(app); // Initialize Auth
 
 window.addEventListener('load', () => {
     const form = document.getElementById("gymOwnerDetailsForm");
+
     if (!form) {
         console.error('Form element not found');
         return;
@@ -41,6 +42,8 @@ window.addEventListener('load', () => {
     const gymLocation = document.getElementById("gymLocation");
     const errorMessage = document.getElementById("gymOwnerFormErrorMessage");
     const successMessage = document.getElementById("gymOwnerFormSuccessMessage");
+    const uploadPhotoButton = document.getElementById('uploadPhotoButton'); // Ensure button is available
+    const photoPreview = document.getElementById('photoPreview'); // Ensure photo preview area is available
 
     // Function to handle image upload
     async function uploadFile(file, path) {
@@ -114,22 +117,30 @@ window.addEventListener('load', () => {
         }
     });
 
-    // Add functionality to trigger file input click
-    document.getElementById('uploadPhotoButton').addEventListener('click', function() {
-        document.getElementById('gymPhoto').click();
-    });
+    // Add functionality to trigger file input click (check if uploadPhotoButton exists)
+    if (uploadPhotoButton) {
+        uploadPhotoButton.addEventListener('click', function() {
+            gymPhotoInput.click();
+        });
+    } else {
+        console.error('Upload photo button not found');
+    }
 
-    // Preview selected image
-    document.getElementById('gymPhoto').addEventListener('change', function(event) {
-        const file = event.target.files[0];
-        const preview = document.getElementById('photoPreview');
-
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                preview.style.backgroundImage = `url(${e.target.result})`;
-            };
-            reader.readAsDataURL(file);
-        }
-    });
+    // Preview selected image (check if photoPreview and gymPhoto exist)
+    if (gymPhotoInput) {
+        gymPhotoInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (photoPreview) {
+                        photoPreview.style.backgroundImage = `url(${e.target.result})`;
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    } else {
+        console.error('Gym photo input element not found');
+    }
 });
