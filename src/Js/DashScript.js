@@ -256,12 +256,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Check if the trainer's status is not "Under Review" and their role is "Trainer"
                 if (trainer.status && trainer.status !== 'Under review' && trainer.role === 'trainer') {
                     const trainerDiv = document.createElement('div');
-                    trainerDiv.classList.add('trainer-profile');
+                    trainerDiv.classList.add('card','trainer-profile', 'mb-3');
 
                     trainerDiv.innerHTML = `
-                        <img src="${trainer.TrainerPhoto || 'images/default-image-url.png'}" alt="${trainer.TrainerName || 'trainer'}" class="trainer-photo" />
-                        <h4>${trainer.TrainerName || 'N/A'}</h4>
-                        <button class="btn btn-primary" onclick="viewTrainerDetails('${trainer.id}')">View</button>
+                        <img src="${trainer.TrainerPhoto || 'images/default-image-url.jpg'}" alt="${trainer.TrainerName || 'trainer'}" class="card-img- top trainer-photo" />
+                        <div class='card-body'>
+                        <h5 class="card-title">${trainer.TrainerName || 'N/A'}</h5>
+                        <button class="custom-button btn-primary" onclick="viewTrainerDetails('${trainer.id}')">Trainer Info</button>
+                        </div>
                     `;
 
                     trainerProfilesContainer.appendChild(trainerDiv);
