@@ -109,7 +109,7 @@ window.deleteSelected = async function() {
     displayConfirmation('Are you sure you want to delete the selected profiles?', async () => {
         for (const checkbox of selectedCheckboxes) {
             const key = checkbox.getAttribute('data-key');
-            const gymRef = doc(db, 'GymForms', key);
+            const gymRef = doc(db, 'Users', key);
             await deleteDoc(gymRef)
                 .then(() => {
                     displayMessages(`Profile with key ${key} has been deleted.`, 'success');
