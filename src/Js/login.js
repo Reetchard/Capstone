@@ -142,6 +142,10 @@ async function signUpWithEmail(username, email, password, role, errorMessageElem
         localStorage.setItem('signupNotification', `🎉 Welcome aboard, ${username}! Your account has been created successfully. Hold tight, it's under review and we'll notify you soon!`);
 
         showMessage(successMessageElement, `🎉 Welcome aboard, ${username}! Your account has been created successfully. Hold tight, it's under review and we'll notify you soon!`);
+        
+        // Notify the user, gym owner, or trainer
+        notifyUser(username, role);
+
         clearSignUpFields(); // Clear form fields
         redirectUser(role); // Redirect based on the role
 
@@ -158,6 +162,30 @@ async function signUpWithEmail(username, email, password, role, errorMessageElem
         showMessage(errorMessageElement, errorMsg, true);
     }
 }
+
+// Function to notify the user, gym owner, or trainer
+function notifyUser(username, role) {
+    let notificationMessage;
+
+    switch (role.toLowerCase()) {
+        case 'gymowner':
+            notificationMessage = `🏋️‍♂️ Gym Owner ${username}, your account is under review. We’ll notify you once it’s approved!`;
+            break;
+        case 'trainer':
+            notificationMessage = `🤸‍♀️ Trainer ${username}, your account is under review. We’ll notify you once it’s approved!`;
+            break;
+        case 'user':
+            notificationMessage = `🎉 User ${username}, your account is under review. We’ll notify you once it’s approved!`;
+            break;
+        default:
+            notificationMessage = `🎉 ${username}, your account is under review. We’ll notify you once it’s approved!`;
+    }
+
+    // Display notification on the webpage (You can customize this further)
+    alert(notificationMessage); // Simple alert for demonstration
+    // You could also append this message to a notifications area in your UI instead
+}
+
 
 
 

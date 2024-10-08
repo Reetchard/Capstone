@@ -401,70 +401,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    window.loadGymMap = function(gym) {
-        const location = gym.gymLocation;
-    
-        if (location.toLowerCase().includes("lapu-lapu")) {
-            const lat = 10.3103;
-            const lon = 123.9494;
-    
-            // Center the map on Lapu-Lapu
-            const mapSrc = `https://www.openstreetmap.org/export/embed.html?bbox=${lon - 0.01},${lat - 0.01},${lon + 0.01},${lat + 0.01}&layer=mapnik&marker=${lat},${lon}`;
-            document.getElementById('modalGymMap').src = mapSrc;
-        } else {
-            // Handle other locations by fetching coordinates from the API
-            const apiKey = '3c52706688064b3038c2328bbbc4cba0'; // Replace with your OpenWeatherMap API key
-            const geocodingUrl = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(location)}&appid=${apiKey}`;
-    
-            fetch(geocodingUrl)
-                .then(response => response.json())
-                .then(data => {
-                    if (data && data.coord) {
-                        const lat = data.coord.lat;
-                        const lon = data.coord.lon;
-    
-                        // Set the map URL using OpenStreetMap
-                        const mapSrc = `https://www.openstreetmap.org/export/embed.html?bbox=${lon - 0.01},${lat - 0.01},${lon + 0.01},${lat + 0.01}&layer=mapnik&marker=${lat},${lon}`;
-                        document.getElementById('modalGymMap').src = mapSrc;
-                    } else {
-                        document.getElementById('modalGymMap').src = "";
-                        alert("Unable to retrieve location data.");
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching geocoding data:', error);
-                    document.getElementById('modalGymMap').src = "";
-                    alert("Failed to load location information.");
-                });
-        }
-    }
-    // Function to initialize and display the Leaflet map
-    function initMap() {
-        // Set the coordinates for Lapu-Lapu, Cebu as default
-        const latLng = [10.3103, 123.9494];
-
-        // Initialize the map
-        const map = L.map('map').setView(latLng, 13); // 'map' is the id of your map div
-
-        // Add OpenStreetMap tiles
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-
-        // Add a marker to the map at the Lapu-Lapu coordinates
-        L.marker(latLng).addTo(map)
-            .bindPopup('You are here - Lapu-Lapu, Cebu')
-            .openPopup();
-    }
-
-    // Ensure the map initializes after the page loads
-    window.onload = function() {
-        // Initialize the map on page load
-        initMap();
-    };
-
-
     // Function to show the correct section
     document.querySelectorAll('.nav-link').forEach(navLink => {
         navLink.addEventListener('click', function(e) {
@@ -488,7 +424,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.section').forEach(section => {
             section.classList.remove('active');
         });
-    
+
         const targetSection = document.getElementById(sectionId);
         if (targetSection) {
             targetSection.classList.add('active');
@@ -496,25 +432,15 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error(`Section with ID '${sectionId}' not found.`);
         }
     }
-    document.addEventListener('DOMContentLoaded', function() {
-        var calendarEl = document.getElementById('calendar');
 
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            headerToolbar: {
-                left: 'prev,next today',
-                center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay'
-            },
-            editable: true,
-            events: []
-        });
-
-        calendar.render();
-    }); 
+    // Show Gym Profile section by default when the page loads
+    window.onload = function() {
+        showSection('gym-profile');
+    };
     
     document.addEventListener('DOMContentLoaded', async function() {
         const notificationList = document.getElementById('notification-list');
+        const notificationCountElement = document.getElementById('notification-count'); // Badge element
     
         if (!notificationList) {
             console.error('Notification list element not found.');
@@ -537,6 +463,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
             // Fetch notifications from Firestore
             const notifications = await fetchUserNotifications(userId);
+    
+            // Update notification badge count
+            updateNotificationCount(notifications.length);
     
             // Display sign-up notification if it exists
             const notificationMessage = localStorage.getItem('signupNotification');
@@ -572,7 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to fetch user notifications from Firestore
     async function fetchUserNotifications(userId) {
         try {
-            const notificationsRef = collection(db, 'userNotification');
+            const notificationsRef = collection(db, 'UserNotification');
             const q = query(notificationsRef, where('userId', '==', userId));
             const snapshot = await getDocs(q);
             const notifications = [];
@@ -590,3 +519,18 @@ document.addEventListener('DOMContentLoaded', () => {
             return [];
         }
     }
+    
+    // Function to update the notification count badge
+    function updateNotificationCount(count) {
+        const notificationCountElement = document.getElementById('notification-count');
+        notificationCountElement.textContent = count; // Update the badge number
+    
+        // Show or hide the badge depending on count
+        if (count > 0) {
+            notificationCountElement.style.display = 'inline-block'; // Show badge if there are notifications
+        } else {
+            notificationCountElement.style.display = 'none'; // Hide badge if no notifications
+        }
+    }
+    
+    

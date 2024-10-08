@@ -1,7 +1,11 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-storage.js";
+
+// Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyAPNGokBic6CFHzuuENDHdJrMEn6rSE92c",
     authDomain: "capstone40-project.firebaseapp.com",
-    databaseURL: "https://capstone40-project-default-rtdb.firebaseio.com",
     projectId: "capstone40-project",
     storageBucket: "capstone40-project.appspot.com",
     messagingSenderId: "399081968589",
@@ -9,84 +13,76 @@ const firebaseConfig = {
     measurementId: "G-CDP5BCS8EY"
 };
 
-firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
+// Initialize Firebase and Firestore
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const storage = getStorage(app);
 
 document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('productForm').addEventListener('submit', function(event) {
+    document.getElementById('productForm').addEventListener('submit', async function(event) {
         event.preventDefault();
 
         const photo = document.getElementById('productPhoto').files[0];
         const name = document.getElementById('productName').value;
-        const price = document.getElementById('productPrice').value;
+        const price = parseFloat(document.getElementById('productPrice').value).toFixed(2);
         const description = document.getElementById('productDescription').value;
         const category = document.getElementById('productCategory').value;
-        const quantity = document.getElementById('productQuantity').value;
-        const dateAdded = document.getElementById('productDate').value;
+        const quantity = parseInt(document.getElementById('productQuantity').value, 10);
+        const dateAdded = new Date().toISOString(); // Get current date
 
         if (photo) {
-            const storageRef = firebase.storage().ref('productPhotos/' + photo.name);
-            const uploadTask = storageRef.put(photo);
+            const storageRef = ref(storage, 'productPhotos/' + photo.name);
+            try {
+                // Upload the photo and get the download URL
+                await uploadBytes(storageRef, photo);
+                const downloadURL = await getDownloadURL(storageRef);
 
-            uploadTask.on('state_changed', 
-                (snapshot) => {
-                    // Handle progress
-                }, 
-                (error) => {
-                    alert('Error uploading photo: ' + error.message);
-                }, 
-                () => {
-                    uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                        const action = confirm("Do you want to display this product on the Dashboard?") 
-                            ? addProductToDashboard 
-                            : addProductToListed;
+                const action = confirm("Do you want to display this product on the Dashboard?")
+                    ? addProductToDashboard 
+                    : addProductToListed;
 
-                        action(name, price, description, category, quantity, dateAdded, downloadURL);
-                    });
-                }
-            );
+                action(name, price, description, category, quantity, dateAdded, downloadURL);
+            } catch (error) {
+                showMessage('error', `🚨 Oops! There was an error uploading your photo: ${error.message}`);
+            }
         } else {
-            alert('Please select a photo.');
+            showMessage('error', '📸 Please select a photo to upload.');
         }
     });
-
-    loadProducts();
 });
 
-function addProductToDashboard(name, price, description, category, quantity, dateAdded, photoURL) {
-    const newProductRef = database.ref('dashboard/products').push();
-    newProductRef.set({
-        name,
-        price,
-        description,
-        category,
-        quantity,
-        dateAdded,
-        photoURL
-    })
-    .then(() => alert('Product added to Dashboard successfully'))
-    .catch((error) => alert('Error adding product to Dashboard: ' + error.message));
+// Function to add product to Dashboard
+async function addProductToDashboard(name, price, description, category, quantity, dateAdded, photoURL) {
+    await addProductToCollection(name, price, description, category, quantity, dateAdded, photoURL);
 }
 
-function addProductToListed(name, price, description, category, quantity, dateAdded, photoURL) {
-    const newProductRef = database.ref('listed/products').push();
-    newProductRef.set({
-        name,
-        price,
-        description,
-        category,
-        quantity,
-        dateAdded,
-        photoURL
-    })
-    .then(() => {
-        alert('Product added to Listed Products successfully');
-        displayProduct(name, price, description, category, quantity, dateAdded, photoURL);
-    })
-    .catch((error) => alert('Error adding product to Listed Products: ' + error.message));
+// Function to add product to Listed Products
+async function addProductToListed(name, price, description, category, quantity, dateAdded, photoURL) {
+    await addProductToCollection(name, price, description, category, quantity, dateAdded, photoURL);
 }
 
-function displayProduct(name, price, description, category, quantity, dateAdded, photoURL) {
+// Helper function to add product to Firestore
+async function addProductToCollection(name, price, description, category, quantity, dateAdded, photoURL) {
+    try {
+        const newProductRef = doc(collection(db, 'Products'));
+        await setDoc(newProductRef, {
+            productId: newProductRef.id,
+            name,
+            price,
+            description,
+            category,
+            quantity,
+            dateAdded,
+            photoURL
+        });
+        showMessage('success', '✅ Hooray! Your product has been successfully added! 🎉');
+    } catch (error) {
+        showMessage('error', `🚨 Something went wrong while adding your product: ${error.message}`);
+    }
+}
+
+// Function to display products in the table
+function displayProduct(data) {
     const tableBody = document.getElementById('productTableBody');
     if (!tableBody) {
         console.error('Table body not found');
@@ -94,66 +90,74 @@ function displayProduct(name, price, description, category, quantity, dateAdded,
     }
 
     const newRow = document.createElement('tr');
-
     newRow.innerHTML = `
-        <td><img src="${photoURL || 'default-image.png'}" alt="${name}" style="width: 50px; height: auto;"></td>
-        <td>${name}</td>
-        <td>$${price}</td>
-        <td>${description}</td>
-        <td>${category}</td>
-        <td>${quantity}</td>
-        <td>${dateAdded}</td>
+        <td><img src="${data.photoURL || 'default-image.png'}" alt="${data.name}" style="width: 50px; height: auto;"></td>
+        <td>${data.name}</td>
+        <td>$${data.price}</td>
+        <td>${data.description}</td>
+        <td>${data.category}</td>
+        <td>${data.quantity}</td>
+        <td>${data.dateAdded}</td>
         <td>
-            <button class="btn btn-primary buy-btn" data-key="${childSnapshot.key}">Buy</button>
+            <button class="btn btn-primary buy-btn" data-key="${data.productId}">Buy</button>
             <button class="btn btn-primary">Edit</button>
             <button class="btn btn-danger">Delete</button>
         </td>
     `;
-
     tableBody.appendChild(newRow);
 }
-
-function loadProducts() {
-    const tableBody = document.getElementById('productTableBody');
-    if (!tableBody) {
-        console.error('Element with ID "productTableBody" not found.');
-        return;
-    }
-
-    database.ref('dashboard/products').once('value', function(snapshot) {
-        tableBody.innerHTML = ''; // Clear the table body before reloading
-
-        snapshot.forEach(function(childSnapshot) {
-            const data = childSnapshot.val();
-            displayProduct(data.name, data.price, data.description, data.category, data.quantity, data.dateAdded, data.photoURL);
-
-            // Attach click event listener to Buy buttons
-            document.querySelectorAll('.buy-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    handleBuyProduct(childSnapshot.key, data.quantity);
-                });
-            });
-        });
-    })
-    .catch(error => console.error('Error loading products:', error));
-}
-
-function handleBuyProduct(productKey, currentQuantity) {
+// Function to handle product purchases
+window.handleBuyProduct= async function (productKey, currentQuantity) {
     if (currentQuantity > 0) {
         const newQuantity = currentQuantity - 1;
-        database.ref('dashboard/products/' + productKey).update({ quantity: newQuantity })
-        .then(() => {
+        try {
+            await updateDoc(doc(db, 'Products', productKey), { quantity: newQuantity });
             updateCartCount();
-            alert('Product purchased successfully.');
-        })
-        .catch(error => alert('Error updating product quantity: ' + error.message));
+            showMessage('success', '✅ Congratulations! You successfully purchased the product! 🎉');
+        } catch (error) {
+            showMessage('error', `🚨 Error updating product quantity: ${error.message}`);
+        }
     } else {
-        alert('Product is out of stock.');
+        showMessage('error', '🚫 This product is currently out of stock. Please check back later!');
     }
 }
 
+// Function to update the cart count (this is a placeholder)
 function updateCartCount() {
-    // This is a placeholder; you should adjust according to your cart system
     const cartCount = document.getElementById('cartCount');
     cartCount.textContent = parseInt(cartCount.textContent) + 1; // Increment cart count
 }
+
+// Function to display success/error messages
+
+function showMessage(type, message) {
+    const messageContainer = document.getElementById('messageContainer');
+    const messageElement = document.createElement('div');
+    
+    messageElement.className = `message alert-${type}`;
+    messageElement.textContent = message;
+
+    messageContainer.appendChild(messageElement);
+    messageContainer.style.display = 'block';
+
+    // Hide the message after a few seconds
+    setTimeout(() => {
+        messageContainer.removeChild(messageElement);
+        if (messageContainer.childElementCount === 0) {
+            messageContainer.style.display = 'none'; // Hide the container if empty
+        }
+    }, 5000); // Hide message after 5 seconds
+}
+
+window.showConfirmation = function(message, callback) {
+    document.getElementById('confirmationMessage').textContent = message;
+    
+    const confirmButton = document.getElementById('confirmButton');
+    confirmButton.onclick = function() {
+        callback();
+        $('#customConfirmationModal').modal('hide'); // Hide the modal
+    };
+    
+    $('#customConfirmationModal').modal('show'); // Show the modal
+}
+

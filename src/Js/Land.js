@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function() {
   // Reference to the membership plans in Firebase
   const membershipPlansRef = ref(database, 'membershipPlans');
   // Reference to the gym profiles in Firebase
-  const GymProfileref = ref(database, 'GymForms');
+  const GymProfileref = ref(database, '');
 
   // Function to show the confirmation message
   function showConfirmationMessage() {
