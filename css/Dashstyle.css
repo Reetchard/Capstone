@@ -75,42 +75,25 @@
         font-size: 1.1rem;
     }
 }
-/* Profile Container */
 .profile-container {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100px; /* Reduced size for a smaller profile picture */
-    height: 100px;
-    border-radius: 100%; /* Make the container circular */
-    overflow: hidden; /* Ensures the image fits inside the circle */
-    border: 3px solid #3ddc97; /* Add a bold accent border */
-    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3); /* Add subtle shadow for depth */
-    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth animation */
-    cursor: pointer; /* Make it clickable */
+    position: relative; /* Adjusted to relative for simplicity */
+    width: 130px; /* Set a fixed width for the container */
+    height: 130px; /* Set a fixed height for the container */
+    overflow: hidden; /* Ensures the image doesn't overflow the container */
+    border-radius: 50%; /* Makes the container circular */
+    background-color: #f8f9fa; /* Optional: Light background for visibility */
+    z-index: 1000; /* Ensure it appears above other content */
+    display: flex; /* Centers content inside */
+    align-items: center; /* Vertically center the image */
+    justify-content: center; /* Horizontally center the image */
+    background-color: transparent;
 }
 
-.profile-container:hover {
-    transform: scale(1.05); /* Slight zoom effect on hover */
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4); /* Deepen the shadow on hover */
-}
-
-/* Profile Image */
 #profile-picture {
-    width: 120%; /* Full width of the container */
-    height: 100%; /* Full height of the container */
-    object-fit: cover; /* Ensures the image fills the container without distortion */
+    width: 100%; /* Make sure the image fits the container */
+    height: 100%; /* Ensure the height fits as well */
+    object-fit: cover; /* Maintain aspect ratio and cover the circle */
     border-radius: 50%; /* Make the image circular */
-    transition: transform 0.3s ease; /* Smooth animation for image */
-}
-
-.profile-container img {
-    width: 100%; /* Full width of the container */
-    height: 120%; /* Full height of the container */
-    object-fit: cover; /* Ensures the image fills the container without distortion */
-    border-radius: 50%; /* Make the image circular */
-    transition: transform 0.3s ease; /* Smooth animation for image */
 }
 
 
