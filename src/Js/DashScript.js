@@ -313,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         // Add event listener for the "Book Now" button
                         document.getElementById('bookNowButton').onclick = function() {
                             console.log("Book Now button clicked"); // Debugging line
-                            showConfirmationModal(userId, trainerData);
+                            showCheckoutModal(userId, trainerData); // Pass userId and trainerData
                         };
         
                         // Close the modal when clicking outside of it
@@ -333,55 +333,18 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
         
-        // Function to show confirmation modal
-        window.showConfirmationModal = function(userId, trainerData) {
-            const confirmationModal = document.getElementById('confirmationModal');
-            const confirmationContent = document.getElementById('confirmationContent');
-        
-            if (confirmationModal && confirmationContent) {
-                confirmationContent.innerHTML = `
-                    <h2>Confirm Booking</h2>
-                    <p>Are you sure you want to book ${trainerData.TrainerName}?</p>
-                    <button class="btn btn-success" id="confirmBookingButton">Yes</button>
-                    <button class="btn btn-secondary" id="cancelBookingButton">No</button>
-                `;
-        
-                // Close the current modal if it exists
-                closeCurrentModal();
-                // Show confirmation modal
-                confirmationModal.style.display = "block";
-                currentModal = confirmationModal; // Set current modal to confirmation modal
-        
-                // Handle confirm booking button
-                document.getElementById('confirmBookingButton').onclick = function() {
-                    console.log("User confirmed booking"); // Debugging line
-                    showCheckoutModal(userId, trainerData);
-                    closeCurrentModal(); // Close confirmation modal
-                };
-        
-                // Handle cancel booking button
-                document.getElementById('cancelBookingButton').onclick = function() {
-                    console.log("User canceled booking"); // Debugging line
-                    closeCurrentModal(); // Close confirmation modal
-                };
-        
-                // Close the confirmation modal when clicking outside of it
-                window.onclick = function(event) {
-                    if (event.target === confirmationModal) {
-                        closeCurrentModal();
-                    }
-                };
-            } else {
-                console.error("Confirmation modal or content element not found!");
-            }
-        }
-        
         // Function to show checkout modal
         window.showCheckoutModal = function(userId, trainerData) {
             const checkoutModal = document.getElementById('checkoutModal');
             const checkoutContent = document.getElementById('checkoutContent');
         
             if (checkoutModal && checkoutContent) {
+                // Check if trainerData is valid
+                if (!trainerData || !trainerData.TrainerName) {
+                    console.error("Invalid trainer data: ", trainerData);
+                    return; // Exit the function if trainerData is invalid
+                }
+        
                 // Prepare checkout content
                 checkoutContent.innerHTML = `
                     <h2>Checkout</h2>
@@ -418,16 +381,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error("Checkout modal or content element not found!");
             }
         }
-        
-        // Function to confirm booking
-        window.confirmBooking = function(userId, trainerData) {
-            console.log(`Booking confirmed for Trainer ID: ${userId} - ${trainerData.TrainerName}`);
-            // Additional logic to handle the booking process
-        }
-        
-        // Ensure the "Book Now" button triggers the event listener
-        fetchTrainers();
-        
+        fetchTrainers();        
 
 
 
