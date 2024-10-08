@@ -240,36 +240,195 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
             });
         }
-        // Fetch Trainers
+
+        // Fetch trainers from Firestore
         async function fetchTrainers() {
-            const trainersCollection = collection(db, 'TrainerForm');
+            const trainersCollection = collection(db, 'Users');
             const trainerSnapshot = await getDocs(trainersCollection);
-            const trainerList = trainerSnapshot.docs.map(doc => doc.data());
-        
+            const trainerList = trainerSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); // Include the document ID
+
             console.log("Fetched Trainers:", trainerList); // Debugging line
-        
+
             const trainerProfilesContainer = document.getElementById('trainer-profiles');
             trainerProfilesContainer.innerHTML = '';
-        
+
             trainerList.forEach(trainer => {
-                console.log("Trainer Data:", trainer); // Debugging line
-        
-                // Check if the trainer's status is not "Under Review"
-                if (trainer.status && trainer.status !== 'Under Review') {
+                // Check if the trainer's status is not "Under Review" and their role is "Trainer"
+                if (trainer.status && trainer.status !== 'Under review' && trainer.role === 'trainer') {
                     const trainerDiv = document.createElement('div');
                     trainerDiv.classList.add('trainer-profile');
-        
+
                     trainerDiv.innerHTML = `
-                        <img src="${trainer.TrainerPhoto || 'images/default-image-url.png'}" alt="${trainer.TrainerName || 'Trainer'}" class="trainer-photo" />
+                        <img src="${trainer.TrainerPhoto || 'images/default-image-url.png'}" alt="${trainer.TrainerName || 'trainer'}" class="trainer-photo" />
                         <h4>${trainer.TrainerName || 'N/A'}</h4>
                         <button class="btn btn-primary" onclick="viewTrainerDetails('${trainer.id}')">View</button>
                     `;
-        
+
                     trainerProfilesContainer.appendChild(trainerDiv);
                 }
             });
         }
+
+        let currentModal = null; // Variable to track the currently open modal
+
+        function closeCurrentModal() {
+            if (currentModal) {
+                currentModal.style.display = "none"; // Hide the current modal
+                currentModal = null; // Reset the current modal
+            }
+        }
         
+        // Function to view trainer details
+        window.viewTrainerDetails = function(userId) {
+            console.log("Fetching details for Trainer ID:", userId); // Debugging line
+        
+            const trainerRef = doc(db, 'Users', userId); // Fetch by document ID
+        
+            getDoc(trainerRef).then(doc => {
+                if (doc.exists()) {
+                    const trainerData = doc.data();
+                    console.log("Trainer Details:", trainerData); // For debugging purposes
+        
+                    const modalContent = document.getElementById('modalContent');
+                    if (modalContent) { // Check if modalContent exists
+                        modalContent.innerHTML = `
+                            <h2>${trainerData.TrainerName}</h2>
+                            <img src="${trainerData.TrainerPhoto || 'images/default-image-url.png'}" alt="${trainerData.TrainerName}" class="trainer-photo" />
+                            <p>Experience: ${trainerData.Experience || 'N/A'}</p>
+                            <p>Expertise: ${trainerData.Expertise || 'N/A'}</p>
+                            <p>Days Available: ${trainerData.Days || 'N/A'}</p>
+                            <p>Rate: ${trainerData.rate || 'N/A'}</p>
+                            <button class="btn btn-primary" id="bookNowButton">Book Now</button>
+                        `;
+        
+                        // Close the current modal if it exists
+                        closeCurrentModal();
+                        // Show the trainer modal
+                        const modal = document.getElementById('trainerModal');
+                        modal.style.display = "block";
+                        currentModal = modal; // Set current modal to trainer modal
+        
+                        // Add event listener for the "Book Now" button
+                        document.getElementById('bookNowButton').onclick = function() {
+                            console.log("Book Now button clicked"); // Debugging line
+                            showConfirmationModal(userId, trainerData);
+                        };
+        
+                        // Close the modal when clicking outside of it
+                        window.onclick = function(event) {
+                            if (event.target === modal) {
+                                closeCurrentModal();
+                            }
+                        };
+                    } else {
+                        console.error("Modal content element not found!");
+                    }
+                } else {
+                    console.error("No such trainer! Document ID may be incorrect.");
+                }
+            }).catch(error => {
+                console.error("Error fetching trainer details:", error);
+            });
+        }
+        
+        // Function to show confirmation modal
+        window.showConfirmationModal = function(userId, trainerData) {
+            const confirmationModal = document.getElementById('confirmationModal');
+            const confirmationContent = document.getElementById('confirmationContent');
+        
+            if (confirmationModal && confirmationContent) {
+                confirmationContent.innerHTML = `
+                    <h2>Confirm Booking</h2>
+                    <p>Are you sure you want to book ${trainerData.TrainerName}?</p>
+                    <button class="btn btn-success" id="confirmBookingButton">Yes</button>
+                    <button class="btn btn-secondary" id="cancelBookingButton">No</button>
+                `;
+        
+                // Close the current modal if it exists
+                closeCurrentModal();
+                // Show confirmation modal
+                confirmationModal.style.display = "block";
+                currentModal = confirmationModal; // Set current modal to confirmation modal
+        
+                // Handle confirm booking button
+                document.getElementById('confirmBookingButton').onclick = function() {
+                    console.log("User confirmed booking"); // Debugging line
+                    showCheckoutModal(userId, trainerData);
+                    closeCurrentModal(); // Close confirmation modal
+                };
+        
+                // Handle cancel booking button
+                document.getElementById('cancelBookingButton').onclick = function() {
+                    console.log("User canceled booking"); // Debugging line
+                    closeCurrentModal(); // Close confirmation modal
+                };
+        
+                // Close the confirmation modal when clicking outside of it
+                window.onclick = function(event) {
+                    if (event.target === confirmationModal) {
+                        closeCurrentModal();
+                    }
+                };
+            } else {
+                console.error("Confirmation modal or content element not found!");
+            }
+        }
+        
+        // Function to show checkout modal
+        window.showCheckoutModal = function(userId, trainerData) {
+            const checkoutModal = document.getElementById('checkoutModal');
+            const checkoutContent = document.getElementById('checkoutContent');
+        
+            if (checkoutModal && checkoutContent) {
+                // Prepare checkout content
+                checkoutContent.innerHTML = `
+                    <h2>Checkout</h2>
+                    <p>You are booking ${trainerData.TrainerName}</p>
+                    <p>Rate: ${trainerData.rate || 'N/A'}</p>
+                    <button class="btn btn-success" id="confirmBookingButtonCheckout">Confirm Booking</button>
+                    <button class="btn btn-secondary" id="cancelBookingButtonCheckout">Cancel</button>
+                `;
+        
+                // Close the current modal if it exists
+                closeCurrentModal();
+                // Show checkout modal
+                checkoutModal.style.display = "block";
+                currentModal = checkoutModal; // Set current modal to checkout modal
+        
+                // Handle confirm booking button
+                document.getElementById('confirmBookingButtonCheckout').onclick = function() {
+                    confirmBooking(userId, trainerData);
+                    closeCurrentModal(); // Close the modal after confirmation
+                };
+        
+                // Handle cancel booking button
+                document.getElementById('cancelBookingButtonCheckout').onclick = function() {
+                    closeCurrentModal(); // Close the modal on cancel
+                };
+        
+                // Close the checkout modal when clicking outside of it
+                window.onclick = function(event) {
+                    if (event.target === checkoutModal) {
+                        closeCurrentModal();
+                    }
+                };
+            } else {
+                console.error("Checkout modal or content element not found!");
+            }
+        }
+        
+        // Function to confirm booking
+        window.confirmBooking = function(userId, trainerData) {
+            console.log(`Booking confirmed for Trainer ID: ${userId} - ${trainerData.TrainerName}`);
+            // Additional logic to handle the booking process
+        }
+        
+        // Ensure the "Book Now" button triggers the event listener
+        fetchTrainers();
+        
+
+
+
 
          // Fetch Gym Profiles
         async function fetchGymProfiles() {
