@@ -297,7 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <img src="${gym.gymPhoto || 'default-photo.jpg'}" alt="${gym.gymName || 'Gym'}" class="card-img-top gym-photo" />
                         <div class="card-body">
                             <h5 class="card-title">${gym.gymName || 'N/A'}</h5>
-                            <button class="btn btn-primary" onclick="viewMore('${gym.id}')">View More</button>
+                            <button class="custom-button btn-primary" onclick="viewMore('${gym.id}')">View More</button>
                         </div>
                     `;
         
