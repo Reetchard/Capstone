@@ -6,12 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/Dashstyle.css">
     <link rel="stylesheet" href="css/media.css">
     <link rel="stylesheet" href="css/styles.css">
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
         .section {
             display: none; /* Hide all sections by default */
@@ -24,15 +25,16 @@
 </head>
 <body>
     <nav class="sidebar">
-        <div class="profile-container dropdown-toggle" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" class="profile-img">
+        <div class="profile-container dropdown">
+            <div class="dropdown-toggle" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" class="profile-img">
+            </div>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <li><a class="dropdown-item" href="Pinfo.html">Personal Information</a></li>
+                <li><a class="dropdown-item" href="report.html">Submit a Complaint</a></li>
+                <li><a class="dropdown-item" href="login.html">Log Out</a></li>
+            </ul>
         </div>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <a class="dropdown-item" href="Pinfo.html">Personal Information</a>
-            <a class="dropdown-item" href="report.html">Submit a Complaint</a>
-            <a class="dropdown-item" href="login.html">Log Out</a>
-        </div>
-    
         <ul class="sidebar-nav">
             <li class="nav-item">
                 <a class="nav-link" href="#" data-target="home">
@@ -308,9 +310,10 @@
 
     <!-- Include jQuery before Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/5.11.3/main.min.js"></script>
     <script type="module" src="src/Js/DashScript.js"></script>
 
 </body>

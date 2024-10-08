@@ -107,51 +107,33 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// Function to display user profile picture
-function displayProfilePicture(user) {
-    if (!user || !user.uid) {
-        console.error('User is not authenticated or user ID is missing.');
-        return;
+    // Function to display user profile picture
+    function displayProfilePicture(user) {
+        const userId = user.uid;  // Assuming user.uid is available
+        console.log("User ID:", userId); // Log User ID for verification
+        const profilePicRef = ref(storage, `profilePictures/${userId}/profile.jpg`); // Ensure `ref` is defined
+
+        getDownloadURL(profilePicRef)
+            .then((url) => {
+                const profilePicture = document.getElementById('profile-picture');
+                profilePicture.src = url;
+            })
+            .catch((error) => {
+                console.error("Error loading profile picture:", error.message);
+
+                // Check if the error is because the file does not exist
+                if (error.code === 'storage/object-not-found') {
+                    const profilePicture = document.getElementById('profile-picture');
+                    profilePicture.src = 'framework/img/Profile.png'; // Fallback default picture
+                    console.warn("Profile picture does not exist, loading default image.");
+                } else {
+                    console.error('Unexpected error loading profile picture:', error.message);
+                }
+            });
     }
 
-    const userId = user.uid;
-    const profilePicRef = ref(storage, `profilePictures/${userId}/profile.jpg`);
-    const profilePicture = document.getElementById('profile-picture');
 
-    getDownloadURL(profilePicRef)
-        .then((url) => {
-            profilePicture.src = url; // Set the profile picture URL
-        })
-        .catch((error) => {
-            console.error('Error loading profile picture:', error.message);
-            if (error.code === 'storage/object-not-found') {
-                console.warn('Profile picture does not exist, loading default image.');
-                profilePicture.src = 'framework/img/Profile.png'; // Default image
-            } else {
-                console.error('Unexpected error loading profile picture:', error.message);
-            }
-        });
-}
-
-
-    getDownloadURL(profilePicRef)
-        .then((url) => {
-            profilePicture.src = url; // Set the profile picture URL
-        })
-        .catch((error) => {
-            console.error('Error loading profile picture:', error.message);
-
-            // Fallback to default image if the profile picture doesn't exist
-            if (error.code === 'storage/object-not-found') {
-                console.warn('Profile picture does not exist, loading default image.');
-                profilePicture.src = 'framework/img/Profile.png'; // Default image
-            } else {
-                console.error('Unexpected error loading profile picture:', error.message);
-            }
-        });
-    
-
-    async function uploadProfilePicture(file) {
+    window.uploadProfilePicture =async function (file) {
         const user = getAuth().currentUser;
         if (!user) {
             console.error('No authenticated user found.');
@@ -323,7 +305,14 @@ function displayProfilePicture(user) {
                 }
             });
         }
-        
+        window.addEventListener('load', function() {
+            fetchTrainers();
+            fetchGymProfiles();
+            fetchMembershipPlans();
+        });
+
+
+
       window. viewMore = async function (gymId) {
         try {
             // Reference to the specific gym document using the gymId

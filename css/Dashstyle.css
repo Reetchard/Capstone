@@ -1,13 +1,13 @@
 /* Dropdown Menu */
 .dropdown-menu {
-    position: absolute; /* Positioned relative to its parent */
-    top: 100%; /* Aligns the dropdown below the parent button */
+    position: absolute; /* Ensures the dropdown is positioned relative to its parent */
+    top: 100%; /* Position it below the parent button */
     left: 0; /* Align with the left edge of the parent button */
     margin: 0; /* Remove default margin */
     transition: opacity 0.4s ease, transform 0.4s ease;
     opacity: 0;
     transform: translateY(-10px);
-    display: none; /* Set display to none initially */
+    display: block; /* Use block to ensure it's properly displayed */
     background-color: #343a40;
     border: 1px solid #454d55;
     border-radius: 0.25rem;
@@ -15,11 +15,9 @@
     z-index: 1000; /* Ensure it appears on top of other elements */
 }
 
-/* Show the dropdown when it has the class 'show' */
 .dropdown-menu.show {
     opacity: 1;
     transform: translateY(0); /* Reset transform on show */
-    display: block; /* Ensure the dropdown is displayed */
 }
 
 /* Dropdown Items */
@@ -37,7 +35,6 @@
 .dropdown-divider {
     border-top: 1px solid #495057;
 }
-
 
 /* Circular Button */
 .btn-circle {
