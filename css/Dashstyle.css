@@ -263,7 +263,51 @@
     margin: 5px 0;
     color: #555; /* Slightly lighter text color */
 }
-
+#gym-profile {
+    background: #161a2d; /* Soft gradient background */
+    padding: 40px 20px; /* Add padding for spacing */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    margin: 20px auto; /* Center the section and add margin */
+    max-width: 1200px;
+    margin-left: 270px; /* Adjust this value based on the sidebar width */
+}
+#trainer-profile{
+    background: #161a2d; /* Soft gradient background */
+    padding: 40px 20px; /* Add padding for spacing */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    margin: 20px auto; /* Center the section and add margin */
+    max-width: 1200px;
+    margin-left: 270px; /* Adjust this value based on the sidebar width */
+}
+#member-status{
+    background: #161a2d; /* Soft gradient background */
+    padding: 40px 20px; /* Add padding for spacing */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    margin: 20px auto; /* Center the section and add margin */
+    max-width: 1200px;
+    margin-left: 270px; /* Adjust this value based on the sidebar width */
+}
+#notifications{
+    background: #161a2d; /* Soft gradient background */
+    padding: 40px 20px; /* Add padding for spacing */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    margin: 20px auto; /* Center the section and add margin */
+    max-width: 1200px;
+    margin-left: 270px; /* Adjust this value based on the sidebar width */
+}
+#chat{
+    background: #161a2d; /* Soft gradient background */
+    padding: 40px 20px; /* Add padding for spacing */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    margin: 20px auto; /* Center the section and add margin */
+    max-width: 1200px;
+    margin-left: 270px; /* Adjust this value based on the sidebar width */
+}
 .btn-primary {
     display: inline-block;
     padding: 10px 20px;
@@ -1059,7 +1103,8 @@ body {
 
 .modal h3 {
     margin: 15px 0;
-    color: #333;
+    color: #fff;
+    font-weight: bold;
 }
 
 .modal p {
@@ -1088,7 +1133,7 @@ body {
 }
 
 .modal-content {
-    background-color: #ffffff; /* White background */
+    background-color: #2c3e50; /* White background */
     margin: auto; /* Center it vertically and horizontally */
     padding: 30px;
     border-radius: 15px; /* Rounded corners */
