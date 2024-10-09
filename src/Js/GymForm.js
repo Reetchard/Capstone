@@ -40,6 +40,7 @@ window.addEventListener('load', () => {
     const gymOpeningTime = document.getElementById("gymOpeningTime");
     const gymClosingTime = document.getElementById("gymClosingTime");
     const gymLocation = document.getElementById("gymLocation");
+    const gymPriceRate = document.getElementById("gymPriceRate");
     const errorMessage = document.getElementById("gymOwnerFormErrorMessage");
     const successMessage = document.getElementById("gymOwnerFormSuccessMessage");
     const uploadPhotoButton = document.getElementById('uploadPhotoButton'); // Ensure button is available
@@ -102,6 +103,7 @@ window.addEventListener('load', () => {
                 gymOpeningTime: gymOpeningTime.value,
                 gymClosingTime: gymClosingTime.value,
                 gymLocation: gymLocation.value,
+                gymPriceRate:gymPriceRate.value,
                 status: "Under Review"  // Set status as "Under Review"
             }, { merge: true }); // Use merge to keep existing user data
 

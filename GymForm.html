@@ -28,34 +28,34 @@
                 <label for="gymName">Gym Name</label>
                 <input type="text" id="gymName" placeholder="Enter Gym Name" required>
             </div>
-
+    
             <!-- Gym Certifications -->
             <div class="input-container">
                 <label for="gymCertifications">Gym Certifications</label>
                 <input type="file" id="gymCertifications" accept="application/pdf, image/*" required>
             </div>
-
+    
             <!-- Other Gym Details -->
             <div class="input-container">
                 <label for="gymemail">Gym Email</label>
                 <input type="email" id="gymemail" placeholder="Enter Gym Email" required>
             </div>
-
+    
             <div class="input-container">
                 <label for="gymEquipment">Gym Equipment</label>
                 <input type="text" id="gymEquipment" placeholder="List Gym Equipment" required>
             </div>
-
+    
             <div class="input-container">
                 <label for="gymContact">Contact Number</label>
                 <input type="tel" id="gymContact" placeholder="Enter Contact Number" required>
             </div>
-
+    
             <div class="input-container">
                 <label for="gymPrograms">Programs Offered</label>
                 <input type="text" id="gymPrograms" placeholder="Enter Gym Programs" required>
             </div>
-
+    
             <!-- Opening & Closing Times -->
             <div class="input-container time-container">
                 <div>
@@ -67,19 +67,26 @@
                     <input type="time" id="gymClosingTime" required>
                 </div>
             </div>
-
+    
             <!-- Gym Location -->
             <div class="input-container">
                 <label for="gymLocation">Gym Location</label>
                 <input type="text" id="gymLocation" placeholder="Enter Gym Location" required>
             </div>
-
+    
+            <!-- Gym Profile Price Rate -->
+            <div class="input-container">
+                <label for="gymPriceRate">Gym Profile Price Rate ($)</label>
+                <input type="text" id="gymPriceRate" placeholder="Enter Price Rate" required min="0" step="0.01">
+            </div>
+    
             <!-- Submit Button -->
             <button type="submit" class="submit-btn">Submit</button>
             <p id="gymOwnerFormErrorMessage" class="form-message error-message"></p>
             <p id="gymOwnerFormSuccessMessage" class="form-message success-message"></p>
         </form>
     </div>
+    
 
     <!-- Link to external JS file -->
     <script type="module" src="src/Js/GymForm.js"></script>

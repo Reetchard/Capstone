@@ -1,6 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
 import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
-import { getFirestore, collection, getDocs, doc, getDoc,query,where } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js'; 
+import { getFirestore, collection, getDocs, doc, addDoc,getDoc,query,where,updateDoc } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js'; 
 import { getStorage, ref, getDownloadURL,uploadBytes  } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-storage.js';
 
 // Your Firebase configuration
@@ -40,12 +40,14 @@ onAuthStateChanged(auth, async (user) => {
     if (user) {
         const userId = user.uid;
         const userDocRef = doc(db, 'Users', userId);
+        const currentUserId = user.uid; // Get the current authenticated user's ID
         try {
             const userDoc = await getDoc(userDocRef);
             if (userDoc.exists()) {
                 const userData = userDoc.data();
                 const role = userData.role || 'user';
                 const email = user.email;
+                fetchNotifications(currentUserId);
 
                 createDropdownMenu(email, role);
                 displayProfilePicture(user);
@@ -106,9 +108,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-
-    // Function to display user profile picture
-    function displayProfilePicture(user) {
+// Function to display user profile picture
+function displayProfilePicture(user) {
         const userId = user.uid;  // Assuming user.uid is available
         console.log("User ID:", userId); // Log User ID for verification
         const profilePicRef = ref(storage, `profilePictures/${userId}/profile.jpg`); // Ensure `ref` is defined
@@ -130,10 +131,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error('Unexpected error loading profile picture:', error.message);
                 }
             });
-    }
+}
 
 
-    window.uploadProfilePicture =async function (file) {
+window.uploadProfilePicture =async function (file) {
         const user = getAuth().currentUser;
         if (!user) {
             console.error('No authenticated user found.');
@@ -147,10 +148,10 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Error uploading profile picture:', error);
         }
-    }
+}
 
        // Fetch Membership Plans
-       async function fetchMembershipPlans(gymId) {
+async function fetchMembershipPlans(gymId) {
         const plansCollection = collection(db, 'MembershipPlans');
         const plansSnapshot = await getDocs(plansCollection);
         const plansList = plansSnapshot.docs.map(doc => doc.data());
@@ -169,9 +170,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 membershipPlansContainer.appendChild(planDiv);
             }
         });
-    }
-    // Function to show the Membership Plans modal
-    window.viewMembershipPlans = async function (gymId) {
+ }
+// Function to show the Membership Plans modal
+window.viewMembershipPlans = async function (gymId) {
         const modal = document.getElementById('membershipPlansModal');
         if (modal) {
             modal.style.display = 'block';
@@ -216,18 +217,18 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error("Error fetching membership plans:", error);
         }
-    };
+};
                 // Function to close the modal
-        window.closeMembershipPlansModal = function() {
+window.closeMembershipPlansModal = function() {
             const modal = document.getElementById('membershipPlansModal');
             if (modal) {
                 modal.style.display = 'none';
             } else {
                 console.error('Membership Plans modal element not found.');
             }
-        };
+};
         
-        function displayMembershipPlans(plans) {
+function displayMembershipPlans(plans) {
             const plansContainer = document.getElementById('membershipPlansContent'); // Adjust to your modal's content area
             plansContainer.innerHTML = ''; // Clear existing content
         
@@ -239,227 +240,319 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `;
             });
-        }
+}
 
-        // Fetch trainers from Firestore
-        async function fetchTrainers() {
-            const trainersCollection = collection(db, 'Users');
-            const trainerSnapshot = await getDocs(trainersCollection);
-            const trainerList = trainerSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); // Include the document ID
-
-            console.log("Fetched Trainers:", trainerList); // Debugging line
-
-            const trainerProfilesContainer = document.getElementById('trainer-profiles');
-            trainerProfilesContainer.innerHTML = '';
-
-            trainerList.forEach(trainer => {
-                // Check if the trainer's status is not "Under Review" and their role is "Trainer"
-                if (trainer.status && trainer.status !== 'Under review' && trainer.role === 'trainer') {
-                    const trainerDiv = document.createElement('div');
-                    trainerDiv.classList.add('card','trainer-profile', 'mb-3');
-
-                    trainerDiv.innerHTML = `
-                        <img src="${trainer.TrainerPhoto || 'images/default-image-url.jpg'}" alt="${trainer.TrainerName || 'trainer'}" class="card-img- top trainer-photo" />
-                        <div class='card-body'>
-                        <h5 class="card-title">${trainer.TrainerName || 'N/A'}</h5>
-                        <button class="custom-button btn-primary" onclick="viewTrainerDetails('${trainer.id}')">Trainer Info</button>
-                        </div>
-                    `;
-
-                    trainerProfilesContainer.appendChild(trainerDiv);
+document.addEventListener('DOMContentLoaded', () => {
+            // Define all functions here
+        
+            function closeCurrentModal() {
+                if (currentModal) {
+                    currentModal.style.display = "none"; // Hide the current modal
+                    currentModal = null; // Reset the current modal
                 }
-            });
-        }
-
-        let currentModal = null; // Variable to track the currently open modal
-
-        function closeCurrentModal() {
-            if (currentModal) {
-                currentModal.style.display = "none"; // Hide the current modal
-                currentModal = null; // Reset the current modal
             }
-        }
+        // Fetch trainers from Firestore
+        window.fetchTrainers = async function () {
+                const trainersCollection = collection(db, 'Users');
+                const trainerSnapshot = await getDocs(trainersCollection);
+                const trainerList = trainerSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); // Include the document ID
         
-        // Function to view trainer details
-        window.viewTrainerDetails = function(userId) {
-            console.log("Fetching details for Trainer ID:", userId); // Debugging line
+                console.log("Fetched Trainers:", trainerList); // Debugging line
         
-            const trainerRef = doc(db, 'Users', userId); // Fetch by document ID
+                const trainerProfilesContainer = document.getElementById('trainer-profiles');
+                trainerProfilesContainer.innerHTML = '';
         
-            getDoc(trainerRef).then(doc => {
-                if (doc.exists()) {
-                    const trainerData = doc.data();
-                    console.log("Trainer Details:", trainerData); // For debugging purposes
+                trainerList.forEach(trainer => {
+                    // Check if the trainer's status is not "Under Review" and their role is "Trainer"
+                    if (trainer.status && trainer.status !== 'Under review' && trainer.role === 'trainer') {
+                        const trainerDiv = document.createElement('div');
+                        trainerDiv.classList.add('card', 'trainer-profile', 'mb-3');
         
-                    const modalContent = document.getElementById('modalContent');
-                    if (modalContent) { // Check if modalContent exists
-                        modalContent.innerHTML = `
-                            <h2>${trainerData.TrainerName}</h2>
-                            <img src="${trainerData.TrainerPhoto || 'images/default-image-url.png'}" alt="${trainerData.TrainerName}" class="trainer-photo" />
-                            <p>Experience: ${trainerData.Experience || 'N/A'}</p>
-                            <p>Expertise: ${trainerData.Expertise || 'N/A'}</p>
-                            <p>Days Available: ${trainerData.Days || 'N/A'}</p>
-                            <p>Rate: ${trainerData.rate || 'N/A'}</p>
-                            <button class="btn btn-primary" id="bookNowButton">Book Now</button>
+                        trainerDiv.innerHTML = `
+                            <img src="${trainer.TrainerPhoto || 'images/default-image-url.jpg'}" alt="${trainer.TrainerName || 'trainer'}" class="card-img-top trainer-photo" />
+                            <div class='card-body'>
+                            <h5 class="card-title">${trainer.TrainerName || 'N/A'}</h5>
+                            <button class="custom-button btn-primary" onclick="viewTrainerDetails('${trainer.id}')">Trainer Info</button>
+                            </div>
                         `;
         
-                        // Close the current modal if it exists
-                        closeCurrentModal();
-                        // Show the trainer modal
-                        const modal = document.getElementById('trainerModal');
-                        modal.style.display = "block";
-                        currentModal = modal; // Set current modal to trainer modal
-        
-                        // Add event listener for the "Book Now" button
-                        document.getElementById('bookNowButton').onclick = function() {
-                            console.log("Book Now button clicked"); // Debugging line
-                            showCheckoutModal(userId, trainerData); // Pass userId and trainerData
-                        };
-        
-                        // Close the modal when clicking outside of it
-                        window.onclick = function(event) {
-                            if (event.target === modal) {
-                                closeCurrentModal();
-                            }
-                        };
-                    } else {
-                        console.error("Modal content element not found!");
+                        trainerProfilesContainer.appendChild(trainerDiv);
                     }
-                } else {
-                    console.error("No such trainer! Document ID may be incorrect.");
-                }
-            }).catch(error => {
-                console.error("Error fetching trainer details:", error);
-            });
-        }
-        
-        // Function to show checkout modal
-        window.showCheckoutModal = function(userId, trainerData) {
-            const checkoutModal = document.getElementById('checkoutModal');
-            const checkoutContent = document.getElementById('checkoutContent');
-        
-            if (checkoutModal && checkoutContent) {
-                // Check if trainerData is valid
-                if (!trainerData || !trainerData.TrainerName) {
-                    console.error("Invalid trainer data: ", trainerData);
-                    return; // Exit the function if trainerData is invalid
-                }
-        
-                // Prepare checkout content
-                checkoutContent.innerHTML = `
-                    <h2>Checkout</h2>
-                    <p>You are booking ${trainerData.TrainerName}</p>
-                    <p>Rate: ${trainerData.rate || 'N/A'}</p>
-                    <button class="btn btn-success" id="confirmBookingButtonCheckout">Confirm Booking</button>
-                    <button class="btn btn-secondary" id="cancelBookingButtonCheckout">Cancel</button>
-                `;
-        
-                // Close the current modal if it exists
-                closeCurrentModal();
-                // Show checkout modal
-                checkoutModal.style.display = "block";
-                currentModal = checkoutModal; // Set current modal to checkout modal
-        
-                // Handle confirm booking button
-                document.getElementById('confirmBookingButtonCheckout').onclick = function() {
-                    confirmBooking(userId, trainerData);
-                    closeCurrentModal(); // Close the modal after confirmation
-                };
-        
-                // Handle cancel booking button
-                document.getElementById('cancelBookingButtonCheckout').onclick = function() {
-                    closeCurrentModal(); // Close the modal on cancel
-                };
-        
-                // Close the checkout modal when clicking outside of it
-                window.onclick = function(event) {
-                    if (event.target === checkoutModal) {
-                        closeCurrentModal();
-                    }
-                };
-            } else {
-                console.error("Checkout modal or content element not found!");
+                });
             }
+        
+
+});
+
+async function fetchGymProfiles() {
+    const gymsCollection = collection(db, 'Users');
+    
+    // Query to get only gym owners
+    const gymOwnerQuery = query(gymsCollection, where('role', '==', 'gymowner'));
+    
+    const gymSnapshot = await getDocs(gymOwnerQuery);
+    const gymList = gymSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data() // Include the document data and its ID
+    }));
+
+    const gymProfilesContainer = document.getElementById('gym-profiles'); // Ensure correct ID
+    gymProfilesContainer.innerHTML = '';
+
+    gymList.forEach(gym => {
+        // Check if the gym status is not "Under Review"
+        if (gym.status && gym.status !== 'Under review') {
+            const gymDiv = document.createElement('div');
+            gymDiv.classList.add('card', 'gym-profile', 'mb-3'); // Add Bootstrap card classes
+
+            gymDiv.innerHTML = `
+                <img src="${gym.gymPhoto || 'default-photo.jpg'}" alt="${gym.gymName || 'Gym'}" class="card-img-top gym-photo" />
+                <div class="card-body">
+                    <h5 class="card-title">${gym.gymName || 'N/A'}</h5>
+                    <button class="custom-button btn-primary" onclick="viewMore('${gym.id}')">View More</button>
+                </div>
+            `;
+
+            gymProfilesContainer.appendChild(gymDiv);
         }
-        fetchTrainers();        
+    });
+}
+window.viewMore = async function (gymId) {
+    try {
+        const gymDocRef = doc(db, 'Users', gymId);
+        const gymDoc = await getDoc(gymDocRef);
+
+        if (gymDoc.exists()) {
+            const gymData = gymDoc.data();
+
+            // Ensure each element exists before setting innerText
+            const modalGymName = document.getElementById('modalGymName');
+            const modalGymPhoto = document.getElementById('modalGymPhoto');
+            const modalGymLocation = document.getElementById('modalGymLocation');
+            const modalGymEquipment = document.getElementById('modalGymEquipment');
+            const modalGymPrograms = document.getElementById('modalGymPrograms');
+            const modalPriceRate = document.getElementById('modalpriceRate');
+            const modalGymOpeningTime = document.getElementById('modalGymOpeningTime');
+            const modalGymClosingTime = document.getElementById('modalGymClosingTime');
+
+            if (modalGymName) modalGymName.innerText = gymData.gymName || 'N/A';
+            if (modalGymPhoto) modalGymPhoto.src = gymData.gymPhoto || 'default-photo.jpg';
+            if (modalGymLocation) modalGymLocation.innerText = gymData.gymLocation || 'N/A';
+            if (modalGymEquipment) modalGymEquipment.innerText = gymData.gymEquipment || 'N/A';
+            if (modalGymPrograms) modalGymPrograms.innerText = gymData.gymPrograms || 'N/A';
+            if (modalPriceRate) modalPriceRate.innerText = gymData.gymPriceRate || 'N/A';
+            if (modalGymOpeningTime) modalGymOpeningTime.innerText = gymData.gymOpeningTime || 'N/A';
+            if (modalGymClosingTime) modalGymClosingTime.innerText = gymData.gymClosingTime || 'N/A';
+
+            const modal = document.getElementById('gymProfileModal');
+            modal.style.display = 'block'; // Show the modal
+        } else {
+            console.error('No such document!');
+        }
+    } catch (error) {
+        console.error('Error fetching document:', error);
+    }
+}
 
 
+document.addEventListener('DOMContentLoaded', function() {
+    // Function to open and display trainer details in the modal
+window.viewTrainerDetails = async function(trainerId) {
+    console.log("Fetching details for Trainer ID:", trainerId); // Debugging line
 
+    const trainerRef = doc(db, 'Users', trainerId); // Fetch by document ID
+    try {
+        const trainerSnapshot = await getDoc(trainerRef);
+        if (trainerSnapshot.exists()) {
+            const trainerData = trainerSnapshot.data();
+            console.log("Trainer Details:", trainerData); // For debugging purposes
 
-         // Fetch Gym Profiles
-        async function fetchGymProfiles() {
-            const gymsCollection = collection(db, 'Users');
-            
-            // Query to get only gym owners
-            const gymOwnerQuery = query(gymsCollection, where('role', '==', 'gymowner'));
-            
-            const gymSnapshot = await getDocs(gymOwnerQuery);
-            const gymList = gymSnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data() // Include the document data and its ID
-            }));
-        
-            const gymProfilesContainer = document.getElementById('gym-profiles'); // Ensure correct ID
-            gymProfilesContainer.innerHTML = '';
-        
-            gymList.forEach(gym => {
-                // Check if the gym status is not "Under Review"
-                if (gym.status && gym.status !== 'Under Review') {
-                    const gymDiv = document.createElement('div');
-                    gymDiv.classList.add('card', 'gym-profile', 'mb-3'); // Add Bootstrap card classes
-        
-                    gymDiv.innerHTML = `
-                        <img src="${gym.gymPhoto || 'default-photo.jpg'}" alt="${gym.gymName || 'Gym'}" class="card-img-top gym-photo" />
-                        <div class="card-body">
-                            <h5 class="card-title">${gym.gymName || 'N/A'}</h5>
-                            <button class="custom-button btn-primary" onclick="viewMore('${gym.id}')">View More</button>
-                        </div>
-                    `;
-        
-                    gymProfilesContainer.appendChild(gymDiv);
+            // Populate the modal with trainer data
+            document.getElementById('modalTrainerName').innerText = trainerData.TrainerName || 'N/A';
+            document.getElementById('modalTrainerPhoto').src = trainerData.TrainerPhoto || 'default-trainer-photo.jpg';
+            document.getElementById('modalTrainerExperience').innerText = trainerData.Experience || 'N/A';
+            document.getElementById('modalTrainerExpertise').innerText = trainerData.Expertise || 'N/A';
+            document.getElementById('modalTrainerDaysAvailable').innerText = trainerData.DaysAvailable || 'N/A';
+            document.getElementById('modalTrainerContact').innerText = trainerData.TrainerContact || 'N/A';
+            document.getElementById('modalTrainerRate').innerText = trainerData.rate || 'N/A';
+
+            // Open the modal
+            const trainerModal = document.getElementById('trainerProfileModal');
+            trainerModal.style.display = 'block';
+
+            // Handle "Book Now" button functionality
+            document.getElementById('bookTrainerNowButton').onclick = function() {
+                showCheckoutModal(trainerId, trainerData); // Pass trainer data to checkout modal
+            };
+
+            // Close modal when clicking outside of it
+            window.onclick = function(event) {
+                if (event.target === trainerModal) {
+                    closeModal();
                 }
-            });
+            };
+        } else {
+            console.error("No such trainer! Document ID may be incorrect.");
         }
-        window.addEventListener('load', function() {
+    } catch (error) {
+        console.error("Error fetching trainer details:", error);
+    }
+};
+    // Function to close the modal
+    function closeModal() {
+        const trainerModal = document.getElementById('trainerProfileModal');
+        if (trainerModal) {
+            trainerModal.style.display = 'none'; // Hide the modal
+        }
+    }
+});
+
+
+
+document.addEventListener('DOMContentLoaded', function() {
+            // Now all event listeners and modal functions are attached when DOM is ready
             fetchTrainers();
             fetchGymProfiles();
             fetchMembershipPlans();
-        });
+            showCheckoutModal // Fetch trainers when the page loads
+  });
 
+  async function showCheckoutModal(trainerId, trainerData, userData = {}) {
+    const checkoutModal = document.getElementById('checkoutModal');
+    const checkoutContent = document.getElementById('checkoutContent');
 
+    // Provide default values for userData if undefined
+    const userName = userData.name || '';
+    const userEmail = userData.email || '';
 
-      window. viewMore = async function (gymId) {
-        try {
-            // Reference to the specific gym document using the gymId
-            const gymDocRef = doc(db, 'Users', gymId); // Ensure you're using 'Users' collection
-    
-            // Fetch the gym document
-            const gymDoc = await getDoc(gymDocRef);
-    
-            if (gymDoc.exists()) {
-                const gymData = gymDoc.data(); // Access the document data
-    
-                // Populate your modal or section with the gym data
-                // For example, if you're using a modal to show more details:
-                document.getElementById('modalGymName').innerText = gymData.gymName || 'N/A';
-                document.getElementById('modalGymPhoto').src = gymData.gymPhoto || 'default-photo.jpg';
-                document.getElementById('modalGymLocation').innerText = gymData.gymLocation || 'N/A';
-                document.getElementById('modalGymEquipment').innerText = gymData.gymEquipment || 'N/A';
-                document.getElementById('modalGymPrograms').innerText = gymData.gymPrograms || 'N/A';
-                document.getElementById('modalGymContact').innerText = gymData.gymContact || 'N/A';
-                document.getElementById('modalGymOpeningTime').innerText = gymData.gymOpeningTime || 'N/A';
-                document.getElementById('modalGymClosingTime').innerText = gymData.gymClosingTime || 'N/A';
-    
-                // Open the modal
-                const modal = document.getElementById('gymProfileModal');
-                modal.style.display = 'block'; // Show the modal
-            } else {
-                console.error('No such document!');
+    if (checkoutModal && checkoutContent) {
+        checkoutContent.innerHTML = `
+            <div class="row">
+                <!-- Left Column: Trainer Information -->
+                <div class="col-md-6">
+                    <h2>Trainer Details</h2>
+                    <div class="card mb-3" style="max-width: 300px; margin-left: 0;">
+                        <img src="${trainerData.TrainerPhoto || 'default-trainer-photo.jpg'}" class="img-fluid rounded-start" alt="Trainer Photo">
+                        <div class="card-body">
+                            <h5 class="card-title text-center">${trainerData.TrainerName}</h5>
+                            <p class="card-text text-center">Rate: ${trainerData.rate || 'N/A'}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: User/Customer Details -->
+                <div class="col-md-6">
+                    <h2>Reservation Details</h2>
+
+                    <div class="form-group">
+                        <label for="userName">Name</label>
+                        <input type="text" id="userName" class="form-control" value="${userName}" required>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label for="userEmail">Email</label>
+                        <input type="email" id="userEmail" class="form-control" value="${userEmail}" required>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label for="paymentMethod">Payment Method</label>
+                        <select id="paymentMethod" class="form-control">
+                            <option value="Over the Counter">Cash</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label for="reservationDate">Choose Reservation Date</label>
+                        <input type="date" id="reservationDate" class="form-control">
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="button-container mt-4 d-flex justify-content-between">
+                        <button class="btn btn-success btn-lg" id="confirmBookingButtonCheckout" style="width: 180px;">Confirm Booking</button>
+                        <button class="btn btn-secondary btn-lg" id="cancelBookingButtonCheckout" style="width: 180px;">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Show the checkout modal
+        checkoutModal.style.display = 'block';
+
+        // Handle confirm booking button with validation
+        document.getElementById('confirmBookingButtonCheckout').onclick = async function() {
+            const inputUserName = document.getElementById('userName').value.trim().toLowerCase();
+            const inputUserEmail = document.getElementById('userEmail').value.trim().toLowerCase();
+            const reservationDate = document.getElementById('reservationDate').value;
+
+            // Validate if a reservation date is selected
+            if (!reservationDate) {
+                alert('Please select a valid reservation date.');
+                return;
             }
-        } catch (error) {
-            console.error('Error fetching document:', error);
-        }
+
+            // Custom message and validation for booking confirmation
+            try {
+                // Save the booking to the Transactions collection
+                await addDoc(collection(db, 'Transactions'), {
+                    trainerId: trainerId,
+                    trainerName: trainerData.TrainerName,
+                    username: inputUserName,
+                    email: inputUserEmail,
+                    reservationDate: reservationDate,
+                    paymentMethod: document.getElementById('paymentMethod').value,
+                    rate: trainerData.rate
+                });
+
+                // Add a new notification for the user
+                await addDoc(collection(db, 'UserNotifications'), {
+                    userId: auth.currentUser.uid,  // Current logged-in user ID
+                    message: `Your booking with ${trainerData.TrainerName} is confirmed for ${reservationDate}.`,
+                    status: 'unread',
+                    timestamp: new Date()
+                });
+
+                // Show custom success message
+                alert(`🎉 Booking Confirmed! \n\nTrainer: ${trainerData.TrainerName}\nDate: ${reservationDate}\nRate: ${trainerData.rate}\n\nThank you for your reservation! We look forward to seeing you.`);
+                
+                // Close the modal
+                closeCheckoutModal();
+
+                // Fetch updated notifications and update the notification badge count
+                fetchNotifications(auth.currentUser.uid);
+            } catch (error) {
+                console.error('Error saving transaction or notification:', error);
+                // Custom error message
+                alert(`⚠️ Oops! Something went wrong while processing your booking. Please try again later.\n\nError: ${error.message}`);
+            }
+        };
+
+        // Handle cancel booking button with custom message
+        document.getElementById('cancelBookingButtonCheckout').onclick = function() {
+            if (confirm('Are you sure you want to cancel the booking?')) {
+                closeCheckoutModal();
+            }
+        };
+
+        // Close checkout modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target === checkoutModal) {
+                closeCheckoutModal();
+            }
+        };
+    } else {
+        console.error("Checkout modal or content element not found!");
     }
+}
+
+
+
+// Function to close checkout modal
+function closeCheckoutModal() {
+    const checkoutModal = document.getElementById('checkoutModal');
+    if (checkoutModal) {
+        checkoutModal.style.display = 'none'; // Hide the modal
+    }
+}
 
     // Function to close the modal
     window.closeModal = function() {
@@ -553,78 +646,17 @@ document.addEventListener('DOMContentLoaded', () => {
         showSection('gym-profile');
     };
     
-    document.addEventListener('DOMContentLoaded', async function() {
-        const notificationList = document.getElementById('notification-list');
-        const notificationCountElement = document.getElementById('notification-count'); // Badge element
-    
-        if (!notificationList) {
-            console.error('Notification list element not found.');
-            return; // Exit if the element is not found
-        }
-    
-        // Clear the existing default message
-        notificationList.innerHTML = '';
-    
-        // Fetch notifications from Firestore
-        try {
-            // Get the current user
-            const user = auth.currentUser;
-            if (!user) {
-                console.error('User is not authenticated.');
-                return; // Exit if the user is not authenticated
-            }
-    
-            const userId = user.uid; // Get the current user's ID from Firebase Auth
-    
-            // Fetch notifications from Firestore
-            const notifications = await fetchUserNotifications(userId);
-    
-            // Update notification badge count
-            updateNotificationCount(notifications.length);
-    
-            // Display sign-up notification if it exists
-            const notificationMessage = localStorage.getItem('signupNotification');
-            if (notificationMessage) {
-                const newNotification = document.createElement('li');
-                newNotification.textContent = notificationMessage;
-                notificationList.appendChild(newNotification);
-                localStorage.removeItem('signupNotification');
-            }
-    
-            // Display user notifications
-            if (notifications.length > 0) {
-                notifications.forEach(notification => {
-                    const notificationItem = document.createElement('li');
-                    notificationItem.textContent = notification.message; // Adjust according to your notification structure
-                    notificationList.appendChild(notificationItem);
-                });
-            } else {
-                // If no user notifications, show the default message
-                const noNotifications = document.createElement('li');
-                noNotifications.textContent = 'No new notifications';
-                notificationList.appendChild(noNotifications);
-            }
-    
-        } catch (error) {
-            console.error('Error fetching notifications:', error);
-            const errorMessage = document.createElement('li');
-            errorMessage.textContent = 'Error fetching notifications. Please try again later.';
-            notificationList.appendChild(errorMessage);
-        }
-    });
-    
-    // Function to fetch user notifications from Firestore
     async function fetchUserNotifications(userId) {
         try {
-            const notificationsRef = collection(db, 'UserNotification');
+            const notificationsRef = collection(db, 'UserNotifications');  // Firestore collection
             const q = query(notificationsRef, where('userId', '==', userId));
             const snapshot = await getDocs(q);
-            const notifications = [];
     
+            const notifications = [];
             snapshot.forEach(doc => {
                 notifications.push({
                     id: doc.id,
-                    ...doc.data() // Assuming you want all fields from the notification
+                    ...doc.data() // Collect the document data
                 });
             });
     
@@ -634,18 +666,86 @@ document.addEventListener('DOMContentLoaded', () => {
             return [];
         }
     }
+    async function fetchNotifications(currentUserId) {
+        try {
+            const notifications = await fetchUserNotifications(currentUserId); // Fetch notifications from Firestore
+            const unreadCount = notifications.filter(notification => notification.status === 'unread').length;
+            
+            updateNotificationCount(unreadCount); // Update the count in the badge
     
-    // Function to update the notification count badge
-    function updateNotificationCount(count) {
-        const notificationCountElement = document.getElementById('notification-count');
-        notificationCountElement.textContent = count; // Update the badge number
-    
-        // Show or hide the badge depending on count
-        if (count > 0) {
-            notificationCountElement.style.display = 'inline-block'; // Show badge if there are notifications
-        } else {
-            notificationCountElement.style.display = 'none'; // Hide badge if no notifications
+            const notificationList = document.getElementById('notification-list');
+            notificationList.innerHTML = ''; // Clear the list before adding new notifications
+            
+            if (notifications.length > 0) {
+                notifications.forEach(notification => {
+                    const notificationItem = document.createElement('li');
+                    notificationItem.classList.add('list-group-item');
+                    
+                    // Mark as read when the user clicks on it
+                    if (notification.status === 'unread') {
+                        notificationItem.classList.add('unread');
+                    } else {
+                        notificationItem.classList.add('read');  // Add a class to style read notifications
+                    }
+                    
+                    notificationItem.textContent = notification.message;
+                    notificationItem.onclick = () => markAsRead(notification.id, currentUserId);  // Mark as read when clicked
+                    
+                    notificationList.appendChild(notificationItem);
+                });
+            } else {
+                notificationList.innerHTML = '<li class="list-group-item">No new notifications</li>';
+            }
+        } catch (error) {
+            console.error('Error fetching notifications:', error);
         }
     }
     
-    
+
+        // Function to update the notification badge with the count
+        function updateNotificationCount(count) {
+            const notificationCountElement = document.getElementById('notification-count');
+            if (notificationCountElement) {
+                notificationCountElement.textContent = count;
+                notificationCountElement.style.display = count > 0 ? 'inline-block' : 'none';
+            }
+        }
+        async function markAsRead(notificationId, currentUserId) {
+            try {
+                const notificationRef = doc(db, 'UserNotifications', notificationId);
+                await updateDoc(notificationRef, { status: 'read' });  // Update status to 'read'
+        
+                // Refresh the notifications after marking one as read
+                fetchNotifications(currentUserId); // Refresh the notifications
+            } catch (error) {
+                console.error('Error marking notification as read:', error);
+            }
+        }
+        // Function to display notifications in the UI
+        function displayNotifications(notifications) {
+            const notificationList = document.getElementById('notification-list');  // Ensure you have this element in your HTML
+            if (!notificationList) {
+                console.error('Notification list element not found.');
+                return;
+            }
+
+            // Clear existing notifications
+            notificationList.innerHTML = '';
+
+            // If there are notifications, display them
+            if (notifications.length > 0) {
+                notifications.forEach(notification => {
+                    const notificationItem = document.createElement('li');
+                    notificationItem.textContent = notification.message;  // Adjust based on your notification structure
+                    notificationList.appendChild(notificationItem);
+                });
+            } else {
+                // If no notifications, show a default message
+                const noNotifications = document.createElement('li');
+                noNotifications.textContent = 'No new notifications';
+                notificationList.appendChild(noNotifications);
+            }
+        }
+        // Fetch and display notifications when the user is authenticated
+
+            

@@ -66,7 +66,7 @@
                 <a class="nav-link" href="#" data-target="notifications">
                     <img src="framework/img/notification.svg" alt="Notification Icon" class="nav-icon">
                     Notifications
-                    <span id="notification-count" class="badge badge-danger">0</span> <!-- Notification count badge -->
+                    <span id="notification-count" class="badge badge-danger">0</span><!-- Notification count badge -->
                 </a>
             </li>
             <!-- Chat Section -->
@@ -187,13 +187,16 @@
                     <div class="col-md-4">
                         <p><strong>Closing Time:</strong> <span id="modalGymClosingTime"></span></p>
                     </div>
+                    <div class="col-md-4">
+                        <p><strong>Price rate:</strong> <span id="modalpriceRate"></span></p>
+                    </div>
                 </div>
             </div>
     
             <!-- Buttons Section -->
             <div class="modal-buttons" style="margin-top: 20px;">
-                <button id="viewProductsButton" class="btn btn-primary" onclick="viewProducts()">View Products</button>
-                <button id="viewMembershipPlansButton" class="btn btn-secondary" onclick="viewMembershipPlans()">View Membership Plans</button>
+                <button id="viewProductsButton" class="btn btn-primary" onclick="viewProducts()">Products</button>
+                <button id="viewMembershipPlansButton" class="btn btn-secondary" onclick="viewMembershipPlans()">Membership Plans</button>
                 <!-- Add Book Now Button -->
                 <button id="bookNowButton" class="btn btn-success" style="margin-top: 10px;" onclick="bookNow()">Book Now</button>
             </div>
@@ -214,7 +217,8 @@
     <section id="notifications" class="section">
         <div class="container">
             <h2>Notifications</h2>
-            <ul id="notification-list">
+            <ul id="notification-list" class="list-group">
+                <li class="list-group-item">No new notifications</li> <!-- Default message -->
             </ul>
         </div>
     </section>
@@ -236,12 +240,43 @@
 
 
     
-    <div id="trainerModal" class="modal" style="display: none;">
-        <div class="modal-content" id="modalContent">
-            <!-- Trainer details will be populated here -->
+    <div id="trainerProfileModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal()">&times;</span>
+            <img id="modalTrainerPhoto" src="" alt="Trainer Photo" class="trainer-photo">
+            <h3 id="modalTrainerName">Trainer Name</h3>
+    
+            <!-- Bootstrap Grid for 3 Columns -->
+            <div class="container mt-4">
+                <div class="row">
+                    <div class="col-md-4">
+                        <p><strong>Experience:</strong> <span id="modalTrainerExperience"></span></p>
+                    </div>
+                    <div class="col-md-4">
+                        <p><strong>Expertise:</strong> <span id="modalTrainerExpertise"></span></p>
+                    </div>
+                    <div class="col-md-4">
+                        <p><strong>Days Available:</strong> <span id="modalTrainerDaysAvailable"></span></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <p><strong>Contact:</strong> <span id="modalTrainerContact"></span></p>
+                    </div>
+                    <div class="col-md-4">
+                        <p><strong>Rate:</strong> <span id="modalTrainerRate"></span></p>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Buttons Section -->
+            <div class="modal-buttons" style="margin-top: 20px;">
+                <button id="bookTrainerNowButton" class="btn btn-success" style="margin-top: 10px;" onclick="showCheckoutModal()">Book Now</button>
+            </div>
         </div>
-        <span class="close" onclick="document.getElementById('trainerModal').style.display='none'">&times;</span>
     </div>
+    
+    
     
     <!-- Confirmation Modal -->
     <div id="confirmationModal" class="modal" style="display: none;">
@@ -251,9 +286,9 @@
     </div>
     
     <!-- Checkout Modal -->
-    <div id="checkoutModal" class="modal" style="display:none;">
+    <div id="checkoutModal" class="modal">
         <div class="modal-content" id="checkoutContent">
-            <!-- Checkout details will be populated here -->
+            <!-- Content for checkout will be dynamically inserted here -->
         </div>
     </div>
     <!-- Include jQuery before Bootstrap JS -->
