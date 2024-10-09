@@ -309,7 +309,7 @@ async function fetchGymProfiles() {
                 <img src="${gym.gymPhoto || 'default-photo.jpg'}" alt="${gym.gymName || 'Gym'}" class="card-img-top gym-photo" />
                 <div class="card-body">
                     <h5 class="card-title">${gym.gymName || 'N/A'}</h5>
-                    <button class="custom-button btn-primary" onclick="viewMore('${gym.id}')">View More</button>
+                    <button class="custom-button btn-primary" onclick="viewMore('${gym.id}')">Gym Info</button>
                 </div>
             `;
 
@@ -386,11 +386,11 @@ window.viewTrainerDetails = async function(trainerId) {
             };
 
             // Close modal when clicking outside of it
-            window.onclick = function(event) {
-                if (event.target === trainerModal) {
-                    closeModal();
-                }
-            };
+            // window.onclick = function(event) {
+            //     if (event.target === trainerModal) {
+            //         closeModal();
+            //     }
+            // };
         } else {
             console.error("No such trainer! Document ID may be incorrect.");
         }
@@ -399,12 +399,12 @@ window.viewTrainerDetails = async function(trainerId) {
     }
 };
     // Function to close the modal
-    function closeModal() {
-        const trainerModal = document.getElementById('trainerProfileModal');
-        if (trainerModal) {
-            trainerModal.style.display = 'none'; // Hide the modal
-        }
-    }
+    // function closeModal() {
+    //     const trainerModal = document.getElementById('trainerProfileModal');
+    //     if (trainerModal) {
+    //         trainerModal.style.display = 'none'; // Hide the modal
+    //     }
+    // }
 });
 
 
@@ -554,19 +554,30 @@ function closeCheckoutModal() {
     }
 }
 
-    // Function to close the modal
-    window.closeModal = function() {
-        const modal = document.getElementById('gymProfileModal');
+    // Function to close any modal by passing its ID
+window.closeModal = function(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
         modal.style.display = 'none'; // Hide the modal
     }
-    
-    // Close the modal when clicking outside of the modal content
-    window.onclick = function(event) {
-        const modal = document.getElementById('gymProfileModal');
-        if (event.target === modal) {
-            closeModal();
-        }
+}
+
+// Close the modal when clicking outside of the modal content
+window.onclick = function(event) {
+    const gymModal = document.getElementById('gymProfileModal');
+    const trainerModal = document.getElementById('trainerProfileModal');
+
+    // Close gym modal if clicking outside of it
+    if (event.target === gymModal) {
+        closeModal('gymProfileModal');
     }
+
+    // Close trainer modal if clicking outside of it
+    if (event.target === trainerModal) {
+        closeModal('trainerProfileModal');
+    }
+}
+
     
     // Function to toggle chat visibility
     window.toggleChat = function() {
