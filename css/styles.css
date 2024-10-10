@@ -49,7 +49,7 @@ strong {
 }
 
 .custom-button.btn-primary {
-    background-color: #3498db;
+    background-color: #ff8e00;
     border: none;
 }
 
@@ -266,7 +266,7 @@ strong {
 }
 
 .btn-primary:hover {
-    background-color: #16a085;
+    background-color: #ffbe33;
 }
 .card-body {
     display: flex;                /* Enable flexbox layout */
@@ -287,4 +287,10 @@ strong {
     .stat-box h5 {
         font-size: 1.5rem;
     }
+}
+.trainer-photo{
+    width: 100%;
+    height: 200px;
+    border-radius: 8px;
+    margin-bottom: 15px;
 }
