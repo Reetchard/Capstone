@@ -1,10 +1,9 @@
-// Import Firebase services
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-import { getFirestore, collection, setDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js"; // Import Auth
+// Initialize Firebase
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js";
+import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-auth.js";
 
-// Your Firebase configuration
+// Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyAPNGokBic6CFHzuuENDHdJrMEn6rSE92c",
     authDomain: "capstone40-project.firebaseapp.com",
@@ -17,132 +16,186 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const firestore = getFirestore(app);
-const storage = getStorage(app);
-const auth = getAuth(app); // Initialize Auth
+const db = getFirestore(app);
+const auth = getAuth(app);
 
-window.addEventListener('load', () => {
-    const form = document.getElementById("gymOwnerDetailsForm");
-
-    if (!form) {
-        console.error('Form element not found');
-        return;
+// Function to show success, error, or confirmation messages
+function showMessage(type, message) {
+    if (type === 'success') {
+        $('#successMessage').text(message);
+        $('#successModal').modal('show');
+    } else if (type === 'error') {
+        $('#errorMessage').text(message);
+        $('#errorModal').modal('show');
     }
+}
 
-    // Element declarations
-    const gymName = document.getElementById("gymName");
-    const gymPhotoInput = document.getElementById("gymPhoto");
-    const gymCertificationsInput = document.getElementById("gymCertifications");
-    const gymEmailInput = document.getElementById("gymemail");
-    const gymEquipment = document.getElementById("gymEquipment");
-    const gymContact = document.getElementById("gymContact");
-    const gymPrograms = document.getElementById("gymPrograms");
-    const gymOpeningTime = document.getElementById("gymOpeningTime");
-    const gymClosingTime = document.getElementById("gymClosingTime");
-    const gymLocation = document.getElementById("gymLocation");
-    const gymPriceRate = document.getElementById("gymPriceRate");
-    const errorMessage = document.getElementById("gymOwnerFormErrorMessage");
-    const successMessage = document.getElementById("gymOwnerFormSuccessMessage");
-    const uploadPhotoButton = document.getElementById('uploadPhotoButton'); // Ensure button is available
-    const photoPreview = document.getElementById('photoPreview'); // Ensure photo preview area is available
+// Function to show custom confirmation
+function showConfirmation(message, callback) {
+    $('#confirmationMessage').text(message);
+    $('#confirmationModal').modal('show');
+    
+    $('#confirmDeleteBtn').off('click').on('click', function () {
+        $('#confirmationModal').modal('hide');
+        callback(true);
+    });
+}
 
-    // Function to handle image upload
-    async function uploadFile(file, path) {
-        const storageReference = storageRef(storage, path);
-        const snapshot = await uploadBytes(storageReference, file);
-        return await getDownloadURL(snapshot.ref);
+// Handle form submission for adding or updating a plan
+$('#editPlanForm').on('submit', async function (e) {
+    e.preventDefault();
+
+    const id = $('#editPlanId').val();
+    const membershipType = $('#membershipType').val();
+    const price = $('#editPlanPrice').val();
+    const description = tinymce.get('editPlanDescription').getContent();
+    const accessLevel = $('#accessLevel').val();
+    const allowedClasses = $('#allowedClasses').val();
+    const guestPasses = $('#guestPasses').val();
+    const referralCode = $('#referralCode').val();
+    const membershipDays = $('#membershipDays').val();
+
+    const user = auth.currentUser;
+    const userEmail = user ? user.email : null;
+
+    // Create the document name
+    const docName = ${membershipType}-${userEmail.replace(/[@.]/g, '_')};
+
+    try {
+        // Save or update the document in Firestore
+        await setDoc(doc(db, 'MembershipPlans', docName), {
+            membershipType,
+            price,
+            description,
+            accessLevel,
+            allowedClasses,
+            guestPasses,
+            referralCode,
+            membershipDays,
+            ownerEmail: userEmail
+        });
+
+        // Show success message
+        showMessage('success', 'Plan saved successfully.');
+
+        // Reset the form
+        $('#editPlanForm')[0].reset();
+        tinymce.get('editPlanDescription').setContent('');
+
+        // Close the modal
+        $('#membershipModal').modal('hide');
+
+    } catch (error) {
+        showMessage('error', 'An error occurred while saving the plan: ' + error.message);
     }
+});
 
-    // Function to check if the authenticated user's email matches the gymEmail
-    async function isUserEmailValid(gymEmail) {
-        const user = auth.currentUser; // Get the current authenticated user
+// Fetch and display updated data on landing page
+$(document).ready(function () {
+    onAuthStateChanged(auth, (user) => {
         if (user) {
             const userEmail = user.email;
-            console.log("Authenticated User Email:", userEmail); // Log authenticated email
+            const membershipPlansRef = collection(db, 'MembershipPlans');
+            const userPlansQuery = query(membershipPlansRef, where('ownerEmail', '==', userEmail)); // Filter by gym owner's email
 
-            // Check if the authenticated user's email matches the provided gymEmail
-            return userEmail === gymEmail; // Email matches
-        } else {
-            console.error("No user is authenticated."); // Log if no user is authenticated
-            return false; // Not authenticated
-        }
-    }
+            // Listen for real-time updates (filtered by owner's email)
+            onSnapshot(userPlansQuery, (snapshot) => {
+                $('#plansTableBody').empty();  // Clear the table body before updating
+                snapshot.forEach((doc) => {
+                    const plan = doc.data();
+                    const id = ${plan.membershipType}-${plan.ownerEmail.replace(/[@.]/g, '_')};
 
-    // Listen for form submit
-    form.addEventListener("submit", async (e) => {
-        e.preventDefault();
+                    // Add the plan to the table
+                    const newRow = $( 
+                        <tr id="${id}">
+                            <td>${plan.membershipType}</td>
+                            <td>₱${plan.price}</td>
+                            <td>${plan.description}</td>
+                            <td>${plan.accessLevel}</td>
+                            <td>${plan.allowedClasses}</td>
+                            <td>${plan.guestPasses}</td>
+                            <td>${plan.referralCode}</td>
+                            <td>${plan.membershipDays}</td>
+                            <td>
+                                <button class="btn btn-primary transition-button" data-id="${id}">Edit</button>
+                                <button class="btn btn-danger delete-button" data-id="${id}">Delete</button>
+                            </td>
+                        </tr>
+                    );
 
-        try {
-            const gymEmail = gymEmailInput.value; // Get the gym email value
-            console.log("Gym Email:", gymEmail); // Log the gym email for debugging
-            
-            // Validate the user's email
-            const isValidEmail = await isUserEmailValid(gymEmail);
-            if (!isValidEmail) {
-                errorMessage.innerHTML = "Error: User email does not match the GymForm email.";
-                return;
+                    // Append the new row to the table
+                    $('#plansTableBody').append(newRow);
+                });
+            });
+
+            // Handle Edit button click
+            $(document).on('click', '.transition-button', function () {
+                const id = $(this).data('id');
+                const row = $(#${id});
+                const plan = {
+                    membershipType: row.find('td').eq(0).text(),
+                    price: row.find('td').eq(1).text().replace('₱', ''),
+                    description: row.find('td').eq(2).text(),
+                    accessLevel: row.find('td').eq(3).text(),
+                    allowedClasses: row.find('td').eq(4).text(),
+                    guestPasses: row.find('td').eq(5).text(),
+                    referralCode: row.find('td').eq(6).text(),
+                    membershipDays: row.find('td').eq(7).text(),
+                };
+
+                // Populate the form with the data from the selected row
+                $('#editPlanId').val(id);
+                $('#membershipType').val(plan.membershipType);
+                $('#editPlanPrice').val(plan.price);
+                tinymce.get('editPlanDescription').setContent(plan.description);
+                $('#accessLevel').val(plan.accessLevel);
+                $('#allowedClasses').val(plan.allowedClasses);
+                $('#guestPasses').val(plan.guestPasses);
+                $('#referralCode').val(plan.referralCode);
+                $('#membershipDays').val(plan.membershipDays);
+
+                // Open the modal
+                $('#membershipModal').modal('show');
+            });
+
+            // Handle Delete button click
+            $(document).on('click', '.delete-button', function () {
+                const id = $(this).data('id');
+                const row = $(#${id});
+
+                // Show custom confirmation dialog
+                showConfirmation(Are you sure you want to delete the ${row.find('td').eq(0).text()} plan?, function (confirmed) {
+                    if (confirmed) {
+                        deletePlan(id);
+                    }
+                });
+            });
+
+            // Function to delete a plan
+            async function deletePlan(id) {
+                try {
+                    const docRef = doc(db, 'MembershipPlans', id);
+
+                    await deleteDoc(docRef);
+
+                    // Remove the row from the table
+                    $(#${id}).remove();
+                    showMessage('success', 'Plan deleted successfully.');
+                } catch (error) {
+                    showMessage('error', 'An error occurred while deleting the plan: ' + error.message);
+                }
             }
-
-            // Upload files and get URLs
-            const gymPhotoURL = gymPhotoInput.files[0] ? await uploadFile(gymPhotoInput.files[0], `gym_photos/${gymName.value}`) : "";
-            const gymCertificationsURL = gymCertificationsInput.files[0] ? await uploadFile(gymCertificationsInput.files[0], `gym_certifications/${gymName.value}`) : "";
-
-            // Get authenticated user details
-            const user = auth.currentUser;
-            const userId = user.uid; // User's unique ID
-
-            // Create or update the user's document with gym information
-            const userDocRef = doc(firestore, 'Users', userId);
-            await setDoc(userDocRef, {
-                gymName: gymName.value,
-                gymPhoto: gymPhotoURL,  // Store photo URL
-                gymCertifications: gymCertificationsURL,  // Store certification URL
-                gymEquipment: gymEquipment.value,
-                gymContact: gymContact.value,
-                gymPrograms: gymPrograms.value,
-                gymOpeningTime: gymOpeningTime.value,
-                gymClosingTime: gymClosingTime.value,
-                gymLocation: gymLocation.value,
-                gymPriceRate:gymPriceRate.value,
-                status: "Under Review"  // Set status as "Under Review"
-            }, { merge: true }); // Use merge to keep existing user data
-
-            // Success message logic
-            successMessage.innerHTML = "Gym information submitted successfully! Please wait for admin's approval.";
-            errorMessage.innerHTML = "";  // Clear any error message
-            setTimeout(() => { successMessage.innerHTML = ""; window.location.href = "login.html"; }, 3000);
-            form.reset();  // Clear the form after successful submission
-        } catch (error) {
-            errorMessage.innerHTML = "Error: Could not submit the form. " + error.message;
-            successMessage.innerHTML = "";  // Clear any success message
-            setTimeout(() => { errorMessage.innerHTML = ""; }, 3000);
+        } else {
+            showMessage('error', 'You must be logged in to view membership plans.');
         }
     });
+});
 
-    // Add functionality to trigger file input click (check if uploadPhotoButton exists)
-    if (uploadPhotoButton) {
-        uploadPhotoButton.addEventListener('click', function() {
-            gymPhotoInput.click();
-        });
-    } else {
-        console.error('Upload photo button not found');
-    }
-
-    // Preview selected image (check if photoPreview and gymPhoto exist)
-    if (gymPhotoInput) {
-        gymPhotoInput.addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    if (photoPreview) {
-                        photoPreview.style.backgroundImage = `url(${e.target.result})`;
-                    }
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    } else {
-        console.error('Gym photo input element not found');
-    }
+// Initialize TinyMCE for the description field
+tinymce.init({
+    selector: '#editPlanDescription',
+    menubar: false,
+    plugins: 'lists link image charmap preview anchor',
+    toolbar: 'undo redo | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat',
+    height: 300
 });

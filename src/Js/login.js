@@ -228,7 +228,7 @@ async function signInWithEmail(email, password, errorMessageElement, successMess
         const role = userData.role;
         const status = userData.status;
 
-        if (status === 'Under review') {
+        if (status === 'Under Review') {
             showMessage(errorMessageElement, `🚧 Hold on! Your account is currently under review. We’ll notify you as soon as it’s ready.`, true);
             return;
         }

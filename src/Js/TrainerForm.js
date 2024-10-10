@@ -29,6 +29,7 @@ window.addEventListener('load', () => {
     const Days = document.getElementById("Days");
     const Experience = document.getElementById("Experience");
     const Expertise = document.getElementById("Expertise");
+    const Contact = document.getElementById("Contact");
     const rate = document.getElementById("rate");
     const errorMessage = document.getElementById("TrainerFormErrorMessage");
     const successMessage = document.getElementById("TrainerFormSuccessMessage");
@@ -109,6 +110,7 @@ window.addEventListener('load', () => {
                     Days: Days.value,
                     Experience: Experience.value,
                     Expertise: Expertise.value,
+                    Contact:Contact.value,
                     rate: rate.value,
                     role: "trainer", // Set the role to trainer
                     status: "Under Review"

@@ -152,25 +152,64 @@ window.uploadProfilePicture =async function (file) {
 
        // Fetch Membership Plans
 async function fetchMembershipPlans(gymId) {
-        const plansCollection = collection(db, 'MembershipPlans');
-        const plansSnapshot = await getDocs(plansCollection);
-        const plansList = plansSnapshot.docs.map(doc => doc.data());
-    
-        const membershipPlansContainer = document.getElementById('membershipPlansContent');
-        membershipPlansContainer.innerHTML = '';
-    
-        plansList.forEach(plan => {
-            if (plan.gymId === gymId) { // Match gym ID
-                const planDiv = document.createElement('div');
-                planDiv.innerHTML = `
-                    <h4>${plan.planName}</h4>
-                    <p>${plan.description}</p>
-                    <p>Price: ${plan.price}</p>
-                `;
-                membershipPlansContainer.appendChild(planDiv);
+        const auth = getAuth();
+        
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userEmail = user.email;  // Get logged-in user's email
+        
+                if (!gymId || gymId === undefined) {
+                    console.error('Invalid gymId passed to function');
+                    showMessage('error', 'Invalid gym selected. Please try again.');
+                    return;  // Exit the function if gymId is invalid
+                }
+        
+                const plansCollection = collection(db, 'MembershipPlans');
+        
+                try {
+                    // Query membership plans for the specific gym and logged-in owner's email
+                    const q = query(
+                        plansCollection,
+                        where('gymId', '==', gymId),  // Match gym ID
+                        where('ownerEmail', '==', userEmail)  // Match owner email
+                    );
+        
+                    const plansSnapshot = await getDocs(q);
+                    const membershipPlansContainer = document.getElementById('membershipPlansContent');
+                    membershipPlansContainer.innerHTML = ''; // Clear previous content
+        
+                    if (!plansSnapshot.empty) {
+                        plansSnapshot.forEach(doc => {
+                            const plan = doc.data();
+        
+                            // Only display the plan if the ownerEmail matches the logged-in user's email
+                            if (plan.ownerEmail === userEmail) {
+                                const planDiv = document.createElement('div');
+                                planDiv.classList.add('card', 'mb-3');
+                                planDiv.innerHTML = `
+                                    <div class="card-body">
+                                        <h4 class="card-title">${plan.planName}</h4>
+                                        <p class="card-text">${plan.description}</p>
+                                        <p class="card-text">Price: ₱${plan.price}</p>
+                                    </div>
+                                `;
+                                membershipPlansContainer.appendChild(planDiv);
+                            }
+                        });
+                    } else {
+                        membershipPlansContainer.innerHTML = `<p>No membership plans found for this gym.</p>`;
+                    }
+                } catch (error) {
+                    console.error("Error fetching membership plans: ", error.message);
+                    showMessage('error', 'Error fetching membership plans. Please try again later.');
+                }
+            } else {
+                console.error('Gym owner not authenticated');
+                showMessage('error', 'You must be logged in to view membership plans.');
             }
         });
- }
+    }
+    
 // Function to show the Membership Plans modal
 window.viewMembershipPlans = async function (gymId) {
         const modal = document.getElementById('membershipPlansModal');
@@ -331,6 +370,7 @@ window.viewMore = async function (gymId) {
             const modalGymLocation = document.getElementById('modalGymLocation');
             const modalGymEquipment = document.getElementById('modalGymEquipment');
             const modalGymPrograms = document.getElementById('modalGymPrograms');
+            const modalGymContact = document.getElementById('modalGymContact');
             const modalPriceRate = document.getElementById('modalpriceRate');
             const modalGymOpeningTime = document.getElementById('modalGymOpeningTime');
             const modalGymClosingTime = document.getElementById('modalGymClosingTime');
@@ -340,6 +380,7 @@ window.viewMore = async function (gymId) {
             if (modalGymLocation) modalGymLocation.innerText = gymData.gymLocation || 'N/A';
             if (modalGymEquipment) modalGymEquipment.innerText = gymData.gymEquipment || 'N/A';
             if (modalGymPrograms) modalGymPrograms.innerText = gymData.gymPrograms || 'N/A';
+            if (modalGymContact) modalGymContact.innerText = gymData.gymContact || 'N/A';
             if (modalPriceRate) modalPriceRate.innerText = gymData.gymPriceRate || 'N/A';
             if (modalGymOpeningTime) modalGymOpeningTime.innerText = gymData.gymOpeningTime || 'N/A';
             if (modalGymClosingTime) modalGymClosingTime.innerText = gymData.gymClosingTime || 'N/A';
@@ -372,8 +413,8 @@ window.viewTrainerDetails = async function(trainerId) {
             document.getElementById('modalTrainerPhoto').src = trainerData.TrainerPhoto || 'default-trainer-photo.jpg';
             document.getElementById('modalTrainerExperience').innerText = trainerData.Experience || 'N/A';
             document.getElementById('modalTrainerExpertise').innerText = trainerData.Expertise || 'N/A';
-            document.getElementById('modalTrainerDaysAvailable').innerText = trainerData.DaysAvailable || 'N/A';
-            document.getElementById('modalTrainerContact').innerText = trainerData.TrainerContact || 'N/A';
+            document.getElementById('modalTrainerDaysAvailable').innerText = trainerData.Days || 'N/A';
+            document.getElementById('modalTrainerContact').innerText = trainerData.Contact || 'N/A';
             document.getElementById('modalTrainerRate').innerText = trainerData.rate || 'N/A';
 
             // Open the modal
@@ -783,9 +824,4 @@ window.onclick = function(event) {
             messagesContainer.appendChild(messageElement);
             messagesContainer.scrollTop = messagesContainer.scrollHeight; // Auto-scroll to bottom
         });
-    });
-
-    // Firebase Authentication (Anonymous login for simplicity)
-    signInAnonymously(auth).catch((error) => {
-        console.error('Authentication error: ', error);
     });
