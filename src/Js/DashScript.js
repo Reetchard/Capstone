@@ -1,6 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
 import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
-import { getFirestore, collection, getDocs, doc, addDoc,getDoc,query,where,updateDoc } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js'; 
+import { getFirestore, collection, getDocs, doc, addDoc,getDoc,query,where,updateDoc,orderBy,onSnapshot} from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js'; 
 import { getStorage, ref, getDownloadURL,uploadBytes  } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-storage.js';
 
 // Your Firebase configuration
@@ -721,31 +721,60 @@ function closeCheckoutModal() {
                 console.error('Error marking notification as read:', error);
             }
         }
-        // Function to display notifications in the UI
-        function displayNotifications(notifications) {
-            const notificationList = document.getElementById('notification-list');  // Ensure you have this element in your HTML
-            if (!notificationList) {
-                console.error('Notification list element not found.');
-                return;
-            }
 
-            // Clear existing notifications
-            notificationList.innerHTML = '';
 
-            // If there are notifications, display them
-            if (notifications.length > 0) {
-                notifications.forEach(notification => {
-                    const notificationItem = document.createElement('li');
-                    notificationItem.textContent = notification.message;  // Adjust based on your notification structure
-                    notificationList.appendChild(notificationItem);
-                });
-            } else {
-                // If no notifications, show a default message
-                const noNotifications = document.createElement('li');
-                noNotifications.textContent = 'No new notifications';
-                notificationList.appendChild(noNotifications);
-            }
-        }
-        // Fetch and display notifications when the user is authenticated
+    let currentUserRole = 'User';  // You can set the role dynamically based on the logged-in user (User or Trainer)
 
+    // Function to send a message
+    document.getElementById('sendMessageBtn').addEventListener('click', sendMessage);
+
+    function sendMessage() {
+        const messageInput = document.getElementById('messageInput').value.trim();
+        if (messageInput === '') return;
+
+        const timestamp = new Date();
+        
+        // Add message to Firestore
+        addDoc(collection(db, 'chats'), {
+            text: messageInput,
+            user: auth.currentUser.uid, // ID of the sender
+            role: currentUserRole, // Either 'User' or 'Trainer'
+            timestamp: timestamp
+        }).then(() => {
+            document.getElementById('messageInput').value = ''; // Clear input
+        }).catch((error) => {
+            console.error('Error sending message: ', error);
+        });
+    }
+
+    // Real-time listener to fetch new messages
+    const q = query(collection(db, 'chats'), orderBy('timestamp'));
+    onSnapshot(q, (snapshot) => {
+        const messagesContainer = document.getElementById('messages');
+        messagesContainer.innerHTML = ''; // Clear old messages
+        snapshot.forEach(doc => {
+            const message = doc.data();
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('chat-message');
+            messageElement.classList.add(message.role === currentUserRole ? 'sent' : 'received');
             
+            const messageText = document.createElement('p');
+            messageText.textContent = `${message.text}`;
+
+            const messageTime = document.createElement('span');
+            const messageDate = new Date(message.timestamp.seconds * 1000);
+            messageTime.textContent = messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            messageTime.classList.add('message-time');
+
+            messageElement.appendChild(messageText);
+            messageElement.appendChild(messageTime);
+            
+            messagesContainer.appendChild(messageElement);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight; // Auto-scroll to bottom
+        });
+    });
+
+    // Firebase Authentication (Anonymous login for simplicity)
+    signInAnonymously(auth).catch((error) => {
+        console.error('Authentication error: ', error);
+    });
