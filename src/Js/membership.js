@@ -1,6 +1,6 @@
 // Initialize Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js";
-import { getFirestore, collection, doc, setDoc, deleteDoc, getDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-firestore.js";
+import { getFirestore, collection, setDoc, doc, getDocs, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-firestore.js"; // Add onSnapshot here
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-auth.js";
 
 // Firebase configuration
@@ -19,19 +19,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// Function to get the gymId of the logged-in gym owner
-async function getGymIdForOwner(userEmail) {
-    const gymOwnerRef = doc(db, 'gymOwners', userEmail); // Assuming 'gymOwners' contains gymId
-    const gymOwnerSnapshot = await getDoc(gymOwnerRef);
-
-    if (gymOwnerSnapshot.exists()) {
-        const gymOwnerData = gymOwnerSnapshot.data();
-        return gymOwnerData.gymId; // Assuming gymId is stored in the gymOwners collection
-    } else {
-        throw new Error('Gym owner information not found.');
-    }
-}
-
 // Function to show success, error, or confirmation messages
 function showMessage(type, message) {
     if (type === 'success') {
@@ -43,80 +30,40 @@ function showMessage(type, message) {
     }
 }
 
-// Handle form submission for adding or updating a plan
-$('#editPlanForm').on('submit', async function (e) {
-    e.preventDefault();
-
-    const id = $('#editPlanId').val();
-    const membershipType = $('#membershipType').val();
-    const price = $('#editPlanPrice').val();
-    const description = tinymce.get('editPlanDescription').getContent();
-    const accessLevel = $('#accessLevel').val();
-    const allowedClasses = $('#allowedClasses').val();
-    const guestPasses = $('#guestPasses').val();
-    const referralCode = $('#referralCode').val();
-    const membershipDays = $('#membershipDays').val();
-
-    const user = auth.currentUser;
-    const userEmail = user ? user.email : null;
-
-    try {
-        // Fetch gymId for the gym owner
-        const gymId = await getGymIdForOwner(userEmail);
-
-        if (!gymId) {
-            throw new Error('gymId is undefined or missing.');
-        }
-
-        // Create the document name
-        const docName = `${membershipType}-${userEmail.replace(/[@.]/g, '_')}`;
-
-        // Save or update the document in Firestore, including gymId
-        await setDoc(doc(db, 'MembershipPlans', docName), {
-            membershipType,
-            price,
-            description,
-            accessLevel,
-            allowedClasses,
-            guestPasses,
-            referralCode,
-            membershipDays,
-            ownerEmail: userEmail,
-            gymId: gymId  // Add gymId field to the document
-        });
-
-        // Show success message
-        showMessage('success', 'Plan saved successfully.');
-
-        // Reset the form
-        $('#editPlanForm')[0].reset();
-        tinymce.get('editPlanDescription').setContent('');
-
-        // Close the modal
-        $('#membershipModal').modal('hide');
-    } catch (error) {
-        showMessage('error', 'An error occurred while saving the plan: ' + error.message);
-    }
-});
-
 // Fetch and display updated data on landing page
 $(document).ready(function () {
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             const userEmail = user.email;
 
+            // Log user email for debugging
+            console.log("User email:", userEmail);
+
+            if (!userEmail) {
+                showMessage('error', 'Failed to retrieve user email.');
+                return;
+            }
+
             try {
-                // Fetch gymId for the logged-in owner
-                const gymId = await getGymIdForOwner(userEmail);
+                // Get the userId for the logged-in owner
+                const userId = user.uid;
+                console.log("User ID:", userId);
+
+                // Check if userId is undefined
+                if (!userId) {
+                    console.error("User ID is undefined.");
+                    showMessage('error', 'User ID not found.');
+                    return;
+                }
 
                 const membershipPlansRef = collection(db, 'MembershipPlans');
+
                 const userPlansQuery = query(
                     membershipPlansRef,
-                    where('gymId', '==', gymId),  // Filter by gymId
-                    where('ownerEmail', '==', userEmail)  // Filter by gym owner's email
+                    where('ownerId', '==', userId)  // Filter by gym owner's userId
                 );
 
-                // Listen for real-time updates (filtered by gymId and owner's email)
+                // Listen for real-time updates (filtered by userId)
                 onSnapshot(userPlansQuery, (snapshot) => {
                     $('#plansTableBody').empty();  // Clear the table body before updating
                     snapshot.forEach((doc) => {
@@ -124,7 +71,7 @@ $(document).ready(function () {
                         const id = `${plan.membershipType}-${plan.ownerEmail.replace(/[@.]/g, '_')}`;
 
                         // Add the plan to the table
-                        const newRow = $(`
+                        const newRow = $(` 
                             <tr id="${id}">
                                 <td>${plan.membershipType}</td>
                                 <td>₱${plan.price}</td>
@@ -146,13 +93,68 @@ $(document).ready(function () {
                     });
                 });
             } catch (error) {
-                showMessage('error', 'Failed to retrieve gym ID or membership plans.');
-                console.error('Error fetching gym owner or plans:', error.message);
+                showMessage('error', 'Failed to retrieve membership plans.');
+                console.error('Error fetching membership plans:', error.message);
             }
         } else {
             showMessage('error', 'You must be logged in to view membership plans.');
         }
     });
+});
+
+// Handle form submission for adding or updating a plan
+$('#editPlanForm').on('submit', async function (e) {
+    e.preventDefault();
+
+    const id = $('#editPlanId').val();
+    const membershipType = $('#membershipType').val();
+    const price = $('#editPlanPrice').val();
+    const description = tinymce.get('editPlanDescription').getContent();
+    const accessLevel = $('#accessLevel').val();
+    const allowedClasses = $('#allowedClasses').val();
+    const guestPasses = $('#guestPasses').val();
+    const referralCode = $('#referralCode').val();
+    const membershipDays = $('#membershipDays').val();
+
+    const user = auth.currentUser;
+    const userEmail = user ? user.email : null;
+    const userId = user ? user.uid : null;  // Use the userId (UID) from Firebase
+
+    if (!userId) {
+        showMessage('error', 'User ID is missing.');
+        return;
+    }
+
+    try {
+        // Create the document name
+        const docName = `${membershipType}-${userEmail.replace(/[@.]/g, '_')}`;
+
+        // Save or update the document in Firestore, including userId
+        await setDoc(doc(db, 'MembershipPlans', docName), {
+            membershipType,
+            price,
+            description,
+            accessLevel,
+            allowedClasses,
+            guestPasses,
+            referralCode,
+            membershipDays,
+            ownerEmail: userEmail,
+            ownerId: userId  // Store the gym owner's userId instead of gymId
+        });
+
+        // Show success message
+        showMessage('success', 'Plan saved successfully.');
+
+        // Reset the form
+        $('#editPlanForm')[0].reset();
+        tinymce.get('editPlanDescription').setContent('');
+
+        // Close the modal
+        $('#membershipModal').modal('hide');
+    } catch (error) {
+        showMessage('error', 'An error occurred while saving the plan: ' + error.message);
+    }
 });
 
 // Initialize TinyMCE for the description field

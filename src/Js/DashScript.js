@@ -212,51 +212,38 @@ async function fetchMembershipPlans(gymId) {
     
 // Function to show the Membership Plans modal
 window.viewMembershipPlans = async function (gymId) {
-        const modal = document.getElementById('membershipPlansModal');
-        if (modal) {
-            modal.style.display = 'block';
-        } else {
-            console.error('Membership Plans modal element not found.');
+    const modal = document.getElementById('membershipPlansModal');
+    if (modal) {
+        modal.style.display = 'block';
+    } else {
+        console.error('Membership Plans modal element not found.');
+        return;
+    }
+
+    try {
+        // Fetch membership plans based on gymId
+        const membershipPlans = await fetchMembershipPlans(gymId);  // Assuming fetchMembershipPlans is a function that fetches membership plans for the gym
+        if (!membershipPlans || membershipPlans.length === 0) {
+            alert("No membership plans found for this gym.");
             return;
         }
-    
-        try {
-            const gymRef = doc(db, 'Users', gymId);
-            const gymSnapshot = await getDoc(gymRef);
-    
-            if (gymSnapshot.exists()) {
-                const gymData = gymSnapshot.data();
-                const gymOwnerEmail = gymData ? gymData.ownerEmail : null; // Ensure gymData exists
-    
-                // Fetch membership plans
-                const membershipPlans = await fetchMembershipPlans(gymId);
-                if (!membershipPlans || membershipPlans.length === 0) {
-                    alert("No membership plans found for this gym.");
-                    return;
-                }
-    
-                // Check if the gym owner's email matches any in the plans
-                if (gymOwnerEmail) {
-                    // Only compare if gymOwnerEmail exists
-                    const hasMatchingEmail = membershipPlans.some(plan => {
-                        return plan.email && plan.email === gymOwnerEmail; // Check if plan.email exists
-                    });
-    
-                    if (hasMatchingEmail) {
-                        displayMembershipPlans(membershipPlans);
-                    } else {
-                        alert("Email does not match the gym owner's email.");
-                    }
-                } else {
-                    alert("Gym owner's email is missing.");
-                }
-            } else {
-                console.error("Gym not found.");
-            }
-        } catch (error) {
-            console.error("Error fetching membership plans:", error);
+
+        // Now check if any of the fetched membership plans match the passed gymId
+        const hasMatchingGymId = membershipPlans.some(plan => {
+            return plan.gymId && plan.gymId === gymId;  // Check if the plan has a gymId and if it matches the provided gymId
+        });
+
+        if (hasMatchingGymId) {
+            displayMembershipPlans(membershipPlans);  // Display matching membership plans
+        } else {
+            alert("No matching membership plans found for the selected gym.");
         }
+
+    } catch (error) {
+        console.error("Error fetching membership plans:", error);
+    }
 };
+
                 // Function to close the modal
 window.closeMembershipPlansModal = function() {
             const modal = document.getElementById('membershipPlansModal');
@@ -356,45 +343,158 @@ async function fetchGymProfiles() {
         }
     });
 }
-window.viewMore = async function (gymId) {
-    try {
-        const gymDocRef = doc(db, 'Users', gymId);
-        const gymDoc = await getDoc(gymDocRef);
+    window.viewMore = async function (gymId) {
+        try {
+            const gymDocRef = doc(db, 'Users', gymId);
+            const gymDoc = await getDoc(gymDocRef);
 
-        if (gymDoc.exists()) {
-            const gymData = gymDoc.data();
+            if (gymDoc.exists()) {
+                const gymData = gymDoc.data();
 
-            // Ensure each element exists before setting innerText
-            const modalGymName = document.getElementById('modalGymName');
-            const modalGymPhoto = document.getElementById('modalGymPhoto');
-            const modalGymLocation = document.getElementById('modalGymLocation');
-            const modalGymEquipment = document.getElementById('modalGymEquipment');
-            const modalGymPrograms = document.getElementById('modalGymPrograms');
-            const modalGymContact = document.getElementById('modalGymContact');
-            const modalPriceRate = document.getElementById('modalpriceRate');
-            const modalGymOpeningTime = document.getElementById('modalGymOpeningTime');
-            const modalGymClosingTime = document.getElementById('modalGymClosingTime');
+                // Ensure each element exists before setting innerText
+                const modalGymName = document.getElementById('modalGymName');
+                const modalGymPhoto = document.getElementById('modalGymPhoto');
+                const modalGymLocation = document.getElementById('modalGymLocation');
+                const modalGymEquipment = document.getElementById('modalGymEquipment');
+                const modalGymPrograms = document.getElementById('modalGymPrograms');
+                const modalGymContact = document.getElementById('modalGymContact');
+                const modalPriceRate = document.getElementById('modalpriceRate');
+                const modalGymOpeningTime = document.getElementById('modalGymOpeningTime');
+                const modalGymClosingTime = document.getElementById('modalGymClosingTime');
 
-            if (modalGymName) modalGymName.innerText = gymData.gymName || 'N/A';
-            if (modalGymPhoto) modalGymPhoto.src = gymData.gymPhoto || 'default-photo.jpg';
-            if (modalGymLocation) modalGymLocation.innerText = gymData.gymLocation || 'N/A';
-            if (modalGymEquipment) modalGymEquipment.innerText = gymData.gymEquipment || 'N/A';
-            if (modalGymPrograms) modalGymPrograms.innerText = gymData.gymPrograms || 'N/A';
-            if (modalGymContact) modalGymContact.innerText = gymData.gymContact || 'N/A';
-            if (modalPriceRate) modalPriceRate.innerText = gymData.gymPriceRate || 'N/A';
-            if (modalGymOpeningTime) modalGymOpeningTime.innerText = gymData.gymOpeningTime || 'N/A';
-            if (modalGymClosingTime) modalGymClosingTime.innerText = gymData.gymClosingTime || 'N/A';
+                if (modalGymName) modalGymName.innerText = gymData.gymName || 'N/A';
+                if (modalGymPhoto) modalGymPhoto.src = gymData.gymPhoto || 'default-photo.jpg';
+                if (modalGymLocation) modalGymLocation.innerText = gymData.gymLocation || 'N/A';
+                if (modalGymEquipment) modalGymEquipment.innerText = gymData.gymEquipment || 'N/A';
+                if (modalGymPrograms) modalGymPrograms.innerText = gymData.gymPrograms || 'N/A';
+                if (modalGymContact) modalGymContact.innerText = gymData.gymContact || 'N/A';
+                if (modalPriceRate) modalPriceRate.innerText = gymData.gymPriceRate || 'N/A';
+                if (modalGymOpeningTime) modalGymOpeningTime.innerText = gymData.gymOpeningTime || 'N/A';
+                if (modalGymClosingTime) modalGymClosingTime.innerText = gymData.gymClosingTime || 'N/A';
 
-            const modal = document.getElementById('gymProfileModal');
-            modal.style.display = 'block'; // Show the modal
-        } else {
-            console.error('No such document!');
+                const modal = document.getElementById('gymProfileModal');
+                modal.style.display = 'block'; // Show the modal
+            } else {
+                console.error('No such document!');
+            }
+        } catch (error) {
+            console.error('Error fetching document:', error);
         }
-    } catch (error) {
-        console.error('Error fetching document:', error);
     }
-}
+    async function showGymCheckoutModal(userId, gymData = {}, userData = {}) {
+        const checkoutModal = document.getElementById('checkoutModal');
+        const checkoutContent = document.getElementById('checkoutContent');
+    
+        // Provide fallback values if gymData fields are undefined
+        const gymPhoto = gymData.gymPhoto || 'default-gym-photo.jpg';
+        const gymName = gymData.gymName || 'Gym Name';
+        const gymPriceRate = gymData.gymPriceRate || 'Rate Not Available';
+        const userName = userData.name || '';
+        const userEmail = userData.email || '';
+    
+        if (checkoutModal && checkoutContent) {
+            // Populate modal with gym details and booking form
+            checkoutContent.innerHTML = `
+                <div class="row">
+                    <!-- Left Column: Gym Information -->
+                    <div class="col-md-6">
+                        <h2>Gym Details</h2>
+                        <div class="card mb-3" style="max-width: 300px; margin-left: 0;">
+                            <img src="${gymData.gymPhoto}" class="img-fluid rounded-start" alt="Gym Photo">
+                            <div class="card-body">
+                                <h5 class="card-title text-center">${gymData.gymName}</h5>
+                                <p class="card-text text-center">Rate: ₱${gymData.gymPriceRate}</p>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <!-- Right Column: User/Customer Details -->
+                    <div class="col-md-6">
+                        <h2>Reservation Details</h2>
+    
+                        <div class="form-group">
+                            <label for="userName">Name</label>
+                            <input type="text" id="userName" class="form-control" value="${userName}" required>
+                        </div>
+    
+                        <div class="form-group mt-3">
+                            <label for="userEmail">Email</label>
+                            <input type="email" id="userEmail" class="form-control" value="${userEmail}" required>
+                        </div>
+    
+                        <div class="form-group mt-3">
+                            <label for="paymentMethod">Payment Method</label>
+                            <select id="paymentMethod" class="form-control">
+                                <option value="Over the Counter">Over the Counter</option>
+                            </select>
+                        </div>
+    
+                        <div class="form-group mt-3">
+                            <label for="reservationDate">Choose Reservation Date</label>
+                            <input type="date" id="reservationDate" class="form-control" required>
+                        </div>
+    
+                        <!-- Buttons -->
+                        <div class="button-container mt-4 d-flex justify-content-between">
+                            <button class="btn btn-success btn-lg" id="confirmBookingButtonCheckout" style="width: 180px;">Confirm Booking</button>
+                            <button class="btn btn-secondary btn-lg" id="cancelBookingButtonCheckout" style="width: 180px;">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+    
+            // Show the checkout modal
+            checkoutModal.style.display = 'block';
+    
+            // Handle confirm booking button
+            document.getElementById('confirmBookingButtonCheckout').onclick = async function() {
+                const reservationDate = document.getElementById('reservationDate').value;
+    
+                if (!reservationDate) {
+                    alert('Please select a valid reservation date.');
+                    return;
+                }
+    
+                try {
+                    // Simulate booking confirmation logic (Firestore code)
+                    console.log(`Booking confirmed for Gym: ${gymName}, Date: ${reservationDate}`);
+                    alert(`Booking confirmed for ${gymName} on ${reservationDate}.`);
+    
+                    // Close the modal
+                    closegymCheckoutModal();
+                } catch (error) {
+                    console.error('Error during booking:', error);
+                    alert('An error occurred during booking.');
+                }
+            };
+    
+            // Handle cancel button
+            document.getElementById('cancelBookingButtonCheckout').onclick = function() {
+                closegymCheckoutModal();
+            };
+        } else {
+            console.error("Checkout modal or content element not found!");
+        }
+    }
+    
+    // Function to close the checkout modal
+    function closegymCheckoutModal() {
+        const checkoutModal = document.getElementById('checkoutModal');
+        if (checkoutModal) {
+            checkoutModal.style.display = 'none'; // Hide the modal
+        }
+    }
+    
 
+    
+    
+    // Close the modal when clicking outside of it
+    window.onclick = function(event) {
+        const modal = document.getElementById('confirmationModal');
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    };
 
 document.addEventListener('DOMContentLoaded', function() {
     // Function to open and display trainer details in the modal
@@ -455,7 +555,8 @@ document.addEventListener('DOMContentLoaded', function() {
             fetchTrainers();
             fetchGymProfiles();
             fetchMembershipPlans();
-            showCheckoutModal // Fetch trainers when the page loads
+            showGymCheckoutModal();
+            showCheckoutModal();// Fetch trainers when the page loads
   });
 
   async function showCheckoutModal(trainerId, trainerData, userData = {}) {

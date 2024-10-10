@@ -198,7 +198,7 @@
                 <button id="viewProductsButton" class="btn btn-primary" onclick="viewProducts()">Products</button>
                 <button id="viewMembershipPlansButton" class="btn btn-secondary" onclick="viewMembershipPlans()">Membership Plans</button>
                 <!-- Add Book Now Button -->
-                <button id="bookNowButton" class="btn btn-success" style="margin-top: 10px;" onclick="bookNow()">Book Now</button>
+                <button id="bookNowButton" class="btn btn-success" style="margin-top: 10px;" onclick="showGymCheckoutModal()">Book Now</button>
             </div>
         </div>
     </div>
@@ -290,6 +290,41 @@
             <!-- Content for checkout will be dynamically inserted here -->
         </div>
     </div>
+
+    <!-- Success Modal -->
+        <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="successModalLabel">Success</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="successMessage"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Modal -->
+        <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="errorModalLabel">Error</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="errorMessage"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     <!-- Include jQuery before Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
