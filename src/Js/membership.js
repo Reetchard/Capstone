@@ -1,6 +1,6 @@
 // Initialize Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js";
-import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-firestore.js";
+import { getFirestore, collection, doc, setDoc, deleteDoc, getDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-auth.js";
 
 // Firebase configuration
@@ -19,6 +19,19 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
+// Function to get the gymId of the logged-in gym owner
+async function getGymIdForOwner(userEmail) {
+    const gymOwnerRef = doc(db, 'gymOwners', userEmail); // Assuming 'gymOwners' contains gymId
+    const gymOwnerSnapshot = await getDoc(gymOwnerRef);
+
+    if (gymOwnerSnapshot.exists()) {
+        const gymOwnerData = gymOwnerSnapshot.data();
+        return gymOwnerData.gymId; // Assuming gymId is stored in the gymOwners collection
+    } else {
+        throw new Error('Gym owner information not found.');
+    }
+}
+
 // Function to show success, error, or confirmation messages
 function showMessage(type, message) {
     if (type === 'success') {
@@ -28,17 +41,6 @@ function showMessage(type, message) {
         $('#errorMessage').text(message);
         $('#errorModal').modal('show');
     }
-}
-
-// Function to show custom confirmation
-function showConfirmation(message, callback) {
-    $('#confirmationMessage').text(message);
-    $('#confirmationModal').modal('show');
-    
-    $('#confirmDeleteBtn').off('click').on('click', function () {
-        $('#confirmationModal').modal('hide');
-        callback(true);
-    });
 }
 
 // Handle form submission for adding or updating a plan
@@ -54,18 +56,22 @@ $('#editPlanForm').on('submit', async function (e) {
     const guestPasses = $('#guestPasses').val();
     const referralCode = $('#referralCode').val();
     const membershipDays = $('#membershipDays').val();
-    
-    // Add the gymId, which should be available based on gym owner
-    const gymId = $('#gymId').val();  // Assume gymId is passed or set in the UI
 
     const user = auth.currentUser;
     const userEmail = user ? user.email : null;
 
-    // Create the document name
-    const docName = `${membershipType}-${userEmail.replace(/[@.]/g, '_')}`;
-
     try {
-        // Save or update the document in Firestore, including the gymId
+        // Fetch gymId for the gym owner
+        const gymId = await getGymIdForOwner(userEmail);
+
+        if (!gymId) {
+            throw new Error('gymId is undefined or missing.');
+        }
+
+        // Create the document name
+        const docName = `${membershipType}-${userEmail.replace(/[@.]/g, '_')}`;
+
+        // Save or update the document in Firestore, including gymId
         await setDoc(doc(db, 'MembershipPlans', docName), {
             membershipType,
             price,
@@ -88,107 +94,60 @@ $('#editPlanForm').on('submit', async function (e) {
 
         // Close the modal
         $('#membershipModal').modal('hide');
-
     } catch (error) {
         showMessage('error', 'An error occurred while saving the plan: ' + error.message);
     }
 });
 
-
 // Fetch and display updated data on landing page
 $(document).ready(function () {
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
         if (user) {
             const userEmail = user.email;
-            const membershipPlansRef = collection(db, 'MembershipPlans');
-            const userPlansQuery = query(membershipPlansRef, where('ownerEmail', '==', userEmail)); // Filter by gym owner's email
 
-            // Listen for real-time updates (filtered by owner's email)
-            onSnapshot(userPlansQuery, (snapshot) => {
-                $('#plansTableBody').empty();  // Clear the table body before updating
-                snapshot.forEach((doc) => {
-                    const plan = doc.data();
-                    const id = `${plan.membershipType}-${plan.ownerEmail.replace(/[@.]/g, '_')}`;
+            try {
+                // Fetch gymId for the logged-in owner
+                const gymId = await getGymIdForOwner(userEmail);
 
-                    // Add the plan to the table
-                    const newRow = $(` 
-                        <tr id="${id}">
-                            <td>${plan.membershipType}</td>
-                            <td>₱${plan.price}</td>
-                            <td>${plan.description}</td>
-                            <td>${plan.accessLevel}</td>
-                            <td>${plan.allowedClasses}</td>
-                            <td>${plan.guestPasses}</td>
-                            <td>${plan.referralCode}</td>
-                            <td>${plan.membershipDays}</td>
-                            <td>
-                                <button class="btn btn-primary transition-button" data-id="${id}">Edit</button>
-                                <button class="btn btn-danger delete-button" data-id="${id}">Delete</button>
-                            </td>
-                        </tr>
-                    `);
+                const membershipPlansRef = collection(db, 'MembershipPlans');
+                const userPlansQuery = query(
+                    membershipPlansRef,
+                    where('gymId', '==', gymId),  // Filter by gymId
+                    where('ownerEmail', '==', userEmail)  // Filter by gym owner's email
+                );
 
-                    // Append the new row to the table
-                    $('#plansTableBody').append(newRow);
+                // Listen for real-time updates (filtered by gymId and owner's email)
+                onSnapshot(userPlansQuery, (snapshot) => {
+                    $('#plansTableBody').empty();  // Clear the table body before updating
+                    snapshot.forEach((doc) => {
+                        const plan = doc.data();
+                        const id = `${plan.membershipType}-${plan.ownerEmail.replace(/[@.]/g, '_')}`;
+
+                        // Add the plan to the table
+                        const newRow = $(`
+                            <tr id="${id}">
+                                <td>${plan.membershipType}</td>
+                                <td>₱${plan.price}</td>
+                                <td>${plan.description}</td>
+                                <td>${plan.accessLevel}</td>
+                                <td>${plan.allowedClasses}</td>
+                                <td>${plan.guestPasses}</td>
+                                <td>${plan.referralCode}</td>
+                                <td>${plan.membershipDays}</td>
+                                <td>
+                                    <button class="btn btn-primary transition-button" data-id="${id}">Edit</button>
+                                    <button class="btn btn-danger delete-button" data-id="${id}">Delete</button>
+                                </td>
+                            </tr>
+                        `);
+
+                        // Append the new row to the table
+                        $('#plansTableBody').append(newRow);
+                    });
                 });
-            });
-
-            // Handle Edit button click
-            $(document).on('click', '.transition-button', function () {
-                const id = $(this).data('id');
-                const row = $(`#${id}`);
-                const plan = {
-                    membershipType: row.find('td').eq(0).text(),
-                    price: row.find('td').eq(1).text().replace('₱', ''),
-                    description: row.find('td').eq(2).text(),
-                    accessLevel: row.find('td').eq(3).text(),
-                    allowedClasses: row.find('td').eq(4).text(),
-                    guestPasses: row.find('td').eq(5).text(),
-                    referralCode: row.find('td').eq(6).text(),
-                    membershipDays: row.find('td').eq(7).text(),
-                };
-
-                // Populate the form with the data from the selected row
-                $('#editPlanId').val(id);
-                $('#membershipType').val(plan.membershipType);
-                $('#editPlanPrice').val(plan.price);
-                tinymce.get('editPlanDescription').setContent(plan.description);
-                $('#accessLevel').val(plan.accessLevel);
-                $('#allowedClasses').val(plan.allowedClasses);
-                $('#guestPasses').val(plan.guestPasses);
-                $('#referralCode').val(plan.referralCode);
-                $('#membershipDays').val(plan.membershipDays);
-
-                // Open the modal
-                $('#membershipModal').modal('show');
-            });
-
-            // Handle Delete button click
-            $(document).on('click', '.delete-button', function () {
-                const id = $(this).data('id');
-                const row = $(`#${id}`);
-
-                // Show custom confirmation dialog
-                showConfirmation(`Are you sure you want to delete the ${row.find('td').eq(0).text()} plan?`, function (confirmed) {
-                    if (confirmed) {
-                        deletePlan(id);
-                    }
-                });
-            });
-
-            // Function to delete a plan
-            async function deletePlan(id) {
-                try {
-                    const docRef = doc(db, 'MembershipPlans', id);
-
-                    await deleteDoc(docRef);
-
-                    // Remove the row from the table
-                    $(`#${id}`).remove();
-                    showMessage('success', 'Plan deleted successfully.');
-                } catch (error) {
-                    showMessage('error', 'An error occurred while deleting the plan: ' + error.message);
-                }
+            } catch (error) {
+                showMessage('error', 'Failed to retrieve gym ID or membership plans.');
+                console.error('Error fetching gym owner or plans:', error.message);
             }
         } else {
             showMessage('error', 'You must be logged in to view membership plans.');
