@@ -24,23 +24,46 @@ function fetchTransactions() {
         .catch(error => console.error('Error fetching transactions:', error));
 }
 
-// Show transactions of the selected type
+// Show transactions of the selected type in a table
 function showTransactions(type) {
     const displayArea = document.getElementById('transactionsDisplay');
     displayArea.innerHTML = ''; // Clear previous transactions
 
     const transactionList = transactions[type];
+
     if (transactionList.length === 0) {
         displayArea.innerHTML = `<p>No transactions found for ${type.charAt(0).toUpperCase() + type.slice(1)}.</p>`;
         return;
     }
 
-    const list = document.createElement('ul');
+    let tableHTML = `
+        <h2>${type.charAt(0).toUpperCase() + type.slice(1)} Transactions</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Transaction ID</th>
+                    <th>Details</th>
+                    <th>Date</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    // Loop through the transaction list and add rows dynamically
     transactionList.forEach(transaction => {
-        const listItem = document.createElement('li');
-        listItem.textContent = JSON.stringify(transaction); // Format as needed
-        list.appendChild(listItem);
+        tableHTML += `
+            <tr>
+                <td>${transaction.id || 'N/A'}</td>
+                <td>${JSON.stringify(transaction.details || 'N/A')}</td>
+                <td>${transaction.date || 'N/A'}</td>
+                <td>${transaction.amount || 'N/A'}</td>
+            </tr>
+        `;
     });
 
-    displayArea.appendChild(list);
+    tableHTML += `</tbody></table>`;
+
+    // Append the generated table to the display area
+    displayArea.innerHTML = tableHTML;
 }

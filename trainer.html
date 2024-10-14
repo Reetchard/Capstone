@@ -5,101 +5,89 @@
     <title>Trainer Dashboard - Gym Management System</title>
     <link rel="stylesheet" href="css/trainer.css">
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
+<body id="body-pd">
 
-<!-- Sidebar -->
-<div class="sidebar">
-    <h3 class="text-center">Trainer Dashboard</h3>
-    <a href="dashboard.html"><i class="fas fa-home"></i> Home</a>
-    <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
-    <a href="members.html"><i class="fas fa-users"></i> Members</a>
-    <button class="btn btn-secondary btn-block" onclick="window.location.href='login.html';"><i class="fas fa-sign-out-alt"></i> Log out</button>
+<header class="header" id="header">
+    <div class="header_toggle"> 
+        <i class='bx bx-menu' id="header-toggle"></i> 
+    </div>
+    <div class="header_profile">
+        <div class="header_img"> 
+            <img id="profile-picture-header" src="framework/img/Profile.png" alt="Profile" class="rounded-circle" width="50" height="50"> 
+        </div>
+        <div class="header_username">
+            <span id="header-username"></span> <!-- Placeholder for the display name -->
+        </div>
+    </div>
+</header>
+<div class="l-navbar" id="nav-bar">
+    <nav class="nav">
+        <div> 
+            <a href="#" class="nav_logo"> 
+                <div class="nav_logo-img">
+                    <img id="profile-picture-sidebar" src="framework/img/Profile.png" alt="Profile" class="rounded-circle" width="50" height="50">
+                </div>
+            </a>
+            <div class="nav_list">
+                <a href="#" class="nav_link active" data-target="notifications">
+                    <i class='bx bx-bell nav_icon'></i>
+                    <span class="nav_name">Notifications</span>
+                </a>
+                <a href="#" class="nav_link" data-target="gym-profile">
+                    <i class='bx bx-dumbbell nav_icon'></i>
+                    <span class="nav_name">Gym Profile</span>
+                </a>
+                <a href="#" class="nav_link" data-target="chat">
+                    <i class='bx bx-message-square-detail nav_icon'></i>
+                    <span class="nav_name">Messages</span>
+                </a>
+                <a href="PinfoTrainer.html" class="nav_link">
+                    <i class='bx bx-edit-alt nav_icon'></i>
+                    <span class="nav_name">Edit Profile</span>
+                </a>
+            </div>
+        </div>
+        <a href="login.html" class="nav_link">
+            <i class='bx bx-log-out nav_icon'></i>
+            <span class="nav_name">SignOut</span>
+        </a>
+    </nav>
 </div>
 <!-- Sidebar Ends -->
-
-<!-- Main Content -->
-<div class="main-content">
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="#"><img src="framework/img/peak1.png" alt="Logo"> Peak Pulse</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <span class="navbar-text mx-auto text-white">
-                Trainer Dashboard
-            </span>
-            <div class="ml-auto">
-                <i class="fas fa-bell notification-icon" data-toggle="tooltip" title="Notifications"></i>
-                <button class="btn btn-secondary" onclick="window.location.href='chat.html';"><i class="fas fa-comments"></i> Chat</button>
-            </div>
-        </div>
-    </nav>
-    <!-- Navigation Bar Ends -->
-
-    <!-- Trainer Dashboard Content -->
-    <div class="container mt-4">
-        <!-- Trainer Schedule -->
-        <div class="card">
-            <div class="card-header">
-                <h4>Upcoming Schedules</h4>
-            </div>
-            <div class="card-body">
-                <!-- Example schedules, you can dynamically populate this -->
-                <ul class="list-group">
-                    <li class="list-group-item">Session with John Doe - 10:00 AM, Aug 14, 2024</li>
-                    <li class="list-group-item">Yoga Class - 12:00 PM, Aug 14, 2024</li>
-                    <li class="list-group-item">Personal Training - 3:00 PM, Aug 15, 2024</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Members Section -->
-        <div class="card">
-            <div class="card-header">
-                <h4>Members</h4>
-            </div>
-            <div class="card-body">
-                <!-- Example members, you can dynamically populate this -->
-                <ul class="list-group">
-                    <li class="list-group-item">Jane Smith - <a href="member-profile.html">View Profile</a></li>
-                    <li class="list-group-item">Michael Brown - <a href="member-profile.html">View Profile</a></li>
-                    <li class="list-group-item">Emily Davis - <a href="member-profile.html">View Profile</a></li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Real-time Chat -->
-        <div class="card">
-            <div class="card-header">
-                <h4>Chat</h4>
-            </div>
-            <div class="card-body">
-                <div class="chat-box" id="chatBox">
-                    <!-- Example chat messages -->
-                    <div class="chat-message trainer">
-                        <div class="message">Hi, how can I assist you today?</div>
-                    </div>
-                    <div class="chat-message user">
-                        <div class="message">I have a question about my schedule.</div>
-                    </div>
-                </div>
-                <div class="chat-input">
-                    <input type="text" id="chatInput" class="form-control" placeholder="Type a message...">
-                    <button class="btn btn-primary mt-2" onclick="sendMessage()">Send</button>
+<!-- Gym Profile Section -->
+<section id="gym-profile" class="section">
+    <div class="container">
+        <div class="card-body">
+            <h2 class="card-title text-center">Gym Profile</h2>
+            <div class="trainers-scroll-container">
+                <div id="gym-profiles" class="gym-profile">
+                    <!-- Gym profile content will be dynamically added here -->
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<section id="notifications" class="section active">
+    <div class="container">
+        <h2>Notifications</h2>
+        <ul id="notification-list" class="list-group">
+            <!-- Notifications will be appended here -->
+        </ul>
+    </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script src="src/Js/trainerDash.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="src/Js/nav.js"></script>
+<script type= "module "src="src/Js/trainerDash.js"></script>
+
 </body>
 </html>

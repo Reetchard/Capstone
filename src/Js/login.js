@@ -96,7 +96,7 @@ function redirectUser(role) {
             window.location.href = 'GymForm.html';
             break;
         case 'trainer':
-            window.location.href = 'TrainerForm.html';
+            window.location.href = 'Login.html';
             break;
         default:
             window.location.href = 'Login.html'; // Default for regular users/customers
@@ -167,24 +167,39 @@ async function signUpWithEmail(username, email, password, role, errorMessageElem
 function notifyUser(username, role) {
     let notificationMessage;
 
+    // Customize messages based on role
     switch (role.toLowerCase()) {
         case 'gymowner':
-            notificationMessage = `🏋️‍♂️ Gym Owner ${username}, your account is under review. We’ll notify you once it’s approved!`;
+            notificationMessage = `🏋️‍♂️ Welcome, ${username}! As a Gym Owner, your gym setup is in progress. You’ll receive approval updates soon.`;
             break;
         case 'trainer':
-            notificationMessage = `🤸‍♀️ Trainer ${username}, your account is under review. We’ll notify you once it’s approved!`;
+            notificationMessage = `🤸‍♀️ Hello, ${username}! As a Trainer, your profile is currently being reviewed. Once approved, you'll be able to connect with gym members!`;
             break;
         case 'user':
-            notificationMessage = `🎉 User ${username}, your account is under review. We’ll notify you once it’s approved!`;
+            notificationMessage = `🎉 Hi, ${username}! Your account is under review. You will soon be able to access all the facilities and book sessions with trainers!`;
             break;
         default:
-            notificationMessage = `🎉 ${username}, your account is under review. We’ll notify you once it’s approved!`;
+            notificationMessage = `🎉 Hi, ${username}! We’re reviewing your account. Stay tuned for updates and get ready for your fitness journey!`;
     }
 
-    // Display notification on the webpage (You can customize this further)
-    alert(notificationMessage); // Simple alert for demonstration
-    // You could also append this message to a notifications area in your UI instead
+    // Check if the notification container exists
+    const notificationContainer = document.getElementById('notification-list');
+
+    if (notificationContainer) {
+        // Create a new list item for the notification
+        const notificationElement = document.createElement('li');
+        notificationElement.className = 'list-group-item'; // Bootstrap class for list styling
+        notificationElement.textContent = notificationMessage;
+
+        // Append the notification message to the container
+        notificationContainer.appendChild(notificationElement);
+    } else {
+        // Handle the case when the container doesn't exist
+        console.warn('Notification container not found!');
+    }
 }
+
+
 
 
 
@@ -228,7 +243,7 @@ async function signInWithEmail(email, password, errorMessageElement, successMess
         const role = userData.role;
         const status = userData.status;
 
-        if (status === 'Under Review') {
+        if (status === 'Under review') {
             showMessage(errorMessageElement, `🚧 Hold on! Your account is currently under review. We’ll notify you as soon as it’s ready.`, true);
             return;
         }

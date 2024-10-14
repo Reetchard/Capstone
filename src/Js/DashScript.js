@@ -19,118 +19,80 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage();
 
-document.querySelectorAll('.nav-link').forEach(link => {
-    link.addEventListener('click', function(e) {
+document.querySelectorAll('.nav_link').forEach((link) => {
+    link.addEventListener('click', (e) => {
         e.preventDefault();
-
-        // Get target section from data attribute
-        const targetSection = this.getAttribute('data-target');
-
-        // Hide all sections
-        document.querySelectorAll('.section').forEach(section => {
-            section.classList.remove('active');
-        });
-
-        // Show the targeted section
-        document.getElementById(targetSection).classList.add('active');
-    });
-});
-// Check user authentication and role
-onAuthStateChanged(auth, async (user) => {
-    if (user) {
-        const userId = user.uid;
-        const userDocRef = doc(db, 'Users', userId);
-        const currentUserId = user.uid; // Get the current authenticated user's ID
-        try {
-            const userDoc = await getDoc(userDocRef);
-            if (userDoc.exists()) {
-                const userData = userDoc.data();
-                const role = userData.role || 'user';
-                const email = user.email;
-                fetchNotifications(currentUserId);
-
-                createDropdownMenu(email, role);
-                displayProfilePicture(user);
-            } else {
-                console.warn("User document does not exist. Redirecting to login.");
-                window.location.href = 'login.html';
-            }
-        } catch (error) {
-            console.error("Error fetching user data:", error);
-        }
-    } else {
-        console.warn("No user is authenticated. Redirecting to login.");
-        window.location.href = 'login.html';
-    }
-});
-
-// Function to create dropdown menu based on user role and email
-function createDropdownMenu(username, role) {
-    const dropdownMenu = document.querySelector('.dropdown-menu');
-    if (dropdownMenu) {
-        dropdownMenu.innerHTML = `<a class="dropdown-item" href="#">Hello, ${username}</a>`; 
-        if (role === 'gym_owner') {
-            dropdownMenu.innerHTML += '<a class="dropdown-item" href="gym-profiling.html">Gym Owner Management</a>';
-        } else {
-            dropdownMenu.innerHTML += '<a class="dropdown-item" href="Pinfo.html">Personal Information</a>';
-            dropdownMenu.innerHTML += '<a class="dropdown-item" href="report.html">Submit a Complaint</a>';
-        }
-        dropdownMenu.innerHTML += '<a class="dropdown-item" href="#" id="logout">Log Out</a>';
-
-        const logoutButton = document.getElementById('logout');
-        if (logoutButton) {
-            logoutButton.addEventListener('click', (e) => {
-                e.preventDefault();
-                signOut(auth).then(() => {
-                    window.location.href = 'login.html';
-                }).catch((error) => {
-                    console.error("Sign Out Error:", error.code, error.message);
-                });
+        
+        // Ensure the clicked link exists and has a target section
+        const targetSection = document.querySelector(`#${link.getAttribute('data-target')}`);
+        
+        if (targetSection) {
+            // Hide all other sections
+            document.querySelectorAll('.section').forEach((section) => {
+                section.classList.remove('active');
             });
-        }
-    } else {
-        console.error('Dropdown menu not found');
-    }
-}
 
-// Ensure dropdown is initialized after the document is fully loaded
-document.addEventListener('DOMContentLoaded', () => {
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            const username = user.displayName || 'User'; // Adjust this as necessary
-            const role = user.role || 'regular_user'; // Make sure to set this from your user data
-            createDropdownMenu(username, role);
+            // Show the target section
+            targetSection.classList.add('active');
         } else {
-            console.warn('User is not authenticated.');
-            // Optionally, redirect to login or show appropriate message
-            // window.location.href = 'login.html'; // Uncomment if you want to redirect unauthenticated users
+            console.error("Target section not found for link:", link);
         }
     });
 });
+
+// Check user authentication and role
+document.addEventListener('DOMContentLoaded', () => {
+    // Now we are sure that the DOM is fully loaded before accessing the elements
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            const userId = user.uid;
+            const userDocRef = doc(db, 'Users', userId);
+
+            try {
+                const userDoc = await getDoc(userDocRef);
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    const role = userData.role || 'user';
+                    const username = userData.username || 'User'; // Make sure there's a fallback for the username
+                    fetchNotifications(userId);
+                    displayProfilePicture(user, username); // Pass username to the function
+                } else {
+                    window.location.href = 'login.html'; // Redirect to login if no user document
+                }
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+            }
+        } else {
+            window.location.href = 'login.html'; // Redirect if not authenticated
+        }
+    });
+});
+
 
 // Function to display user profile picture
-function displayProfilePicture(user) {
-        const userId = user.uid;  // Assuming user.uid is available
-        console.log("User ID:", userId); // Log User ID for verification
-        const profilePicRef = ref(storage, `profilePictures/${userId}/profile.jpg`); // Ensure `ref` is defined
+function displayProfilePicture(user, username) {
+    const userId = user.uid;
+    const profilePicRef = ref(storage, `profilePictures/${userId}/profile.jpg`);
+  
+    getDownloadURL(profilePicRef).then((url) => {
+        // Update profile picture in both header and sidebar
+        document.getElementById('profile-picture-header').src = url;
+        document.getElementById('profile-picture-sidebar').src = url;
+        
+        // Also update the username in the header
+        document.getElementById('header-username').textContent = username;
+    }).catch((error) => {
+        if (error.code === 'storage/object-not-found') {
+            // Fallback to default image if no profile picture is found
+            document.getElementById('profile-picture-header').src = 'framework/img/Profile.png';
+            document.getElementById('profile-picture-sidebar').src = 'framework/img/Profile.png';
 
-        getDownloadURL(profilePicRef)
-            .then((url) => {
-                const profilePicture = document.getElementById('profile-picture');
-                profilePicture.src = url;
-            })
-            .catch((error) => {
-                console.error("Error loading profile picture:", error.message);
-
-                // Check if the error is because the file does not exist
-                if (error.code === 'storage/object-not-found') {
-                    const profilePicture = document.getElementById('profile-picture');
-                    profilePicture.src = 'framework/img/Profile.png'; // Fallback default picture
-                    console.warn("Profile picture does not exist, loading default image.");
-                } else {
-                    console.error('Unexpected error loading profile picture:', error.message);
-                }
-            });
+            // Still set the username
+            document.getElementById('header-username').textContent = username;
+        } else {
+            console.error('Unexpected error loading profile picture:', error.message);
+        }
+    });
 }
 
 
@@ -381,73 +343,61 @@ async function fetchGymProfiles() {
             console.error('Error fetching document:', error);
         }
     }
-    async function showGymCheckoutModal(userId, gymData = {}, userData = {}) {
+    async function showGymCheckoutModal(gymId, gymData = {}, userData = {}) {
         const checkoutModal = document.getElementById('checkoutModal');
         const checkoutContent = document.getElementById('checkoutContent');
     
-        // Provide fallback values if gymData fields are undefined
-        const gymPhoto = gymData.gymPhoto || 'default-gym-photo.jpg';
-        const gymName = gymData.gymName || 'Gym Name';
-        const gymPriceRate = gymData.gymPriceRate || 'Rate Not Available';
+        // Fallback values
         const userName = userData.name || '';
         const userEmail = userData.email || '';
     
+        // Display the modal only if the elements exist
         if (checkoutModal && checkoutContent) {
-            // Populate modal with gym details and booking form
             checkoutContent.innerHTML = `
-                <div class="row">
-                    <!-- Left Column: Gym Information -->
-                    <div class="col-md-6">
-                        <h2>Gym Details</h2>
-                        <div class="card mb-3" style="max-width: 300px; margin-left: 0;">
-                            <img src="${gymData.gymPhoto}" class="img-fluid rounded-start" alt="Gym Photo">
-                            <div class="card-body">
-                                <h5 class="card-title text-center">${gymData.gymName}</h5>
-                                <p class="card-text text-center">Rate: ₱${gymData.gymPriceRate}</p>
-                            </div>
-                        </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <h2>Gym Details</h2>
+                  <div class="card mb-3" style="max-width: 300px; margin-left: 0;">
+                    <img src="${gymData.gymPhoto || 'default-gym-photo.jpg'}" class="img-fluid rounded-start" alt="Gym Photo">
+                    <div class="card-body">
+                      <h5 class="card-title text-center">${gymData.gymName}</h5>
+                      <p class="card-text text-center">Rate: ${gymData.gymPriceRate || 'N/A'}</p>
                     </div>
-    
-                    <!-- Right Column: User/Customer Details -->
-                    <div class="col-md-6">
-                        <h2>Reservation Details</h2>
-    
-                        <div class="form-group">
-                            <label for="userName">Name</label>
-                            <input type="text" id="userName" class="form-control" value="${userName}" required>
-                        </div>
-    
-                        <div class="form-group mt-3">
-                            <label for="userEmail">Email</label>
-                            <input type="email" id="userEmail" class="form-control" value="${userEmail}" required>
-                        </div>
-    
-                        <div class="form-group mt-3">
-                            <label for="paymentMethod">Payment Method</label>
-                            <select id="paymentMethod" class="form-control">
-                                <option value="Over the Counter">Over the Counter</option>
-                            </select>
-                        </div>
-    
-                        <div class="form-group mt-3">
-                            <label for="reservationDate">Choose Reservation Date</label>
-                            <input type="date" id="reservationDate" class="form-control" required>
-                        </div>
-    
-                        <!-- Buttons -->
-                        <div class="button-container mt-4 d-flex justify-content-between">
-                            <button class="btn btn-success btn-lg" id="confirmBookingButtonCheckout" style="width: 180px;">Confirm Booking</button>
-                            <button class="btn btn-secondary btn-lg" id="cancelBookingButtonCheckout" style="width: 180px;">Cancel</button>
-                        </div>
-                    </div>
+                  </div>
                 </div>
+                <div class="col-md-6">
+                  <h2>Reservation Details</h2>
+                  <div class="form-group">
+                    <label for="userName">Name</label>
+                    <input type="text" id="userName" class="form-control" value="${userName}" required>
+                  </div>
+                  <div class="form-group mt-3">
+                    <label for="userEmail">Email</label>
+                    <input type="email" id="userEmail" class="form-control" value="${userEmail}" required>
+                  </div>
+                  <div class="form-group mt-3">
+                    <label for="paymentMethod">Payment Method</label>
+                    <select id="paymentMethod" class="form-control">
+                      <option value="Over the Counter">Cash</option>
+                    </select>
+                  </div>
+                  <div class="form-group mt-3">
+                    <label for="reservationDate">Choose Reservation Date</label>
+                    <input type="date" id="reservationDate" class="form-control" required>
+                  </div>
+                  <div class="button-container mt-4 d-flex justify-content-between">
+                    <button class="btn btn-success btn-lg" id="confirmBookingButtonCheckout" style="width: 180px;">Confirm Booking</button>
+                    <button class="btn btn-secondary btn-lg" id="cancelBookingButtonCheckout" style="width: 180px;">Cancel</button>
+                  </div>
+                </div>
+              </div>
             `;
     
-            // Show the checkout modal
             checkoutModal.style.display = 'block';
     
-            // Handle confirm booking button
-            document.getElementById('confirmBookingButtonCheckout').onclick = async function() {
+            document.getElementById('confirmBookingButtonCheckout').onclick = async function () {
+                const inputUserName = document.getElementById('userName').value.trim();
+                const inputUserEmail = document.getElementById('userEmail').value.trim();
                 const reservationDate = document.getElementById('reservationDate').value;
     
                 if (!reservationDate) {
@@ -456,35 +406,36 @@ async function fetchGymProfiles() {
                 }
     
                 try {
-                    // Simulate booking confirmation logic (Firestore code)
-                    console.log(`Booking confirmed for Gym: ${gymName}, Date: ${reservationDate}`);
-                    alert(`Booking confirmed for ${gymName} on ${reservationDate}.`);
+                    await addDoc(collection(db, 'Transactions'), {
+                        gymId,
+                        gymName: gymData.gymName,
+                        username: inputUserName,
+                        email: inputUserEmail,
+                        reservationDate,
+                        paymentMethod: document.getElementById('paymentMethod').value,
+                        rate: gymData.gymPriceRate
+                    });
     
-                    // Close the modal
-                    closegymCheckoutModal();
+                    alert(`Booking Confirmed for ${gymData.gymName} on ${reservationDate}.`);
+                    closeGymCheckoutModal();
                 } catch (error) {
-                    console.error('Error during booking:', error);
-                    alert('An error occurred during booking.');
+                    console.error('Error saving transaction:', error);
                 }
             };
     
-            // Handle cancel button
-            document.getElementById('cancelBookingButtonCheckout').onclick = function() {
-                closegymCheckoutModal();
+            document.getElementById('cancelBookingButtonCheckout').onclick = function () {
+                closeGymCheckoutModal();
             };
-        } else {
-            console.error("Checkout modal or content element not found!");
         }
     }
     
-    // Function to close the checkout modal
-    function closegymCheckoutModal() {
+    function closeGymCheckoutModal() {
         const checkoutModal = document.getElementById('checkoutModal');
         if (checkoutModal) {
             checkoutModal.style.display = 'none'; // Hide the modal
         }
     }
-    
+      
 
     
     
@@ -555,136 +506,136 @@ document.addEventListener('DOMContentLoaded', function() {
             fetchTrainers();
             fetchGymProfiles();
             fetchMembershipPlans();
-            showGymCheckoutModal();
-            showCheckoutModal();// Fetch trainers when the page loads
+            showCheckoutModal();
+          // Fetch trainers when the page loads
   });
 
-  async function showCheckoutModal(trainerId, trainerData, userData = {}) {
-    const checkoutModal = document.getElementById('checkoutModal');
-    const checkoutContent = document.getElementById('checkoutContent');
+// async function showCheckoutModal(trainerId, trainerData, userData = {}) {
+//     const checkoutModal = document.getElementById('checkoutModal');
+//     const checkoutContent = document.getElementById('checkoutContent');
 
-    // Provide default values for userData if undefined
-    const userName = userData.name || '';
-    const userEmail = userData.email || '';
+//     // Provide default values for userData if undefined
+//     const userName = userData.name || '';
+//     const userEmail = userData.email || '';
 
-    if (checkoutModal && checkoutContent) {
-        checkoutContent.innerHTML = `
-            <div class="row">
-                <!-- Left Column: Trainer Information -->
-                <div class="col-md-6">
-                    <h2>Trainer Details</h2>
-                    <div class="card mb-3" style="max-width: 300px; margin-left: 0;">
-                        <img src="${trainerData.TrainerPhoto || 'default-trainer-photo.jpg'}" class="img-fluid rounded-start" alt="Trainer Photo">
-                        <div class="card-body">
-                            <h5 class="card-title text-center">${trainerData.TrainerName}</h5>
-                            <p class="card-text text-center">Rate: ${trainerData.rate || 'N/A'}</p>
-                        </div>
-                    </div>
-                </div>
+//     if (checkoutModal && checkoutContent) {
+//         checkoutContent.innerHTML = `
+//             <div class="row">
+//                 <!-- Left Column: Trainer Information -->
+//                 <div class="col-md-6">
+//                     <h2>Trainer Details</h2>
+//                     <div class="card mb-3" style="max-width: 300px; margin-left: 0;">
+//                         <img src="${trainerData.TrainerPhoto || 'default-trainer-photo.jpg'}" class="img-fluid rounded-start" alt="Trainer Photo">
+//                         <div class="card-body">
+//                             <h5 class="card-title text-center">${trainerData.TrainerName}</h5>
+//                             <p class="card-text text-center">Rate: ${trainerData.rate || 'N/A'}</p>
+//                         </div>
+//                     </div>
+//                 </div>
 
-                <!-- Right Column: User/Customer Details -->
-                <div class="col-md-6">
-                    <h2>Reservation Details</h2>
+//                 <!-- Right Column: User/Customer Details -->
+//                 <div class="col-md-6">
+//                     <h2>Reservation Details</h2>
 
-                    <div class="form-group">
-                        <label for="userName">Name</label>
-                        <input type="text" id="userName" class="form-control" value="${userName}" required>
-                    </div>
+//                     <div class="form-group">
+//                         <label for="userName">Name</label>
+//                         <input type="text" id="userName" class="form-control" value="${userName}" required>
+//                     </div>
 
-                    <div class="form-group mt-3">
-                        <label for="userEmail">Email</label>
-                        <input type="email" id="userEmail" class="form-control" value="${userEmail}" required>
-                    </div>
+//                     <div class="form-group mt-3">
+//                         <label for="userEmail">Email</label>
+//                         <input type="email" id="userEmail" class="form-control" value="${userEmail}" required>
+//                     </div>
 
-                    <div class="form-group mt-3">
-                        <label for="paymentMethod">Payment Method</label>
-                        <select id="paymentMethod" class="form-control">
-                            <option value="Over the Counter">Cash</option>
-                        </select>
-                    </div>
+//                     <div class="form-group mt-3">
+//                         <label for="paymentMethod">Payment Method</label>
+//                         <select id="paymentMethod" class="form-control">
+//                             <option value="Over the Counter">Cash</option>
+//                         </select>
+//                     </div>
 
-                    <div class="form-group mt-3">
-                        <label for="reservationDate">Choose Reservation Date</label>
-                        <input type="date" id="reservationDate" class="form-control">
-                    </div>
+//                     <div class="form-group mt-3">
+//                         <label for="reservationDate">Choose Reservation Date</label>
+//                         <input type="date" id="reservationDate" class="form-control">
+//                     </div>
 
-                    <!-- Buttons -->
-                    <div class="button-container mt-4 d-flex justify-content-between">
-                        <button class="btn btn-success btn-lg" id="confirmBookingButtonCheckout" style="width: 180px;">Confirm Booking</button>
-                        <button class="btn btn-secondary btn-lg" id="cancelBookingButtonCheckout" style="width: 180px;">Cancel</button>
-                    </div>
-                </div>
-            </div>
-        `;
+//                     <!-- Buttons -->
+//                     <div class="button-container mt-4 d-flex justify-content-between">
+//                         <button class="btn btn-success btn-lg" id="confirmBookingButtonCheckout" style="width: 180px;">Confirm Booking</button>
+//                         <button class="btn btn-secondary btn-lg" id="cancelBookingButtonCheckout" style="width: 180px;">Cancel</button>
+//                     </div>
+//                 </div>
+//             </div>
+//         `;
 
-        // Show the checkout modal
-        checkoutModal.style.display = 'block';
+//         // Show the checkout modal
+//         checkoutModal.style.display = 'block';
 
-        // Handle confirm booking button with validation
-        document.getElementById('confirmBookingButtonCheckout').onclick = async function() {
-            const inputUserName = document.getElementById('userName').value.trim().toLowerCase();
-            const inputUserEmail = document.getElementById('userEmail').value.trim().toLowerCase();
-            const reservationDate = document.getElementById('reservationDate').value;
+//         // Handle confirm booking button with validation
+//         document.getElementById('confirmBookingButtonCheckout').onclick = async function() {
+//             const inputUserName = document.getElementById('userName').value.trim().toLowerCase();
+//             const inputUserEmail = document.getElementById('userEmail').value.trim().toLowerCase();
+//             const reservationDate = document.getElementById('reservationDate').value;
 
-            // Validate if a reservation date is selected
-            if (!reservationDate) {
-                alert('Please select a valid reservation date.');
-                return;
-            }
+//             // Validate if a reservation date is selected
+//             if (!reservationDate) {
+//                 alert('Please select a valid reservation date.');
+//                 return;
+//             }
 
-            // Custom message and validation for booking confirmation
-            try {
-                // Save the booking to the Transactions collection
-                await addDoc(collection(db, 'Transactions'), {
-                    trainerId: trainerId,
-                    trainerName: trainerData.TrainerName,
-                    username: inputUserName,
-                    email: inputUserEmail,
-                    reservationDate: reservationDate,
-                    paymentMethod: document.getElementById('paymentMethod').value,
-                    rate: trainerData.rate
-                });
+//             // Custom message and validation for booking confirmation
+//             try {
+//                 // Save the booking to the Transactions collection
+//                 await addDoc(collection(db, 'Transactions'), {
+//                     trainerId: trainerId,
+//                     trainerName: trainerData.TrainerName,
+//                     username: inputUserName,
+//                     email: inputUserEmail,
+//                     reservationDate: reservationDate,
+//                     paymentMethod: document.getElementById('paymentMethod').value,
+//                     rate: trainerData.rate
+//                 });
 
-                // Add a new notification for the user
-                await addDoc(collection(db, 'UserNotifications'), {
-                    userId: auth.currentUser.uid,  // Current logged-in user ID
-                    message: `Your booking with ${trainerData.TrainerName} is confirmed for ${reservationDate}.`,
-                    status: 'unread',
-                    timestamp: new Date()
-                });
+//                 // Add a new notification for the user
+//                 await addDoc(collection(db, 'UserNotifications'), {
+//                     userId: auth.currentUser.uid,  // Current logged-in user ID
+//                     message: `Your booking with ${trainerData.TrainerName} is confirmed for ${reservationDate}.`,
+//                     status: 'unread',
+//                     timestamp: new Date()
+//                 });
 
-                // Show custom success message
-                alert(`🎉 Booking Confirmed! \n\nTrainer: ${trainerData.TrainerName}\nDate: ${reservationDate}\nRate: ${trainerData.rate}\n\nThank you for your reservation! We look forward to seeing you.`);
+//                 // Show custom success message
+//                 alert(`🎉 Booking Confirmed! \n\nTrainer: ${trainerData.TrainerName}\nDate: ${reservationDate}\nRate: ${trainerData.rate}\n\nThank you for your reservation! We look forward to seeing you.`);
                 
-                // Close the modal
-                closeCheckoutModal();
+//                 // Close the modal
+//                 closeCheckoutModal();
 
-                // Fetch updated notifications and update the notification badge count
-                fetchNotifications(auth.currentUser.uid);
-            } catch (error) {
-                console.error('Error saving transaction or notification:', error);
-                // Custom error message
-                alert(`⚠️ Oops! Something went wrong while processing your booking. Please try again later.\n\nError: ${error.message}`);
-            }
-        };
+//                 // Fetch updated notifications and update the notification badge count
+//                 fetchNotifications(auth.currentUser.uid);
+//             } catch (error) {
+//                 console.error('Error saving transaction or notification:', error);
+//                 // Custom error message
+//                 alert(`⚠️ Oops! Something went wrong while processing your booking. Please try again later.\n\nError: ${error.message}`);
+//             }
+//         };
 
-        // Handle cancel booking button with custom message
-        document.getElementById('cancelBookingButtonCheckout').onclick = function() {
-            if (confirm('Are you sure you want to cancel the booking?')) {
-                closeCheckoutModal();
-            }
-        };
+//         // Handle cancel booking button with custom message
+//         document.getElementById('cancelBookingButtonCheckout').onclick = function() {
+//             if (confirm('Are you sure you want to cancel the booking?')) {
+//                 closeCheckoutModal();
+//             }
+//         };
 
-        // Close checkout modal when clicking outside
-        window.onclick = function(event) {
-            if (event.target === checkoutModal) {
-                closeCheckoutModal();
-            }
-        };
-    } else {
-        console.error("Checkout modal or content element not found!");
-    }
-}
+//         // Close checkout modal when clicking outside
+//         window.onclick = function(event) {
+//             if (event.target === checkoutModal) {
+//                 closeCheckoutModal();
+//             }
+//         };
+//     } else {
+//         console.error("Checkout modal or content element not found!");
+//     }
+// } 
 
 
 

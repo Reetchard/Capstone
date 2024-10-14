@@ -5,18 +5,19 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
+
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet"> -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Boxicons CSS for Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="css/Dashstyle.css">
     <link rel="stylesheet" href="css/media.css">
-        <link rel="stylesheet" href="css/styles.css">
-        <link rel="stylesheet" href="css/notif.css">
-    <!-- Leaflet CSS -->
-    <!-- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" /> -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/notif.css">
+
     <style>
         .section {
             display: none; /* Hide all sections by default */
@@ -27,96 +28,94 @@
         }
     </style>
 </head>
-<body>
-    <nav class="sidebar">
-        <!-- Profile Section with Dropdown -->
-        <div class="dropdown">
-            <div class="profile-container dropdown-toggle" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" class="profile-img">
+<body id="body-pd">
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="header_toggle"> 
+            <i class='bx bx-menu' id="header-toggle"></i> 
+        </div>
+        <div class="header_profile">
+            <div class="header_img"> 
+                <img id="profile-picture-header" src="framework/img/Profile.png" alt="Profile" class="rounded-circle" width="50" height="50"> 
             </div>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <a class="dropdown-item" href="Pinfo.html">Personal Information</a>
-                <a class="dropdown-item" href="report.html">Submit a Complaint</a>
-                <a class="dropdown-item" href="login.html">Log Out</a>
+            <div class="header_username">
+                <span id="header-username"></span> <!-- Placeholder for the display name -->
             </div>
         </div>
+    </header>
+
+    <!-- Sidebar -->
+    <div class="l-navbar" id="nav-bar">
+        <nav class="nav">
+            <div> 
+                <a href="#" class="nav_logo"> 
+                    <div class="nav_logo-img">
+                        <img id="profile-picture-sidebar" src="framework/img/Profile.png" alt="Profile" class="rounded-circle" width="50" height="50">
+                    </div>
+                </a>
+                <div class="nav_list">
+                    <a href="#" class="nav_link active" data-target="notifications">
+                        <i class='bx bx-bell nav_icon'></i>
+                        <span class="nav_name">Notifications</span>
+                    </a>
+                    <a href="#" class="nav_link" data-target="gym-profile">
+                        <i class='bx bx-dumbbell nav_icon'></i>
+                        <span class="nav_name">Gym Profile</span>
+                    </a>
+                    <a href="#" class="nav_link" data-target="member-status">
+                        <i class='bx bx-user-circle nav_icon'></i>
+                        <span class="nav_name">Membership Status</span>
+                    </a>
+                    <a href="#" class="nav_link" data-target="chat">
+                        <i class='bx bx-message-square-detail nav_icon'></i>
+                        <span class="nav_name">Messages</span>
+                    </a>
+                    <a href="Pinfo.html" class="nav_link">
+                        <i class='bx bx-edit-alt nav_icon'></i>
+                        <span class="nav_name">Edit Profile</span>
+                    </a>
+                </div>
+            </div>
+            <a href="login.html" class="nav_link">
+                <i class='bx bx-log-out nav_icon'></i>
+                <span class="nav_name">SignOut</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Notifications Section -->
+    <section id="notifications" class="section active">
+        <div class="container">
+            <h2>Notifications</h2>
+            <ul id="notification-list" class="list-group">
+                <!-- Notifications will be appended here -->
+            </ul>
+        </div>
+    </section>
     
-        <!-- Sidebar Navigation Links -->
-        <ul class="sidebar-nav">
-            <li class="nav-item">
-                <a class="nav-link" href="#" data-target="gym-profile">
-                    <img src="framework/img/Gym.svg" alt="Gym Profile Icon" class="nav-icon">
-                    Gym Profile
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" data-target="trainer-profile">
-                    <img src="framework/img/Trainer.svg" alt="Trainer Icon" class="nav-icon">
-                    Trainer Profile
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" data-target="member-status">
-                    <img src="framework/img/Membership.svg" alt="Member Status Icon" class="nav-icon">
-                    Member Status
-                </a>
-            </li>
-            <!-- Notification Section -->
-            <li class="nav-item">
-                <a class="nav-link" href="#" data-target="notifications">
-                    <img src="framework/img/notification.svg" alt="Notification Icon" class="nav-icon">
-                    Notifications
-                    <span id="notification-count" class="badge badge-danger">0</span><!-- Notification count badge -->
-                </a>
-            </li>
-            <!-- Chat Section -->
-            <li class="nav-item">
-                <a class="nav-link" href="#" data-target="chat">
-                    <img src="framework/img/message.svg" alt="Chat Icon" class="nav-icon">
-                    Chat
-                </a>
-            </li>
-        </ul>
-    </nav>
-    
+    <!-- Gym Profile Section -->
     <section id="gym-profile" class="section">
         <div class="container">
-                <div class="card-body">
-                    <h2 class="card-title text-center">Gym Profile</h2>
-                    <div class="trainers-scroll-container">
-                        <div id="gym-profiles" class="gym-profile">
-                            <!-- Gym profile content will be dynamically added here -->
-                        </div>
+            <div class="card-body">
+                <h2 class="card-title text-center">Gym Profile</h2>
+                <div class="trainers-scroll-container">
+                    <div id="gym-profiles" class="gym-profile">
+                        <!-- Gym profile content will be dynamically added here -->
                     </div>
                 </div>
-        </div>
-    </section>
-    
-
-    <section id="trainer-profile" class="section">
-        <div class="container">
-                <div class="card-body">
-                    <h2 class="card-title text-center">Trainer Profile</h2>
-                    <div class="trainers-scroll-container">
-                        <div class="trainers-content" id="trainer-profiles">
-                            <!-- Trainer profiles will be dynamically added here -->
-                        </div>
-                    </div>
-                </div>
+            </div>
         </div>
     </section>
 
-
+    <!-- Membership Status Section -->
     <section id="member-status" class="section">
         <div class="container">
-            <div class="card shadow-lg p-4 mb-5  rounded">
+            <div class="card shadow-lg p-4 mb-5 rounded">
                 <div class="card-body">
                     <h2 class="card-title text-center">Membership Status</h2>
-    
-                    <!-- Membership Information Section -->
                     <div class="membership-status-container">
                         <div class="row">
-                            <!-- Membership Plan -->
                             <div class="col-md-4 text-center">
                                 <div class="membership-card">
                                     <i class="fas fa-id-card fa-3x mb-3 status-icon"></i>
@@ -124,8 +123,6 @@
                                     <p id="membershipPlan">Gold Membership</p>
                                 </div>
                             </div>
-    
-                            <!-- Membership Expiry -->
                             <div class="col-md-4 text-center">
                                 <div class="membership-card">
                                     <i class="fas fa-calendar-alt fa-3x mb-3 status-icon"></i>
@@ -133,8 +130,6 @@
                                     <p id="expiryDate">Dec 31, 2024</p>
                                 </div>
                             </div>
-    
-                            <!-- Membership Status -->
                             <div class="col-md-4 text-center">
                                 <div class="membership-card">
                                     <i class="fas fa-check-circle fa-3x mb-3 status-icon active-status"></i>
@@ -143,8 +138,6 @@
                                 </div>
                             </div>
                         </div>
-    
-                        <!-- Membership Actions -->
                         <div class="membership-actions text-center mt-4">
                             <button class="btn btn-primary">Renew Membership</button>
                             <button class="btn btn-secondary">View Membership History</button>
@@ -154,16 +147,28 @@
             </div>
         </div>
     </section>
-    
-    
-    <!--Modals-->
+
+    <!-- Chat Section -->
+    <section id="chat" class="section">
+        <div class="container">
+            <h2>Chat Room</h2>
+            <div id="chatBox" class="chat-box">
+                <div class="chat-header">Chat Room</div>
+                <div id="messages" class="messages"></div>
+                <div class="chat-input">
+                    <input type="text" id="messageInput" placeholder="Type your message here" />
+                    <button id="sendMessageBtn">Send</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Gym Profile Modal Structure -->
     <div id="gymProfileModal" class="modal">
         <div class="modal-content">
             <span class="close-button" onclick="closeModal('gymProfileModal')">&times;</span>
             <img id="modalGymPhoto" src="" alt="Gym Photo" class="gym-photo">
             <h3 id="modalGymName">Gym Name</h3>
-    
             <!-- Bootstrap Grid for 3 Columns and 2 Rows -->
             <div class="container mt-4">
                 <div class="row">
@@ -192,146 +197,24 @@
                     </div>
                 </div>
             </div>
-    
-            <!-- Buttons Section -->
-            <div class="modal-buttons" style="margin-top: 20px;">
-                <button id="viewProductsButton" class="btn btn-primary" onclick="viewProducts()">Products</button>
-                <button id="viewMembershipPlansButton" class="btn btn-secondary" onclick="viewMembershipPlans()">Membership Plans</button>
-                <!-- Add Book Now Button -->
-                <button id="bookNowButton" class="btn btn-success" style="margin-top: 10px;" onclick="showGymCheckoutModal()">Book Now</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Membership Plans Modal -->
-    <div id="membershipPlansModal" class="modal">
-        <div class="modal-content">
-            <span class="close-button" onclick="closeMembershipPlansModal()">&times;</span>
-            <h3>Membership Plans</h3>
-            <div id="membershipPlansContent">
-                <!-- Membership plans content goes here -->
-            </div>
-        </div>
-    </div>
-    
-    <section id="notifications" class="section">
-        <div class="container">
-            <h2>Notifications</h2>
-            <ul id="notification-list" class="list-group">
-                <li class="list-group-item">No new notifications</li> <!-- Default message -->
-            </ul>
-        </div>
-    </section>
-    
-    <!-- Chat Section -->
-    <section id="chat" class="section">
-        <div class="container">
-            <h2>Chat Room</h2>
-            <div id="chatBox" class="chat-box">
-                <div class="chat-header">Chat Room</div>
-                <div id="messages" class="messages"></div>
-                <div class="chat-input">
-                    <input type="text" id="messageInput" placeholder="Type your message here" />
-                    <button id="sendMessageBtn">Send</button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    
-    <div id="trainerProfileModal" class="modal">
-        <div class="modal-content">
-            <span class="close-button" onclick="closeModal('trainerProfileModal')">&times;</span>
-            <img id="modalTrainerPhoto" src="" alt="Trainer Photo" class="trainer-photo">
-            <h3 id="modalTrainerName">Trainer Name</h3>
-    
-            <!-- Bootstrap Grid for 3 Columns -->
+            <!-- Trainers Section -->
             <div class="container mt-4">
-                <div class="row">
-                    <div class="col-md-4">
-                        <p><strong>Experience:</strong> <span id="modalTrainerExperience"></span></p>
-                    </div>
-                    <div class="col-md-4">
-                        <p><strong>Expertise:</strong> <span id="modalTrainerExpertise"></span></p>
-                    </div>
-                    <div class="col-md-4">
-                        <p><strong>Days Available:</strong> <span id="modalTrainerDaysAvailable"></span></p>
-                    </div>
+                <h4>Our Trainers</h4>
+                <div class="row" id="trainer-list">
+                    <!-- Gym trainers will be dynamically added here -->
                 </div>
-                <div class="row">
-                    <div class="col-md-4">
-                        <p><strong>Contact:</strong> <span id="modalTrainerContact"></span></p>
-                    </div>
-                    <div class="col-md-4">
-                        <p><strong>Rate:</strong> <span id="modalTrainerRate"></span></p>
-                    </div>
-                </div>
-            </div>
-    
-            <!-- Buttons Section -->
-            <div class="modal-buttons" style="margin-top: 20px;">
-                <button id="bookTrainerNowButton" class="btn btn-success" style="margin-top: 10px;" onclick="showCheckoutModal()">Book Now</button>
             </div>
         </div>
     </div>
-    
-    
-    
-    <!-- Confirmation Modal -->
-    <div id="confirmationModal" class="modal" style="display: none;">
-        <div class="modal-content" id="confirmationContent">
-            <!-- Confirmation details will be populated here -->
-        </div>
-    </div>
-    
-    <!-- Checkout Modal -->
-    <div id="checkoutModal" class="modal">
-        <div class="modal-content" id="checkoutContent">
-            <!-- Content for checkout will be dynamically inserted here -->
-        </div>
-    </div>
-
-    <!-- Success Modal -->
-        <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="successModalLabel">Success</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <p id="successMessage"></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Error Modal -->
-        <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="errorModalLabel">Error</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <p id="errorMessage"></p>
-                    </div>
-                </div>
-            </div>
-        </div>
 
     <!-- Include jQuery before Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/5.11.3/main.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JavaScript Files -->
     <script type="module" src="src/Js/DashScript.js"></script>
+    <script src="src/Js/nav.js"></script>
 
 </body>
 </html>

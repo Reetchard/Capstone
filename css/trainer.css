@@ -1,402 +1,257 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap");
 
-.navbar {
-    background-color: #343a40;
-}
-
-.navbar-brand img {
-    height: 40px;
-}
-
-.section {
-    padding: 150px 0;
-}
-.card {
-    transition: transform 0.2s;
-}
-.card:hover {
-    transform: scale(1.05);
-}
-.navbar-icons {
-    display: flex;
-    align-items: center;
-}
-.navbar-item{
-    margin-left: 15px;
-}
-.navbar-menu{
-
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 15px;
-    background-color: #f9f9f9;
-
-}
-.navbar-icons i {
-    margin-left: 15px;
-    cursor: pointer;
-    font-size: 1.2rem;
-}
-#authSection .btn {
-    margin-left: 15px;
-}
-/* Center the h3 element */
-.text-center {
-    text-align: center;
+/* CSS Variables */
+:root{
+    --header-height: 3rem;
+    --nav-width: 68px;
+    --first-color: #484749;
+    --first-color-light: #AFA5D9;
+    --white-color: #F7F6FB;
+    --body-font: 'Nunito', sans-serif;
+    --normal-font-size: 1rem;
+    --z-fixed: 100;
 }
 
- /* Custom styles for the Complaints Section */
- .complaint-container {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 15px;
-    background-color: #f9f9f9;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+/* General Reset */
+*,::before,::after{
+    box-sizing: border-box;
 }
 
-.complaint-title {
-    font-size: 1.2em;
-    margin-bottom: 10px;
-    font-weight: bold;
+/* Body Styling */
+body{
+    position: relative;
+    margin: var(--header-height) 0 0 0;
+    padding: 0 1rem;
+    font-family: var(--body-font);
+    font-size: var(--normal-font-size);
+    transition: .5s;
 }
 
-.complaint-details {
-    margin-bottom: 10px;
-}
-
-.reply-section {
-    margin-top: 10px;
-}
-
-.reply-btn {
-    margin-top: 10px;
-}
-
-.complaint-container small {
-    display: block;
-    color: #666;
-    margin-top: 5px;
-}
-.navbar {
-    margin-bottom: 20px;
-    background-color: #343a40; /* Dark background */
-}
-.navbar .navbar-brand {
-    color: #ffffff; /* White text */
-}
-.navbar .navbar-brand img {
-    width: 30px;
-    margin-right: 10px;
-}
-.navbar-nav .nav-item .nav-link {
-    color: #ffffff; /* White text */
-    padding: 15px 20px;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-/* Navbar link hover effect */
-.navbar-nav .nav-item .nav-link:hover {
-    background-color: #6c757d; /* Gray background on hover */
-    color: #ffffff; /* White text */
-}
-
-/* Navbar link active effect */
-.navbar-nav .nav-item .nav-link:active {
-    background: linear-gradient(135deg, #007bff, #00d2ff); /* Gradient background on click */
-    color: #ffffff; /* White text */
-}
-
-.navbar-icons i {
-    color: #ffffff; /* White icons */
-    margin-left: 15px;
-    cursor: pointer;
-    font-size: 1.2rem;
-}
-.navbar-toggler {
-    border-color: rgba(255, 255, 255, 0.1); /* Light border */
-}
-.navbar-toggler-icon {
-    color: #ffffff; /* White icon */
-}
-.section {
-    padding: 150px 0; /* Increased padding to create more space between sections */
-}
-.card {
-    transition: transform 0.2s;
-}
-.card:hover {
-    transform: scale(1.05);
-}
-
-.remember-me {
-    display: flex;
-    align-items: center;
-    margin: 10px 0;
-}
-
-.remember-me input {
-    margin-right: 1px;
-    transform: scale(1.2);
-}
-
-.remember-me label {
-    font-size: 14px;
-    font-weight: 400;
-    color: #333;
-    margin-left: 10px;
-}
-/* Center the form on the page */
-.login_box .left {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    max-width: 41%;
-    height: 100%;
-    padding: 25px;
-    background: linear-gradient(-45deg, #dcd7e0, #fff);
-}
-
-form {
-    width: 100%;
-    max-width: 400px; /* Adjust based on your needs */
-    text-align: center;
-}
-
-form h3 {
-    margin-bottom: 20px;
-    font-size: 24px;
-    color: #583672;
-}
-
-form input {
-    border: none;
-    width: 100%;
-    margin: 10px 0;
-    border-bottom: 1px solid #4f30677d;
-    padding: 7px 9px;
-    overflow: hidden;
-    background: transparent;
-    font-weight: 600;
-    font-size: 14px;
-}
-
-.remember-me {
-    display: flex;
-    align-items: center;
-    justify-content: center; /* Center the content horizontally */
-    margin: 10px 0;
-}
-
-.remember-me input {
-    margin-right: 10px;
-    transform: scale(1.2);
-}
-
-.remember-me label {
-    font-size: 14px;
-    font-weight: 400;
-    color: #333;
-}
-
-.submit {
-    border: none;
-    padding: 15px 70px;
-    border-radius: 8px;
-    display: block;
-    margin: 20px auto 10px;
-    background: #583672;
-    color: #fff;
-    font-weight: bold;
-    box-shadow: 0px 9px 15px -11px rgba(88,54,114,1);
-}
-
-.error-message {
-    color: red;
-    text-align: center;
-    margin-top: 10px;
-}
-
-.sign-up-link {
-    text-align: center;
-    margin-top: 15px;
-}
-
-.sign-up-link a {
-    color: #583672;
+/* Links */
+a{
     text-decoration: none;
 }
 
-.card {
-    border-radius: 10px; /* Reduced border radius */
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); /* Reduced shadow */
-    max-width: 400px; /* Set a maximum width */
-    margin: 0 auto; /* Center the card horizontally */
-}
-
-.card-header {
-    background-color: #007bff;
-    color: rgb(12, 12, 12);
-    border-bottom: 1px solid #0056b3; /* Slight border to distinguish header */
-    border-radius: 10px 10px 0 0; /* Adjusted border radius */
-}
-
-.card-body {
-    padding: 2rem; /* Reduced padding */
-}
-
-.container {
-    padding-left: 10px; /* Adjust container padding if needed */
-    padding-right: 10px; /* Adjust container padding if needed */
-}
-.navbar-brand img {
-    height: 40px;
-}
-.navbar-nav .nav-link {
-    color: white;
-}
-.navbar-nav .nav-link:hover {
-    color: #f8f9fa;
-}
-.card {
-    max-width: 1200px;
-    margin: auto;
-}
-.form-inline {
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-}
-.modal-body {
-    padding: 2rem;
-}
-.table-checkbox {
-    width: 20px;
-    height: 20px;
-}
-.delete-all-btn {
-    margin-left: auto;
-}
-.navbar {
-    background-color: #343a40; /* Dark color for the navbar */
-}
-/* Center align the navbar text */
-    .navbar-text {
-        font-size: 1.25rem; /* Adjust size as needed */
-        font-weight: bold;  /* Optional: make it bold */
-    }
-
-    /* Ensure the navbar brand is not affected */
-    .navbar-brand img {
-        height: 40px;
-    }
-
-    .navbar-nav .nav-link {
-        color: white;
-    }
-
-    .navbar-nav .nav-link:hover {
-        color: #f8f9fa;
-    }
-
-    .navbar {
-        background-color: #343a40; /* Dark color for the navbar */
-    }
-
-    /* Ensures space for title and buttons on mobile */
-    .navbar-collapse {
-        justify-content: space-between;
-    }
-    .navbar-nav .dropdown-menu {
-    background-color: #343a40; /* Match the navbar background */
-}
-.navbar-nav .dropdown-item {
-    color: #f8f9fa; /* Text color for items */
-}
-.navbar-nav .dropdown-item:hover {
-    background-color: #495057; /* Background color on hover */
-    color: #ffffff; /* Text color on hover */
-}
-body {
-    font-family: Arial, sans-serif;
-    overflow-x: hidden;
-}
-.sidebar {
-    height: 100vh;
-    width: 250px;
+/* Header Styling */
+.header{
+    width: 100%;
+    height: var(--header-height);
     position: fixed;
     top: 0;
     left: 0;
-    background-color: #343a40;
-    color: white;
-    padding: 15px;
-    overflow-y: auto;
-}
-.sidebar a {
-    color: white;
-    text-decoration: none;
-    display: block;
-    padding: 10px;
-    margin: 5px 0;
-    border-radius: 4px;
-}
-.sidebar a:hover {
-    background-color: #495057;
-}
-.main-content {
-    margin-left: 250px;
-    padding: 20px;
-}
-.card-header {
-    background-color: #343a40;
-    color: white;
-}
-.card {
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-.form-control-file {
-    margin-bottom: 15px;
-}
-#photoPreview {
-    display: block;
-    width: 100px;
-    margin-top: 10px;
-}
-.btn-block {
-    margin-top: 20px;
-}
-.alert {
-    margin-top: 20px;
-}
-.notification-icon {
-    color: white;
-    font-size: 1.5rem;
-    margin-right: 15px;
-}
-.notification-icon:hover {
-    color: #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1rem;
+    background-color: var(--white-color);
+    z-index: var(--z-fixed);
+    transition: .5s;
 }
 
-.chat-box {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 10px;
-    max-height: 400px;
-    overflow-y: auto;
-    margin-bottom: 20px;
+/* Hamburger Menu Toggle */
+.header_toggle{
+    color: var(--first-color);
+    font-size: 1.5rem;
+    cursor: pointer;
 }
-.chat-message {
-    margin-bottom: 10px;
+
+/* Profile Image in Header */
+.header_img {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    overflow: hidden;
+    transition: all 0.3s ease;
 }
-.chat-message .message {
-    border-radius: 8px;
-    padding: 10px;
-    background-color: #f1f1f1;
+.header_profile {
+    display: flex;
+    align-items: center; /* Vertically align profile image and username */
+    gap: 10px; /* Space between profile picture and username */
 }
-.chat-message .trainer {
-    text-align: right;
+.header_img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 100%; /* Keep the profile image circular */
+
 }
-.chat-input {
-    margin-top: 10px;
+.header_username {
+    font-size: 1.2rem; /* Adjust the font size of the username */
+    color: #333; /* Text color */
+}
+/* When the sidebar is minimized */
+.l-navbar.minimized .header_img {
+    width: 40px; /* Adjust to fit the smaller sidebar */
+    height: 40px;
+    margin-left: -10px; /* Shift to prevent it being cut off */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+/* Image inside the minimized sidebar */
+.l-navbar.minimized .header_img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensure the image covers the container */
+    border-radius: 50%; /* Maintain circular shape */
+}
+/* Sidebar Navigation */
+.l-navbar{
+    position: fixed;
+    top: 0;
+    left: -30%;
+    width: var(--nav-width);
+    height: 100vh;
+    background-color: var(--first-color);
+    padding: .5rem 1rem 0 0;
+    transition: .3s;
+    z-index: var(--z-fixed);
+}
+
+/* Sidebar Content */
+.nav{
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+}
+.nav_logo, .nav_link{
+    display: grid;
+    grid-template-columns: max-content max-content;
+    align-items: center;
+    column-gap: 1rem;
+    padding: .5rem 0 .5rem 1.5rem;
+}
+.nav_link .nav_icon {
+    display: block;
+    margin: 0 auto;
+}     
+  
+/* Sidebar Logo */
+.nav_logo{
+    margin-bottom: 2rem;
+}
+.nav_logo-icon{
+    font-size: 1.25rem;
+    color: var(--white-color);
+}
+.nav_logo-name{
+    color: var(--white-color);
+    font-weight: 700;
+}
+
+/* Sidebar Links */
+.nav_link{
+    position: relative;
+    color: var(--first-color-light);
+    margin-bottom: 1.5rem;
+    transition: .3s;
+}
+.nav_link:hover{
+    color: var(--white-color);
+}
+.nav_icon{
+    font-size: 1.25rem;
+}
+
+/* Active Link */
+.active{
+    color: var(--white-color);
+}
+.active::before{
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 2px;
+    height: 32px;
+    background-color: var(--white-color);
+}
+
+/* Full Height Container */
+.height-100{
+    height:100vh;
+}
+
+/* Sidebar Expanded and Body Padding */
+.show{
+    left: 0;
+}
+.body-pd{
+    padding-left: calc(var(--nav-width) + 1rem);
+}
+
+/* Media Queries for Responsive Design */
+@media screen and (min-width: 768px){
+    body{
+        margin: calc(var(--header-height) + 1rem) 0 0 0;
+        padding-left: calc(var(--nav-width) + 2rem);
+    }
+
+    .header{
+        height: calc(var(--header-height) + 1rem);
+        padding: 0 2rem 0 calc(var(--nav-width) + 2rem);
+    }
+
+    .header_img{
+        width: 40px;
+        height: 40px;
+    }
+    .header_img img{
+        width: 45px;
+        object-fit: cover;
+    }
+
+    .l-navbar{
+        left: 0;
+        padding: 1rem 1rem 0 0;
+    }
+
+    .show{
+        width: calc(var(--nav-width) + 156px);
+    }
+
+    .body-pd{
+        padding-left: calc(var(--nav-width) + 188px);
+    }
+}
+
+/* Resize Profile Image and Sidebar on Collapse (Max Width: 768px) */
+@media screen and (max-width: 768px){
+    /* Resize Profile Image */
+    .profile-img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+    }
+
+    /* Collapse Sidebar Width */
+    .l-navbar {
+        width: 60px;
+    }
+
+    /* Sidebar Padding */
+    .sidebar {
+        padding: 10px;
+    }
+
+    /* Sidebar Nav Link Alignment */
+    .sidebar-nav .nav-link {
+        text-align: center;
+    }
+
+    /* Hide Sidebar Text Labels */
+    .sidebar-nav .nav-link span {
+        display: none;
+    }
+
+    /* Sidebar Icons Adjustments */
+    .sidebar-nav .nav-link .nav-icon {
+        margin-bottom: 5px;
+    }
 }
