@@ -40,33 +40,37 @@ document.querySelectorAll('.nav_link').forEach((link) => {
     });
 });
 
-// Check user authentication and role
 document.addEventListener('DOMContentLoaded', () => {
-    // Now we are sure that the DOM is fully loaded before accessing the elements
+    // Wait until the DOM is fully loaded before accessing elements
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             const userId = user.uid;
-            const userDocRef = doc(db, 'Users', userId);
+            const userDocRef = doc(db, 'Users', userId); // Fetch user doc from Firestore
 
             try {
                 const userDoc = await getDoc(userDocRef);
                 if (userDoc.exists()) {
-                    const userData = userDoc.data();
-                    const role = userData.role || 'user';
-                    const username = userData.username || 'User'; // Make sure there's a fallback for the username
-                    fetchNotifications(userId);
-                    displayProfilePicture(user, username); // Pass username to the function
+                    const userData = userDoc.data(); // Get user data
+                    const username = userData.username || 'User'; // Username with fallback
+
+                    // Display profile picture and username
+                    displayProfilePicture(user, username); // Pass the user object and username
+
+                    // Fetch notifications for the user
+                    fetchNotifications(userId); // Fetch and display notifications
                 } else {
-                    window.location.href = 'login.html'; // Redirect to login if no user document
+                    console.error("User document does not exist.");
+                    window.location.href = 'login.html'; // Redirect to login if no user document found
                 }
             } catch (error) {
-                console.error("Error fetching user data:", error);
+                console.error("Error fetching user data:", error); // Error handling
             }
         } else {
-            window.location.href = 'login.html'; // Redirect if not authenticated
+            window.location.href = 'login.html'; // Redirect if user is not authenticated
         }
     });
 });
+
 
 
 // Function to display user profile picture
@@ -237,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         // Fetch trainers from Firestore
-        window.fetchTrainers = async function () {
+ window.fetchTrainers = async function () {
                 const trainersCollection = collection(db, 'Users');
                 const trainerSnapshot = await getDocs(trainersCollection);
                 const trainerList = trainerSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); // Include the document ID
@@ -264,8 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         trainerProfilesContainer.appendChild(trainerDiv);
                     }
                 });
-            }
-        
+            }  
 
 });
 
@@ -335,8 +338,8 @@ window.viewMore = async function (gymId) {
             if (modalGymOpeningTime) modalGymOpeningTime.innerText = gymData.gymOpeningTime || 'N/A';
             if (modalGymClosingTime) modalGymClosingTime.innerText = gymData.gymClosingTime || 'N/A';
 
-            const modal = document.getElementById('gymProfileModal');
-            modal.style.display = 'block'; // Show the modal
+            // Use Bootstrap modal to show the modal
+            $('#gymProfileModal').modal('show');
         } else {
             console.error('No such document!');
         }
@@ -346,25 +349,10 @@ window.viewMore = async function (gymId) {
 }
 
 // Function to close the modal
-function closeModal() {
-    const modal = document.getElementById('gymProfileModal');
-    if (modal) {
-        modal.style.display = 'none'; // Hide the modal
-    }
+window.closeModal = function() {
+    $('#gymProfileModal').modal('hide'); // Use Bootstrap's modal hide method
 }
 
-// Example placeholder functions for Products and Membership Plans
-function viewProducts() {
-    alert("Viewing products for this gym.");
-}
-
-function viewMembershipPlans() {
-    alert("Viewing membership plans for this gym.");
-}
-
-function bookGym() {
-    alert("Booking this gym.");
-}
 
     async function showGymCheckoutModal(gymId, gymData = {}, userData = {}) {
         const checkoutModal = document.getElementById('checkoutModal');

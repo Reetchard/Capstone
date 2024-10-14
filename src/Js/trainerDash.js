@@ -19,68 +19,57 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage();
 
+// Check user authentication and role
 document.addEventListener('DOMContentLoaded', () => {
-    // Wait until the DOM is fully loaded before accessing elements
+    // Now we are sure that the DOM is fully loaded before accessing the elements
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             const userId = user.uid;
-            const userDocRef = doc(firestore, 'Users', userId); // Fetch user doc from Firestore
+            const userDocRef = doc(db, 'Users', userId);
 
             try {
                 const userDoc = await getDoc(userDocRef);
                 if (userDoc.exists()) {
-                    const userData = userDoc.data(); // Get user data
-                    const username = userData.username || 'User'; // Username with fallback
-
-                    // Display profile picture and username
-                    displayProfilePicture(user, username); // Pass the user object and username
+                    const userData = userDoc.data();
+                    const role = userData.role || 'user';
+                    const username = userData.username || 'User'; // Make sure there's a fallback for the username
+                    fetchNotifications(userId);
+                    displayProfilePicture(user, username); // Pass username to the function
                 } else {
-                    console.error("User document does not exist.");
-                    window.location.href = 'login.html'; // Redirect to login if no user document found
+                    window.location.href = 'login.html'; // Redirect to login if no user document
                 }
             } catch (error) {
-                console.error("Error fetching user data:", error); // Error handling
+                console.error("Error fetching user data:", error);
             }
         } else {
-            window.location.href = 'login.html'; // Redirect if user is not authenticated
+            window.location.href = 'login.html'; // Redirect if not authenticated
         }
     });
 });
 
+
 // Function to display user profile picture
 function displayProfilePicture(user, username) {
     const userId = user.uid;
-    const profilePicRef = storageRef(storage, `profilePictures/${userId}/profile.jpg`); // Path to user's profile picture
-
+    const profilePicRef = ref(storage, `profilePictures/${userId}/profile.jpg`);
+  
     getDownloadURL(profilePicRef).then((url) => {
-        console.log("Profile picture URL fetched:", url); // Log for debugging
-
-        // Select the DOM elements
-        const headerPicture = document.getElementById('profile-picture-header');
-        const headerUsername = document.getElementById('header-username');
-
-        // Check if elements exist in the DOM
-        if (headerPicture && headerUsername) {
-            headerPicture.src = url; // Set the profile picture in the header
-            headerUsername.textContent = username; // Set the username in the header
-            console.log("Profile picture and username updated successfully");
-        } else {
-            console.error("One or more profile elements not found in the DOM.");
-        }
+        // Update profile picture in both header and sidebar
+        document.getElementById('profile-picture').src = url;        
+        // Also update the username in the header
+        document.getElementById('profile-username').textContent = username;
     }).catch((error) => {
-        console.error("Error fetching profile picture:", error);
-
         if (error.code === 'storage/object-not-found') {
-            // If no profile picture is found, fallback to the default image
-            document.getElementById('profile-picture-header').src = 'framework/img/Profile.png';
-            document.getElementById('header-username').textContent = username; // Set the username anyway
-            console.log("Default profile picture set, and username displayed.");
+            // Fallback to default image if no profile picture is found
+            document.getElementById('profile-picture').src = 'framework/img/Profile.png';
+
+            // Still set the username
+            document.getElementById('profile-username').textContent = username;
         } else {
-            console.error("Unexpected error loading profile picture:", error.message);
+            console.error('Unexpected error loading profile picture:', error.message);
         }
     });
 }
-
 
 
 async function fetchGymProfiles() {
@@ -152,5 +141,64 @@ async function fetchGymProfiles() {
             }
         } catch (error) {
             console.error('Error fetching document:', error);
+        }
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        // Now all event listeners and modal functions are attached when DOM is ready
+        fetchGymProfiles();
+});
+async function fetchNotifications(currentUserId) {
+    try {
+        const notifications = await fetchUserNotifications(currentUserId); // Fetch notifications from Firestore
+        const unreadCount = notifications.filter(notification => notification.status === 'unread').length;
+        
+        updateNotificationCount(unreadCount); // Update the count in the badge
+
+        const notificationList = document.getElementById('notification-list');
+        notificationList.innerHTML = ''; // Clear the list before adding new notifications
+        
+        if (notifications.length > 0) {
+            notifications.forEach(notification => {
+                const notificationItem = document.createElement('li');
+                notificationItem.classList.add('list-group-item');
+                
+                // Mark as read when the user clicks on it
+                if (notification.status === 'unread') {
+                    notificationItem.classList.add('unread');
+                } else {
+                    notificationItem.classList.add('read');  // Add a class to style read notifications
+                }
+                
+                notificationItem.textContent = notification.message;
+                notificationItem.onclick = () => markAsRead(notification.id, currentUserId);  // Mark as read when clicked
+                
+                notificationList.appendChild(notificationItem);
+            });
+        } else {
+            notificationList.innerHTML = '<li class="list-group-item">No new notifications</li>';
+        }
+    } catch (error) {
+        console.error('Error fetching notifications:', error);
+    }
+}
+
+
+    // Function to update the notification badge with the count
+    function updateNotificationCount(count) {
+        const notificationCountElement = document.getElementById('notification-count');
+        if (notificationCountElement) {
+            notificationCountElement.textContent = count;
+            notificationCountElement.style.display = count > 0 ? 'inline-block' : 'none';
+        }
+    }
+    async function markAsRead(notificationId, currentUserId) {
+        try {
+            const notificationRef = doc(db, 'UserNotifications', notificationId);
+            await updateDoc(notificationRef, { status: 'read' });  // Update status to 'read'
+    
+            // Refresh the notifications after marking one as read
+            fetchNotifications(currentUserId); // Refresh the notifications
+        } catch (error) {
+            console.error('Error marking notification as read:', error);
         }
     }

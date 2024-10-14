@@ -7,7 +7,9 @@
     <title>Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/main.min.css">
+    <link rel="stylesheet" href="css/Dashstyle.css">
     <style>
         /* General Styles */
         body {
@@ -234,44 +236,45 @@
                 <button class="btn btn-secondary" onclick="filterGyms()">Filter</button>
             </div>
             <div class="gym-profile" id="gym-profiles">
-                <div class="profile-card" onclick="openGymModal('Gym Name', 'Location', 'Equipment', 'Programs', 'Contact', 'Opening Time', 'Closing Time', 'https://via.placeholder.com/150')">
-                    <img src="https://via.placeholder.com/150" alt="Gym Image">
-                    <div class="profile-content">
-                        <h4>Gym Name</h4>
-                        <p>Location</p>
-                        <div class="rating">★★★★☆</div>
-                        <button class="btn btn-sm btn-outline-light" onclick="addToFavorites('Gym Name')">Favorite</button>
-                    </div>
-                </div>
+
                 <!-- Add more gym profiles here -->
             </div>                 
         </section>
 
-        <div id="gymProfileModal" class="modal fade" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <span class="modal-close" onclick="closeModal()">&times;</span>
-                    <div class="modal-header">
-                        <h3 id="modalGymName">Gym Name</h3>
+    <!-- Gym Info Modal -->
+    <div id="gymProfileModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <span class="modal-close" onclick="closeModal()">&times;</span>
+                <div class="modal-header">
+                    <h3 id="modalGymName">Gym Name</h3>
+                </div>
+                <img id="modalGymPhoto" src="" alt="" class="gym-photo img-fluid">
+                <div class="modal-body">
+                    <p><strong>Location:</strong> <span id="modalGymLocation">Location</span></p>
+                    <p><strong>Equipment:</strong> <span id="modalGymEquipment">Equipment</span></p>
+                    <p><strong>Programs:</strong> <span id="modalGymPrograms">Programs</span></p>
+                    <p><strong>Contact:</strong> <span id="modalGymContact">Contact</span></p>
+                    <p><strong>Price Rate:</strong> <span id="modalPriceRate">Price Rate</span></p>
+                    <p><strong>Opening Time:</strong> <span id="modalGymOpeningTime">Opening Time</span></p>
+                    <p><strong>Closing Time:</strong> <span id="modalGymClosingTime">Closing Time</span></p>
+
+                    <!-- Trainer Section -->
+                    <h4 class="mt-4">Our Trainers</h4>
+                    <div id="trainers-section" class="trainers-container">
+                        <!-- Trainer cards will be injected here dynamically -->
                     </div>
-                    <img id="modalGymPhoto" src="" alt="" class="gym-photo img-fluid">
-                    <div class="modal-body">
-                        <p><strong>Location:</strong> <span id="modalGymLocation">Location</span></p>
-                        <p><strong>Equipment:</strong> <span id="modalGymEquipment">Equipment</span></p>
-                        <p><strong>Programs:</strong> <span id="modalGymPrograms">Programs</span></p>
-                        <p><strong>Contact:</strong> <span id="modalGymContact">Contact</span></p>
-                        <p><strong>Price Rate:</strong> <span id="modalPriceRate">Price Rate</span></p>
-                        <p><strong>Opening Time:</strong> <span id="modalGymOpeningTime">Opening Time</span></p>
-                        <p><strong>Closing Time:</strong> <span id="modalGymClosingTime">Closing Time</span></p>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-primary" onclick="viewProducts()">View Products</button>
-                        <button class="btn btn-secondary" onclick="viewMembershipPlans()">View Membership Plans</button>
-                        <button class="btn btn-success" onclick="bookGym()">Book Now</button>
-                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="viewProducts()">View Products</button>
+                    <button class="btn btn-secondary" onclick="viewMembershipPlans()">View Membership Plans</button>
+                    <button class="btn btn-success" onclick="bookGym()">Book Now</button>
                 </div>
             </div>
         </div>
+    </div>
+
+
 
         <!-- Trainer Profile Modal Structure -->
         <div id="trainerProfileModal" class="modal fade" tabindex="-1" role="dialog">
@@ -300,7 +303,7 @@
 
     <!-- Include jQuery before Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
 
