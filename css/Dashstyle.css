@@ -132,14 +132,84 @@
         margin-bottom: 10px;
     }
 }
-/* Fade transition for sections */
-.section {
-    opacity: 0;
-    transition: opacity 0.5s ease-in-out;
-    display: none; /* Sections are hidden by default */
+.dropdown-menu {
+    display: none; /* Hide dropdown by default */
+    position: absolute; /* Position dropdown below the profile picture */
+    background-color: #808080; /* Dark background */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); /* Shadow effect */
+    z-index: 1000; /* Ensure dropdown is above other elements */
+    padding: 10px 0; /* Space around dropdown items */
+    width: 200px; /* Width of the dropdown */
+    opacity: 0; /* Start with transparent */
+    transform: translateY(-10px); /* Initial position for animation */
+    transition: opacity 0.3s ease, transform 0.3s ease; /* Transition for opacity and position */
 }
 
-.section.active {
-    opacity: 1;
-    display: block; /* Show the section with opacity */
+.dropdown-menu.show {
+    display: block; /* Display dropdown when shown */
+    opacity: 1; /* Fully opaque */
+    transform: translateY(0); /* Move to original position */
+}
+
+/* Optional: Hiding dropdown smoothly when removed */
+.dropdown-menu.hide {
+    opacity: 0; /* Make it transparent */
+    transform: translateY(-10px); /* Move it up */
+    transition: opacity 0.3s ease, transform 0.3s ease; /* Same transition for hiding */
+}
+.dropdown-item:hover {
+    background-color: #3A3D42; /* Slightly lighter dark gray on hover */
+}
+#profile-picture.active {
+    transform: scale(1.1); /* Scale up slightly */
+    transition: transform 0.3s ease; /* Transition for scaling */
+}
+
+
+#profiling h2 {
+    color: white; /* Set text color to white */
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-weight: bold;
+}
+.profile-text{
+    color: #ffa31a;
+}
+
+.text-center {
+    text-align: center; /* Center the text */
+}
+.card-body {
+    display: flex; /* Use flexbox for alignment */
+    flex-direction: column; /* Stack children vertically */
+    align-items: center; /* Center items horizontally */
+    justify-content: center; /* Center items vertically */
+    text-align: center; /* Center text */
+    padding: 20px; /* Optional: Adjust padding as needed */
+}
+
+.gym-info-btn {
+    display: block; /* Make the button a block element */
+    background-color: #ffa31a; /* Original button color */
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-size: 1.1rem;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Transition for background color and transform */
+    border: none;
+    cursor: pointer;
+    margin-top: 20px; /* Spacing above the button */
+}
+
+.gym-info-btn:hover {
+    background-color: #cc8215; /* Darker yellow shade on hover */
+    transition: background-color 0.3s ease; /* Transition for the hover effect */
+}
+.gym-title {
+    color: #292929; /* Set the text color to black */
+    font-weight: bold; /* Optional: Make the text bold */
+    font-size: 1.25rem; /* Optional: Increase the font size */
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    margin-bottom: 10px; /* Optional: Add some space below the title */
 }
