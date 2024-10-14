@@ -20,75 +20,67 @@ const auth = getAuth(app);
 const storage = getStorage();
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Now we are sure that the DOM is fully loaded before accessing the elements
+    // Wait until the DOM is fully loaded before accessing elements
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             const userId = user.uid;
-            const userDocRef = doc(db, 'Users', userId);
+            const userDocRef = doc(firestore, 'Users', userId); // Fetch user doc from Firestore
 
             try {
                 const userDoc = await getDoc(userDocRef);
                 if (userDoc.exists()) {
-                    const userData = userDoc.data();
-                    const role = userData.role || 'user';
-                    const username = userData.username || 'User'; // Make sure there's a fallback for the username
-                    fetchNotifications(userId);
-                    displayProfilePicture(user, username); // Pass username to the function
+                    const userData = userDoc.data(); // Get user data
+                    const username = userData.username || 'User'; // Username with fallback
+
+                    // Display profile picture and username
+                    displayProfilePicture(user, username); // Pass the user object and username
                 } else {
-                    window.location.href = 'login.html'; // Redirect to login if no user document
+                    console.error("User document does not exist.");
+                    window.location.href = 'login.html'; // Redirect to login if no user document found
                 }
             } catch (error) {
-                console.error("Error fetching user data:", error);
+                console.error("Error fetching user data:", error); // Error handling
             }
         } else {
-            window.location.href = 'login.html'; // Redirect if not authenticated
+            window.location.href = 'login.html'; // Redirect if user is not authenticated
         }
     });
 });
 
-
 // Function to display user profile picture
 function displayProfilePicture(user, username) {
     const userId = user.uid;
-    const profilePicRef = storageRef(storage, `profilePictures/${userId}/profile.jpg`);
+    const profilePicRef = storageRef(storage, `profilePictures/${userId}/profile.jpg`); // Path to user's profile picture
 
-    // Log to check if user and username are correctly passed
-    console.log("Displaying profile for user:", userId, "with username:", username);
-
-    // Fetch the profile picture from Firebase Storage
     getDownloadURL(profilePicRef).then((url) => {
-        console.log("Profile picture URL fetched:", url);
+        console.log("Profile picture URL fetched:", url); // Log for debugging
 
-        // Update profile picture in both header and sidebar
+        // Select the DOM elements
         const headerPicture = document.getElementById('profile-picture-header');
-        const sidebarPicture = document.getElementById('profile-picture-sidebar');
         const headerUsername = document.getElementById('header-username');
 
-        // Check if elements exist before updating them
-        if (headerPicture && sidebarPicture && headerUsername) {
-            headerPicture.src = url;
-            sidebarPicture.src = url;
-            headerUsername.textContent = username;
+        // Check if elements exist in the DOM
+        if (headerPicture && headerUsername) {
+            headerPicture.src = url; // Set the profile picture in the header
+            headerUsername.textContent = username; // Set the username in the header
             console.log("Profile picture and username updated successfully");
         } else {
             console.error("One or more profile elements not found in the DOM.");
         }
     }).catch((error) => {
         console.error("Error fetching profile picture:", error);
-        
-        if (error.code === 'storage/object-not-found') {
-            // Fallback to default image if no profile picture is found
-            document.getElementById('profile-picture-header').src = 'framework/img/Profile.png';
-            document.getElementById('profile-picture-sidebar').src = 'framework/img/Profile.png';
 
-            // Set the username
-            document.getElementById('header-username').textContent = username;
+        if (error.code === 'storage/object-not-found') {
+            // If no profile picture is found, fallback to the default image
+            document.getElementById('profile-picture-header').src = 'framework/img/Profile.png';
+            document.getElementById('header-username').textContent = username; // Set the username anyway
             console.log("Default profile picture set, and username displayed.");
         } else {
             console.error("Unexpected error loading profile picture:", error.message);
         }
     });
 }
+
 
 
 async function fetchGymProfiles() {

@@ -41,7 +41,6 @@ onAuthStateChanged(auth, (user) => {
         const userDocRef = doc(firestore, 'Users', userId);
         const profilePicRef = storageRef(storage, 'profilePictures/' + userId + '/profile.jpg');
 
-        // Fetch profile data
         getDoc(userDocRef).then((snapshot) => {
             if (snapshot.exists()) {
                 const userData = snapshot.data();
@@ -53,16 +52,10 @@ onAuthStateChanged(auth, (user) => {
                 usernameInput.value = userData.username || '';
                 emailInput.value = user.email || ''; // Use Firebase Auth email
                 phoneInput.value = userData.phone || '';
-                addressInput.value = userData.address || '';
-                weightInput.value = userData.weight || '';
-                heightInput.value = userData.height || '';
-                medicationInput.value = userData.medication || '';
-                allergiesInput.value = userData.allergies || '';
-
+                addressInput.value = userData.address || '';;
                 // Fetch and display the profile picture
                 getDownloadURL(profilePicRef)
                     .then((url) => {
-                        console.log('Profile picture URL:', url); // Log the URL for debugging
                         profilePicture.src = url; // Set the profile picture
                     })
                     .catch((error) => {
@@ -100,10 +93,6 @@ personalInfoForm.addEventListener('submit', async (e) => {
     const username = usernameInput.value;
     const phone = phoneInput.value;
     const address = addressInput.value;
-    const weight = weightInput.value;
-    const height = heightInput.value;
-    const medication = medicationInput.value;
-    const allergies = allergiesInput.value;
     const user = auth.currentUser;
 
     if (user) {
@@ -116,18 +105,12 @@ personalInfoForm.addEventListener('submit', async (e) => {
                 username: username,
                 phone: phone,
                 address: address,
-                weight: weight,
-                height: height,
-                medication: medication,
-                allergies: allergies
             }, { merge: true }); // Use merge to avoid overwriting the entire document
             statusMessage.textContent = "Profile updated successfully!";
             statusMessage.style.color = 'green';
-
-            // Redirect to trainer.html after a short delay
             setTimeout(() => {
-                window.location.href = 'trainer.html'; // Redirect to dashboard after 2 seconds
-            }, 2000);
+                window.location.href = 'trainer.html'; // Redirect to dashboard after 3 seconds
+            }, 3000);
         } catch (error) {
             console.error("Error updating profile:", error);
             statusMessage.textContent = "Error updating profile.";
@@ -156,5 +139,3 @@ function uploadProfilePicture(file) {
         }
     );
 }
-
-

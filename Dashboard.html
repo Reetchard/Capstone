@@ -5,216 +5,305 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Boxicons CSS for Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css" rel="stylesheet">
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/Dashstyle.css">
-    <link rel="stylesheet" href="css/media.css">
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/notif.css">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/main.min.css">
     <style>
-        .section {
-            display: none; /* Hide all sections by default */
+        /* General Styles */
+        body {
+            font-family: 'Georgia', serif;
+            background-color: #1a1a1a; /* Dark background */
+            color: #e0e0e0; /* Light gray text */
+            display: flex;
+            min-height: 100vh;
         }
 
-        .section.active {
-            display: block; /* Only show the active section */
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background-color: #2c2c2c; /* Dark gray background */
+            color: #e0e0e0; /* Light gray text */
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+        }
+
+        .sidebar a {
+            color: #e0e0e0; /* Light gray text */
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            display: block;
+            margin-bottom: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #444; /* Darker gray on hover */
+        }
+
+        /* Main Content Styles */
+        .content {
+            margin-left: 250px;
+            padding: 20px;
+            flex: 1;
+            background-color: #2c2c2c; /* Dark gray background for main content */
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Search Bar Styles */
+        .search-container {
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-container input,
+        .search-container select {
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #444; /* Dark gray border */
+            border-radius: 5px;
+            background-color: #333; /* Darker input background */
+            color: #e0e0e0; /* Light gray text */
+            width: 100%;
+        }
+
+        .search-container input:focus,
+        .search-container select:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        /* Profile Card Styles */
+        .gym-profile, .trainers-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .profile-card, .trainer-card {
+            background-color: #444; /* Dark gray for cards */
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            width: calc(33% - 20px);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            color: #e0e0e0; /* Light gray text for cards */
+            overflow: hidden;
+        }
+
+        .profile-card:hover, .trainer-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
+        }
+
+        .gym-profile img, .trainers-content img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-bottom: 2px solid #e0e0e0; /* Light gray border */
+            transition: filter 0.3s;
+        }
+
+        .gym-profile img:hover, .trainers-content img:hover {
+            filter: brightness(0.8);
+        }
+
+        .profile-content, .trainer-content {
+            padding: 15px;
+        }
+
+        .rating {
+            color: #ffcc00; /* Gold for rating stars */
+        }
+
+        /* Button Styles */
+        .btn-secondary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #0056b3; /* Darker blue for buttons */
+        }
+
+        /* Modal Styles */
+        .modal-content {
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            background-color: #2c2c2c; /* Dark gray for modal */
+            color: #e0e0e0; /* Light gray text for modal */
+        }
+
+        .modal-close {
+            cursor: pointer;
+            color: #aaa;
+            font-size: 24px;
+        }
+
+        .modal-close:hover {
+            color: #fff;
+        }
+
+        /* Footer Styles */
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #1a1a1a; /* Dark background */
+            color: #e0e0e0; /* Light gray text */
+            margin-top: 20px;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .profile-card, .trainer-card {
+                width: calc(50% - 20px);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .profile-card, .trainer-card {
+                width: 100%;
+            }
+
+            .sidebar {
+                width: 200px;
+            }
+
+            .content {
+                margin-left: 200px;
+            }
         }
     </style>
 </head>
-<body id="body-pd">
-
-    <!-- Header -->
-    <header class="header" id="header">
-        <div class="header_toggle"> 
-            <i class='bx bx-menu' id="header-toggle"></i> 
-        </div>
-        <div class="header_profile">
-            <div class="header_img"> 
-                <img id="profile-picture-header" src="framework/img/Profile.png" alt="Profile" class="rounded-circle" width="50" height="50"> 
+<body>
+    <nav class="sidebar">
+        <div class="profile-container text-center mb-4">
+            <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" class="img-fluid rounded-circle mb-2" style="width: 80px;">
+            <h3 id="profile-username" class="mt-2"></h3> <!-- Username header added here -->
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Menu
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="Pinfo.html">Personal Information</a>
+                    <a class="dropdown-item" href="report.html">Submit a Complaint</a>
+                    <a class="dropdown-item" href="login.html">Log Out</a>
+                </div>
             </div>
-            <div class="header_username">
-                <span id="header-username"></span> <!-- Placeholder for the display name -->
-            </div>
         </div>
-    </header>
-
-    <!-- Sidebar -->
-    <div class="l-navbar" id="nav-bar">
-        <nav class="nav">
-            <div> 
-                <a href="#" class="nav_logo"> 
-                    <div class="nav_logo-img">
-                        <img id="profile-picture-sidebar" src="framework/img/Profile.png" alt="Profile" class="rounded-circle" width="50" height="50">
-                    </div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="#profiling">
+                    <i class="fas fa-gym"></i> Gym Profile
                 </a>
-                <div class="nav_list">
-                    <a href="#" class="nav_link active" data-target="notifications">
-                        <i class='bx bx-bell nav_icon'></i>
-                        <span class="nav_name">Notifications</span>
-                    </a>
-                    <a href="#" class="nav_link" data-target="gym-profile">
-                        <i class='bx bx-dumbbell nav_icon'></i>
-                        <span class="nav_name">Gym Profile</span>
-                    </a>
-                    <a href="#" class="nav_link" data-target="member-status">
-                        <i class='bx bx-user-circle nav_icon'></i>
-                        <span class="nav_name">Membership Status</span>
-                    </a>
-                    <a href="#" class="nav_link" data-target="chat">
-                        <i class='bx bx-message-square-detail nav_icon'></i>
-                        <span class="nav_name">Messages</span>
-                    </a>
-                    <a href="Pinfo.html" class="nav_link">
-                        <i class='bx bx-edit-alt nav_icon'></i>
-                        <span class="nav_name">Edit Profile</span>
-                    </a>
-                </div>
-            </div>
-            <a href="login.html" class="nav_link">
-                <i class='bx bx-log-out nav_icon'></i>
-                <span class="nav_name">SignOut</span>
-            </a>
-        </nav>
-    </div>
-
-    <!-- Notifications Section -->
-    <section id="notifications" class="section active">
-        <div class="container">
-            <h2>Notifications</h2>
-            <ul id="notification-list" class="list-group">
-                <!-- Notifications will be appended here -->
-            </ul>
-        </div>
-    </section>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#trainers">
+                    <i class="fas fa-user-friends"></i> Membership Status
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#notifications">
+                    <i class="fas fa-bell"></i> Notification
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#messages">
+                    <i class="fas fa-comments"></i> Message
+                </a>
+            </li>
+        </ul>
+    </nav>
     
-    <!-- Gym Profile Section -->
-    <section id="gym-profile" class="section">
-        <div class="container">
-            <div class="card-body">
-                <h2 class="card-title text-center">Gym Profile</h2>
-                <div class="trainers-scroll-container">
-                    <div id="gym-profiles" class="gym-profile">
-                        <!-- Gym profile content will be dynamically added here -->
+    <div class="content">
+        <section id="profiling">
+            <h2 class="mb-4">Gym Profile</h2>
+            <div class="search-container">
+                <input type="text" placeholder="Search gym..." id="gymSearch">
+                <select id="gymSort">
+                    <option value="distance">Sort by Distance</option>
+                    <option value="rating">Sort by Rating</option>
+                </select>
+                <button class="btn btn-secondary" onclick="filterGyms()">Filter</button>
+            </div>
+            <div class="gym-profile" id="gym-profiles">
+                <div class="profile-card" onclick="openGymModal('Gym Name', 'Location', 'Equipment', 'Programs', 'Contact', 'Opening Time', 'Closing Time', 'https://via.placeholder.com/150')">
+                    <img src="https://via.placeholder.com/150" alt="Gym Image">
+                    <div class="profile-content">
+                        <h4>Gym Name</h4>
+                        <p>Location</p>
+                        <div class="rating">★★★★☆</div>
+                        <button class="btn btn-sm btn-outline-light" onclick="addToFavorites('Gym Name')">Favorite</button>
                     </div>
                 </div>
-            </div>
-        </div>
-    </section>
+                <!-- Add more gym profiles here -->
+            </div>                 
+        </section>
 
-    <!-- Membership Status Section -->
-    <section id="member-status" class="section">
-        <div class="container">
-            <div class="card shadow-lg p-4 mb-5 rounded">
-                <div class="card-body">
-                    <h2 class="card-title text-center">Membership Status</h2>
-                    <div class="membership-status-container">
-                        <div class="row">
-                            <div class="col-md-4 text-center">
-                                <div class="membership-card">
-                                    <i class="fas fa-id-card fa-3x mb-3 status-icon"></i>
-                                    <h4>Plan</h4>
-                                    <p id="membershipPlan">Gold Membership</p>
-                                </div>
-                            </div>
-                            <div class="col-md-4 text-center">
-                                <div class="membership-card">
-                                    <i class="fas fa-calendar-alt fa-3x mb-3 status-icon"></i>
-                                    <h4>Expires On</h4>
-                                    <p id="expiryDate">Dec 31, 2024</p>
-                                </div>
-                            </div>
-                            <div class="col-md-4 text-center">
-                                <div class="membership-card">
-                                    <i class="fas fa-check-circle fa-3x mb-3 status-icon active-status"></i>
-                                    <h4>Status</h4>
-                                    <p id="membershipStatus">Active</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="membership-actions text-center mt-4">
-                            <button class="btn btn-primary">Renew Membership</button>
-                            <button class="btn btn-secondary">View Membership History</button>
-                        </div>
+        <div id="gymProfileModal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <span class="modal-close" onclick="closeModal()">&times;</span>
+                    <div class="modal-header">
+                        <h3 id="modalGymName">Gym Name</h3>
+                    </div>
+                    <img id="modalGymPhoto" src="" alt="" class="gym-photo img-fluid">
+                    <div class="modal-body">
+                        <p><strong>Location:</strong> <span id="modalGymLocation">Location</span></p>
+                        <p><strong>Equipment:</strong> <span id="modalGymEquipment">Equipment</span></p>
+                        <p><strong>Programs:</strong> <span id="modalGymPrograms">Programs</span></p>
+                        <p><strong>Contact:</strong> <span id="modalGymContact">Contact</span></p>
+                        <p><strong>Price Rate:</strong> <span id="modalPriceRate">Price Rate</span></p>
+                        <p><strong>Opening Time:</strong> <span id="modalGymOpeningTime">Opening Time</span></p>
+                        <p><strong>Closing Time:</strong> <span id="modalGymClosingTime">Closing Time</span></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" onclick="viewProducts()">View Products</button>
+                        <button class="btn btn-secondary" onclick="viewMembershipPlans()">View Membership Plans</button>
+                        <button class="btn btn-success" onclick="bookGym()">Book Now</button>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
 
-    <!-- Chat Section -->
-    <section id="chat" class="section">
-        <div class="container">
-            <h2>Chat Room</h2>
-            <div id="chatBox" class="chat-box">
-                <div class="chat-header">Chat Room</div>
-                <div id="messages" class="messages"></div>
-                <div class="chat-input">
-                    <input type="text" id="messageInput" placeholder="Type your message here" />
-                    <button id="sendMessageBtn">Send</button>
+        <!-- Trainer Profile Modal Structure -->
+        <div id="trainerProfileModal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <span class="modal-close" onclick="closeTrainerModal()" class="modal-close">&times;</span>
+                    <img id="modalTrainerPhoto" src="" alt="Trainer Photo" class="trainer-photo img-fluid">
+                    <h3 id="modalTrainerName"></h3>
+                    <p><strong>Experience:</strong> <span id="modalTrainerExperience"></span></p>
+                    <p><strong>Expertise:</strong> <span id="modalTrainerExpertise"></span></p>
+                    <p><strong>Available On:</strong> <span id="modalTrainerDays"></span></p>
+                    <p><strong>Rate Per:</strong> <span id="modalTrainerRate"></span></p>
+                    <div class="modal-buttons" style="margin-top: 20px;">
+                        <button class="btn btn-primary" onclick="viewTrainerDetails('Trainer Name')">View Details</button>
+                        <button class="btn btn-secondary" onclick="bookTrainer('Trainer Name')">Book now</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </section>
 
-    <!-- Gym Profile Modal Structure -->
-    <div id="gymProfileModal" class="modal">
-        <div class="modal-content">
-            <span class="close-button" onclick="closeModal('gymProfileModal')">&times;</span>
-            <img id="modalGymPhoto" src="" alt="Gym Photo" class="gym-photo">
-            <h3 id="modalGymName">Gym Name</h3>
-            <!-- Bootstrap Grid for 3 Columns and 2 Rows -->
-            <div class="container mt-4">
-                <div class="row">
-                    <div class="col-md-4">
-                        <p><strong>Location:</strong> <span id="modalGymLocation"></span></p>
-                    </div>
-                    <div class="col-md-4">
-                        <p><strong>Equipment:</strong> <span id="modalGymEquipment"></span></p>
-                    </div>
-                    <div class="col-md-4">
-                        <p><strong>Programs:</strong> <span id="modalGymPrograms"></span></p>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-4">
-                        <p><strong>Contact:</strong> <span id="modalGymContact"></span></p>
-                    </div>
-                    <div class="col-md-4">
-                        <p><strong>Opening Time:</strong> <span id="modalGymOpeningTime"></span></p>
-                    </div>
-                    <div class="col-md-4">
-                        <p><strong>Closing Time:</strong> <span id="modalGymClosingTime"></span></p>
-                    </div>
-                    <div class="col-md-4">
-                        <p><strong>Price rate:</strong> <span id="modalpriceRate"></span></p>
-                    </div>
-                </div>
-            </div>
-            <!-- Trainers Section -->
-            <div class="container mt-4">
-                <h4>Our Trainers</h4>
-                <div class="row" id="trainer-list">
-                    <!-- Gym trainers will be dynamically added here -->
-                </div>
-            </div>
-        </div>
+        <footer>
+            <p>&copy; 2024 Your Company. All rights reserved.</p>
+            <a href="#privacy" style="color: #e0e0e0;">Privacy Policy</a> | <a href="#terms" style="color: #e0e0e0;">Terms of Service</a>
+        </footer>
     </div>
 
     <!-- Include jQuery before Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
 
-    <!-- Custom JavaScript Files -->
     <script type="module" src="src/Js/DashScript.js"></script>
-    <script src="src/Js/nav.js"></script>
-
 </body>
 </html>
