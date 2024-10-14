@@ -13,6 +13,7 @@ const firebaseConfig = {
     appId: "1:399081968589:web:5b502a4ebf245e817aaa84",
     measurementId: "G-CDP5BCS8EY"
 };
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -21,11 +22,13 @@ const storage = getStorage(app);
 window.addEventListener('load', () => {
     const form = document.getElementById("TrainerForm");
 
-    // Element declarations
+    // Element declarations (synced with form IDs)
     const TrainerName = document.getElementById("TrainerName");
+    const GymName = document.getElementById("GymName");
     const TrainerEmail = document.getElementById("TrainerEmail");
     const TrainerPhotoInput = document.getElementById("TrainerPhoto");
-    const TrainerPermitInput = document.getElementById("TrainerPermit");
+    const TrainerApplicationInput = document.getElementById("TrainerApplication"); 
+    const ResumeInput = document.getElementById("Resume");
     const Days = document.getElementById("Days");
     const Experience = document.getElementById("Experience");
     const Expertise = document.getElementById("Expertise");
@@ -34,6 +37,7 @@ window.addEventListener('load', () => {
     const errorMessage = document.getElementById("TrainerFormErrorMessage");
     const successMessage = document.getElementById("TrainerFormSuccessMessage");
     const profilePic = document.getElementById("profilePic");
+    const spinnerModal = document.getElementById("spinnerModal");
 
     // Handle profile picture preview
     TrainerPhotoInput.addEventListener('change', (event) => {
@@ -74,6 +78,16 @@ window.addEventListener('load', () => {
         return !querySnapshot.empty;
     }
 
+    // Show spinner modal
+    function showSpinner() {
+        spinnerModal.style.display = 'block';
+    }
+
+    // Hide spinner modal
+    function hideSpinner() {
+        spinnerModal.style.display = 'none';
+    }
+
     // Form submission handler
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -97,20 +111,26 @@ window.addEventListener('load', () => {
             setTimeout(() => { errorMessage.innerHTML = ""; }, 3000);
         } else {
             try {
+                // Show the spinner while processing
+                showSpinner();
+
                 // Upload files if they exist
                 const TrainerPhotoURL = TrainerPhotoInput.files[0] ? await uploadFile(TrainerPhotoInput.files[0], `Trainer_photos/${TrainerName.value}`) : "";
-                const TrainerPermitURL = TrainerPermitInput.files[0] ? await uploadFile(TrainerPermitInput.files[0], `Trainer_permits/${TrainerName.value}`) : "";
+                const TrainerApplicationURL = TrainerApplicationInput.files[0] ? await uploadFile(TrainerApplicationInput.files[0], `Trainer_applications/${TrainerName.value}`) : "";
+                const ResumeURL = ResumeInput.files[0] ? await uploadFile(ResumeInput.files[0], `Trainer_resumes/${TrainerName.value}`) : "";
 
                 // Update the Users collection with trainer data
                 const userRef = doc(db, 'Users', userDoc.id); // Reference to the user document
                 await updateDoc(userRef, {
                     TrainerName: TrainerName.value,
+                    GymName: GymName.value,
                     TrainerPhoto: TrainerPhotoURL,
-                    TrainerPermit: TrainerPermitURL,
+                    TrainerApplication: TrainerApplicationURL,
+                    Resume: ResumeURL,
                     Days: Days.value,
                     Experience: Experience.value,
                     Expertise: Expertise.value,
-                    Contact:Contact.value,
+                    Contact: Contact.value,
                     rate: rate.value,
                     role: "trainer", // Set the role to trainer
                     status: "Under Review"
@@ -118,18 +138,20 @@ window.addEventListener('load', () => {
 
                 successMessage.innerHTML = "Trainer information submitted successfully! Your information is under review.";
                 errorMessage.innerHTML = "";
-                setTimeout(() => {
-                    successMessage.innerHTML = "";
-                    window.location.href = "login.html";
-                }, 5000);
 
-                form.reset();
-                profilePic.src = "framework/img/Profile.png"; // Reset the image to default
+                // Simulate a delay for the spinner (you can remove this if unnecessary)
+                setTimeout(() => {
+                    hideSpinner();
+                    window.location.href = "trainer.html"; // Redirect after successful submission
+                }, 2000);
+
             } catch (error) {
+                hideSpinner();
                 errorMessage.innerHTML = "Error: Could not submit the form. " + error.message;
                 successMessage.innerHTML = "";
                 setTimeout(() => { errorMessage.innerHTML = ""; }, 3000);
             }
         }
     });
+
 });

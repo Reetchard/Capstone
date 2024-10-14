@@ -132,3 +132,14 @@
         margin-bottom: 10px;
     }
 }
+/* Fade transition for sections */
+.section {
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    display: none; /* Sections are hidden by default */
+}
+
+.section.active {
+    opacity: 1;
+    display: block; /* Show the section with opacity */
+}

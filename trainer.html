@@ -9,7 +9,7 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/main.min.css">
-    <link rel="stylesheet" href="css/Dashstyle.css">
+    <link rel="stylesheet" href="css/trainer.css">
     <style>
         /* General Styles */
         body {
@@ -207,11 +207,6 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#trainers">
-                    <i class="fas fa-user-friends"></i> Membership Status
-                </a>
-            </li>
-            <li class="nav-item">
                 <a class="nav-link" href="#notifications">
                     <i class="fas fa-bell"></i> Notification
                 </a>
@@ -223,59 +218,101 @@
             </li>
         </ul>
     </nav>
-    
+    <!--Sections Here-->
+    <div id="notifications-section" class="section" style="display: none;">
+        <h2>Notifications</h2>
+        <ul id="notification-list">
+            <!-- Notifications will be dynamically loaded here -->
+        </ul>
+    </div>
+    <div id="messages-section" class="section" style="display: none;">
+        <h2>Messages</h2>
+        <!-- Messages content -->
+    </div>   
     <div class="content">
-        <section id="profiling">
-            <h2 class="mb-4">Gym Profile</h2>
+        <section id="profiling-section">
+            <h2 class="mb-4">Find the Best Gym Profile</h2>
             <div class="search-container">
                 <input type="text" placeholder="Search gym..." id="gymSearch">
-                <select id="gymSort">
-                    <option value="distance">Sort by Distance</option>
-                    <option value="rating">Sort by Rating</option>
-                </select>
-                <button class="btn btn-secondary" onclick="filterGyms()">Filter</button>
+                <button class="btn btn-secondary" onclick="SearchGym()">Search</button>
             </div>
             <div class="gym-profile" id="gym-profiles">
 
                 <!-- Add more gym profiles here -->
             </div>                 
         </section>
-
-<!-- Gym Info Modal -->
-<div id="gymProfileModal" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <span class="modal-close" onclick="closeModal()">&times;</span>
-            <div class="modal-header">
-                <h3 id="modalGymName">Gym Name</h3>
-            </div>
-            <img id="modalGymPhoto" src="" alt="" class="gym-photo img-fluid">
-            <div class="modal-body">
-                <p><strong>Location:</strong> <span id="modalGymLocation">Location</span></p>
-                <p><strong>Equipment:</strong> <span id="modalGymEquipment">Equipment</span></p>
-                <p><strong>Programs:</strong> <span id="modalGymPrograms">Programs</span></p>
-                <p><strong>Contact:</strong> <span id="modalGymContact">Contact</span></p>
-                <p><strong>Price Rate:</strong> <span id="modalPriceRate">Price Rate</span></p>
-                <p><strong>Opening Time:</strong> <span id="modalGymOpeningTime">Opening Time</span></p>
-                <p><strong>Closing Time:</strong> <span id="modalGymClosingTime">Closing Time</span></p>
-
-                <!-- Trainer Section -->
-                <h4 class="mt-4">Our Trainers</h4>
-                <div id="trainers-section" class="trainers-container">
-                    <!-- Trainer cards will be injected here dynamically -->
+    </div>
+                <!-- Notifications Modal -->
+        <div class="modal fade" id="notificationsModal" tabindex="-1" role="dialog" aria-labelledby="notificationsModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="notificationsModalLabel">Notifications</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <ul id="notification-list">
+                            <!-- Notifications will be dynamically loaded here -->
+                        </ul>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" onclick="viewProducts()">View Products</button>
-                <button class="btn btn-secondary" onclick="viewMembershipPlans()">View Membership Plans</button>
-                <button class="btn btn-success" onclick="bookGym()">Apply Now</button>
+        </div>
+
+        <!-- Messages Modal -->
+        <div class="modal fade" id="messagesModal" tabindex="-1" role="dialog" aria-labelledby="messagesModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="messagesModalLabel">Messages</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="messages-content">
+                            <!-- Messages will be dynamically loaded here -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-
-
-
+        <!-- Gym Info Modal -->
+        <div id="gymProfileModal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <span class="modal-close" onclick="closeModal()">&times;</span>
+                    <div class="modal-header">
+                        <h3 id="modalGymName">Gym Name</h3>
+                    </div>
+                    <img id="modalGymPhoto" src="" alt="" class="gym-photo img-fluid">
+                    <div class="modal-body text-center"> <!-- Added text-center class -->
+                        <p><strong>Location:</strong> <span id="modalGymLocation">Location</span></p>
+                        <p><strong>Equipment:</strong> <span id="modalGymEquipment">Equipment</span></p>
+                        <p><strong>Programs:</strong> <span id="modalGymPrograms">Programs</span></p>
+                        <p><strong>Contact:</strong> <span id="modalGymContact">Contact</span></p>
+                        <p><strong>Price Rate:</strong> <span id="modalpriceRate">Price Rate</span></p>
+                        <p><strong>Opening Time:</strong> <span id="modalGymOpeningTime">Opening Time</span></p>
+                        <p><strong>Closing Time:</strong> <span id="modalGymClosingTime">Closing Time</span></p>
+        
+                        <!-- Apply as Trainer Button centered -->
+                        <button class="btn btn-success my-4" onclick="openConfirmationModal()">Apply as Trainer</button> <!-- Ensure correct function call -->
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <!-- Trainer Profile Modal Structure -->
         <div id="trainerProfileModal" class="modal fade" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
@@ -294,13 +331,62 @@
                 </div>
             </div>
         </div>
-
-        <footer>
-            <p>&copy; 2024 Your Company. All rights reserved.</p>
-            <a href="#privacy" style="color: #e0e0e0;">Privacy Policy</a> | <a href="#terms" style="color: #e0e0e0;">Terms of Service</a>
-        </footer>
     </div>
-    
+    <!-- Custom Confirmation Modal -->
+    <div id="confirmationModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Apply as Trainer</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeConfirmationModal()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to apply as a trainer?</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeConfirmationModal()">Cancel</button>
+                    <button class="btn btn-success" onclick="confirmApplication()">Yes, Apply</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Success Modal -->
+    <div id="successModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Application Submitted</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeSuccessModal()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Your application to be a trainer has been successfully submitted!</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeSuccessModal()">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Spinner Modal -->
+    <div id="spinnerModal" class="modal" tabindex="-1" role="dialog" style="display: none;">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content text-center" style="background-color: transparent; border: none;">
+                <div class="modal-body">
+                    <!-- Glowing Spinner -->
+                    <div class="spinner-border text-primary glowing-spinner" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <p class="processing-text mt-3">Processing...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Include jQuery before Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
@@ -308,5 +394,6 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
 
     <script type="module" src="src/Js/trainerDash.js"></script>
+    
 </body>
 </html>

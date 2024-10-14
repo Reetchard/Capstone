@@ -8,24 +8,30 @@
 </head>
 <body>
     <header>
-        <h1>Trainer  Form</h1>
+        <h1>Application Form</h1>
     </header>
     <div class="form-container">
         <form id="TrainerForm">
             <div class="profile-pic-container">
                 <img src="framework/img/Profile.png" alt="Trainer Photo" class="profile-pic" id="profilePic">         
-                <label for="TrainerPhoto" class="change-photo-button">Change Photo</label>
+                <label for="TrainerPhoto" class="change-photo-button">Latest Identication</label>
                 <input type="file" id="TrainerPhoto" accept="image/*" style="display: none;" required>
             </div>
             
             <div class="file-input-container">
-                <label for="TrainerPermit">Trainer Permit or Certification</label>
-                <input type="file" id="TrainerPermit" accept="application/pdf, image/*" required>
+                <label for="Application">Application Letter</label>
+                <input type="file" id="TrainerApplication" accept="application/pdf, image/*" required>
             </div>
-
+            <div class="file-input-container">
+                <label for="resume">Resume</label>
+                <input type="file" id="Resume" accept="application/pdf, image/*" required>
+            </div>
             <label for="TrainerName">Full Name</label>
             <input type="text" id="TrainerName" placeholder="Trainer's Full Name" required>
-            
+
+            <label for="Gym Name">Gym Name</label>
+            <input type="text" id="GymName" placeholder="Gym's Full Name" required>
+
             <label for="TrainerEmail">Email</label>
             <input type="email" id="TrainerEmail" placeholder="Trainer's Email" required>
             
@@ -50,7 +56,22 @@
             <p id="TrainerFormSuccessMessage" class="success-message"></p>
         </form>
     </div>
-
+        <!-- Spinner Modal -->
+        <div id="spinnerModal" class="modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content text-center" style="background-color: transparent; border: none;">
+                    <div class="modal-body">
+                        <!-- Glowing Spinner -->
+                        <div class="spinner-border glowing-spinner" role="status">
+                            <span class="sr-only"></span>
+                        </div>
+                        <p class="processing-text mt-3">Processing...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p id="TrainerFormSuccessMessage" class="success-message" style="display: none; color: green;">Success! Your application has been sent.</p>
+        
     <script type="module" src="src/Js/TrainerForm.js"></script>
 </body>
 </html>

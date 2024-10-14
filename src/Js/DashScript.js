@@ -269,7 +269,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
             }  
-
 });
 
 // Fetch Gym Profiles and Display
