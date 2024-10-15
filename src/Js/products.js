@@ -122,8 +122,8 @@ async function addProductToCollection(userId, name, price, description, category
 
         // Set the new product data in Firestore
         await setDoc(newProductRef, {
-            productId: productId, // Manually set the incremented productId
-            userId: userId,
+            productId: productId,      // Manually set the incremented productId
+            userId: userId,            // Set the userId as the gym owner's UID (currentUserId)
             name: name,
             price: price,
             description: description,

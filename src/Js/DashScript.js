@@ -232,179 +232,216 @@ function displayMembershipPlans(plans) {
 }
 
 // Fetch Gym Profiles and Display
-async function fetchGymProfiles() {
-    const gymsCollection = collection(db, 'Users');
+    async function fetchGymProfiles() {
+        const gymsCollection = collection(db, 'Users');
+        
+        // Query to get only gym owners
+        const gymOwnerQuery = query(gymsCollection, where('role', '==', 'gymowner'));
+        
+        const gymSnapshot = await getDocs(gymOwnerQuery);
+        const gymList = gymSnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data() // Include the document data and its ID
+        }));
+
+        const gymProfilesContainer = document.getElementById('gym-profiles'); // Ensure correct ID
+        gymProfilesContainer.innerHTML = ''; // Clear existing profiles
+
+        gymList.forEach(gym => {
+            // Check if the gym status is not "Under Review"
+            if (gym.status && gym.status !== 'Under Review') {
+                const gymDiv = document.createElement('div');
+                gymDiv.classList.add('card', 'gym-profile', 'mb-3'); // Add Bootstrap card classes
+
+                gymDiv.innerHTML = `
+                    <img src="${gym.gymPhoto || 'default-photo.jpg'}" alt="${gym.gymName || 'Gym'}" class="card-img-top gym-photo" />
+                    <div class="card-body">
+                        <h5 class="card-title gym-title">${gym.gymName || 'N/A'}</h5>
+                        <button class="gym-info-btn" onclick="viewMore('${gym.id}')">Gym Info</button>
+                    </div>
+                `;
+
+                gymProfilesContainer.appendChild(gymDiv); // Append each gym profile to the container
+            }
+        });
+    }
+
+    // Function to open the Gym Info Modal
+    window.viewMore = async function (gymId) {
+        try {
+            // Fetch the gym document from Firestore using gymId (which is the document's ID)
+            const gymDocRef = doc(db, 'Users', gymId);
+            const gymDoc = await getDoc(gymDocRef);
     
-    // Query to get only gym owners
-    const gymOwnerQuery = query(gymsCollection, where('role', '==', 'gymowner'));
+            if (gymDoc.exists()) {
+                const gymData = gymDoc.data();
     
-    const gymSnapshot = await getDocs(gymOwnerQuery);
-    const gymList = gymSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data() // Include the document data and its ID
-    }));
-
-    const gymProfilesContainer = document.getElementById('gym-profiles'); // Ensure correct ID
-    gymProfilesContainer.innerHTML = ''; // Clear existing profiles
-
-    gymList.forEach(gym => {
-        // Check if the gym status is not "Under Review"
-        if (gym.status && gym.status !== 'Under Review') {
-            const gymDiv = document.createElement('div');
-            gymDiv.classList.add('card', 'gym-profile', 'mb-3'); // Add Bootstrap card classes
-
-            gymDiv.innerHTML = `
-                <img src="${gym.gymPhoto || 'default-photo.jpg'}" alt="${gym.gymName || 'Gym'}" class="card-img-top gym-photo" />
-                <div class="card-body">
-                    <h5 class="card-title gym-title">${gym.gymName || 'N/A'}</h5>
-                    <button class="gym-info-btn" onclick="viewMore('${gym.id}')">Gym Info</button>
-                </div>
-            `;
-
-            gymProfilesContainer.appendChild(gymDiv); // Append each gym profile to the container
-        }
-    });
-}
-
-// Function to open the Gym Info Modal
-window.viewMore = async function (gymId) {
-    try {
-        const gymDocRef = doc(db, 'Users', gymId);
-        const gymDoc = await getDoc(gymDocRef);
-
-        if (gymDoc.exists()) {
-            const gymData = gymDoc.data();
-
-            // Ensure each element exists before setting innerText
-            const modalGymName = document.getElementById('modalGymName');
-            const modalGymPhoto = document.getElementById('modalGymPhoto');
-            const modalGymLocation = document.getElementById('modalGymLocation');
-            const modalGymEquipment = document.getElementById('modalGymEquipment');
-            const modalGymPrograms = document.getElementById('modalGymPrograms');
-            const modalGymContact = document.getElementById('modalGymContact');
-            const modalPriceRate = document.getElementById('modalPriceRate');
-            const modalGymOpeningTime = document.getElementById('modalGymOpeningTime');
-            const modalGymClosingTime = document.getElementById('modalGymClosingTime');
-            const trainersSection = document.getElementById('trainers-section'); // Our Trainers section
-
-            // Populate modal content with gym details
-            if (modalGymName) modalGymName.innerText = gymData.gymName || 'N/A';
-            if (modalGymPhoto) modalGymPhoto.src = gymData.gymPhoto || 'default-photo.jpg';
-            if (modalGymLocation) modalGymLocation.innerText = gymData.gymLocation || 'N/A';
-            if (modalGymEquipment) modalGymEquipment.innerText = gymData.gymEquipment || 'N/A';
-            if (modalGymPrograms) modalGymPrograms.innerText = gymData.gymPrograms || 'N/A';
-            if (modalGymContact) modalGymContact.innerText = gymData.gymContact || 'N/A';
-            if (modalPriceRate) modalPriceRate.innerText = gymData.gymPriceRate || 'N/A';
-            if (modalGymOpeningTime) modalGymOpeningTime.innerText = gymData.gymOpeningTime || 'N/A';
-            if (modalGymClosingTime) modalGymClosingTime.innerText = gymData.gymClosingTime || 'N/A';
-
-            // Step 1: Clear previous trainers
-            trainersSection.innerHTML = ''; // Clear the section before populating new trainers
-
-            // Step 2: Fetch trainers whose GymName matches the gym owner's GymName
-            const trainersQuery = query(
-                collection(db, 'Users'),
-                where('role', '==', 'trainer'),
-                where('GymName', '==', gymData.gymName) // Validate that the trainer's GymName matches the gym owner's GymName
-            );
-            const trainersSnapshot = await getDocs(trainersQuery);
-
-            if (!trainersSnapshot.empty) {
-                trainersSnapshot.forEach(doc => {
-                    const trainerData = doc.data();
-
-                    // Check if the trainer's status is not "Under Review"
-                    if (trainerData.status !== "Under Review") {
-                        console.log("Trainer Data:", trainerData); // For debugging
-
-                        // Create a trainer card dynamically with "View Info" button
-                        const trainerCard = `
-                            <div class="trainer-card">
-                                <img src="${trainerData.TrainerPhoto || 'default-trainer-photo.jpg'}" alt="Trainer Photo" class="trainer-photo">
-                                <h5>${trainerData.TrainerName || 'No Name'}</h5>
-                                <button class="btn btn-success" onclick="ViewTrainerInfo('${doc.id}')">View Info</button> <!-- View Info button -->
-                            </div>
-                        `;
-
-                        // Append the trainer card to the trainers section
-                        trainersSection.innerHTML += trainerCard;
-                    } else {
-                        console.log(`Skipping trainer ${trainerData.TrainerName} because their status is "Under Review".`);
-                    }
-                });
+                // Use the gymId (document ID) as the unique identifier (gym owner's uid)
+                const gymUid = gymId;
+    
+                // Ensure each element exists before setting innerText
+                const modalGymName = document.getElementById('modalGymName');
+                const modalGymPhoto = document.getElementById('modalGymPhoto');
+                const modalGymLocation = document.getElementById('modalGymLocation');
+                const modalGymEquipment = document.getElementById('modalGymEquipment');
+                const modalGymPrograms = document.getElementById('modalGymPrograms');
+                const modalGymContact = document.getElementById('modalGymContact');
+                const modalPriceRate = document.getElementById('modalPriceRate');
+                const modalGymOpeningTime = document.getElementById('modalGymOpeningTime');
+                const modalGymClosingTime = document.getElementById('modalGymClosingTime');
+                const trainersSection = document.getElementById('trainers-section'); // Trainers section
+                const productsSection = document.getElementById('products-section'); // Products section
+    
+                // Populate modal content with gym details
+                if (modalGymName) modalGymName.innerText = gymData.gymName || 'N/A';
+                if (modalGymPhoto) modalGymPhoto.src = gymData.gymPhoto || 'default-photo.jpg';
+                if (modalGymLocation) modalGymLocation.innerText = gymData.gymLocation || 'N/A';
+                if (modalGymEquipment) modalGymEquipment.innerText = gymData.gymEquipment || 'N/A';
+                if (modalGymPrograms) modalGymPrograms.innerText = gymData.gymPrograms || 'N/A';
+                if (modalGymContact) modalGymContact.innerText = gymData.gymContact || 'N/A';
+                if (modalPriceRate) modalPriceRate.innerText = gymData.gymPriceRate || 'N/A';
+                if (modalGymOpeningTime) modalGymOpeningTime.innerText = gymData.gymOpeningTime || 'N/A';
+                if (modalGymClosingTime) modalGymClosingTime.innerText = gymData.gymClosingTime || 'N/A';
+    
+                // Step 1: Clear previous trainers and products
+                trainersSection.innerHTML = ''; // Clear the section before populating new trainers
+                productsSection.innerHTML = ''; // Clear the products section
+    
+                // Step 2: Fetch trainers whose GymName matches the gym owner's GymName
+                const trainersQuery = query(
+                    collection(db, 'Users'),
+                    where('role', '==', 'trainer'),
+                    where('GymName', '==', gymData.gymName) // Ensure the trainer's GymName matches the gym owner's GymName
+                );
+                const trainersSnapshot = await getDocs(trainersQuery);
+    
+                if (!trainersSnapshot.empty) {
+                    trainersSnapshot.forEach(doc => {
+                        const trainerData = doc.data();
+    
+                        // Check if the trainer's status is not "Under Review"
+                        if (trainerData.status !== "Under Review") {
+                            // Create a trainer card dynamically with "View Info" button
+                            const trainerCard = `
+                                <div class="trainer-card">
+                                    <img src="${trainerData.TrainerPhoto || 'default-trainer-photo.jpg'}" alt="Trainer Photo" class="trainer-photo">
+                                    <h5>${trainerData.TrainerName || 'No Name'}</h5>
+                                    <button class="btn btn-success" onclick="ViewTrainerInfo('${doc.id}')">View Info</button> <!-- View Info button -->
+                                </div>
+                            `;
+                            // Append the trainer card to the trainers section
+                            trainersSection.innerHTML += trainerCard;
+                        }
+                    });
+                } else {
+                    trainersSection.innerHTML = '<p>No trainers found for this gym.</p>';
+                }
+    
+                // Step 3: Fetch products from the gym owner's Products subcollection and authenticate
+                const productsQuery = query(
+                    collection(db, `Users/${gymUid}/Products`) // Query the subcollection under the specific gym owner
+                );
+                const productsSnapshot = await getDocs(productsQuery);
+    
+                if (!productsSnapshot.empty) {
+                    productsSnapshot.forEach(doc => {
+                        const productData = doc.data();
+    
+                        // Step 4: Validate if the product's userId matches the gym owner's uid
+                        if (productData.userId === gymUid) {
+                            // Create a product card dynamically if the userId matches
+                            const productCard = `
+                                <div class="product-card">
+                                    <img src="${productData.photoURL || 'default-product.jpg'}" alt="Product Photo" class="product-photo">
+                                    <h5>${productData.name}</h5>
+                                    <p>Price: ₱${productData.price}</p>
+                                    <p>${productData.description}</p>
+                                </div>
+                            `;
+                            // Append the product card to the products section
+                            productsSection.innerHTML += productCard;
+                        }
+                    });
+                } else {
+                    productsSection.innerHTML = '<p>No products found for this gym.</p>';
+                }
+    
+                // Step 5: Show the modal
+                $('#gymProfileModal').modal('show');
             } else {
-                trainersSection.innerHTML = '<p>No trainers found for this gym.</p>';
+                console.error('No such document!');
             }
-
-            // Step 3: Show the modal
-            $('#gymProfileModal').modal('show');
-        } else {
-            console.error('No such document!');
+        } catch (error) {
+            console.error('Error fetching document:', error);
         }
-    } catch (error) {
-        console.error('Error fetching document:', error);
-    }
-}
+    };
+    
+    
 
-// Function to view trainer info in a new modal
-window.ViewTrainerInfo = async function (trainerId) {
-    try {
-        // Close Gym modal
+    // Function to view trainer info in a new modal
+    window.ViewTrainerInfo = async function (trainerId) {
+        try {
+            // Close Gym modal
+            $('#gymProfileModal').modal('hide');
+
+            // Fetch trainer data by ID
+            const trainerDocRef = doc(db, 'Users', trainerId);
+            const trainerDoc = await getDoc(trainerDocRef);
+
+            if (trainerDoc.exists()) {
+                const trainerData = trainerDoc.data();
+
+                // Check if the trainer's status is "Under Review"
+                if (trainerData.status === "Under Review") {
+                    console.warn('Trainer is under review. Cannot display.');
+                    return; // Do not display the trainer if they are under review
+                }
+
+                // Ensure each trainer modal element exists
+                const modalTrainerName = document.getElementById('modalTrainerName');
+                const modalTrainerPhoto = document.getElementById('modalTrainerPhoto');
+                const modalTrainerExpertise = document.getElementById('modalTrainerExpertise');
+                const modalTrainerExperience = document.getElementById('modalTrainerExperience');
+                const modalTrainerDays = document.getElementById('modalTrainerDays');
+                const modalTrainerRate = document.getElementById('modalTrainerRate'); // Trainer rate element
+                const bookNowButton = document.getElementById('bookNowButton'); // Book Now button
+
+                // Populate trainer modal with the trainer's data
+                if (modalTrainerName) modalTrainerName.innerText = trainerData.TrainerName || 'N/A';
+                if (modalTrainerPhoto) modalTrainerPhoto.src = trainerData.TrainerPhoto || 'default-trainer-photo.jpg';
+                if (modalTrainerExpertise) modalTrainerExpertise.innerText = trainerData.Expertise || 'N/A';
+                if (modalTrainerExperience) modalTrainerExperience.innerText = trainerData.Experience || 'N/A';
+                if (modalTrainerDays) modalTrainerDays.innerText = trainerData.Days || 'N/A';
+                if (modalTrainerRate) modalTrainerRate.innerText = `₱${trainerData.rate || 'N/A'}`; // Display rate with currency
+
+                // Handle Book Now button (add trainer ID for booking logic)
+                if (bookNowButton) {
+                    bookNowButton.onclick = function() {
+                        alert(`Booking Trainer: ${trainerId}`);
+                        // Add your booking logic here
+                    };
+                }
+
+                // Step 4: Show the Trainer Info modal
+                $('#trainerProfileModal').modal('show');
+            } else {
+                console.error('Trainer not found!');
+            }
+        } catch (error) {
+            console.error('Error fetching trainer data:', error);
+        }
+    }
+    
+
+    // Optionally, you can have other modal functions like closeModal()
+    window.closeModal=function() {
         $('#gymProfileModal').modal('hide');
-
-        // Fetch trainer data by ID
-        const trainerDocRef = doc(db, 'Users', trainerId);
-        const trainerDoc = await getDoc(trainerDocRef);
-
-        if (trainerDoc.exists()) {
-            const trainerData = trainerDoc.data();
-
-            // Check if the trainer's status is "Under Review"
-            if (trainerData.status === "Under Review") {
-                console.warn('Trainer is under review. Cannot display.');
-                return; // Do not display the trainer if they are under review
-            }
-
-            // Ensure each trainer modal element exists
-            const modalTrainerName = document.getElementById('modalTrainerName');
-            const modalTrainerPhoto = document.getElementById('modalTrainerPhoto');
-            const modalTrainerExpertise = document.getElementById('modalTrainerExpertise');
-            const modalTrainerExperience = document.getElementById('modalTrainerExperience');
-            const modalTrainerDays = document.getElementById('modalTrainerDays');
-            const modalTrainerRate = document.getElementById('modalTrainerRate'); // Trainer rate element
-            const bookNowButton = document.getElementById('bookNowButton'); // Book Now button
-
-            // Populate trainer modal with the trainer's data
-            if (modalTrainerName) modalTrainerName.innerText = trainerData.TrainerName || 'N/A';
-            if (modalTrainerPhoto) modalTrainerPhoto.src = trainerData.TrainerPhoto || 'default-trainer-photo.jpg';
-            if (modalTrainerExpertise) modalTrainerExpertise.innerText = trainerData.Expertise || 'N/A';
-            if (modalTrainerExperience) modalTrainerExperience.innerText = trainerData.Experience || 'N/A';
-            if (modalTrainerDays) modalTrainerDays.innerText = trainerData.Days || 'N/A';
-            if (modalTrainerRate) modalTrainerRate.innerText = `₱${trainerData.rate || 'N/A'}`; // Display rate with currency
-
-            // Handle Book Now button (add trainer ID for booking logic)
-            if (bookNowButton) {
-                bookNowButton.onclick = function() {
-                    alert(`Booking Trainer: ${trainerId}`);
-                    // Add your booking logic here
-                };
-            }
-
-            // Step 4: Show the Trainer Info modal
-            $('#trainerProfileModal').modal('show');
-        } else {
-            console.error('Trainer not found!');
-        }
-    } catch (error) {
-        console.error('Error fetching trainer data:', error);
     }
-}
 
-
-// Function to close the modal
-window.closeModal = function() {
-    $('#gymProfileModal').modal('hide'); // Use Bootstrap's modal hide method
-}
+    // Function to close the modal
+    window.closeModal = function() {
+        $('#gymProfileModal').modal('hide'); // Use Bootstrap's modal hide method
+    }
 
 
     async function showGymCheckoutModal(gymId, gymData = {}, userData = {}) {
@@ -509,15 +546,16 @@ window.closeModal = function() {
         }
     };
 
-document.addEventListener('DOMContentLoaded', function() {
-            // Now all event listeners and modal functions are attached when DOM is ready
-            fetchGymProfiles();
-            fetchMembershipPlans();
-            showCheckoutModal();
-          // Fetch trainers when the page loads
-  });
+    document.addEventListener('DOMContentLoaded', function() {
+                // Now all event listeners and modal functions are attached when DOM is ready
+                fetchGymProfiles();
+                fetchMembershipPlans();
+                showCheckoutModal();
+                viewProducts();
+            // Fetch trainers when the page loads
+    });
 
-// async function showCheckoutModal(trainerId, trainerData, userData = {}) {
+    // async function showCheckoutModal(trainerId, trainerData, userData = {}) {
 //     const checkoutModal = document.getElementById('checkoutModal');
 //     const checkoutContent = document.getElementById('checkoutContent');
 
