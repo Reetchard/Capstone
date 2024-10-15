@@ -289,7 +289,7 @@ async function fetchGymProfiles() {
 
     gymList.forEach(gym => {
         // Check if the gym status is not "Under Review"
-        if (gym.status && gym.status !== 'Under review') {
+        if (gym.status && gym.status !== 'Under Review') {
             const gymDiv = document.createElement('div');
             gymDiv.classList.add('card', 'gym-profile', 'mb-3'); // Add Bootstrap card classes
 

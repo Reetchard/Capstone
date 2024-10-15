@@ -1,5 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
 import { getFirestore, collection, getDocs, doc, getDoc, query, updateDoc, deleteDoc, where } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js';
+import { getAuth, onAuthStateChanged  } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"; // Import Auth
 
 // Your Firebase configuration
 const firebaseConfig = {
@@ -17,42 +18,96 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 // Function to fetch trainer data from Firestore
-async function fetchTrainerData() {
+
+const auth = getAuth(app); // Initialize Firebase Auth
+
+// Function to fetch Gym Owner's username (or GymName) from Firestore
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        // User is signed in, fetch the Gym Owner's GymName
+        const gymOwnerGymName = await fetchGymOwnerGymName();
+        
+        if (gymOwnerGymName) {
+            // If gym owner GymName is fetched, load the trainer data
+            await fetchTrainerData(gymOwnerGymName);
+        } else {
+            console.error("Error fetching Gym Owner's GymName.");
+        }
+    } else {
+        // No user is signed in
+        console.error("No authenticated user found. Please sign in.");
+    }
+});
+async function fetchGymOwnerGymName() {
+    const user = auth.currentUser;
+
+    if (user) {
+        const userId = user.uid;
+        const userDocRef = doc(db, 'Users', userId);
+        const userDocSnap = await getDoc(userDocRef);
+
+        if (userDocSnap.exists()) {
+            const userData = userDocSnap.data();
+            return userData.gymName || userData.GymName; // Ensure this is the correct field for the GymName
+        } else {
+            console.error('Gym Owner document not found');
+            return null;
+        }
+    } else {
+        console.error('No authenticated user found');
+        return null;
+    }
+}
+async function fetchTrainerData(gymOwnerGymName) {
     try {
-        const usersRef = collection(db, 'Users'); // Fetch from the Users collection
+        console.log("Gym Owner's GymName:", gymOwnerGymName); // Debug: Log the gym owner's GymName
+
+        // Fetch all users (trainers) from the Firestore 'Users' collection
+        const usersRef = collection(db, 'Users');
         const snapshot = await getDocs(usersRef);
         const trainerInfoBody = document.getElementById('trainerInfoBody');
-        trainerInfoBody.innerHTML = '';
+        trainerInfoBody.innerHTML = ''; // Clear existing content
 
         if (!snapshot.empty) {
             snapshot.forEach(doc => {
                 const user = doc.data();
                 const role = user.role || 'N/A'; // Access role from user data
+                const trainerGymName = user.GymName || user.gymName || 'N/A'; // Access GymName from trainer data
 
-                // Check if the role is Trainer
-                if (role === 'trainer') {
+                // Debugging: Log the trainer data being evaluated
+                console.log(`Evaluating Trainer: ${user.TrainerName || 'N/A'} (GymName: ${trainerGymName}, Role: ${role})`);
+
+                // Check if the role is Trainer and the GymName matches the Gym Owner's GymName
+                if (role === 'trainer' && trainerGymName === user.gymName) {
+                    console.log(`Trainer ${user.TrainerName} matches Gym Owner's GymName.`); // Debug: Log matching trainers
+                    
                     const TrainerID = user.TrainerID || 'N/A'; // Access TrainerID from user data
-                    console.log('Trainer Data:', user); // Log trainer data for debugging
+                    const TrainerPhoto = user.TrainerPhoto || 'default-image.jpg'; // Get trainer photo or fallback
 
+                    // Create table row for the trainer
                     let row = `
                         <tr>
                             <td><input type="checkbox" class="rowCheckbox" data-id="${doc.id}"></td>
                             <td>${TrainerID}</td>
                             <td>
-                                <img src="${user.TrainerPhoto || 'default-image.jpg'}" 
+                                <img src="${TrainerPhoto}" 
                                     alt="Trainer Photo" 
                                     class="trainer-photo zoomable"
-                                    onclick="openModal('${user.TrainerPhoto || 'default-image.jpg'}')" />
+                                    onclick="openModal('${TrainerPhoto}', 'photo')" />
                             </td>
                             <td>${user.TrainerName || 'N/A'}</td>
                             <td>${user.Experience || 'N/A'}</td>
                             <td>${user.Expertise || 'N/A'}</td>
                             <td>${user.Days || 'N/A'}</td>
                             <td>
-                                <img src="${user.TrainerPermit || 'default-permit.jpg'}" 
-                                    alt="Trainer Permit" 
-                                    class="trainer-photo zoomable"
-                                    onclick="openModal('${user.TrainerPermit || 'default-permit.jpg'}')" />
+                                <a href="#" onclick="openModal('${user.TrainerApplication || '#'}', '${getFileType(user.TrainerApplication)}')">
+                                    ${user.TrainerApplication ? 'View Application' : 'No Application'}
+                                </a>
+                            </td>
+                            <td>
+                                <a href="#" onclick="openModal('${user.Resume || '#'}', '${getFileType(user.Resume)}')">
+                                    ${user.Resume ? 'View Resume' : 'No Resume'}
+                                </a>
                             </td>
                             <td>${user.status || 'Under Review'}</td>
                             <td class="button-container">
@@ -62,10 +117,11 @@ async function fetchTrainerData() {
                             </td>
                         </tr>
                     `;
-                    trainerInfoBody.innerHTML += row;
+                    trainerInfoBody.innerHTML += row; // Append row to the table body
                 }
             });
 
+            // Select all functionality for checkboxes
             const selectAllCheckbox = document.getElementById('selectAllHeader');
             selectAllCheckbox.addEventListener('change', function() {
                 const checkboxes = document.querySelectorAll('input.rowCheckbox');
@@ -81,7 +137,64 @@ async function fetchTrainerData() {
     }
 }
 
-fetchTrainerData(); // Call the function to fetch and display trainer data
+
+// Function to get the file type (image or pdf)
+function getFileType(fileUrl) {
+    if (!fileUrl) return 'none';
+    const extension = fileUrl.split('.').pop().toLowerCase();
+    if (['jpg', 'jpeg', 'png', 'gif'].includes(extension)) {
+        return 'image';
+    } else if (extension === 'pdf') {
+        return 'pdf';
+    }
+    return 'unknown';
+}
+
+// Modal logic to display the photo or PDF
+window.openModal = function(fileUrl, fileType) {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    const modalPDFLink = document.getElementById('modalPDFLink');
+    const modalPDFIcon = document.getElementById('modalPDFIcon');
+
+    if (fileType === 'image') {
+        // Show image in modal
+        modalImg.style.display = 'block';
+        modalPDFLink.style.display = 'none';
+        modalPDFIcon.style.display = 'none';
+        modalImg.src = fileUrl; // Set the image source
+
+    } else if (fileType === 'pdf') {
+        // Show PDF link in modal
+        modalImg.style.display = 'none';
+        modalPDFLink.style.display = 'block';
+        modalPDFIcon.style.display = 'block';
+        modalPDFLink.href = fileUrl; // Set the PDF download link
+
+    } else {
+        modalImg.style.display = 'none';
+        modalPDFLink.style.display = 'none';
+        modalPDFIcon.style.display = 'none';
+    }
+
+    modal.style.display = "block";
+
+    // Close the modal when the close button is clicked
+    const span = document.getElementsByClassName("close")[0];
+    span.onclick = function() {
+        modal.style.display = "none";
+    };
+
+    // Close the modal when clicked outside of the content
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    };
+};
+
+// Initial call to fetch and display trainer data
+fetchTrainerData();
 
 // Function to delete selected trainers
 window.deleteSelected = function() {

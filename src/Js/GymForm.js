@@ -1,6 +1,6 @@
 // Import Firebase services
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-import { getFirestore, collection, setDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js"; // Import Auth
 
@@ -23,11 +23,7 @@ const auth = getAuth(app); // Initialize Auth
 
 window.addEventListener('load', () => {
     const form = document.getElementById("gymOwnerDetailsForm");
-
-    if (!form) {
-        console.error('Form element not found');
-        return;
-    }
+    const spinnerModal = document.getElementById("spinnerModal");
 
     // Element declarations
     const gymName = document.getElementById("gymName");
@@ -43,8 +39,6 @@ window.addEventListener('load', () => {
     const gymPriceRate = document.getElementById("gymPriceRate");
     const errorMessage = document.getElementById("gymOwnerFormErrorMessage");
     const successMessage = document.getElementById("gymOwnerFormSuccessMessage");
-    const uploadPhotoButton = document.getElementById('uploadPhotoButton'); // Ensure button is available
-    const photoPreview = document.getElementById('photoPreview'); // Ensure photo preview area is available
 
     // Function to handle image upload
     async function uploadFile(file, path) {
@@ -58,14 +52,20 @@ window.addEventListener('load', () => {
         const user = auth.currentUser; // Get the current authenticated user
         if (user) {
             const userEmail = user.email;
-            console.log("Authenticated User Email:", userEmail); // Log authenticated email
-
-            // Check if the authenticated user's email matches the provided gymEmail
             return userEmail === gymEmail; // Email matches
         } else {
-            console.error("No user is authenticated."); // Log if no user is authenticated
             return false; // Not authenticated
         }
+    }
+
+    // Show the spinner modal
+    function showSpinner() {
+        spinnerModal.style.display = 'block';
+    }
+
+    // Hide the spinner modal
+    function hideSpinner() {
+        spinnerModal.style.display = 'none';
     }
 
     // Listen for form submit
@@ -73,18 +73,28 @@ window.addEventListener('load', () => {
         e.preventDefault();
 
         try {
-            const gymEmail = gymEmailInput.value; // Get the gym email value
-            console.log("Gym Email:", gymEmail); // Log the gym email for debugging
-            
+            // Show spinner when form is being submitted
+            showSpinner();
+
+            const gymEmail = gymEmailInput.value;
+
             // Validate the user's email
             const isValidEmail = await isUserEmailValid(gymEmail);
             if (!isValidEmail) {
                 errorMessage.innerHTML = "Error: User email does not match the GymForm email.";
+                hideSpinner(); // Hide spinner if error occurs
+                return;
+            }
+
+            // Custom validation for the file input
+            if (gymPhotoInput.files.length === 0) {
+                errorMessage.innerHTML = "Please upload a gym photo.";
+                hideSpinner(); // Hide spinner if error occurs
                 return;
             }
 
             // Upload files and get URLs
-            const gymPhotoURL = gymPhotoInput.files[0] ? await uploadFile(gymPhotoInput.files[0], `gym_photos/${gymName.value}`) : "";
+            const gymPhotoURL = await uploadFile(gymPhotoInput.files[0], `gym_photos/${gymName.value}`);
             const gymCertificationsURL = gymCertificationsInput.files[0] ? await uploadFile(gymCertificationsInput.files[0], `gym_certifications/${gymName.value}`) : "";
 
             // Get authenticated user details
@@ -95,54 +105,34 @@ window.addEventListener('load', () => {
             const userDocRef = doc(firestore, 'Users', userId);
             await setDoc(userDocRef, {
                 gymName: gymName.value,
-                gymPhoto: gymPhotoURL,  // Store photo URL
-                gymCertifications: gymCertificationsURL,  // Store certification URL
+                gymPhoto: gymPhotoURL,
+                gymCertifications: gymCertificationsURL,
                 gymEquipment: gymEquipment.value,
                 gymContact: gymContact.value,
                 gymPrograms: gymPrograms.value,
                 gymOpeningTime: gymOpeningTime.value,
                 gymClosingTime: gymClosingTime.value,
                 gymLocation: gymLocation.value,
-                gymPriceRate:gymPriceRate.value,
-                status: "Under Review"  // Set status as "Under Review"
-            }, { merge: true }); // Use merge to keep existing user data
+                gymPriceRate: gymPriceRate.value,
+                status: "Under Review"
+            }, { merge: true });
 
             // Success message logic
             successMessage.innerHTML = "Gym information submitted successfully! Please wait for admin's approval.";
-            errorMessage.innerHTML = "";  // Clear any error message
-            setTimeout(() => { successMessage.innerHTML = ""; window.location.href = "login.html"; }, 3000);
+            errorMessage.innerHTML = "";
+            
+            // After a brief delay, redirect to login.html
+            setTimeout(() => {
+                hideSpinner();
+                window.location.href = "login.html";
+            }, 2000);
+
             form.reset();  // Clear the form after successful submission
         } catch (error) {
             errorMessage.innerHTML = "Error: Could not submit the form. " + error.message;
-            successMessage.innerHTML = "";  // Clear any success message
+            successMessage.innerHTML = "";
+            hideSpinner(); // Hide spinner if error occurs
             setTimeout(() => { errorMessage.innerHTML = ""; }, 3000);
         }
     });
-
-    // Add functionality to trigger file input click (check if uploadPhotoButton exists)
-    if (uploadPhotoButton) {
-        uploadPhotoButton.addEventListener('click', function() {
-            gymPhotoInput.click();
-        });
-    } else {
-        console.error('Upload photo button not found');
-    }
-
-    // Preview selected image (check if photoPreview and gymPhoto exist)
-    if (gymPhotoInput) {
-        gymPhotoInput.addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    if (photoPreview) {
-                        photoPreview.style.backgroundImage = `url(${e.target.result})`;
-                    }
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    } else {
-        console.error('Gym photo input element not found');
-    }
 });
