@@ -231,46 +231,6 @@ function displayMembershipPlans(plans) {
             });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-            // Define all functions here
-        
-            function closeCurrentModal() {
-                if (currentModal) {
-                    currentModal.style.display = "none"; // Hide the current modal
-                    currentModal = null; // Reset the current modal
-                }
-            }
-        // Fetch trainers from Firestore
- window.fetchTrainers = async function () {
-                const trainersCollection = collection(db, 'Users');
-                const trainerSnapshot = await getDocs(trainersCollection);
-                const trainerList = trainerSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); // Include the document ID
-        
-                console.log("Fetched Trainers:", trainerList); // Debugging line
-        
-                const trainerProfilesContainer = document.getElementById('trainer-profiles');
-                trainerProfilesContainer.innerHTML = '';
-        
-                trainerList.forEach(trainer => {
-                    // Check if the trainer's status is not "Under Review" and their role is "Trainer"
-                    if (trainer.status && trainer.status !== 'Under review' && trainer.role === 'trainer') {
-                        const trainerDiv = document.createElement('div');
-                        trainerDiv.classList.add('card', 'trainer-profile', 'mb-3');
-        
-                        trainerDiv.innerHTML = `
-                            <img src="${trainer.TrainerPhoto || 'images/default-image-url.jpg'}" alt="${trainer.TrainerName || 'trainer'}" class="card-img-top trainer-photo" />
-                            <div class='card-body'>
-                            <h5 class="card-title">${trainer.TrainerName || 'N/A'}</h5>
-                            <button class="custom-button btn-primary" onclick="viewTrainerDetails('${trainer.id}')">Trainer Info</button>
-                            </div>
-                        `;
-        
-                        trainerProfilesContainer.appendChild(trainerDiv);
-                    }
-                });
-            }  
-});
-
 // Fetch Gym Profiles and Display
 async function fetchGymProfiles() {
     const gymsCollection = collection(db, 'Users');
@@ -325,6 +285,7 @@ window.viewMore = async function (gymId) {
             const modalPriceRate = document.getElementById('modalPriceRate');
             const modalGymOpeningTime = document.getElementById('modalGymOpeningTime');
             const modalGymClosingTime = document.getElementById('modalGymClosingTime');
+            const trainersSection = document.getElementById('trainers-section'); // Our Trainers section
 
             // Populate modal content with gym details
             if (modalGymName) modalGymName.innerText = gymData.gymName || 'N/A';
@@ -337,7 +298,45 @@ window.viewMore = async function (gymId) {
             if (modalGymOpeningTime) modalGymOpeningTime.innerText = gymData.gymOpeningTime || 'N/A';
             if (modalGymClosingTime) modalGymClosingTime.innerText = gymData.gymClosingTime || 'N/A';
 
-            // Use Bootstrap modal to show the modal
+            // Step 1: Clear previous trainers
+            trainersSection.innerHTML = ''; // Clear the section before populating new trainers
+
+            // Step 2: Fetch trainers whose GymName matches the gym owner's GymName
+            const trainersQuery = query(
+                collection(db, 'Users'),
+                where('role', '==', 'trainer'),
+                where('GymName', '==', gymData.gymName) // Validate that the trainer's GymName matches the gym owner's GymName
+            );
+            const trainersSnapshot = await getDocs(trainersQuery);
+
+            if (!trainersSnapshot.empty) {
+                trainersSnapshot.forEach(doc => {
+                    const trainerData = doc.data();
+
+                    // Check if the trainer's status is not "Under Review"
+                    if (trainerData.status !== "Under Review") {
+                        console.log("Trainer Data:", trainerData); // For debugging
+
+                        // Create a trainer card dynamically with "View Info" button
+                        const trainerCard = `
+                            <div class="trainer-card">
+                                <img src="${trainerData.TrainerPhoto || 'default-trainer-photo.jpg'}" alt="Trainer Photo" class="trainer-photo">
+                                <h5>${trainerData.TrainerName || 'No Name'}</h5>
+                                <button class="btn btn-success" onclick="ViewTrainerInfo('${doc.id}')">View Info</button> <!-- View Info button -->
+                            </div>
+                        `;
+
+                        // Append the trainer card to the trainers section
+                        trainersSection.innerHTML += trainerCard;
+                    } else {
+                        console.log(`Skipping trainer ${trainerData.TrainerName} because their status is "Under Review".`);
+                    }
+                });
+            } else {
+                trainersSection.innerHTML = '<p>No trainers found for this gym.</p>';
+            }
+
+            // Step 3: Show the modal
             $('#gymProfileModal').modal('show');
         } else {
             console.error('No such document!');
@@ -346,6 +345,61 @@ window.viewMore = async function (gymId) {
         console.error('Error fetching document:', error);
     }
 }
+
+// Function to view trainer info in a new modal
+window.ViewTrainerInfo = async function (trainerId) {
+    try {
+        // Close Gym modal
+        $('#gymProfileModal').modal('hide');
+
+        // Fetch trainer data by ID
+        const trainerDocRef = doc(db, 'Users', trainerId);
+        const trainerDoc = await getDoc(trainerDocRef);
+
+        if (trainerDoc.exists()) {
+            const trainerData = trainerDoc.data();
+
+            // Check if the trainer's status is "Under Review"
+            if (trainerData.status === "Under Review") {
+                console.warn('Trainer is under review. Cannot display.');
+                return; // Do not display the trainer if they are under review
+            }
+
+            // Ensure each trainer modal element exists
+            const modalTrainerName = document.getElementById('modalTrainerName');
+            const modalTrainerPhoto = document.getElementById('modalTrainerPhoto');
+            const modalTrainerExpertise = document.getElementById('modalTrainerExpertise');
+            const modalTrainerExperience = document.getElementById('modalTrainerExperience');
+            const modalTrainerDays = document.getElementById('modalTrainerDays');
+            const modalTrainerRate = document.getElementById('modalTrainerRate'); // Trainer rate element
+            const bookNowButton = document.getElementById('bookNowButton'); // Book Now button
+
+            // Populate trainer modal with the trainer's data
+            if (modalTrainerName) modalTrainerName.innerText = trainerData.TrainerName || 'N/A';
+            if (modalTrainerPhoto) modalTrainerPhoto.src = trainerData.TrainerPhoto || 'default-trainer-photo.jpg';
+            if (modalTrainerExpertise) modalTrainerExpertise.innerText = trainerData.Expertise || 'N/A';
+            if (modalTrainerExperience) modalTrainerExperience.innerText = trainerData.Experience || 'N/A';
+            if (modalTrainerDays) modalTrainerDays.innerText = trainerData.Days || 'N/A';
+            if (modalTrainerRate) modalTrainerRate.innerText = `₱${trainerData.rate || 'N/A'}`; // Display rate with currency
+
+            // Handle Book Now button (add trainer ID for booking logic)
+            if (bookNowButton) {
+                bookNowButton.onclick = function() {
+                    alert(`Booking Trainer: ${trainerId}`);
+                    // Add your booking logic here
+                };
+            }
+
+            // Step 4: Show the Trainer Info modal
+            $('#trainerProfileModal').modal('show');
+        } else {
+            console.error('Trainer not found!');
+        }
+    } catch (error) {
+        console.error('Error fetching trainer data:', error);
+    }
+}
+
 
 // Function to close the modal
 window.closeModal = function() {
@@ -456,62 +510,7 @@ window.closeModal = function() {
     };
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Function to open and display trainer details in the modal
-window.viewTrainerDetails = async function(trainerId) {
-    console.log("Fetching details for Trainer ID:", trainerId); // Debugging line
-
-    const trainerRef = doc(db, 'Users', trainerId); // Fetch by document ID
-    try {
-        const trainerSnapshot = await getDoc(trainerRef);
-        if (trainerSnapshot.exists()) {
-            const trainerData = trainerSnapshot.data();
-            console.log("Trainer Details:", trainerData); // For debugging purposes
-
-            // Populate the modal with trainer data
-            document.getElementById('modalTrainerName').innerText = trainerData.TrainerName || 'N/A';
-            document.getElementById('modalTrainerPhoto').src = trainerData.TrainerPhoto || 'default-trainer-photo.jpg';
-            document.getElementById('modalTrainerExperience').innerText = trainerData.Experience || 'N/A';
-            document.getElementById('modalTrainerExpertise').innerText = trainerData.Expertise || 'N/A';
-            document.getElementById('modalTrainerDaysAvailable').innerText = trainerData.Days || 'N/A';
-            document.getElementById('modalTrainerContact').innerText = trainerData.Contact || 'N/A';
-            document.getElementById('modalTrainerRate').innerText = trainerData.rate || 'N/A';
-
-            // Open the modal
-            const trainerModal = document.getElementById('trainerProfileModal');
-            trainerModal.style.display = 'block';
-
-            // Handle "Book Now" button functionality
-            document.getElementById('bookTrainerNowButton').onclick = function() {
-                showCheckoutModal(trainerId, trainerData); // Pass trainer data to checkout modal
-            };
-
-            // Close modal when clicking outside of it
-            // window.onclick = function(event) {
-            //     if (event.target === trainerModal) {
-            //         closeModal();
-            //     }
-            // };
-        } else {
-            console.error("No such trainer! Document ID may be incorrect.");
-        }
-    } catch (error) {
-        console.error("Error fetching trainer details:", error);
-    }
-};
-    // Function to close the modal
-    // function closeModal() {
-    //     const trainerModal = document.getElementById('trainerProfileModal');
-    //     if (trainerModal) {
-    //         trainerModal.style.display = 'none'; // Hide the modal
-    //     }
-    // }
-});
-
-
-
-document.addEventListener('DOMContentLoaded', function() {
             // Now all event listeners and modal functions are attached when DOM is ready
-            fetchTrainers();
             fetchGymProfiles();
             fetchMembershipPlans();
             showCheckoutModal();
@@ -834,55 +833,3 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-
-    let currentUserRole = 'User';  // You can set the role dynamically based on the logged-in user (User or Trainer)
-
-    // Function to send a message
-    document.getElementById('sendMessageBtn').addEventListener('click', sendMessage);
-
-    function sendMessage() {
-        const messageInput = document.getElementById('messageInput').value.trim();
-        if (messageInput === '') return;
-
-        const timestamp = new Date();
-        
-        // Add message to Firestore
-        addDoc(collection(db, 'chats'), {
-            text: messageInput,
-            user: auth.currentUser.uid, // ID of the sender
-            role: currentUserRole, // Either 'User' or 'Trainer'
-            timestamp: timestamp
-        }).then(() => {
-            document.getElementById('messageInput').value = ''; // Clear input
-        }).catch((error) => {
-            console.error('Error sending message: ', error);
-        });
-    }
-
-    // Real-time listener to fetch new messages
-    const q = query(collection(db, 'chats'), orderBy('timestamp'));
-    onSnapshot(q, (snapshot) => {
-        const messagesContainer = document.getElementById('messages');
-        messagesContainer.innerHTML = ''; // Clear old messages
-        snapshot.forEach(doc => {
-            const message = doc.data();
-            const messageElement = document.createElement('div');
-            messageElement.classList.add('chat-message');
-            messageElement.classList.add(message.role === currentUserRole ? 'sent' : 'received');
-            
-            const messageText = document.createElement('p');
-            messageText.textContent = `${message.text}`;
-
-            const messageTime = document.createElement('span');
-            const messageDate = new Date(message.timestamp.seconds * 1000);
-            messageTime.textContent = messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            messageTime.classList.add('message-time');
-
-            messageElement.appendChild(messageText);
-            messageElement.appendChild(messageTime);
-            
-            messagesContainer.appendChild(messageElement);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight; // Auto-scroll to bottom
-        });
-    });
-    

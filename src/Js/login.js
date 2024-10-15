@@ -255,7 +255,7 @@ async function signInWithEmail(email, password, errorMessageElement, successMess
             case 'gymowner':
                 showMessage(successMessageElement, '🏋️‍♂️ Redirecting you to manage your gym profile. Get ready to flex those managerial muscles!');
                 setTimeout(() => {
-                    window.location.href = 'membership.html';
+                    window.location.href = 'trainer-info.html';
                 }, 3000);
                 break;
             case 'trainer':

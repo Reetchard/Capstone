@@ -19,10 +19,31 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
+document.addEventListener("DOMContentLoaded", function() {
+    const gymSelect = document.getElementById('GymName');
+
+    // Fetch gym owners from Firestore and populate dropdown
+    const usersRef = collection(db, 'Users'); // Use Firestore modular syntax
+    const q = query(usersRef, where('role', '==', 'gymowner'));
+
+    getDocs(q).then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+            const gymName = doc.data().gymName;
+            if (gymName) {
+                const option = document.createElement('option');
+                option.value = gymName;
+                option.textContent = gymName;
+                gymSelect.appendChild(option);
+            }
+        });
+    }).catch((error) => {
+        console.error('Error fetching gym owners:', error);
+    });
+});
+
 window.addEventListener('load', () => {
     const form = document.getElementById("TrainerForm");
 
-    // Element declarations (synced with form IDs)
     const TrainerName = document.getElementById("TrainerName");
     const GymName = document.getElementById("GymName");
     const TrainerEmail = document.getElementById("TrainerEmail");
@@ -39,7 +60,7 @@ window.addEventListener('load', () => {
     const profilePic = document.getElementById("profilePic");
     const spinnerModal = document.getElementById("spinnerModal");
 
-    // Handle profile picture preview
+    // Preview profile picture
     TrainerPhotoInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
         if (file) {
@@ -53,105 +74,88 @@ window.addEventListener('load', () => {
         }
     });
 
-    // Function to upload files to Firebase Storage
+    // Upload files to Firebase Storage
     async function uploadFile(file, path) {
         const storageReference = storageRef(storage, path);
         const snapshot = await uploadBytes(storageReference, file);
         return await getDownloadURL(snapshot.ref);
     }
 
-    // Function to check if the email exists in the Users collection
+    // Check if email exists in Users collection
     async function getUserDocByEmail(email) {
         const userQuery = query(collection(db, 'Users'), where('email', '==', email));
         const querySnapshot = await getDocs(userQuery);
         if (!querySnapshot.empty) {
-            return querySnapshot.docs[0]; // Return the first document that matches the email
+            return querySnapshot.docs[0];
         } else {
-            return null; // No user found with the provided email
+            return null;
         }
     }
 
-    // Function to check for duplicate trainers
+    // Check for duplicate trainers
     async function isDuplicateTrainer() {
         const q = query(collection(db, 'Users'), where('TrainerEmail', '==', TrainerEmail.value));
         const querySnapshot = await getDocs(q);
         return !querySnapshot.empty;
     }
 
-    // Show spinner modal
-    function showSpinner() {
-        spinnerModal.style.display = 'block';
-    }
+    // Show/hide spinner modal
+    function showSpinner() { spinnerModal.style.display = 'block'; }
+    function hideSpinner() { spinnerModal.style.display = 'none'; }
 
-    // Hide spinner modal
-    function hideSpinner() {
-        spinnerModal.style.display = 'none';
-    }
-
-    // Form submission handler
+    // Handle form submission
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
         const trainerEmail = TrainerEmail.value;
 
-        // Check if the trainer's email matches a user in the Users collection
         const userDoc = await getUserDocByEmail(trainerEmail);
         if (!userDoc) {
             errorMessage.innerHTML = "Error: Trainer email does not match any user in the system.";
-            successMessage.innerHTML = "";
             setTimeout(() => { errorMessage.innerHTML = ""; }, 3000);
             return;
         }
 
-        // Check for duplicate trainer entries
         const duplicate = await isDuplicateTrainer();
         if (duplicate) {
             errorMessage.innerHTML = "Error: A trainer with the same email already exists.";
-            successMessage.innerHTML = "";
             setTimeout(() => { errorMessage.innerHTML = ""; }, 3000);
-        } else {
-            try {
-                // Show the spinner while processing
-                showSpinner();
+            return;
+        }
 
-                // Upload files if they exist
-                const TrainerPhotoURL = TrainerPhotoInput.files[0] ? await uploadFile(TrainerPhotoInput.files[0], `Trainer_photos/${TrainerName.value}`) : "";
-                const TrainerApplicationURL = TrainerApplicationInput.files[0] ? await uploadFile(TrainerApplicationInput.files[0], `Trainer_applications/${TrainerName.value}`) : "";
-                const ResumeURL = ResumeInput.files[0] ? await uploadFile(ResumeInput.files[0], `Trainer_resumes/${TrainerName.value}`) : "";
+        try {
+            showSpinner(),1000;
 
-                // Update the Users collection with trainer data
-                const userRef = doc(db, 'Users', userDoc.id); // Reference to the user document
-                await updateDoc(userRef, {
-                    TrainerName: TrainerName.value,
-                    GymName: GymName.value,
-                    TrainerPhoto: TrainerPhotoURL,
-                    TrainerApplication: TrainerApplicationURL,
-                    Resume: ResumeURL,
-                    Days: Days.value,
-                    Experience: Experience.value,
-                    Expertise: Expertise.value,
-                    Contact: Contact.value,
-                    rate: rate.value,
-                    role: "trainer", // Set the role to trainer
-                    status: "Under Review"
-                });
+            const TrainerPhotoURL = TrainerPhotoInput.files[0] ? await uploadFile(TrainerPhotoInput.files[0], `Trainer_photos/${TrainerName.value}`) : "";
+            const TrainerApplicationURL = TrainerApplicationInput.files[0] ? await uploadFile(TrainerApplicationInput.files[0], `Trainer_applications/${TrainerName.value}`) : "";
+            const ResumeURL = ResumeInput.files[0] ? await uploadFile(ResumeInput.files[0], `Trainer_resumes/${TrainerName.value}`) : "";
 
-                successMessage.innerHTML = "Trainer information submitted successfully! Your information is under review.";
-                errorMessage.innerHTML = "";
+            const userRef = doc(db, 'Users', userDoc.id);
+            await updateDoc(userRef, {
+                TrainerName: TrainerName.value,
+                GymName: GymName.value,
+                TrainerPhoto: TrainerPhotoURL,
+                TrainerApplication: TrainerApplicationURL,
+                Resume: ResumeURL,
+                Days: Days.value,
+                Experience: Experience.value,
+                Expertise: Expertise.value,
+                Contact: Contact.value,
+                rate: rate.value,
+                role: "trainer",
+                status: "Under Review"
+            });
 
-                // Simulate a delay for the spinner (you can remove this if unnecessary)
-                setTimeout(() => {
-                    hideSpinner();
-                    window.location.href = "trainer.html"; // Redirect after successful submission
-                }, 2000);
-
-            } catch (error) {
+            successMessage.innerHTML = "Trainer information submitted successfully! Your information is under review.";
+            setTimeout(() => {
                 hideSpinner();
-                errorMessage.innerHTML = "Error: Could not submit the form. " + error.message;
-                successMessage.innerHTML = "";
-                setTimeout(() => { errorMessage.innerHTML = ""; }, 3000);
-            }
+                window.location.href = "trainer.html";
+            }, 2000);
+
+        } catch (error) {
+            hideSpinner();
+            errorMessage.innerHTML = "Error: Could not submit the form. " + error.message;
+            setTimeout(() => { errorMessage.innerHTML = ""; }, 3000);
         }
     });
-
 });

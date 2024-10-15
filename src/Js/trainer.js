@@ -62,26 +62,28 @@ async function fetchTrainerData(gymOwnerGymName) {
     try {
         console.log("Gym Owner's GymName:", gymOwnerGymName); // Debug: Log the gym owner's GymName
 
-        // Fetch all users (trainers) from the Firestore 'Users' collection
+        // Reference to the 'Users' collection in Firestore
         const usersRef = collection(db, 'Users');
-        const snapshot = await getDocs(usersRef);
+        const q = query(usersRef, where('role', '==', 'trainer')); // Query only users with role 'trainer'
+
+        // Fetch trainers from Firestore
+        const snapshot = await getDocs(q);
         const trainerInfoBody = document.getElementById('trainerInfoBody');
         trainerInfoBody.innerHTML = ''; // Clear existing content
 
         if (!snapshot.empty) {
             snapshot.forEach(doc => {
                 const user = doc.data();
-                const role = user.role || 'N/A'; // Access role from user data
-                const trainerGymName = user.GymName || user.gymName || 'N/A'; // Access GymName from trainer data
+                const trainerGymName = user.GymName || user.gymName || 'N/A'; // Ensure correct field for gym name
 
                 // Debugging: Log the trainer data being evaluated
-                console.log(`Evaluating Trainer: ${user.TrainerName || 'N/A'} (GymName: ${trainerGymName}, Role: ${role})`);
+                console.log(`Evaluating Trainer: ${user.TrainerName || 'N/A'} (GymName: ${trainerGymName})`);
 
-                // Check if the role is Trainer and the GymName matches the Gym Owner's GymName
-                if (role === 'trainer' && trainerGymName === user.gymName) {
-                    console.log(`Trainer ${user.TrainerName} matches Gym Owner's GymName.`); // Debug: Log matching trainers
-                    
-                    const TrainerID = user.TrainerID || 'N/A'; // Access TrainerID from user data
+                // Check if the GymName of the trainer matches the gym owner's GymName
+                if (trainerGymName === gymOwnerGymName) {
+                    console.log(`Trainer ${user.TrainerName} matches Gym Owner's GymName: ${gymOwnerGymName}`); // Debugging
+
+                    const TrainerID = user.userId || 'N/A'; // Access TrainerID from user data
                     const TrainerPhoto = user.TrainerPhoto || 'default-image.jpg'; // Get trainer photo or fallback
 
                     // Create table row for the trainer
@@ -121,14 +123,16 @@ async function fetchTrainerData(gymOwnerGymName) {
                 }
             });
 
-            // Select all functionality for checkboxes
+            // Add select all functionality for checkboxes
             const selectAllCheckbox = document.getElementById('selectAllHeader');
-            selectAllCheckbox.addEventListener('change', function() {
-                const checkboxes = document.querySelectorAll('input.rowCheckbox');
-                checkboxes.forEach(checkbox => {
-                    checkbox.checked = selectAllCheckbox.checked;
+            if (selectAllCheckbox) {
+                selectAllCheckbox.addEventListener('change', function() {
+                    const checkboxes = document.querySelectorAll('input.rowCheckbox');
+                    checkboxes.forEach(checkbox => {
+                        checkbox.checked = selectAllCheckbox.checked;
+                    });
                 });
-            });
+            }
         } else {
             trainerInfoBody.innerHTML = '<tr><td colspan="10" class="text-center">No trainers found</td></tr>';
         }
@@ -136,6 +140,7 @@ async function fetchTrainerData(gymOwnerGymName) {
         console.error('Error fetching trainer data:', error);
     }
 }
+
 
 
 // Function to get the file type (image or pdf)

@@ -14,7 +14,7 @@
         <form id="TrainerForm">
             <div class="profile-pic-container">
                 <img src="framework/img/Profile.png" alt="Trainer Photo" class="profile-pic" id="profilePic">         
-                <label for="TrainerPhoto" class="change-photo-button">Latest Identication</label>
+                <label for="TrainerPhoto" class="change-photo-button">Latest Identification</label>
                 <input type="file" id="TrainerPhoto" accept="image/*" style="display: none;" required>
             </div>
             
@@ -22,16 +22,23 @@
                 <label for="Application">Application Letter</label>
                 <input type="file" id="TrainerApplication" accept="application/pdf, image/*" required>
             </div>
+            
             <div class="file-input-container">
                 <label for="resume">Resume</label>
                 <input type="file" id="Resume" accept="application/pdf, image/*" required>
             </div>
+            
             <label for="TrainerName">Full Name</label>
             <input type="text" id="TrainerName" placeholder="Trainer's Full Name" required>
+            <!-- Gym Name Dropdown -->
 
-            <label for="Gym Name">Gym Name</label>
-            <input type="text" id="GymName" placeholder="Gym's Full Name" required>
-
+            <label for="Gym Name">Select Gym Name</label>
+            <div class="custom-select-container">
+                <select id="GymName" class="custom-select" required>
+                    <option value="" disabled selected>Select Gym Name</option>
+                    <!-- Gym names will be dynamically inserted here -->
+                </select>
+            </div>
             <label for="TrainerEmail">Email</label>
             <input type="email" id="TrainerEmail" placeholder="Trainer's Email" required>
             
@@ -55,6 +62,7 @@
             <p id="TrainerFormErrorMessage" class="error-message"></p>
             <p id="TrainerFormSuccessMessage" class="success-message"></p>
         </form>
+        
     </div>
         <!-- Spinner Modal -->
         <div id="spinnerModal" class="modal" tabindex="-1" role="dialog">

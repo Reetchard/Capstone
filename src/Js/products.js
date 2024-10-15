@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, doc, setDoc, getDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-firestore.js"; // Added getDoc, updateDoc, increment
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-auth.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-storage.js";
 
 // Firebase configuration
@@ -17,10 +18,36 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
+const auth = getAuth(app);
 
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('productForm').addEventListener('submit', async function(event) {
+let currentUserId = null; // Will hold the current gym owner's userId
+
+// Check if a user is authenticated
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        // User is signed in, get the userId
+        currentUserId = user.uid;
+        console.log("Authenticated user ID:", currentUserId);
+    } else {
+        // User is not signed in, redirect to login or show an error
+        window.location.href = 'login.html'; // Redirect to login if user is not authenticated
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const loadingSpinner = document.getElementById('loadingSpinner');
+
+    document.getElementById('productForm').addEventListener('submit', async function (event) {
         event.preventDefault();
+
+        // Ensure the current user is authenticated before proceeding
+        if (!currentUserId) {
+            showMessage('error', 'You must be logged in to add products.');
+            return;
+        }
+
+        // Show the loading spinner
+        loadingSpinner.style.display = 'flex';
 
         const photo = document.getElementById('productPhoto').files[0];
         const name = document.getElementById('productName').value;
@@ -28,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const description = document.getElementById('productDescription').value;
         const category = document.getElementById('productCategory').value;
         const quantity = parseInt(document.getElementById('productQuantity').value, 10);
-        const dateAdded = new Date().toISOString(); // Get current date
+        const dateAdded = new Date().toISOString(); // Current date
 
         if (photo) {
             const storageRef = ref(storage, 'productPhotos/' + photo.name);
@@ -37,103 +64,92 @@ document.addEventListener('DOMContentLoaded', function() {
                 await uploadBytes(storageRef, photo);
                 const downloadURL = await getDownloadURL(storageRef);
 
-                const action = confirm("Do you want to display this product on the Dashboard?")
-                    ? addProductToDashboard 
-                    : addProductToListed;
+                // Add product to the Firestore with gym owner userId
+                await addProductToCollection(currentUserId, name, price, description, category, quantity, dateAdded, downloadURL);
 
-                action(name, price, description, category, quantity, dateAdded, downloadURL);
+                // Hide the loading spinner
+                loadingSpinner.style.display = 'none';
+
+                showMessage('success', '✅ Hooray! Your product has been successfully added! 🎉');
             } catch (error) {
+                loadingSpinner.style.display = 'none'; // Hide spinner
                 showMessage('error', `🚨 Oops! There was an error uploading your photo: ${error.message}`);
             }
         } else {
+            loadingSpinner.style.display = 'none'; // Hide spinner
             showMessage('error', '📸 Please select a photo to upload.');
         }
     });
 });
 
-// Function to add product to Dashboard
-async function addProductToDashboard(name, price, description, category, quantity, dateAdded, photoURL) {
-    await addProductToCollection(name, price, description, category, quantity, dateAdded, photoURL);
-}
-
-// Function to add product to Listed Products
-async function addProductToListed(name, price, description, category, quantity, dateAdded, photoURL) {
-    await addProductToCollection(name, price, description, category, quantity, dateAdded, photoURL);
-}
-
-// Helper function to add product to Firestore
-async function addProductToCollection(name, price, description, category, quantity, dateAdded, photoURL) {
+// Function to get the next productId
+async function getNextProductId() {
     try {
-        const newProductRef = doc(collection(db, 'Products'));
-        await setDoc(newProductRef, {
-            productId: newProductRef.id,
-            name,
-            price,
-            description,
-            category,
-            quantity,
-            dateAdded,
-            photoURL
-        });
-        showMessage('success', '✅ Hooray! Your product has been successfully added! 🎉');
-    } catch (error) {
-        showMessage('error', `🚨 Something went wrong while adding your product: ${error.message}`);
-    }
-}
+        const counterRef = doc(db, 'Counters', 'Products'); // Reference to the product counter document
+        const counterDoc = await getDoc(counterRef);
 
-// Function to display products in the table
-function displayProduct(data) {
-    const tableBody = document.getElementById('productTableBody');
-    if (!tableBody) {
-        console.error('Table body not found');
-        return;
-    }
+        if (counterDoc.exists()) {
+            const currentId = counterDoc.data().currentId;
+            const nextId = currentId + 1;
 
-    const newRow = document.createElement('tr');
-    newRow.innerHTML = `
-        <td><img src="${data.photoURL || 'default-image.png'}" alt="${data.name}" style="width: 50px; height: auto;"></td>
-        <td>${data.name}</td>
-        <td>$${data.price}</td>
-        <td>${data.description}</td>
-        <td>${data.category}</td>
-        <td>${data.quantity}</td>
-        <td>${data.dateAdded}</td>
-        <td>
-            <button class="btn btn-primary buy-btn" data-key="${data.productId}">Buy</button>
-            <button class="btn btn-primary">Edit</button>
-            <button class="btn btn-danger">Delete</button>
-        </td>
-    `;
-    tableBody.appendChild(newRow);
-}
-// Function to handle product purchases
-window.handleBuyProduct= async function (productKey, currentQuantity) {
-    if (currentQuantity > 0) {
-        const newQuantity = currentQuantity - 1;
-        try {
-            await updateDoc(doc(db, 'Products', productKey), { quantity: newQuantity });
-            updateCartCount();
-            showMessage('success', '✅ Congratulations! You successfully purchased the product! 🎉');
-        } catch (error) {
-            showMessage('error', `🚨 Error updating product quantity: ${error.message}`);
+            // Update the counter to increment the value for the next product
+            await updateDoc(counterRef, { currentId: increment(1) });
+
+            console.log(`Next productId: ${nextId}`);
+            return nextId;
+        } else {
+            // If the counter document doesn't exist, initialize it with 1
+            await setDoc(counterRef, { currentId: 1 });
+            console.log(`Initialized productId to 1`);
+            return 1;
         }
-    } else {
-        showMessage('error', '🚫 This product is currently out of stock. Please check back later!');
+    } catch (error) {
+        console.error("Error getting next productId:", error);
+        throw error;
     }
 }
 
-// Function to update the cart count (this is a placeholder)
-function updateCartCount() {
-    const cartCount = document.getElementById('cartCount');
-    cartCount.textContent = parseInt(cartCount.textContent) + 1; // Increment cart count
+// Function to add a product to Firestore
+async function addProductToCollection(userId, name, price, description, category, quantity, dateAdded, photoURL) {
+    try {
+        console.log("Adding product to Firestore...");
+        
+        // Get the next productId
+        const productId = await getNextProductId();
+
+        // Create a reference to the Products collection with the new productId
+        const newProductRef = doc(db, 'Products', productId.toString()); // Use the incremented productId as the document ID
+
+        // Set the new product data in Firestore
+        await setDoc(newProductRef, {
+            productId: productId, // Manually set the incremented productId
+            userId: userId,
+            name: name,
+            price: price,
+            description: description,
+            category: category,
+            quantity: quantity,
+            dateAdded: dateAdded,
+            photoURL: photoURL
+        });
+
+        console.log(`Product successfully added with productId: ${productId}`);
+    } catch (error) {
+        console.error("Error adding product to Firestore:", error);
+        throw new Error(`Error adding product to database: ${error.message}`);
+    }
 }
 
 // Function to display success/error messages
-
 function showMessage(type, message) {
     const messageContainer = document.getElementById('messageContainer');
-    const messageElement = document.createElement('div');
     
+    if (!messageContainer) {
+        console.error('messageContainer not found in the DOM.');
+        return;
+    }
+
+    const messageElement = document.createElement('div');
     messageElement.className = `message alert-${type}`;
     messageElement.textContent = message;
 
@@ -142,22 +158,11 @@ function showMessage(type, message) {
 
     // Hide the message after a few seconds
     setTimeout(() => {
-        messageContainer.removeChild(messageElement);
+        if (messageElement) {
+            messageContainer.removeChild(messageElement);
+        }
         if (messageContainer.childElementCount === 0) {
             messageContainer.style.display = 'none'; // Hide the container if empty
         }
     }, 5000); // Hide message after 5 seconds
 }
-
-window.showConfirmation = function(message, callback) {
-    document.getElementById('confirmationMessage').textContent = message;
-    
-    const confirmButton = document.getElementById('confirmButton');
-    confirmButton.onclick = function() {
-        callback();
-        $('#customConfirmationModal').modal('hide'); // Hide the modal
-    };
-    
-    $('#customConfirmationModal').modal('show'); // Show the modal
-}
-

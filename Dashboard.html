@@ -258,7 +258,7 @@
             </div>                 
         </section>
 
-    <!-- Gym Info Modal -->
+    <!-- Modal Structure for Gym Profile -->
     <div id="gymProfileModal" class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -292,26 +292,49 @@
     </div>
 
 
-
-        <!-- Trainer Profile Modal Structure -->
-        <div id="trainerProfileModal" class="modal fade" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <span class="modal-close" onclick="closeTrainerModal()" class="modal-close">&times;</span>
-                    <img id="modalTrainerPhoto" src="" alt="Trainer Photo" class="trainer-photo img-fluid">
-                    <h3 id="modalTrainerName"></h3>
-                    <p><strong>Experience:</strong> <span id="modalTrainerExperience"></span></p>
-                    <p><strong>Expertise:</strong> <span id="modalTrainerExpertise"></span></p>
-                    <p><strong>Available On:</strong> <span id="modalTrainerDays"></span></p>
-                    <p><strong>Rate Per:</strong> <span id="modalTrainerRate"></span></p>
-                    <div class="modal-buttons" style="margin-top: 20px;">
-                        <button class="btn btn-primary" onclick="viewTrainerDetails('Trainer Name')">View Details</button>
-                        <button class="btn btn-secondary" onclick="bookTrainer('Trainer Name')">Book now</button>
+    <!-- Trainer Info Modal -->
+    <div class="modal fade" id="trainerProfileModal" tabindex="-1" aria-labelledby="trainerProfileModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="modalTrainerName">Trainer Name</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+            <div class="row">
+                <!-- Trainer Photo -->
+                <div class="col-md-4 text-center">
+                <img id="modalTrainerPhoto" src="default-trainer-photo.jpg" alt="Trainer Photo" class="img-fluid rounded-circle">
+                </div>
+                <!-- Trainer Details -->
+                <div class="col-md-8">
+                <div class="row">
+                    <div class="col-md-6">
+                    <p><strong>Expertise:</strong> <span id="modalTrainerExpertise">N/A</span></p>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                        <p><strong>Days Available:</strong> <span id="modalTrainerDays">N/A</span></p>
+                        </div>
                     </div>
                 </div>
+                <div class="col-md-6">
+                    <p><strong>Rate:</strong> <span id="modalTrainerRate">N/A</span></p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Experience:</strong> <span id="modalTrainerExperience">N/A</span></p>
+                </div>
+                <!-- Book Now Button -->
+                <button id="bookNowButton" class="btn btn-primary mt-4">Book Now</button>
+                </div>
+            </div>
             </div>
         </div>
+        </div>
     </div>
+  
 
     <script>
    // Toggle dropdown on profile picture click
