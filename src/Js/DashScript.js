@@ -266,6 +266,14 @@ function displayMembershipPlans(plans) {
         });
     }
 
+    // Function to format time from 24-hour to 12-hour format with AM/PM
+function formatTime(time) {
+    const [hours, minutes] = time.split(':');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const formattedHours = hours % 12 || 12; // Convert to 12-hour format
+    return `${formattedHours}:${minutes} ${ampm}`;
+}
+
     // Function to open the Gym Info Modal
     window.viewMore = async function (gymId) {
         try {
@@ -285,6 +293,7 @@ function displayMembershipPlans(plans) {
                 const modalGymLocation = document.getElementById('modalGymLocation');
                 const modalGymEquipment = document.getElementById('modalGymEquipment');
                 const modalGymPrograms = document.getElementById('modalGymPrograms');
+                const modalGymEmail = document.getElementById('modalGymEmail'); 
                 const modalGymContact = document.getElementById('modalGymContact');
                 const modalPriceRate = document.getElementById('modalPriceRate');
                 const modalGymOpeningTime = document.getElementById('modalGymOpeningTime');
@@ -298,10 +307,18 @@ function displayMembershipPlans(plans) {
                 if (modalGymLocation) modalGymLocation.innerText = gymData.gymLocation || 'N/A';
                 if (modalGymEquipment) modalGymEquipment.innerText = gymData.gymEquipment || 'N/A';
                 if (modalGymPrograms) modalGymPrograms.innerText = gymData.gymPrograms || 'N/A';
+                if (modalGymEmail) modalGymEmail.innerText = gymData.email || 'N/A'; 
                 if (modalGymContact) modalGymContact.innerText = gymData.gymContact || 'N/A';
                 if (modalPriceRate) modalPriceRate.innerText = gymData.gymPriceRate || 'N/A';
-                if (modalGymOpeningTime) modalGymOpeningTime.innerText = gymData.gymOpeningTime || 'N/A';
-                if (modalGymClosingTime) modalGymClosingTime.innerText = gymData.gymClosingTime || 'N/A';
+                if (modalGymOpeningTime) {
+                    const openingTime = gymData.gymOpeningTime || 'N/A';
+                    modalGymOpeningTime.innerText = formatTime(openingTime); // Use formatTime function
+                }
+    
+                if (modalGymClosingTime) {
+                    const closingTime = gymData.gymClosingTime || 'N/A';
+                    modalGymClosingTime.innerText = formatTime(closingTime); // Use formatTime function
+                }
     
                 // Step 1: Clear previous trainers and products
                 trainersSection.innerHTML = ''; // Clear the section before populating new trainers
@@ -326,7 +343,7 @@ function displayMembershipPlans(plans) {
                                 <div class="trainer-card">
                                     <img src="${trainerData.TrainerPhoto || 'default-trainer-photo.jpg'}" alt="Trainer Photo" class="trainer-photo">
                                     <h5>${trainerData.TrainerName || 'No Name'}</h5>
-                                    <button class="btn btn-success" onclick="ViewTrainerInfo('${doc.id}')">View Info</button> <!-- View Info button -->
+                                    <button class="btn-custom btn-success" onclick="ViewTrainerInfo('${doc.id}')">Trainer Info</button> <!-- View Info button -->
                                 </div>
                             `;
                             // Append the trainer card to the trainers section

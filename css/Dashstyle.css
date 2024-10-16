@@ -200,6 +200,10 @@
     border: none;
     cursor: pointer;
     margin-top: 20px; /* Spacing above the button */
+    outline: none;
+}
+.gym-info-btn:focus {
+    outline: none; /* Remove outline when focused */
 }
 
 .gym-info-btn:hover {
@@ -208,7 +212,7 @@
 }
 .gym-title {
     color: #292929; /* Set the text color to black */
-    font-weight: bold; /* Optional: Make the text bold */
+    font-weight: bolder; /* Optional: Make the text bold */
     font-size: 1.25rem; /* Optional: Increase the font size */
     font-family: "Helvetica Neue", Arial, sans-serif;
     margin-bottom: 10px; /* Optional: Add some space below the title */
@@ -274,6 +278,12 @@
     font-size: 14px;
     color: #666;
 }
+.trainers-container{
+    display: flex;
+    flex-wrap: wrap; /* Cards will wrap to the next line if necessary */
+    gap: 20px; /* Space between cards */
+    justify-content: space-around; /* Distribute space between cards */
+}
 
 .book-now-button {
     background-color: #28a745;
@@ -292,3 +302,27 @@
     background-color: #218838;
 }
 
+strong{
+    color:#ffa31a;
+}
+.btn-custom{
+    border-radius: 10px; /* Adjust this value for the desired roundness */
+    padding: 10px 10px; /* Optional: Adjust padding for better button size */
+    background-color: #ffa31a; /* Ensure it retains the Bootstrap success color */
+    border: none; /* Optional: Remove border if not needed */
+    color: #ffffff; /* Ensure text is readable */
+    font-weight: bold; /* Make the text bold */
+    transition: background-color 0.3s ease; /* Smooth hover effect */
+    font-size: 12px;
+}
+
+.btn-custom:hover {
+    background-color: #cc8215; /* Darken the color on hover */
+    
+}
+h4 {
+    font-weight: bold; /* Makes the text bold */
+    color: white; /* Changes the text color to white */
+    font-size: 20px;
+    
+}
