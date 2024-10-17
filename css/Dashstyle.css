@@ -638,3 +638,44 @@ font-family: "Helvitica Neue", Arial, sans-serif;
     from { opacity: 0; }
     to { opacity: 1; }
 }
+/* Flexbox container to align quantity and stock info horizontally */
+.quantity-stock-container {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* Adjust the spacing between the quantity controls and the stock info */
+    margin-top: 10px;
+}
+
+#modalProductQuantity {
+    display: flex;
+    align-items: center;
+}
+
+.quantity-btn {
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    padding: 5px 10px;
+    font-size: 16px;
+    cursor: pointer;
+    outline: none;
+    width: 40px;
+    height: 38px;
+}
+
+.quantity-btn:hover {
+    background-color: #ddd;
+}
+
+#quantityInput {
+    width: 50px;
+    text-align: center;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    margin: 0 5px;
+    height: 38px;
+}
+
+.stock-info {
+    font-size: 14px;
+    color: gray;
+}

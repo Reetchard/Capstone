@@ -171,7 +171,6 @@ window.closeMembershipPlansModal = function() {
                 gymProfilesContainer.appendChild(gymDiv); // Append each gym profile to the container
             }
         });
-        viewMembershipPlans(gymProfileName);
     }
 
     // Function to format time from 24-hour to 12-hour format with AM/PM
@@ -280,12 +279,16 @@ function formatTime(time) {
                             const modalProductPrice = document.getElementById('modalProductPrice');
                             const modalProductDescription = document.getElementById('modalProductDescription');
                             const modalProductPhoto = document.getElementById('modalProductPhoto');
+                            const modalProductQuantity = document.getElementById('modalProductQuantity');
+                            const modalProductCategory = document.getElementById('modalProductCategory');
 
                             // Populate modal with product data
                             modalProductName.innerText = productData.name || 'Unnamed Product';
                             modalProductPrice.innerText = `Price: ₱${productData.price || 'N/A'}`;
                             modalProductDescription.innerText = productData.description || 'No description available.';
                             modalProductPhoto.src = productData.photoURL || 'default-product.jpg'; // Display the product's photo
+                            modalProductQuantity.innerText = productData.quantity ;
+                            modalProductCategory.innerText = productData.category ;
 
                             // Show the Product Info modal
                             $('#productModal').modal('show');
@@ -296,29 +299,35 @@ function formatTime(time) {
                         console.error('Error fetching product data:', error);
                     }
                 };
+                    // Fetch products and render them
+                    const productsQuery = query(
+                        collection(db, 'Products'),
+                        where('gymName', '==', gymProfileName) // Adjust 'gymName' accordingly if needed
+                    );
+                    const productsSnapshot = await getDocs(productsQuery);
 
-                // Fetch products and render them
-                const productsQuery = query(
-                    collection(db, 'Products'),
-                    where('gymName', '==', gymProfileName)
-                );
-                const productsSnapshot = await getDocs(productsQuery);
+                    if (!productsSnapshot.empty) {
+                        productsSnapshot.forEach(doc => {
+                            const productData = doc.data();
 
-                if (!productsSnapshot.empty) {
-                    productsSnapshot.forEach(doc => {
-                        const productData = doc.data();
-                        const productCard = `
-                            <div class="trainer-card">
-                                <img src="${productData.photoURL || 'default-product.jpg'}" alt="Product Photo" class="product-photo">
-                                <h5>${productData.name || 'Unnamed Product'}</h5>
-                                <button class="btn-custom btn-primary" onclick="ViewProductInfo('${doc.id}')"> View More</button>
-                            </div>
-                        `;
-                        productsSection.innerHTML += productCard;
-                    });
-                } else {
-                    productsSection.innerHTML = '<p>No products found for this gym.</p>';
-                }
+                            // Create the product card with additional fields (category, quantity, date added)
+                            const productCard = `
+                                <div class="trainer-card">
+                                    <img src="${productData.photoURL || 'default-product.jpg'}" alt="Product Photo" class="product-photo">
+                                    <h5>${productData.name || 'Unnamed Product'}</h5>
+                                    <p>Category: ${productData.category || 'N/A'}</p>
+                                    <p>Price: ${productData.price || 'N/A'}</p>
+                                    <button class="btn-custom btn-primary" onclick="ViewProductInfo('${doc.id}')">Check info</button>
+                                </div>
+                            `;
+
+                            // Append the card to the container
+                            productsSection.innerHTML += productCard;
+                        });
+                    } else {
+                        productsSection.innerHTML = '<p>No products found for this gym.</p>';
+                    }
+                    
 
                 // Fetch membership plans where gymName matches gymProfileName
                 const membershipPlansQuery = query(
@@ -365,27 +374,6 @@ function formatTime(time) {
             console.error('Error fetching document:', error);
                 }
     };
-    
-    
-    // Define the buyNow function
-    window.buyNow = function(photoURL, name, price, quantity) {
-        // Get the modal elements
-        const productPhoto = document.getElementById('productPhoto');
-        const productName = document.getElementById('productName');
-        const productPrice = document.getElementById('productPrice');
-        const productQuantity = document.getElementById('productQuantity');
-    
-        // Update modal with the product information
-        productPhoto.src = photoURL; // Set product photo
-        productName.textContent = name; // Set product name
-        productPrice.textContent = price; // Set product price
-        productQuantity.value = quantity; // Set initial quantity
-    
-        // Show the modal
-        $('#buyNowModal').modal('show');
-    }
-    
-    
 
     // Function to view trainer info in a new modal
     window.ViewTrainerInfo = async function (trainerId) {
@@ -558,7 +546,6 @@ function formatTime(time) {
     document.addEventListener('DOMContentLoaded', function() {
                 // Now all event listeners and modal functions are attached when DOM is ready
                 fetchGymProfiles();
-                fetchMembershipPlans();
                 showCheckoutModal();
                 viewProducts();
             // Fetch trainers when the page loads
