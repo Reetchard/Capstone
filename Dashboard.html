@@ -141,47 +141,57 @@
     
 
     <!-- Trainer Info Modal -->
-    <div class="modal fade" id="trainerProfileModal" tabindex="-1" aria-labelledby="trainerProfileModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+<div class="modal fade" id="trainerProfileModal" tabindex="-1" aria-labelledby="trainerProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-            <h5 class="modal-title" id="modalTrainerName">Trainer Name</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
+                
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
-            <div class="row">
-                <!-- Trainer Photo -->
-                <div class="col-md-4 text-center">
-                <img id="modalTrainerPhoto" src="framework/img/Profile.png" alt="Trainer Photo" class="img-fluid rounded-circle">
-                </div>
-                <!-- Trainer Details -->
-                <div class="col-md-8">
                 <div class="row">
-                    <div class="col-md-6">
-                    <p><strong>Expertise:</strong> <span id="modalTrainerExpertise">N/A</span></p>
+                    <!-- Trainer Photo -->
+                    <div class="col-md-4 text-center ">
+                        <img id="modalTrainerPhoto" src="framework/img/Profile.png" alt="Trainer Photo" class="trainer-photo-modal">
+                        <h5 class="modal-title" id="modalTrainerName">Trainer Name</h5>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                        <p><strong>Days Available:</strong> <span id="modalTrainerDays">N/A</span></p>
+                    <!-- Trainer Details -->
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Expertise:</strong>
+                                <p><span id="modalTrainerExpertise">N/A</span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Days Available:</strong>
+                                    <p><span id="modalTrainerDays">N/A</span></p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Rate:</strong>
+                                    <p><span id="modalTrainerRate">N/A</span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Experience:</strong>
+                                    <p><span id="modalTrainerExperience">N/A</span></p>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <p><strong>Rate:</strong> <span id="modalTrainerRate">N/A</span></p>
-                </div>
-                <div class="col-md-6">
-                    <p><strong>Experience:</strong> <span id="modalTrainerExperience">N/A</span></p>
-                </div>
-                <!-- Book Now Button -->
-                <button id="bookNowButton" class="btn btn-primary mt-4">Book Now</button>
-                </div>
             </div>
+            <!-- Book Now Button -->
+            <div class="modal-footer">
+                <button id="bookNowButton" class="btn-book btn-success mt-2">
+                    <i class="fas fa-calendar-check"></i> Book Now
+                </button>
             </div>
-        </div>
         </div>
     </div>
+</div>
+
     
     <!-- Product Modal -->
 <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
@@ -194,19 +204,37 @@
                 </button>
             </div>
             <div class="modal-body">
-                <img id="modalProductPhoto" src="default-product.jpg" alt="Product Photo" class="product-photo-modal">
-                <h3 id="modalProductName">Product Name</h3>
-                <p id="modalProductPrice">Price: ₱0.00</p>
-                <div class ="row">
-                    <p>Description: <span id="modalProductDescription">Description: No description available. </span></p>
+                <div class="row">
+                    <!-- Product Image -->
+                    <div class="col-md-4 text-center">
+                        <img id="modalProductPhoto" src="default-product.jpg" alt="Product Photo" class="product-photo-modal">
+                        <h3 id="modalProductName">N/A</h3>
+                        <p class="text-center"><strong>Price:</strong><span id="modalProductPrice">N/A</span></p>
+                    </div>
+
+                    <!-- Product Details -->
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <strong>Description:</strong>
+                                <p><span id="modalProductDescription">No description available.</span></p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <!-- Modal Footer -->
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary">Buy Now</button>
+                <button type="button" class="btn-book btn-success">
+                    <i class="fas fa-shopping-cart"></i> Buy Now
+                </button>
             </div>
         </div>
     </div>
 </div>
+
+    
     
 
 

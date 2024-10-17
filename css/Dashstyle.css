@@ -9,20 +9,28 @@
     overflow: hidden;
     transition: all 0.4s ease-in-out;
 }
+/* product and trainer close modal*/
+.close {
+    color: white; /* Change the color to white */
+}
 
+.close:hover {
+    color: #ffa31a; /* Optional: Change color on hover for better visibility */
+    text-decoration: none; /* Remove underline on hover if needed */
+}
 /* Close Button */
 .modal-close {
     position: absolute;
     top: 15px;
     right: 15px;
-    font-size: 30px;
+    font-size: 24px;
     cursor: pointer;
     color: #ccc;
     transition: color 0.3s ease-in-out;
 }
 
 .modal-close:hover {
-    color: #fff;
+    color: #ffa31a;
 }
 
 /* Title and Header */
@@ -40,6 +48,14 @@
     border-bottom: none;
     padding-bottom: 10px;
 }
+.modal-title {
+    font-size: 24px; /* Adjust the size as needed */
+    font-weight: bold; /* Makes the text bold */
+    text-align: center; /* Centers the text */
+    color: #e0e0e0; /* Optional: change the text color */
+    margin-top: 10px; /* Optional: add some space above the title */
+}
+
 
 /* Gym Photo */
 .gym-modal-photo {
@@ -67,9 +83,6 @@
     margin-bottom: 15px;
 }
 
-.modal-body strong {
-    color: #00bfff;
-}
 
 /* Modal Footer */
 .gym-modal-footer {
@@ -511,16 +524,6 @@ font-family: "Helvitica Neue", Arial, sans-serif;
     margin: auto;
     max-width: 1000px;
 }
-
-.modal-close {
-    cursor: pointer;
-    color: #aaa;
-    font-size: 24px;
-}
-
-.modal-close:hover {
-    color: #fff;
-}
 .modal-header h3 {
     text-align: center; /* Centers the text */
     font-weight: bold; /* Makes the font bold */
@@ -563,9 +566,12 @@ font-family: "Helvitica Neue", Arial, sans-serif;
 }
 
 .product-photo-modal {
-    width: 120px; /* Set a smaller width for the image */
+    width: 150px; /* Set a smaller width for the image */
     height: auto;
     border-radius: 10px;
+    border: 2px solid #ffa31a;
+    display: block; /* Make the image a block element */
+    margin: 0 auto; /* Center the image */
 }
 
 .product-info {
@@ -579,6 +585,18 @@ font-family: "Helvitica Neue", Arial, sans-serif;
 
 .product-info p {
     margin: 5px 0; /* Add small margins for the product price and description */
+}
+
+.trainer-photo-modal{
+    width: 200px;
+    height: auto;
+    border-radius: 10px;
+    border: 2px solid #ffa31a;
+}
+#modalProductName {
+    text-align: center;  /* Center the text */
+    font-weight: bold;   /* Make it bold */
+    color: #e0e0e0;      /* Light gray color for visibility */
 }
 
 

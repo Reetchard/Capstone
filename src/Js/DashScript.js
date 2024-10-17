@@ -304,7 +304,7 @@ window.ViewProductInfo = async function(productId) {
 
             // Populate modal with product data
             modalProductName.innerText = productData.name || 'Unnamed Product';
-            modalProductPrice.innerText = `Price: ₱${productData.price || 'N/A'}`;
+            modalProductPrice.innerText = ` ₱${productData.price || 'N/A'}`;
             modalProductDescription.innerText = productData.description || 'No description available.';
             modalProductPhoto.src = productData.photoURL || 'default-product.jpg'; // Display the product's photo
 
