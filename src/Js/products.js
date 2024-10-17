@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js";
-import { getFirestore, collection, addDoc, doc, setDoc, getDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-firestore.js"; // Added getDoc, updateDoc, increment
+import { getFirestore, collection, addDoc, doc, setDoc, getDocs ,getDoc , orderBy, query , limit } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-firestore.js"; // Added getDoc, updateDoc, increment
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-auth.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-storage.js";
 
@@ -57,65 +57,82 @@ document.addEventListener('DOMContentLoaded', function () {
         const quantity = parseInt(document.getElementById('productQuantity').value, 10);
         const dateAdded = new Date().toISOString(); // Current date
 
-        if (photo) {
-            const storageRef = ref(storage, 'productPhotos/' + photo.name);
-            try {
-                // Upload the photo and get the download URL
-                await uploadBytes(storageRef, photo);
-                const downloadURL = await getDownloadURL(storageRef);
+        try {
+            // Step 1: Fetch the GymName of the current gym owner from Firestore
+            const userDocRef = doc(db, 'Users', currentUserId);
+            const userDoc = await getDoc(userDocRef);
 
-                // Add product to the Firestore with gym owner userId
-                await addProductToCollection(currentUserId, name, price, description, category, quantity, dateAdded, downloadURL);
+            if (userDoc.exists()) {
+                const gymOwnerData = userDoc.data();
+                const gymName = gymOwnerData.gymName || 'Unknown Gym'; // Fallback in case gymName is not found
 
-                // Hide the loading spinner
-                loadingSpinner.style.display = 'none';
+                if (photo) {
+                    const storageRef = ref(storage, 'productPhotos/' + photo.name);
 
-                showMessage('success', '✅ Hooray! Your product has been successfully added! 🎉');
-            } catch (error) {
+                    // Upload the photo and get the download URL
+                    await uploadBytes(storageRef, photo);
+                    const downloadURL = await getDownloadURL(storageRef);
+
+                    // Step 2: Add product to Firestore with userId and gymName
+                    await addProductToCollection(currentUserId, gymName, name, price, description, category, quantity, dateAdded, downloadURL);
+
+                    // Hide the loading spinner
+                    loadingSpinner.style.display = 'none';
+                    showMessage('success', '✅ Hooray! Your product has been successfully added! 🎉');
+                } else {
+                    loadingSpinner.style.display = 'none'; // Hide spinner
+                    showMessage('error', '📸 Please select a photo to upload.');
+                }
+            } else {
                 loadingSpinner.style.display = 'none'; // Hide spinner
-                showMessage('error', `🚨 Oops! There was an error uploading your photo: ${error.message}`);
+                showMessage('error', 'User not found. Please check your account.');
             }
-        } else {
+        } catch (error) {
             loadingSpinner.style.display = 'none'; // Hide spinner
-            showMessage('error', '📸 Please select a photo to upload.');
+            showMessage('error', `🚨 Oops! There was an error: ${error.message}`);
         }
     });
 });
 
 // Function to get the next productId
-async function getNextProductId() {
+async function addProduct(productData) {
     try {
-        const counterRef = doc(db, 'Counters', 'Products'); // Reference to the product counter document
-        const counterDoc = await getDoc(counterRef);
+        const productsRef = collection(db, 'Products');
 
-        if (counterDoc.exists()) {
-            const currentId = counterDoc.data().currentId;
-            const nextId = currentId + 1;
+        // Query to get the product with the highest productId
+        const latestProductQuery = query(productsRef, orderBy('productId', 'desc'), limit(1));
+        const querySnapshot = await getDocs(latestProductQuery);
 
-            // Update the counter to increment the value for the next product
-            await updateDoc(counterRef, { currentId: increment(1) });
+        let newProductId = 1; // Default to 1 if no products exist
 
-            console.log(`Next productId: ${nextId}`);
-            return nextId;
-        } else {
-            // If the counter document doesn't exist, initialize it with 1
-            await setDoc(counterRef, { currentId: 1 });
-            console.log(`Initialized productId to 1`);
-            return 1;
+        if (!querySnapshot.empty) {
+            const lastProduct = querySnapshot.docs[0];
+            const lastProductId = lastProduct.data().productId;
+
+            newProductId = lastProductId + 1; // Increment the last productId
         }
+
+        // Add the new product with the incremented productId
+        const newProductRef = await addDoc(productsRef, {
+            ...productData,
+            productId: newProductId
+        });
+
+        console.log(`Added new product with ID: ${newProductId} (document ID: ${newProductRef.id})`);
+        return newProductId;
     } catch (error) {
-        console.error("Error getting next productId:", error);
+        console.error("Error adding new product:", error);
         throw error;
     }
 }
 
 // Function to add a product to Firestore
-async function addProductToCollection(userId, name, price, description, category, quantity, dateAdded, photoURL) {
+async function addProductToCollection(userId, gymName, name, price, description, category, quantity, dateAdded, photoURL) {
     try {
         console.log("Adding product to Firestore...");
-        
+
         // Get the next productId
-        const productId = await getNextProductId();
+        const productId = await addProduct();
 
         // Create a reference to the Products collection with the new productId
         const newProductRef = doc(db, 'Products', productId.toString()); // Use the incremented productId as the document ID
@@ -124,6 +141,7 @@ async function addProductToCollection(userId, name, price, description, category
         await setDoc(newProductRef, {
             productId: productId,      // Manually set the incremented productId
             userId: userId,            // Set the userId as the gym owner's UID (currentUserId)
+            gymName: gymName,          // Set the gymName of the gym owner
             name: name,
             price: price,
             description: description,
@@ -143,7 +161,7 @@ async function addProductToCollection(userId, name, price, description, category
 // Function to display success/error messages
 function showMessage(type, message) {
     const messageContainer = document.getElementById('messageContainer');
-    
+
     if (!messageContainer) {
         console.error('messageContainer not found in the DOM.');
         return;
