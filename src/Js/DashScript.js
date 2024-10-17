@@ -291,7 +291,7 @@ function formatTime(time) {
 
                             // Populate modal with product data
                             modalProductName.innerText = productData.name || 'Unnamed Product';
-                            modalProductPrice.innerText = `Price: ₱${productData.price || 'N/A'}`;
+                            modalProductPrice.innerText = ` ₱${productData.price || 'N/A'}`;
                             modalProductDescription.innerText = productData.description || 'No description available.';
                             modalProductPhoto.src = productData.photoURL || 'default-product.jpg'; // Display the product's photo
                             modalProductQuantity.innerText = productData.quantity ;
@@ -323,8 +323,8 @@ function formatTime(time) {
                                 <div class="trainer-card">
                                     <img src="${productData.photoURL || 'default-product.jpg'}" alt="Product Photo" class="product-photo">
                                     <h5>${productData.name || 'Unnamed Product'}</h5>
-                                    <p>Category: ${productData.category || 'N/A'}</p>
-                                    <p>Price: ${productData.price || 'N/A'}</p>
+                                    <!-- <p>Category: ${productData.category || 'N/A'}</p> -->
+                                    <!-- <p>Price: ${productData.price || 'N/A'}</p> -->
                                     <button class="btn-custom btn-primary" onclick="ViewProductInfo('${doc.id}')">Check info</button>
                                 </div>
                             `;
