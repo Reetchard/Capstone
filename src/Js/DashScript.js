@@ -56,27 +56,6 @@ window.addEventListener('click', function(event) {
     }
 });
 
-document.querySelectorAll('.nav_link').forEach((link) => {
-    link.addEventListener('click', (e) => {
-        e.preventDefault();
-        
-        // Ensure the clicked link exists and has a target section
-        const targetSection = document.querySelector(`#${link.getAttribute('data-target')}`);
-        
-        if (targetSection) {
-            // Hide all other sections
-            document.querySelectorAll('.section').forEach((section) => {
-                section.classList.remove('active');
-            });
-
-            // Show the target section
-            targetSection.classList.add('active');
-        } else {
-            console.error("Target section not found for link:", link);
-        }
-    });
-});
-
 document.addEventListener('DOMContentLoaded', () => {
     // Wait until the DOM is fully loaded before accessing elements
     onAuthStateChanged(auth, async (user) => {
@@ -185,7 +164,7 @@ window.closeMembershipPlansModal = function() {
                     <img src="${gym.gymPhoto || 'default-photo.jpg'}" alt="${gym.gymName || 'Gym'}" class="card-img-top gym-photo" />
                     <div class="card-body">
                         <h5 class="card-title gym-title">${gym.gymName || 'N/A'}</h5>
-                        <button class="gym-info-btn" onclick="viewMore('${gym.id}')">Gym Info</button>
+                        <button class="btn-custom btn-primary view-more-btn" onclick="viewMore('${gym.id}')">Gym Info</button>
                     </div>
                 `;
 
@@ -205,6 +184,7 @@ function formatTime(time) {
 
     // Function to open the Gym Info Modal
     window.viewMore = async function (gymId) {
+
         try {
             // Fetch the gym document from Firestore using gymId (which is the document's ID)
             const gymDocRef = doc(db, 'Users', gymId);
@@ -212,7 +192,6 @@ function formatTime(time) {
     
             if (gymDoc.exists()) {
                 const gymData = gymDoc.data();
-    
                 // Get gym name from the gym profile (gym owner's gym)
                 const gymProfileName = gymData.gymName;
     
@@ -284,23 +263,24 @@ function formatTime(time) {
                     trainersSection.innerHTML = '<p>No trainers found for this gym.</p>';
                 }
     
-      // Function to view product info in a new modal
-window.ViewProductInfo = async function(productId) {
-    try {
-        $('.modal').modal('hide'); // This will hide any open modals
+                    // Function to view product info in a new modal
+                window.ViewProductInfo = async function(productId) {
+                    try {
+                        $('.modal').modal('hide'); // This will hide any open modals
 
-        // Fetch product data by ID
-        const productDocRef = doc(db, 'Products', productId);
-        const productDoc = await getDoc(productDocRef);
+                        // Fetch product data by ID
+                        const productDocRef = doc(db, 'Products', productId);
+                        const productDoc = await getDoc(productDocRef);
 
-        if (productDoc.exists()) {
-            const productData = productDoc.data();
+                        if (productDoc.exists()) {
+                            const productData = productDoc.data();
 
-            // Ensure modal elements exist
-            const modalProductName = document.getElementById('modalProductName');
-            const modalProductPrice = document.getElementById('modalProductPrice');
-            const modalProductDescription = document.getElementById('modalProductDescription');
-            const modalProductPhoto = document.getElementById('modalProductPhoto');
+                            // Ensure modal elements exist
+                            const modalProductName = document.getElementById('modalProductName');
+                            const modalProductPrice = document.getElementById('modalProductPrice');
+                            const modalProductDescription = document.getElementById('modalProductDescription');
+                            const modalProductPhoto = document.getElementById('modalProductPhoto');
+
 
             // Populate modal with product data
             modalProductName.innerText = productData.name || 'Unnamed Product';
@@ -308,40 +288,46 @@ window.ViewProductInfo = async function(productId) {
             modalProductDescription.innerText = productData.description || 'No description available.';
             modalProductPhoto.src = productData.photoURL || 'default-product.jpg'; // Display the product's photo
 
-            // Show the Product Info modal
-            $('#productModal').modal('show');
-        } else {
-            console.error('Product not found!');
-        }
-    } catch (error) {
-        console.error('Error fetching product data:', error);
-    }
-};
+                            // Populate modal with product data
+                            modalProductName.innerText = productData.name || 'Unnamed Product';
+                            modalProductPrice.innerText = `Price: ₱${productData.price || 'N/A'}`;
+                            modalProductDescription.innerText = productData.description || 'No description available.';
+                            modalProductPhoto.src = productData.photoURL || 'default-product.jpg'; // Display the product's photo
 
-// Fetch products and render them
-const productsQuery = query(
-    collection(db, 'Products'),
-    where('gymName', '==', gymProfileName)
-);
-const productsSnapshot = await getDocs(productsQuery);
 
-if (!productsSnapshot.empty) {
-    productsSnapshot.forEach(doc => {
-        const productData = doc.data();
-        const productCard = `
-            <div class="trainer-card">
-                <img src="${productData.photoURL || 'default-product.jpg'}" alt="Product Photo" class="product-photo">
-                <h5>${productData.name || 'Unnamed Product'}</h5>
-                <button class="btn-custom btn-primary" onclick="ViewProductInfo('${doc.id}')"> View More</button>
-            </div>
-        `;
-        productsSection.innerHTML += productCard;
-    });
-} else {
-    productsSection.innerHTML = '<p>No products found for this gym.</p>';
-}
+                            // Show the Product Info modal
+                            $('#productModal').modal('show');
+                        } else {
+                            console.error('Product not found!');
+                        }
+                    } catch (error) {
+                        console.error('Error fetching product data:', error);
+                    }
+                };
 
-    
+                // Fetch products and render them
+                const productsQuery = query(
+                    collection(db, 'Products'),
+                    where('gymName', '==', gymProfileName)
+                );
+                const productsSnapshot = await getDocs(productsQuery);
+
+                if (!productsSnapshot.empty) {
+                    productsSnapshot.forEach(doc => {
+                        const productData = doc.data();
+                        const productCard = `
+                            <div class="trainer-card">
+                                <img src="${productData.photoURL || 'default-product.jpg'}" alt="Product Photo" class="product-photo">
+                                <h5>${productData.name || 'Unnamed Product'}</h5>
+                                <button class="btn-custom btn-primary" onclick="ViewProductInfo('${doc.id}')"> View More</button>
+                            </div>
+                        `;
+                        productsSection.innerHTML += productCard;
+                    });
+                } else {
+                    productsSection.innerHTML = '<p>No products found for this gym.</p>';
+                }
+
                 // Fetch membership plans where gymName matches gymProfileName
                 const membershipPlansQuery = query(
                     collection(db, 'MembershipPlans'),
@@ -385,10 +371,27 @@ if (!productsSnapshot.empty) {
             }
         } catch (error) {
             console.error('Error fetching document:', error);
-        }
+                }
     };
     
     
+    // Define the buyNow function
+    window.buyNow = function(photoURL, name, price, quantity) {
+        // Get the modal elements
+        const productPhoto = document.getElementById('productPhoto');
+        const productName = document.getElementById('productName');
+        const productPrice = document.getElementById('productPrice');
+        const productQuantity = document.getElementById('productQuantity');
+    
+        // Update modal with the product information
+        productPhoto.src = photoURL; // Set product photo
+        productName.textContent = name; // Set product name
+        productPrice.textContent = price; // Set product price
+        productQuantity.value = quantity; // Set initial quantity
+    
+        // Show the modal
+        $('#buyNowModal').modal('show');
+    }
     
     
 
@@ -771,43 +774,6 @@ if (!productsSnapshot.empty) {
             messageInput.value = ""; // Clear input after sending
         }
     };
-
-    // Function to show the correct section
-    document.querySelectorAll('.nav-link').forEach(navLink => {
-        navLink.addEventListener('click', function(e) {
-            e.preventDefault();
-    
-            const target = this.getAttribute('data-target');
-            const section = document.getElementById(target);
-    
-            // Check if the section exists before modifying its classList
-            if (section) {
-                showSection(target);
-            } else {
-                console.error(`Section with ID '${target}' not found.`);
-            }
-        });
-    });
-    
-    // Function to show the correct section
-    function showSection(sectionId) {
-        // Hide all sections
-        document.querySelectorAll('.section').forEach(section => {
-            section.classList.remove('active');
-        });
-
-        const targetSection = document.getElementById(sectionId);
-        if (targetSection) {
-            targetSection.classList.add('active');
-        } else {
-            console.error(`Section with ID '${sectionId}' not found.`);
-        }
-    }
-
-    // Show Gym Profile section by default when the page loads
-    window.onload = function() {
-        showSection('gym-profile');
-    };
     
     async function fetchUserNotifications(userId) {
         try {
@@ -884,4 +850,59 @@ if (!productsSnapshot.empty) {
                 console.error('Error marking notification as read:', error);
             }
         }
+        // Function to show the global spinner
+        function showSpinner() {
+            const spinner = document.getElementById('globalSpinner');
+            if (spinner) {
+                spinner.style.display = 'flex'; // Show spinner
+            }
+        }
 
+        // Function to hide the global spinner
+        function hideSpinner() {
+            const spinner = document.getElementById('globalSpinner');
+            if (spinner) {
+                spinner.style.display = 'none'; // Hide spinner
+            }
+        }
+
+        // Add event listeners to all navigation links with a 1.5-second delay
+        document.querySelectorAll('.nav-link').forEach(navLink => {
+            navLink.addEventListener('click', function(event) {
+                event.preventDefault(); // Prevent immediate navigation
+                showSpinner();
+
+                // Simulate loading with a 1.5-second delay
+                setTimeout(() => {
+                    hideSpinner();
+                    window.location.href = navLink.href; // Proceed to the link
+                }, 500); // 1.5 seconds delay
+            });
+        });
+
+        // Add event listeners to all buttons with a 2-second delay
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', function(event) {
+                showSpinner();
+
+                // Simulate loading with a 2-second delay
+                setTimeout(() => {
+                    hideSpinner();
+                }, 1500); // 2 seconds delay
+            });
+        });
+
+        // Event delegation to handle dynamically generated elements like product cards, membership plans, and view-more buttons
+        document.addEventListener('click', function(event) {
+            const target = event.target;
+
+            // Check if the target is a "View More" or any dynamically generated button
+            if (target.matches('.view-more-btn') || target.matches('.membership-plan-btn') || target.matches('.product-card-btn')) {
+                showSpinner();
+
+                // Simulate loading with a 2-second delay for these buttons
+                setTimeout(() => {
+                    hideSpinner();
+                }, 1500); // 2 seconds delay
+            }
+        });

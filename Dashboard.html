@@ -35,11 +35,12 @@
                     <i class="fas fa-user-friends"></i> Membership Status
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#notifications">
-                    <i class="fas fa-bell"></i> Notification
+            <li class="nav-item position-relative">
+                <a class="nav-link" href="#" data-toggle="modal" data-target="#notificationModal">
+                  <i class="fas fa-bell"></i> Notifications
+                  <span id="notification-count" class="badge badge-danger position-absolute" style="right: 10px; top: 5px;">0</span>
                 </a>
-            </li>
+              </li>              
             <li class="nav-item">
                 <a class="nav-link" href="#messages">
                     <i class="fas fa-comments"></i> Message
@@ -189,52 +190,57 @@
                 </button>
             </div>
         </div>
+        </div>
     </div>
-</div>
-
     
     <!-- Product Modal -->
 <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="productModalLabel">Product Information</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+            <h5 class="modal-title" id="modalProductName">Unnamed Product</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
             </div>
             <div class="modal-body">
-                <div class="row">
-                    <!-- Product Image -->
-                    <div class="col-md-4 text-center">
-                        <img id="modalProductPhoto" src="default-product.jpg" alt="Product Photo" class="product-photo-modal">
-                        <h3 id="modalProductName">N/A</h3>
-                        <p class="text-center"><strong>Price:</strong><span id="modalProductPrice">N/A</span></p>
-                    </div>
-
-                    <!-- Product Details -->
-                    <div class="col-md-8">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <strong>Description:</strong>
-                                <p><span id="modalProductDescription">No description available.</span></p>
-                            </div>
-                        </div>
-                    </div>
+            <img id="modalProductPhoto" src="default-product.jpg" alt="Product Photo" class="img-fluid mb-3">
+            <p id="modalProductPrice">Price: ₱N/A</p>
+            <p id="modalProductDescription">No description available.</p>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-success" onclick="buyNow()">Buy Now</button>
+            </div>
+        </div>
+        </div>
+    </div>
+      <!--modal buy button for product-->
+      <div class="modal fade" id="buyNowModal" tabindex="-1" aria-labelledby="buyNowModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="buyNowModalLabel">Buy Product</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <img id="modalProductPhoto" src="default-product.jpg" alt="Product Photo" class="product-photo-modal">
+                <h3 id="modalProductName">Product Name</h3>
+                <p id="modalProductPrice">Price: ₱0.00</p>
+                <div class ="row">
+                    <p>Description: <span id="modalProductDescription">Description: No description available. </span></p>
                 </div>
             </div>
 
             <!-- Modal Footer -->
             <div class="modal-footer">
-                <button type="button" class="btn-book btn-success">
-                    <i class="fas fa-shopping-cart"></i> Buy Now
-                </button>
+                <button type="button" class="btn btn-primary">Buy Now</button>
             </div>
         </div>
     </div>
 </div>
-
-    
     
 
 
