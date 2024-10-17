@@ -282,6 +282,13 @@ function formatTime(time) {
                             const modalProductQuantity = document.getElementById('modalProductQuantity');
                             const modalProductCategory = document.getElementById('modalProductCategory');
 
+
+            // Populate modal with product data
+            modalProductName.innerText = productData.name || 'Unnamed Product';
+            modalProductPrice.innerText = ` ₱${productData.price || 'N/A'}`;
+            modalProductDescription.innerText = productData.description || 'No description available.';
+            modalProductPhoto.src = productData.photoURL || 'default-product.jpg'; // Display the product's photo
+
                             // Populate modal with product data
                             modalProductName.innerText = productData.name || 'Unnamed Product';
                             modalProductPrice.innerText = `Price: ₱${productData.price || 'N/A'}`;
@@ -289,6 +296,7 @@ function formatTime(time) {
                             modalProductPhoto.src = productData.photoURL || 'default-product.jpg'; // Display the product's photo
                             modalProductQuantity.innerText = productData.quantity ;
                             modalProductCategory.innerText = productData.category ;
+
 
                             // Show the Product Info modal
                             $('#productModal').modal('show');

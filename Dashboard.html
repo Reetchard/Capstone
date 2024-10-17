@@ -142,43 +142,52 @@
     
 
     <!-- Trainer Info Modal -->
-    <div class="modal fade" id="trainerProfileModal" tabindex="-1" aria-labelledby="trainerProfileModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+<div class="modal fade" id="trainerProfileModal" tabindex="-1" aria-labelledby="trainerProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-            <h5 class="modal-title" id="modalTrainerName">Trainer Name</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
+                
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
-            <div class="row">
-                <!-- Trainer Photo -->
-                <div class="col-md-4 text-center">
-                <img id="modalTrainerPhoto" src="framework/img/Profile.png" alt="Trainer Photo" class="img-fluid rounded-circle">
-                </div>
-                <!-- Trainer Details -->
-                <div class="col-md-8">
                 <div class="row">
-                    <div class="col-md-6">
-                    <p><strong>Expertise:</strong> <span id="modalTrainerExpertise">N/A</span></p>
+                    <!-- Trainer Photo -->
+                    <div class="col-md-4 text-center ">
+                        <img id="modalTrainerPhoto" src="framework/img/Profile.png" alt="Trainer Photo" class="trainer-photo-modal">
+                        <h5 class="modal-title" id="modalTrainerName">Trainer Name</h5>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                        <p><strong>Days Available:</strong> <span id="modalTrainerDays">N/A</span></p>
+                    <!-- Trainer Details -->
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Expertise:</strong>
+                                <p><span id="modalTrainerExpertise">N/A</span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Days Available:</strong>
+                                    <p><span id="modalTrainerDays">N/A</span></p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Rate:</strong>
+                                    <p><span id="modalTrainerRate">N/A</span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Experience:</strong>
+                                    <p><span id="modalTrainerExperience">N/A</span></p>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <p><strong>Rate:</strong> <span id="modalTrainerRate">N/A</span></p>
-                </div>
-                <div class="col-md-6">
-                    <p><strong>Experience:</strong> <span id="modalTrainerExperience">N/A</span></p>
-                </div>
-                <!-- Book Now Button -->
-                <button id="bookNowButton" class="btn btn-primary mt-4">Book Now</button>
-                </div>
             </div>
+            <!-- Book Now Button -->
+            <div class="modal-footer">
+                <button id="bookNowButton" class="btn-book btn-success mt-2">
+                    <i class="fas fa-calendar-check"></i> Book Now
+                </button>
             </div>
         </div>
         </div>
@@ -203,50 +212,60 @@
           </div>
         </div>
       </div>      
-        <!-- Product Info Modal -->
-        <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modalProductName">Unnamed Product</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <img id="modalProductPhoto" src="default-product.jpg" alt="Product Photo" class="img-fluid mb-3">
-                                <p id="modalProductDescription">No description available.</p>
-                            </div>
-                            <div class="col-md-6">
-                                <p id="modalProductCategory">Category: N/A</p>
-                                <p id="modalProductPrice">Price: ₱<span id="priceValue">N/A</span></p>
-                                <!-- Flexbox container for Quantity and Available Stock -->
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <button class="btn btn-secondary" onclick="decrementQuantity()">-</button>
-                                        <input type="number" id="quantityInput" value="" min="1" class="form-control mx-2 text-center" style="width: 60px;" readonly>
-                                        <button class="btn btn-secondary" onclick="incrementQuantity()">+</button>
-                                    </div>
-                                    <p id="modalProductQuantity" class="stock-info mb-0">
-                                        <span id="stockValue">N/A</span> Pieces Available
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-success" onclick="buyNow()">Buy Now</button>
-                    </div>
-                </div>
+         <!-- Product Info Modal -->
+    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="modalProductName">Unnamed Product</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+            <img id="modalProductPhoto" src="default-product.jpg" alt="Product Photo" class="img-fluid mb-3">
+            <p id="modalProductPrice">Price: ₱N/A</p>
+            <p id="modalProductDescription">No description available.</p>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-success" onclick="buyNow()">Buy Now</button>
             </div>
         </div>
-        
-
-        
-  
+        </div>
+    </div>
+      <!--modal buy button for product-->
+      <div class="modal fade" id="buyNowModal" tabindex="-1" aria-labelledby="buyNowModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="buyNowModalLabel">Buy Product</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+                <!-- Product Image -->
+                <div class="col-md-4 text-center">
+                  <img id="productPhoto" src="" alt="Product Photo" class="img-fluid">
+                </div>
+                <!-- Product Details -->
+                <div class="col-md-8">
+                  <h4 id="productName">Product Name</h4>
+                  <p><strong>Price:</strong> ₱<span id="productPrice">0</span></p>
+                  <label for="productQuantity">Quantity:</label>
+                  <input type="number" id="productQuantity" class="form-control" min="1" value="1">
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-success">Proceed to Checkout</button>
+            </div>
+          </div>
+        </div>
+    </div>
     <!-- Global Spinner Loader -->
     <div id="globalSpinner" class="spinner-overlay" style="display: none;">
         <div class="spinner-container">
@@ -278,27 +297,7 @@
         </div>
         </div>
     </div>
-        <!-- Confirmation Modal -->
-    <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="confirmationModalLabel">Confirm Purchase</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p id="confirmationMessage">Are you sure you want to buy this product?</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="confirmPurchaseBtn">Yes, Buy Now</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    
 
 
     <!-- Include jQuery before Bootstrap JS -->
