@@ -56,27 +56,6 @@ window.addEventListener('click', function(event) {
     }
 });
 
-document.querySelectorAll('.nav_link').forEach((link) => {
-    link.addEventListener('click', (e) => {
-        e.preventDefault();
-        
-        // Ensure the clicked link exists and has a target section
-        const targetSection = document.querySelector(`#${link.getAttribute('data-target')}`);
-        
-        if (targetSection) {
-            // Hide all other sections
-            document.querySelectorAll('.section').forEach((section) => {
-                section.classList.remove('active');
-            });
-
-            // Show the target section
-            targetSection.classList.add('active');
-        } else {
-            console.error("Target section not found for link:", link);
-        }
-    });
-});
-
 document.addEventListener('DOMContentLoaded', () => {
     // Wait until the DOM is fully loaded before accessing elements
     onAuthStateChanged(auth, async (user) => {
@@ -356,6 +335,23 @@ function formatTime(time) {
     };
     
     
+    // Define the buyNow function
+    window.buyNow = function(photo, name, price, quantity) {
+        // Get the modal elements
+        const productPhoto = document.getElementById('productPhoto');
+        const productName = document.getElementById('productName');
+        const productPrice = document.getElementById('productPrice');
+        const productQuantity = document.getElementById('productQuantity');
+    
+        // Update modal with the product information
+        productPhoto.src = photo; // Set product photo
+        productName.textContent = name; // Set product name
+        productPrice.textContent = price; // Set product price
+        productQuantity.value = quantity; // Set initial quantity
+    
+        // Show the modal
+        $('#buyNowModal').modal('show');
+    }
     
     
 
@@ -737,43 +733,6 @@ function formatTime(time) {
             messagesContainer.appendChild(messageElement);
             messageInput.value = ""; // Clear input after sending
         }
-    };
-
-    // Function to show the correct section
-    document.querySelectorAll('.nav-link').forEach(navLink => {
-        navLink.addEventListener('click', function(e) {
-            e.preventDefault();
-    
-            const target = this.getAttribute('data-target');
-            const section = document.getElementById(target);
-    
-            // Check if the section exists before modifying its classList
-            if (section) {
-                showSection(target);
-            } else {
-                console.error(`Section with ID '${target}' not found.`);
-            }
-        });
-    });
-    
-    // Function to show the correct section
-    function showSection(sectionId) {
-        // Hide all sections
-        document.querySelectorAll('.section').forEach(section => {
-            section.classList.remove('active');
-        });
-
-        const targetSection = document.getElementById(sectionId);
-        if (targetSection) {
-            targetSection.classList.add('active');
-        } else {
-            console.error(`Section with ID '${sectionId}' not found.`);
-        }
-    }
-
-    // Show Gym Profile section by default when the page loads
-    window.onload = function() {
-        showSection('gym-profile');
     };
     
     async function fetchUserNotifications(userId) {
