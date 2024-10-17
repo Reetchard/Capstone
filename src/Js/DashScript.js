@@ -263,30 +263,63 @@ function formatTime(time) {
                     trainersSection.innerHTML = '<p>No trainers found for this gym.</p>';
                 }
     
-                // Fetch products from the global "Products" collection
-                const productsQuery = query(
-                    collection(db, 'Products'), // Query from a global Products collection
-                    where('gymName', '==', gymProfileName) // Match products by gymName
-                );
-                const productsSnapshot = await getDocs(productsQuery);
-    
-                if (!productsSnapshot.empty) {
-                    productsSnapshot.forEach(doc => {
-                        const productData = doc.data();
-                        const productCard = `
-                            <div class="product-card">
-                                <img src="${productData.photoURL || 'default-product.jpg'}" alt="Product Photo" class="product-photo">
-                                <h5>${productData.name || 'Unnamed Product'}</h5>
-                                <p>Price: ₱${productData.price || 'N/A'}</p>
-                                <p>${productData.description || 'No description available.'}</p>
-                                <button class="btn-custom btn-primary" onclick="buyNow('${doc.id}')">Buy Now</button>
-                            </div>
-                        `;
-                        productsSection.innerHTML += productCard;
-                    });
-                } else {
-                    productsSection.innerHTML = '<p>No products found for this gym.</p>';
-                }
+      // Function to view product info in a new modal
+window.ViewProductInfo = async function(productId) {
+    try {
+        $('.modal').modal('hide'); // This will hide any open modals
+
+        // Fetch product data by ID
+        const productDocRef = doc(db, 'Products', productId);
+        const productDoc = await getDoc(productDocRef);
+
+        if (productDoc.exists()) {
+            const productData = productDoc.data();
+
+            // Ensure modal elements exist
+            const modalProductName = document.getElementById('modalProductName');
+            const modalProductPrice = document.getElementById('modalProductPrice');
+            const modalProductDescription = document.getElementById('modalProductDescription');
+            const modalProductPhoto = document.getElementById('modalProductPhoto');
+
+            // Populate modal with product data
+            modalProductName.innerText = productData.name || 'Unnamed Product';
+            modalProductPrice.innerText = `Price: ₱${productData.price || 'N/A'}`;
+            modalProductDescription.innerText = productData.description || 'No description available.';
+            modalProductPhoto.src = productData.photoURL || 'default-product.jpg'; // Display the product's photo
+
+            // Show the Product Info modal
+            $('#productModal').modal('show');
+        } else {
+            console.error('Product not found!');
+        }
+    } catch (error) {
+        console.error('Error fetching product data:', error);
+    }
+};
+
+// Fetch products and render them
+const productsQuery = query(
+    collection(db, 'Products'),
+    where('gymName', '==', gymProfileName)
+);
+const productsSnapshot = await getDocs(productsQuery);
+
+if (!productsSnapshot.empty) {
+    productsSnapshot.forEach(doc => {
+        const productData = doc.data();
+        const productCard = `
+            <div class="trainer-card">
+                <img src="${productData.photoURL || 'default-product.jpg'}" alt="Product Photo" class="product-photo">
+                <h5>${productData.name || 'Unnamed Product'}</h5>
+                <button class="btn-custom btn-primary" onclick="ViewProductInfo('${doc.id}')"> View More</button>
+            </div>
+        `;
+        productsSection.innerHTML += productCard;
+    });
+} else {
+    productsSection.innerHTML = '<p>No products found for this gym.</p>';
+}
+
     
                 // Fetch membership plans where gymName matches gymProfileName
                 const membershipPlansQuery = query(

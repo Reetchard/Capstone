@@ -247,8 +247,8 @@
     height: 80px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid #ddd;
     margin-bottom: 10px;
+    border: 3px solid #ffa31a;
 }
 
 .trainer-name {
@@ -547,6 +547,40 @@ font-family: "Helvitica Neue", Arial, sans-serif;
 .row p:last-child {
     margin-bottom: 20px; /* Add space below the last data point */
 }
+.product-photo {
+    width: 100%;           /* Make the image take up the full width of the card */
+    height: 150px;         /* Set a fixed height for the image */
+    object-fit: cover;     /* Ensure the image covers the area without distorting */
+    border-radius: 10px;    /* Add rounded corners, if desired */
+    margin-bottom: 10px;   /* Space between the image and the product name */
+    box-shadow: px 5px 15px rgba(0, 0, 0, 0.4);
+    border: 2px solid #ffa31a;
+}
+.modal-product-content {
+    display: flex;
+    align-items: center; /* Align the image and text vertically */
+    gap: 15px; /* Space between image and text */
+}
+
+.product-photo-modal {
+    width: 120px; /* Set a smaller width for the image */
+    height: auto;
+    border-radius: 10px;
+}
+
+.product-info {
+    flex: 1; /* Allow the text to take up remaining space */
+}
+
+.product-info h3 {
+    margin: 0 0 10px 0; /* Add some margin below the product name */
+    font-size: 1.5rem; /* Adjust font size */
+}
+
+.product-info p {
+    margin: 5px 0; /* Add small margins for the product price and description */
+}
+
 
 
 /* Responsive Styles */
