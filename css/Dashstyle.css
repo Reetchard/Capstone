@@ -602,4 +602,39 @@ font-family: "Helvitica Neue", Arial, sans-serif;
     .content {
         margin-left: 200px;
     }
+}.spinner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75); /* Dark, semi-transparent overlay */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 0.3s ease;
+}
+
+.spinner-container {
+    text-align: center;
+    animation: fadeIn 0.5s ease;
+}
+
+.spinner-border {
+    width: 4rem;
+    height: 4rem;
+    border-width: 0.4rem;
+}
+
+.spinner-text {
+    color: #ffffff;
+    margin-top: 1rem;
+    font-size: 1.25rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }

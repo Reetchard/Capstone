@@ -203,6 +203,28 @@
           </div>
         </div>
       </div>      
+         <!-- Product Info Modal -->
+    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="modalProductName">Unnamed Product</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+            <img id="modalProductPhoto" src="default-product.jpg" alt="Product Photo" class="img-fluid mb-3">
+            <p id="modalProductPrice">Price: ₱N/A</p>
+            <p id="modalProductDescription">No description available.</p>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-success" onclick="buyNow()">Buy Now</button>
+            </div>
+        </div>
+        </div>
+    </div>
       <!--modal buy button for product-->
       <div class="modal fade" id="buyNowModal" tabindex="-1" aria-labelledby="buyNowModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -233,6 +255,37 @@
               <button type="button" class="btn btn-success">Proceed to Checkout</button>
             </div>
           </div>
+        </div>
+    </div>
+    <!-- Global Spinner Loader -->
+    <div id="globalSpinner" class="spinner-overlay" style="display: none;">
+        <div class="spinner-container">
+            <div class="spinner-border text-light" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <p class="spinner-text">Please wait, processing your request...</p>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="checkoutModalLabel">Checkout</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+            <p>Your product is ready for checkout!</p>
+            <!-- Include checkout form or details here -->
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Proceed to Payment</button>
+            </div>
+        </div>
         </div>
     </div>
     
