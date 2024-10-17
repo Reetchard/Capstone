@@ -359,9 +359,62 @@ function formatTime(time) {
     
     
 
+    // Function to view trainer info in a new modal
+    window.ViewTrainerInfo = async function (trainerId) {
+        try {
+            // Close Gym modal
+            $('#gymProfileModal').modal('hide');
 
+            // Fetch trainer data by ID
+            const trainerDocRef = doc(db, 'Users', trainerId);
+            const trainerDoc = await getDoc(trainerDocRef);
+
+            if (trainerDoc.exists()) {
+                const trainerData = trainerDoc.data();
+
+                // Check if the trainer's status is "Under Review"
+                if (trainerData.status === "Under Review") {
+                    console.warn('Trainer is under review. Cannot display.');
+                    return; // Do not display the trainer if they are under review
+                }
+
+                // Ensure each trainer modal element exists
+                const modalTrainerName = document.getElementById('modalTrainerName');
+                const modalTrainerPhoto = document.getElementById('modalTrainerPhoto');
+                const modalTrainerExpertise = document.getElementById('modalTrainerExpertise');
+                const modalTrainerExperience = document.getElementById('modalTrainerExperience');
+                const modalTrainerDays = document.getElementById('modalTrainerDays');
+                const modalTrainerRate = document.getElementById('modalTrainerRate'); // Trainer rate element
+                const bookNowButton = document.getElementById('bookNowButton'); // Book Now button
+
+                // Populate trainer modal with the trainer's data
+                if (modalTrainerName) modalTrainerName.innerText = trainerData.TrainerName || 'N/A';
+                if (modalTrainerPhoto) modalTrainerPhoto.src = trainerData.TrainerPhoto || 'default-trainer-photo.jpg';
+                if (modalTrainerExpertise) modalTrainerExpertise.innerText = trainerData.Expertise || 'N/A';
+                if (modalTrainerExperience) modalTrainerExperience.innerText = trainerData.Experience || 'N/A';
+                if (modalTrainerDays) modalTrainerDays.innerText = trainerData.Days || 'N/A';
+                if (modalTrainerRate) modalTrainerRate.innerText = `₱${trainerData.rate || 'N/A'}`; // Display rate with currency
+
+                // Handle Book Now button (add trainer ID for booking logic)
+                if (bookNowButton) {
+                    bookNowButton.onclick = function() {
+                        alert(`Booking Trainer: ${trainerId}`);
+                        // Add your booking logic here
+                    };
+                }
+
+                // Step 4: Show the Trainer Info modal
+                $('#trainerProfileModal').modal('show');
+            } else {
+                console.error('Trainer not found!');
+            }
+        } catch (error) {
+            console.error('Error fetching trainer data:', error);
+        }
+    }
     
 
+    // Optionally, you can have other modal functions like closeModal()
     window.closeModal=function() {
         $('#gymProfileModal').modal('hide');
     }
