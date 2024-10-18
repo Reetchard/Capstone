@@ -283,23 +283,56 @@ function formatTime(time) {
                             const modalProductDescription = document.getElementById('modalProductDescription');
                             const modalProductPhoto = document.getElementById('modalProductPhoto');
                             const modalProductCategory = document.getElementById('modalProductCategory');
-
-
-            // Populate modal with product data
-            modalProductName.innerText = productData.name || 'Unnamed Product';
-            modalProductPrice.innerText = ` ₱${productData.price || 'N/A'}`;
-            modalProductDescription.innerText = productData.description || 'No description available.';
-            modalProductPhoto.src = productData.photoURL || 'default-product.jpg'; // Display the product's photo
-
-                            // Populate modal with product data
+                            const modalProductQuantityAvailable = document.getElementById('modalProductQuantity');
+                            const modalProductQuantityInput = document.getElementById('modalProductQuantityInput');
+                            const increaseQuantityBtn = document.getElementById('increaseQuantity');
+                            const decreaseQuantityBtn = document.getElementById('decreaseQuantity');
+                
+                            let availableStock = productData.quantity || 0;
+                            let selectedQuantity = 1;
+                            let productPrice = productData.price || 0;
+                
+                            // Display product data
                             modalProductName.innerText = productData.name || 'Unnamed Product';
-                            modalProductPrice.innerText = `Price: ₱${productData.price || 'N/A'}`;
+                            modalProductPrice.innerText = ` ₱${productData.price || 'N/A'}`;
                             modalProductDescription.innerText = productData.description || 'No description available.';
                             modalProductPhoto.src = productData.photoURL || 'default-product.jpg'; // Display the product's photo
-                            modalProductQuantity.innerText = productData.quantity ;
-                            modalProductCategory.innerText = productData.category ;
-
-
+                            modalProductCategory.innerText = productData.category || 'N/A';
+                            modalProductQuantityAvailable.innerText = `Available: ${availableStock}`;
+                
+                            // Function to update total price based on selected quantity
+                            function updatePrice() {
+                                const totalPrice = productPrice * selectedQuantity;
+                                modalProductPrice.innerText = `₱${totalPrice.toLocaleString()}`; // Format price with commas
+                            }
+                
+                            // Update the displayed stock and quantity
+                            function updateQuantity() {
+                                modalProductQuantityInput.value = selectedQuantity;
+                                modalProductQuantityAvailable.innerText = `Available: ${availableStock - selectedQuantity}`; // Update available stock display
+                                updatePrice(); // Update the total price when quantity changes
+                            }
+                
+                            // Increase quantity
+                            increaseQuantityBtn.addEventListener('click', function() {
+                                if (selectedQuantity < availableStock) {
+                                    selectedQuantity++;
+                                    updateQuantity();
+                                }
+                            });
+                
+                            // Decrease quantity
+                            decreaseQuantityBtn.addEventListener('click', function() {
+                                if (selectedQuantity > 1) {
+                                    selectedQuantity--;
+                                    updateQuantity();
+                                }
+                            });
+                
+                            // Set initial quantity and price
+                            modalProductQuantityInput.value = selectedQuantity;
+                            updatePrice(); // Set initial price based on quantity 1
+                
                             // Show the Product Info modal
                             $('#productModal').modal('show');
                         } else {

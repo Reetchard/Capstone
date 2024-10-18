@@ -229,27 +229,62 @@
         </div>
       </div>      
          <!-- Product Info Modal -->
-    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-            <h5 class="modal-title" id="modalProductName">Unnamed Product</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-            </div>
-            <div class="modal-body">
-            <img id="modalProductPhoto" src="default-product.jpg" alt="Product Photo" class="img-fluid mb-3">
-            <p id="modalProductPrice">Price: ₱N/A</p>
-            <p id="modalProductDescription">No description available.</p>
-            </div>
-            <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-success" onclick="buyNow()">Buy Now</button>
+        <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <!-- Modal Header -->
+                    <div class="modal-header bg-dark text-white">
+                        <h5 class="modal-title" id="modalProductName">Unnamed Product</h5>
+                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <!-- Modal Body -->
+                    <div class="modal-body">
+                        <div class="row">
+                            <!-- Product Image Section -->
+                            <div class="col-md-6 text-center">
+                                <div class="product-image-wrapper">
+                                    <img id="modalProductPhoto" src="default-product.jpg" alt="Product Photo" class="img-fluid rounded shadow-lg mb-3">
+                                </div>
+                            </div>
+
+                            <!-- Product Details Section -->
+                            <div class="col-md-6">
+                                <!-- Product Description -->
+                                <p id="modalProductDescription" class="text-muted">No description available.</p>
+                                <!-- Product Category -->
+                                <span id="modalProductCategory" class="badge badge-pill badge-warning px-3 py-2">Category: N/A</span>
+
+                                <!-- Quantity Section -->
+                                <div class="quantity-section mt-5">
+                                    <label class="h5">Select Quantity:</label>
+                                    <div class="input-group justify-content-start align-items-center">
+                                        <a type="button" class="btn btn-outline-secondary btn-lg px-4" id="decreaseQuantity">−</a>
+                                        <input type="text" id="modalProductQuantityInput" value="1" readonly class="form-control text-center mx-2 font-weight-bold" style="width: 80px;">
+                                        <a type="button" class="btn btn-outline-secondary btn-lg px-4" id="increaseQuantity">+</a>
+                                    </div>
+                                    <!-- Available Quantity -->
+                                    <small id="modalProductQuantity" class="mt-2 d-block text-muted">Available: N/A</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal Footer -->
+                    <div class="modal-footer justify-content-between bg-light align-items-center">
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+                        <div class="d-flex justify-content-end align-items-center">
+                            <!-- Price displayed to the left of the Buy Now button -->
+                            <p id="modalProductPrice" class="h4 font-weight-bold text-primary mb-0 mr-3">₱N/A</p>
+                            <button type="button" class="btn btn-success btn-lg" onclick="buyNow()">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        </div>
-    </div>
+
       <!--modal buy button for product-->
       <div class="modal fade" id="buyNowModal" tabindex="-1" aria-labelledby="buyNowModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
