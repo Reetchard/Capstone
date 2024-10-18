@@ -356,6 +356,7 @@ function formatTime(time) {
                 
                             // Show the Product Info modal
                             $('#productModal').modal('show');
+                
                         } else {
                             console.error('Product not found!');
                         }
@@ -374,6 +375,9 @@ function formatTime(time) {
                         const productName = document.getElementById('modalProductName').innerText;
                         const quantityPurchased = document.getElementById('modalProductQuantityInput').value;
                         const totalPrice = document.getElementById('modalProductPrice').innerText;
+                
+                        // Assuming gymName is available in the GymProfile card
+                        const gymName = document.getElementById('modalGymName').innerText; // You can adjust the ID if needed
                 
                         // Set product details in confirmation modal
                         document.getElementById('confirmProductName').innerText = productName;
@@ -406,6 +410,19 @@ function formatTime(time) {
                                 // Save the notification to Firestore under a 'Notifications' collection
                                 await addDoc(collection(db, 'Notifications'), newNotification);
                 
+                                // Save transaction to 'Transactions' collection
+                                const newTransaction = {
+                                    userId: userId, // Storing userId of the customer/user
+                                    productName: productName,
+                                    quantity: quantityPurchased,
+                                    totalPrice: totalPrice,
+                                    gymName: gymName, // Storing gymName from GymProfile card
+                                    timestamp: new Date().toISOString() // Timestamp of the transaction
+                                };
+                
+                                // Save the transaction to Firestore under a 'Transactions' collection
+                                await addDoc(collection(db, 'Transactions'), newTransaction);
+                
                                 // Close the confirmation modal
                                 $('#confirmationModal').modal('hide');
                 
@@ -421,7 +438,7 @@ function formatTime(time) {
                                 // Close the product modal after the purchase
                                 $('#productModal').modal('hide');
                             } catch (error) {
-                                console.error('Error saving notification:', error);
+                                console.error('Error saving notification or transaction:', error);
                             }
                         };
                     } catch (error) {
@@ -543,8 +560,80 @@ function formatTime(time) {
                         console.error('Error during user authentication:', error);
                     });
                 };
+                let cart = []; // This array will hold the cart items
+                let totalCartAmount = 0;
                 
-
+                window.addToCart = function(productId, productName, productPrice, productPhoto, quantity) {
+                    // Check if the product is already in the cart
+                    const existingProduct = cart.find(item => item.productId === productId);
+                
+                    if (existingProduct) {
+                        // If product is already in the cart, update its quantity
+                        existingProduct.quantity += quantity;
+                    } else {
+                        // Otherwise, add the new product to the cart
+                        cart.push({
+                            productId: productId,
+                            productName: productName,
+                            productPrice: productPrice,
+                            productPhoto: productPhoto || 'default-product.jpg',
+                            quantity: quantity
+                        });
+                    }
+                
+                    // Update cart total price
+                    totalCartAmount += productPrice * quantity;
+                
+                    // Update cart icon badge or modal (for cart count)
+                    updateCartCount(cart.length);
+                }
+                
+                // Function to update cart count badge on cart icon
+                function updateCartCount(count) {
+                    const cartCountElement = document.getElementById('cart-count');
+                    cartCountElement.textContent = count;
+                    cartCountElement.style.display = count > 0 ? 'inline-block' : 'none';
+                }
+                
+                // Function to display cart items in the modal
+                function displayCartItems() {
+                    const cartProductsList = document.getElementById('cartProductsList');
+                    const cartTotalPrice = document.getElementById('cartTotalPrice');
+                
+                    // Clear the current list
+                    cartProductsList.innerHTML = '';
+                
+                    if (cart.length === 0) {
+                        cartProductsList.innerHTML = '<p class="text-muted">No products in the cart.</p>';
+                        cartTotalPrice.innerText = '₱0';
+                    } else {
+                        cart.forEach(item => {
+                            const productElement = document.createElement('div');
+                            productElement.classList.add('d-flex', 'justify-content-between', 'align-items-center', 'mb-3');
+                            productElement.innerHTML = `
+                                <div class="d-flex align-items-center">
+                                    <img src="${item.productPhoto}" alt="${item.productName}" class="img-fluid" style="width: 50px; height: 50px; margin-right: 10px;">
+                                    <div>
+                                        <h6>${item.productName}</h6>
+                                        <small class="text-muted">Quantity: ${item.quantity}</small><br>
+                                        <small class="text-muted">Price: ₱${item.productPrice.toLocaleString()}</small>
+                                    </div>
+                                </div>
+                                <span>₱${(item.productPrice * item.quantity).toLocaleString()}</span>
+                            `;
+                            cartProductsList.appendChild(productElement);
+                        });
+                
+                        // Update total cart price
+                        cartTotalPrice.innerText = `₱${totalCartAmount.toLocaleString()}`;
+                    }
+                }
+                
+                // Event listener for showing the cart modal
+                document.getElementById('cartBtn').addEventListener('click', function () {
+                    displayCartItems(); // Display cart items when the cart modal is opened
+                });
+                
                 
                                     
                     // Fetch products and render them
@@ -689,99 +778,6 @@ function formatTime(time) {
     }
 
 
-    async function showGymCheckoutModal(gymId, gymData = {}, userData = {}) {
-        const checkoutModal = document.getElementById('checkoutModal');
-        const checkoutContent = document.getElementById('checkoutContent');
-    
-        // Fallback values
-        const userName = userData.name || '';
-        const userEmail = userData.email || '';
-    
-        // Display the modal only if the elements exist
-        if (checkoutModal && checkoutContent) {
-            checkoutContent.innerHTML = `
-              <div class="row">
-                <div class="col-md-6">
-                  <h2>Gym Details</h2>
-                  <div class="card mb-3" style="max-width: 300px; margin-left: 0;">
-                    <img src="${gymData.gymPhoto || 'default-gym-photo.jpg'}" class="img-fluid rounded-start" alt="Gym Photo">
-                    <div class="card-body">
-                      <h5 class="card-title text-center">${gymData.gymName}</h5>
-                      <p class="card-text text-center">Rate: ${gymData.gymPriceRate || 'N/A'}</p>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <h2>Reservation Details</h2>
-                  <div class="form-group">
-                    <label for="userName">Name</label>
-                    <input type="text" id="userName" class="form-control" value="${userName}" required>
-                  </div>
-                  <div class="form-group mt-3">
-                    <label for="userEmail">Email</label>
-                    <input type="email" id="userEmail" class="form-control" value="${userEmail}" required>
-                  </div>
-                  <div class="form-group mt-3">
-                    <label for="paymentMethod">Payment Method</label>
-                    <select id="paymentMethod" class="form-control">
-                      <option value="Over the Counter">Cash</option>
-                    </select>
-                  </div>
-                  <div class="form-group mt-3">
-                    <label for="reservationDate">Choose Reservation Date</label>
-                    <input type="date" id="reservationDate" class="form-control" required>
-                  </div>
-                  <div class="button-container mt-4 d-flex justify-content-between">
-                    <button class="btn btn-success btn-lg" id="confirmBookingButtonCheckout" style="width: 180px;">Confirm Booking</button>
-                    <button class="btn btn-secondary btn-lg" id="cancelBookingButtonCheckout" style="width: 180px;">Cancel</button>
-                  </div>
-                </div>
-              </div>
-            `;
-    
-            checkoutModal.style.display = 'block';
-    
-            document.getElementById('confirmBookingButtonCheckout').onclick = async function () {
-                const inputUserName = document.getElementById('userName').value.trim();
-                const inputUserEmail = document.getElementById('userEmail').value.trim();
-                const reservationDate = document.getElementById('reservationDate').value;
-    
-                if (!reservationDate) {
-                    alert('Please select a valid reservation date.');
-                    return;
-                }
-    
-                try {
-                    await addDoc(collection(db, 'Transactions'), {
-                        gymId,
-                        gymName: gymData.gymName,
-                        username: inputUserName,
-                        email: inputUserEmail,
-                        reservationDate,
-                        paymentMethod: document.getElementById('paymentMethod').value,
-                        rate: gymData.gymPriceRate
-                    });
-    
-                    alert(`Booking Confirmed for ${gymData.gymName} on ${reservationDate}.`);
-                    closeGymCheckoutModal();
-                } catch (error) {
-                    console.error('Error saving transaction:', error);
-                }
-            };
-    
-            document.getElementById('cancelBookingButtonCheckout').onclick = function () {
-                closeGymCheckoutModal();
-            };
-        }
-    }
-    
-    function closeGymCheckoutModal() {
-        const checkoutModal = document.getElementById('checkoutModal');
-        if (checkoutModal) {
-            checkoutModal.style.display = 'none'; // Hide the modal
-        }
-    }
-
     
     // Close the modal when clicking outside of it
     window.onclick = function(event) {
@@ -794,7 +790,6 @@ function formatTime(time) {
     document.addEventListener('DOMContentLoaded', function() {
                 // Now all event listeners and modal functions are attached when DOM is ready
                 fetchGymProfiles();
-                showCheckoutModal();
                 viewProducts();
             // Fetch trainers when the page loads
     });
@@ -838,27 +833,6 @@ function formatTime(time) {
             messageInput.value = ""; // Clear input after sending
         }
     };
-    
-    async function fetchUserNotifications(userId) {
-        try {
-            const notificationsRef = collection(db, 'UserNotifications');  // Firestore collection
-            const q = query(notificationsRef, where('userId', '==', userId));
-            const snapshot = await getDocs(q);
-    
-            const notifications = [];
-            snapshot.forEach(doc => {
-                notifications.push({
-                    id: doc.id,
-                    ...doc.data() // Collect the document data
-                });
-            });
-    
-            return notifications;
-        } catch (error) {
-            console.error('Error fetching notifications:', error);
-            return [];
-        }
-    }
         // Function to show the global spinner
         function showSpinner() {
             const spinner = document.getElementById('globalSpinner');

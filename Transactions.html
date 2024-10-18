@@ -4,24 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/transact.css">
+    <link rel="stylesheet" href="css/media.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <title>Transaction Page</title>
 </head>
 <body>
-    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="#">
-            <img src="framework/img/Logoo.ico" alt="Logo"> PEAK PULSE
-        </a>
+        <a class="navbar-brand" href="#"><img src="framework/img/Logoo.ico" alt="Logo"> PEAK PULSE</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav mr-auto">
-                <!-- Empty for left-aligned items if needed -->
-            </ul>
-            <span class="navbar-text mx-auto text-white">
-                Gym Management Dashboard
-            </span>
+            <ul class="navbar-nav mr-auto"></ul>
+            <span class="navbar-text mx-auto text-white">Gym Management Dashboard</span>
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
                     <a class="nav-link" href="member.html">Manage Members</a>
@@ -36,10 +32,10 @@
                     <a class="nav-link" href="membership.html">Manage Memberships</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="membership.html">Manage Transactions</a>
+                    <a class="nav-link" href="Transactions.html">Manage Transactions</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="membership.html">Conflict Management</a>
+                    <a class="nav-link" href="reservation.html">Conflict Management</a>
                 </li>
                 <div class="nav-link">
                     <button class="btn btn-secondary mb-2" onclick="window.location.href='login.html'">Log out</button>
@@ -49,18 +45,116 @@
     </nav>
 
     <!-- Content -->
-    <h1>All Transactions</h1>
-    
-    <div id="transactionTabs">
-        <button onclick="showTransactions('memberships')">Memberships</button>
-        <button onclick="showTransactions('gymProfiles')">Gym Profiles</button>
-        <button onclick="showTransactions('trainers')">Trainers</button>
-        <button onclick="showTransactions('products')">Products</button>
-    </div>
-    <div id="transactionsDisplay">
-        <!-- Transaction data will be displayed here -->
+    <div class="container mt-5">
+        <h1>All Transactions</h1>
+
+        <div id="transactionTabs">
+            <button class="btn btn-primary" data-toggle="modal" data-target="#membershipsModal">Memberships</button>
+            <button class="btn btn-primary" data-toggle="modal" data-target="#trainersModal">Trainers</button>
+            <button class="btn btn-primary" data-toggle="modal" data-target="#productsModal">Products</button>
+        </div>
     </div>
 
-    <script src="transactions.js"></script>
+    <div class="modal fade" id="membershipsModal" tabindex="-1" role="dialog" aria-labelledby="membershipsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="membershipsModalLabel">Memberships Transactions</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table id="membershipsTable" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Member Name</th>
+                                <th>Date Joined</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Membership transactions will be dynamically loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Trainers Modal -->
+    <div class="modal fade" id="trainersModal" tabindex="-1" role="dialog" aria-labelledby="trainersModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="trainersModalLabel">Trainers Transactions</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table id="trainersTable" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Trainer Name</th>
+                                <th>Session Date</th>
+                                <th>Fee</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Trainer transactions will be dynamically loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Products Modal -->
+    <div class="modal fade" id="productsModal" tabindex="-1" role="dialog" aria-labelledby="productsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="productsModalLabel">Products Transactions</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table id="productsTable" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Product Name</th>
+                                <th>Date Purchased</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Product transactions will be dynamically loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>  
+
+    
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script type="module"src = "src/Js/transaction.js"></script>
 </body>
 </html>

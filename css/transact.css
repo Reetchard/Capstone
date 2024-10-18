@@ -1,204 +1,230 @@
-/* Navbar Styling */
+/* Global Styles */
+body {
+    font-family: 'Roboto', Arial, sans-serif;
+}
+
+/* Navbar Styles */
 .navbar {
-    background-color: #343a40; /* Dark color for the navbar */
-    padding: 0.75rem 1.5rem; /* Added padding for better spacing */
-    border-bottom: 2px solid #6c757d; /* Slightly darker bottom border */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow for a floating effect */
+    background-color: #343a40;
+    margin-bottom: 20px;
+}
+
+.navbar-brand {
+    color: #ffffff;
+    font-size: 1.5rem;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    font-weight: normal;
 }
 
 .navbar-brand img {
-    height: 40px; /* Logo size */
-    margin-right: 10px; /* Space between logo and brand name */
-    transition: transform 0.3s ease; /* Smooth scale effect */
-}
-
-.navbar-brand img:hover {
-    transform: scale(1.1); /* Slightly enlarge logo on hover */
+    height: 40px;
+    margin-right: 3px;
 }
 
 .navbar-nav .nav-link {
-    color: #ffffff; /* Light color for text */
-    font-size: 1rem; /* Font size for readability */
-    text-decoration: none; /* Remove underline from links */
-    padding: 0.5rem 1rem; /* Padding for better spacing */
-    transition: color 0.3s ease, background-color 0.3s ease; /* Smooth color transition */
+    color: #ffffff;
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    font-weight: normal;
 }
 
 .navbar-nav .nav-link:hover {
-    color: #f8f9fa; /* Lighten color on hover */
-    background-color: #495057; /* Slightly lighter background on hover */
-    border-radius: 4px; /* Rounded corners on hover */
-}
-
-.navbar-nav .nav-item {
-    margin-left: 1rem; /* Spacing between menu items */
+    color: #f8f9fa;
+    background-color: #495057;
+    border-radius: 4px;
 }
 
 .navbar-toggler {
-    border: none; /* Remove border from the toggle button */
-    background: transparent; /* Ensure no background */
+    border: none;
 }
 
 .navbar-toggler-icon {
-    background-image: url('data:image/svg+xml;charset=utf8,...'); /* Custom icon if needed */
+    background-image: url('data:image/svg+xml;charset=utf8,...');
 }
 
 
-/* Modal transition */
-.modal-dialog {
-    transition: transform 0.3s ease;
+button.navbar-toggler {
+    border: none;
 }
 
-.modal-dialog.show {
-    transform: translateY(0);
+/* Main Content */
+h1 {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 2rem;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 20px;
 }
 
-/* Card and table styling */
-.card {
-    border-radius: 0.5rem;
-    overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-}
-
-.table th, .table td {
-    vertical-align: middle;
-}
-
-/* Modal styling */
-.modal-dialog {
-    transform: translateY(30px);
-    display: flex;
-    justify-content: center; /* Center horizontally */
-    align-items: center; /* Center vertically */
-}
-
-.modal-dialog.show {
-    transform: translateY(0);
-}
-
-.modal-content {
-    border-radius: 0.5rem;
-    transition: transform 0.3s ease;
+/* Tabs */
+#transactionTabs {
     display: flex;
     justify-content: center;
-    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
 }
 
-/* Notification Styles */
-#notification-container {
-    bottom: 20px; /* Adjust this value to set the distance from the bottom */
-    right: 20px; /* Right alignment */
-    z-index: 1050; /* Ensure it's above other content */
-}
-
-#notification-message {
-    width: auto;
-    max-width: 300px;
-    padding: 15px;
-    border-radius: 0.25rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for elevation effect */
-    color: #fff; /* Default text color */
-    opacity: 0;
-    transition: opacity 0.5s ease, transform 0.5s ease;
-    transform: translateY(20px);
-}
-
-#notification-message.success {
-    background-color: #28a745; /* Green for success */
+#transactionTabs button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 600;
     color: #fff;
+    background-color: #1a1a1a;
+    border: 2px solid #ff8800;
+    border-radius: 25px;
+    transition: background-color 0.3s ease-in-out, transform 0.2s;
 }
 
-#notification-message.error {
-    background-color: #dc3545; /* Red for errors */
-    color: #fff;
+#transactionTabs button:hover {
+    background-color: #ff8800;
+    transform: scale(1.05);
 }
 
-#notification-message.info {
-    background-color: #17a2b8; /* Teal for information */
-    color: #fff;
+#transactionTabs button:focus {
+    background-color: #ff8800;
+    outline: none;
 }
 
-#notification-message.warning {
-    background-color: #ffc107; /* Yellow for warnings */
-    color: #212529; /* Dark text for better readability */
+/* Transactions Display */
+#transactionsDisplay {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    margin-bottom: 50px;
 }
 
-/* General spacing and padding */
-.container {
-    margin-top: 2rem;
-}
-
-.form-inline {
-    margin-bottom: 1rem;
+.transaction-card {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-}
-
-/* Centering messages in form elements */
-.form-message {
-    text-align: center; /* Center text inside the form message */
-    margin-top: 1rem;
-}
-
-/* Floating Notification Styles */
-.notification-container {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 9999;
-}
-
-.notification-message {
-    display: none;
     padding: 15px;
-    border-radius: 5px;
+    border-bottom: 1px solid #ddd;
+}
+
+.transaction-card:last-child {
+    border-bottom: none;
+}
+
+.transaction-card img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+.transaction-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.transaction-details h5 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.transaction-details p {
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.transaction-price {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.transaction-status {
+    text-align: right;
+    font-size: 0.9rem;
+    color: #777;
+}
+
+.transaction-status span {
+    padding: 5px 10px;
+    border-radius: 20px;
+}
+
+.transaction-status .completed {
+    background-color: #28a745;
     color: #fff;
-    font-size: 16px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    opacity: 0;
-    transition: opacity 0.5s ease, transform 0.5s ease;
-    transform: translateY(20px);
 }
 
-.notification-message.success {
-    background-color: #28a745; /* Green */
+.transaction-status .pending {
+    background-color: #ffc107;
+    color: #333;
 }
 
-.notification-message.error {
-    background-color: #dc3545; /* Red */
+.transaction-status .cancelled {
+    background-color: #dc3545;
+    color: #fff;
 }
 
-.notification-message.info {
-    background-color: #17a2b8; /* Teal */
+/* Media Queries */
+@media (max-width: 768px) {
+    #transactionTabs {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .transaction-card {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .transaction-details,
+    .transaction-price {
+        text-align: center;
+    }
+
+    .transaction-status {
+        margin-top: 10px;
+    }
 }
-/* Base styles for mobile and small screens (default) */
+#transactionTabs button {
+    margin-right: 10px;
+    margin-bottom: 15px;
+}
 
-/* Tablet (portrait) and up */
-@media (min-width: 576px) {
-    .navbar {
-        padding: 0.75rem 1.5rem; /* Increase padding for tablets */
-    }
+#transactionsDisplay table {
+    display: none;
+}
 
-    .navbar-brand img {
-        height: 45px; /* Adjust logo size for tablets */
-    }
+.transaction-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
 
-    .navbar-nav .nav-link {
-        font-size: 0.875rem; /* Slightly smaller text for tablets */
-    }
+.transaction-status span {
+    padding: 5px 10px;
+    border-radius: 4px;
+}
 
-    .card {
-        border-radius: 0.75rem; /* Slightly rounded corners */
-    }
+.completed {
+    background-color: #28a745;
+    color: #fff;
+}
 
-    .modal-content {
-        width: 90vw; /* Make modals responsive */
-    }
+.pending {
+    background-color: #ffc107;
+    color: #fff;
+}
+
+.failed {
+    background-color: #dc3545;
+    color: #fff;
 }
