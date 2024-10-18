@@ -55,7 +55,6 @@ window.addEventListener('click', function(event) {
     }
 });
 document.addEventListener('DOMContentLoaded', () => {
-    // Wait until the DOM is fully loaded before accessing elements
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             const userId = user.uid;
@@ -70,8 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Display profile picture and username
                     displayProfilePicture(user, username); // Pass the user object and username
 
-                    // Fetch notifications for the user
-                    fetchNotifications(userId); // Fetch and display notifications
                 } else {
                     console.error("User document does not exist.");
                     window.location.href = 'login.html'; // Redirect to login if no user document found
@@ -260,12 +257,36 @@ function formatTime(time) {
                     trainersSection.innerHTML = '<p>No trainers found for this gym.</p>';
                 }
                 
-
-                let notificationCount = 0;
-                let notifications = [];
-                let currentUserId = 'yourUserId'; // Replace with the actual current user ID
+                let notificationCount = 0;                
+                async function getCurrentUserId() {
+                    return new Promise((resolve, reject) => {
+                        onAuthStateChanged(auth, async (user) => {
+                            if (user) {
+                                const userDocRef = doc(db, 'Users', user.uid); // Fetch user doc using UID
+                                try {
+                                    const userDoc = await getDoc(userDocRef);
+                                    if (userDoc.exists()) {
+                                        const userData = userDoc.data();
+                                        const userId = userData.userId; // Retrieve the userId field from the document
+                                        if (userId) {
+                                            resolve(userId); // Resolve with userId from the document
+                                        } else {
+                                            reject('userId field not found in user document.');
+                                        }
+                                    } else {
+                                        reject('User document does not exist.');
+                                    }
+                                } catch (error) {
+                                    reject('Error fetching user document:', error);
+                                }
+                            } else {
+                                reject('No authenticated user found.');
+                            }
+                        });
+                    });
+                }
                 
-                // Function to view product info in a new modal
+                // Function to display product information and show modal
                 window.ViewProductInfo = async function (productId) {
                     try {
                         $('.modal').modal('hide'); // Hide any open modals
@@ -294,9 +315,9 @@ function formatTime(time) {
                 
                             // Display product data
                             modalProductName.innerText = productData.name || 'Unnamed Product';
-                            modalProductPrice.innerText = ` ₱${productData.price || 'N/A'}`;
+                            modalProductPrice.innerText = `₱${productData.price || 'N/A'}`;
                             modalProductDescription.innerText = productData.description || 'No description available.';
-                            modalProductPhoto.src = productData.photoURL || 'default-product.jpg'; // Display the product's photo
+                            modalProductPhoto.src = productData.photoURL || 'default-product.jpg';
                             modalProductCategory.innerText = productData.category || 'N/A';
                             modalProductQuantityAvailable.innerText = `Available: ${availableStock}`;
                 
@@ -309,12 +330,12 @@ function formatTime(time) {
                             // Update the displayed stock and quantity
                             function updateQuantity() {
                                 modalProductQuantityInput.value = selectedQuantity;
-                                modalProductQuantityAvailable.innerText = `Available: ${availableStock - selectedQuantity}`; // Update available stock display
+                                modalProductQuantityAvailable.innerText = `Available: ${availableStock - selectedQuantity}`;
                                 updatePrice(); // Update the total price when quantity changes
                             }
                 
                             // Increase quantity
-                            increaseQuantityBtn.addEventListener('click', function() {
+                            increaseQuantityBtn.addEventListener('click', function () {
                                 if (selectedQuantity < availableStock) {
                                     selectedQuantity++;
                                     updateQuantity();
@@ -322,7 +343,7 @@ function formatTime(time) {
                             });
                 
                             // Decrease quantity
-                            decreaseQuantityBtn.addEventListener('click', function() {
+                            decreaseQuantityBtn.addEventListener('click', function () {
                                 if (selectedQuantity > 1) {
                                     selectedQuantity--;
                                     updateQuantity();
@@ -343,140 +364,143 @@ function formatTime(time) {
                     }
                 };
                 
-                // Buy Now function with notification update
+                // Buy Now function with confirmation and success messages
                 window.buyNow = async function () {
                     try {
-                        // Perform purchase logic here
+                        // Ensure user ID is available before proceeding
+                        const userId = await getCurrentUserId(); // Get userId from the Users collection
+                
+                        // Get product details
                         const productName = document.getElementById('modalProductName').innerText;
                         const quantityPurchased = document.getElementById('modalProductQuantityInput').value;
                         const totalPrice = document.getElementById('modalProductPrice').innerText;
                 
-                        // Increment notification count
-                        notificationCount++;
-                        document.getElementById('notification-count').innerText = notificationCount;
+                        // Set product details in confirmation modal
+                        document.getElementById('confirmProductName').innerText = productName;
+                        document.getElementById('confirmQuantity').innerText = quantityPurchased;
+                        document.getElementById('confirmTotalPrice').innerText = totalPrice;
                 
-                        // Create a new notification with detailed information
-                        const newNotification = {
-                            message: `You purchased ${quantityPurchased} of ${productName} for ${totalPrice}.`,
-                            productName: productName,
-                            quantity: quantityPurchased,
-                            totalPrice: totalPrice,
-                            status: 'Pending Owner Approval',
-                            read: false, // Unread notification
-                            userId: currentUserId, // Associate with the current user
-                            notificationId: Date.now().toString(), // Unique ID based on timestamp
-                            timestamp: new Date().toISOString() // Add timestamp for ordering or filtering if needed
+                        // Show the confirmation modal
+                        $('#confirmationModal').modal('show');
+                
+                        // Handle confirmation action
+                        document.getElementById('confirmPurchaseBtn').onclick = async function () {
+                            try {
+                                // Simulate purchase logic (e.g., update stock, etc.)
+                                notificationCount++;
+                                document.getElementById('notification-count').innerText = notificationCount;
+                
+                                // Create a new notification with detailed information
+                                const newNotification = {
+                                    message: `You purchased ${quantityPurchased} of ${productName} for ${totalPrice}.`,
+                                    productName: productName,
+                                    quantity: quantityPurchased,
+                                    totalPrice: totalPrice,
+                                    status: 'Pending Owner Approval',
+                                    read: false, // Unread notification
+                                    userId: userId, // Use the current user's userId from the document
+                                    notificationId: Date.now().toString(), // Unique ID based on timestamp
+                                    timestamp: new Date().toISOString() // Add timestamp for ordering or filtering if needed
+                                };
+                
+                                // Save the notification to Firestore under a 'Notifications' collection
+                                await addDoc(collection(db, 'Notifications'), newNotification);
+                
+                                // Close the confirmation modal
+                                $('#confirmationModal').modal('hide');
+                
+                                // Show success modal
+                                document.getElementById('successProductName').innerText = productName;
+                                document.getElementById('successQuantity').innerText = quantityPurchased;
+                                document.getElementById('successTotalPrice').innerText = totalPrice;
+                                $('#successModal').modal('show');
+                
+                                // Update the notification list
+                                await fetchNotifications(userId);
+                
+                                // Close the product modal after the purchase
+                                $('#productModal').modal('hide');
+                            } catch (error) {
+                                console.error('Error saving notification:', error);
+                            }
                         };
-                
-                        // Save the notification to Firestore under a 'Notifications' collection
-                        await addDoc(collection(db, 'Notifications'), newNotification);
-                
-                        // Optionally show a success message to the user (e.g., in the modal)
-                        alert("Purchase successful!");
-                
-                        // Update the notification list
-                        await fetchNotifications(currentUserId);
-                
-                        // Close the modal after the purchase
-                        $('#productModal').modal('hide');
                     } catch (error) {
-                        console.error('Error saving notification:', error);
+                        console.error('Error fetching current user ID:', error);
                     }
                 };
-                // Function to update the notification count displayed in the UI
-                function updateNotificationCount(unreadCount) {
-                    const notificationCountElement = document.getElementById('notification-count');
-
-                    // Set the text of the notification count
-                    notificationCountElement.textContent = unreadCount;
-
-                    // Show or hide the notification badge based on the unread count
-                    if (unreadCount > 0) {
-                        notificationCountElement.style.display = 'inline-block';  // Show badge if there are unread notifications
-                    } else {
-                        notificationCountElement.style.display = 'none';  // Hide badge if no unread notifications
-                    }
-                }
-
-                // Fetch notifications for the current user
-                async function fetchNotifications(currentUserId) {
+                async function fetchNotifications(userId) {
                     try {
-                        // Your logic to fetch notifications from Firestore or any backend
-                        const notifications = await fetchUserNotifications(currentUserId); // Fetch notifications from Firestore or backend
-                        
-                        // Assuming you update the UI with notifications
-                        const unreadCount = notifications.filter(notification => notification.status === 'unread').length;
-                        
-                        updateNotificationCount(unreadCount); // Update notification badge count
-                    
+                        // Fetch notifications from Firestore for the specific user
+                        const notificationsSnapshot = await getDocs(
+                            query(collection(db, 'Notifications'), where('userId', '==', userId))
+                        );
+                
+                        const notifications = notificationsSnapshot.docs.map(doc => ({
+                            ...doc.data(),
+                            id: doc.id
+                        }));
+                
+                        // Display or process notifications here
                         const notificationList = document.getElementById('notificationList');
                         notificationList.innerHTML = ''; // Clear the list before adding new notifications
-                        
+                
+                        let unreadCount = 0; // Track unread notifications count
+                
                         if (notifications.length > 0) {
                             notifications.forEach(notification => {
                                 const notificationItem = document.createElement('p');
                                 notificationItem.classList.add('dropdown-item');
-                                
                                 notificationItem.textContent = notification.message;
                 
-                                // Add click event to mark as read
-                                notificationItem.onclick = () => {
-                                    markAsRead(notification.id, currentUserId); // Mark notification as read
-                                };
+                                if (!notification.read) {
+                                    notificationItem.style.fontWeight = 'bold'; // Bold style for unread notifications
+                                    unreadCount++; // Increment unread count
+                                }
+                
+                                // Add event listener for showing notification details and marking it as read
+                                notificationItem.addEventListener('click', () => {
+                                    markAsRead(notification.id, userId); // Mark notification as read
+                                    showNotificationDetails(notification); // Show notification details in a modal
+                                });
                 
                                 notificationList.appendChild(notificationItem);
                             });
                         } else {
                             notificationList.innerHTML = '<p class="dropdown-item text-center text-muted py-3">No new notifications</p>';
                         }
+                
+                        // Update notification count after fetching all notifications
+                        updateNotificationCount(unreadCount);
+                
                     } catch (error) {
                         console.error('Error fetching notifications:', error);
                     }
                 }
+                window.updateNotificationCount = function (unreadCount) {
+                    const notificationCountElement = document.getElementById('notification-count');
                 
-                // Update the notification dropdown with new notifications
-                function updateNotificationList() {
-                    const notificationList = document.getElementById('notificationList');
-                    notificationList.innerHTML = ''; // Clear the existing list
+                    notificationCountElement.textContent = unreadCount;
                 
-                    if (notifications.length === 0) {
-                        notificationList.innerHTML = '<p class="dropdown-item">No new notifications</p>';
+                    if (unreadCount > 0) {
+                        notificationCountElement.style.display = 'inline-block';
                     } else {
-                        notifications.forEach((notification, index) => {
-                            const notificationItem = document.createElement('p');
-                            notificationItem.classList.add('dropdown-item');
-                            notificationItem.innerText = notification.message;
-                
-                            // If notification is unread, apply a bold style
-                            if (!notification.read) {
-                                notificationItem.style.fontWeight = 'bold';
-                            }
-                
-                            // Add click event to mark as read and display notification details
-                            notificationItem.addEventListener('click', () => {
-                                markAsRead(notification.notificationId);
-                                showNotificationDetails(notification.notificationId);
-                            });
-                            notificationList.appendChild(notificationItem);
-                        });
-                    }
-                
-                    // Update notification count based on unread notifications
-                    const unreadCount = notifications.filter(notification => !notification.read).length;
-                    document.getElementById('notification-count').innerText = unreadCount;
-                
-                    // Hide notification badge if no unread notifications
-                    if (unreadCount === 0) {
-                        document.getElementById('notification-count').style.display = 'none';
-                    } else {
-                        document.getElementById('notification-count').style.display = 'block';
+                        notificationCountElement.style.display = 'none';
                     }
                 }
-                                
-                // Show detailed notification information in a modal
-                function showNotificationDetails(notificationId) {
-                    const notification = notifications.find(n => n.notificationId === notificationId);
+                // Mark a notification as read
+                async function markAsRead(notificationId, userId) {
+                    try {
+                        const notificationRef = doc(db, 'Notifications', notificationId);
+                        await updateDoc(notificationRef, { read: true });
                 
+                        fetchNotifications(userId); // Refresh the notifications after marking one as read
+                    } catch (error) {
+                        console.error('Error marking notification as read:', error);
+                    }
+                }
+                
+                // Show detailed notification information in a modal
+                function showNotificationDetails(notification) {
                     const notificationModal = `
                         <div class="modal fade" id="notificationDetailsModal" tabindex="-1" role="dialog" aria-labelledby="notificationDetailsLabel" aria-hidden="true">
                             <div class="modal-dialog" role="document">
@@ -502,44 +526,24 @@ function formatTime(time) {
                         </div>
                     `;
                 
-                    // Append and show the modal in the DOM
                     document.body.insertAdjacentHTML('beforeend', notificationModal);
                     $('#notificationDetailsModal').modal('show');
                 
-                    // Clean up the modal after closing
                     $('#notificationDetailsModal').on('hidden.bs.modal', function () {
                         this.remove();
                     });
                 }
                 
-                // Load notifications and update list when the page loads
-                window.onload = function() {
-                    fetchNotifications(currentUserId);
+                // Ensure notifications are fetched after user logs in and on page load
+                window.onload = function () {
+                    // Get the current user ID and fetch notifications
+                    getCurrentUserId().then(userId => {
+                        fetchNotifications(userId);
+                    }).catch(error => {
+                        console.error('Error during user authentication:', error);
+                    });
                 };
-            
-              // Mark notification as read and update list
-                async function markAsRead(notificationId) {
-                    try {
-                        const notificationRef = doc(db, 'Notifications', notificationId);
-                        await updateDoc(notificationRef, { read: true });
-
-                        // Update the local notifications array
-                        notifications = notifications.map(notification =>
-                            notification.notificationId === notificationId
-                                ? { ...notification, read: true }
-                                : notification
-                        );
-
-                        // Save updated notifications to localStorage (optional)
-                        localStorage.setItem('notifications', JSON.stringify(notifications));
-
-                        // Refresh the notification list
-                        updateNotificationList();
-                    } catch (error) {
-                        console.error('Error marking notification as read:', error);
-                    }
-                }
-
+                
 
                 
                                     
