@@ -2,7 +2,6 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebas
 import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
 import { getFirestore, collection, getDocs, doc, addDoc,getDoc,query,where,updateDoc,orderBy,onSnapshot} from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js'; 
 import { getStorage, ref, getDownloadURL,uploadBytes  } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-storage.js';
-
 // Your Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyAPNGokBic6CFHzuuENDHdJrMEn6rSE92c",
@@ -55,7 +54,6 @@ window.addEventListener('click', function(event) {
         document.getElementById('profile-picture').classList.remove('active'); // Optional for additional effect
     }
 });
-
 document.addEventListener('DOMContentLoaded', () => {
     // Wait until the DOM is fully loaded before accessing elements
     onAuthStateChanged(auth, async (user) => {
@@ -261,43 +259,79 @@ function formatTime(time) {
                 } else {
                     trainersSection.innerHTML = '<p>No trainers found for this gym.</p>';
                 }
-    
-                    // Function to view product info in a new modal
-                window.ViewProductInfo = async function(productId) {
-                    try {
-                        $('.modal').modal('hide'); // This will hide any open modals
+                
 
+                let notificationCount = 0;
+                let notifications = [];
+                let currentUserId = 'yourUserId'; // Replace with the actual current user ID
+                
+                // Function to view product info in a new modal
+                window.ViewProductInfo = async function (productId) {
+                    try {
+                        $('.modal').modal('hide'); // Hide any open modals
+                
                         // Fetch product data by ID
                         const productDocRef = doc(db, 'Products', productId);
                         const productDoc = await getDoc(productDocRef);
-
+                
                         if (productDoc.exists()) {
                             const productData = productDoc.data();
-
+                
                             // Ensure modal elements exist
                             const modalProductName = document.getElementById('modalProductName');
                             const modalProductPrice = document.getElementById('modalProductPrice');
                             const modalProductDescription = document.getElementById('modalProductDescription');
                             const modalProductPhoto = document.getElementById('modalProductPhoto');
-                            const modalProductQuantity = document.getElementById('modalProductQuantity');
                             const modalProductCategory = document.getElementById('modalProductCategory');
-
-
-            // Populate modal with product data
-            modalProductName.innerText = productData.name || 'Unnamed Product';
-            modalProductPrice.innerText = ` ₱${productData.price || 'N/A'}`;
-            modalProductDescription.innerText = productData.description || 'No description available.';
-            modalProductPhoto.src = productData.photoURL || 'default-product.jpg'; // Display the product's photo
-
-                            // Populate modal with product data
+                            const modalProductQuantityAvailable = document.getElementById('modalProductQuantity');
+                            const modalProductQuantityInput = document.getElementById('modalProductQuantityInput');
+                            const increaseQuantityBtn = document.getElementById('increaseQuantity');
+                            const decreaseQuantityBtn = document.getElementById('decreaseQuantity');
+                
+                            let availableStock = productData.quantity || 0;
+                            let selectedQuantity = 1;
+                            let productPrice = productData.price || 0;
+                
+                            // Display product data
                             modalProductName.innerText = productData.name || 'Unnamed Product';
-                            modalProductPrice.innerText = `Price: ₱${productData.price || 'N/A'}`;
                             modalProductDescription.innerText = productData.description || 'No description available.';
                             modalProductPhoto.src = productData.photoURL || 'default-product.jpg'; // Display the product's photo
-                            modalProductQuantity.innerText = productData.quantity ;
-                            modalProductCategory.innerText = productData.category ;
-
-
+                            modalProductCategory.innerText = productData.category || 'N/A';
+                            modalProductQuantityAvailable.innerText = `Available: ${availableStock}`;
+                
+                            // Function to update total price based on selected quantity
+                            function updatePrice() {
+                                const totalPrice = productPrice * selectedQuantity;
+                                modalProductPrice.innerText = `₱${totalPrice.toLocaleString()}`; // Format price with commas
+                            }
+                
+                            // Update the displayed stock and quantity
+                            function updateQuantity() {
+                                modalProductQuantityInput.value = selectedQuantity;
+                                modalProductQuantityAvailable.innerText = `Available: ${availableStock - selectedQuantity}`; // Update available stock display
+                                updatePrice(); // Update the total price when quantity changes
+                            }
+                
+                            // Increase quantity
+                            increaseQuantityBtn.addEventListener('click', function() {
+                                if (selectedQuantity < availableStock) {
+                                    selectedQuantity++;
+                                    updateQuantity();
+                                }
+                            });
+                
+                            // Decrease quantity
+                            decreaseQuantityBtn.addEventListener('click', function() {
+                                if (selectedQuantity > 1) {
+                                    selectedQuantity--;
+                                    updateQuantity();
+                                }
+                            });
+                
+                            // Set initial quantity and price
+                            modalProductQuantityInput.value = selectedQuantity;
+                            updatePrice(); // Set initial price based on quantity 1
+                
                             // Show the Product Info modal
                             $('#productModal').modal('show');
                         } else {
@@ -307,6 +341,207 @@ function formatTime(time) {
                         console.error('Error fetching product data:', error);
                     }
                 };
+                
+                // Buy Now function with notification update
+                window.buyNow = async function () {
+                    try {
+                        // Perform purchase logic here
+                        const productName = document.getElementById('modalProductName').innerText;
+                        const quantityPurchased = document.getElementById('modalProductQuantityInput').value;
+                        const totalPrice = document.getElementById('modalProductPrice').innerText;
+                
+                        // Increment notification count
+                        notificationCount++;
+                        document.getElementById('notification-count').innerText = notificationCount;
+                
+                        // Create a new notification with detailed information
+                        const newNotification = {
+                            message: `You purchased ${quantityPurchased} of ${productName} for ${totalPrice}.`,
+                            productName: productName,
+                            quantity: quantityPurchased,
+                            totalPrice: totalPrice,
+                            status: 'Pending Owner Approval',
+                            read: false, // Unread notification
+                            userId: currentUserId, // Associate with the current user
+                            notificationId: Date.now().toString(), // Unique ID based on timestamp
+                            timestamp: new Date().toISOString() // Add timestamp for ordering or filtering if needed
+                        };
+                
+                        // Save the notification to Firestore under a 'Notifications' collection
+                        await addDoc(collection(db, 'Notifications'), newNotification);
+                
+                        // Optionally show a success message to the user (e.g., in the modal)
+                        alert("Purchase successful!");
+                
+                        // Update the notification list
+                        await fetchNotifications(currentUserId);
+                
+                        // Close the modal after the purchase
+                        $('#productModal').modal('hide');
+                    } catch (error) {
+                        console.error('Error saving notification:', error);
+                    }
+                };
+                // Function to update the notification count displayed in the UI
+                function updateNotificationCount(unreadCount) {
+                    const notificationCountElement = document.getElementById('notification-count');
+
+                    // Set the text of the notification count
+                    notificationCountElement.textContent = unreadCount;
+
+                    // Show or hide the notification badge based on the unread count
+                    if (unreadCount > 0) {
+                        notificationCountElement.style.display = 'inline-block';  // Show badge if there are unread notifications
+                    } else {
+                        notificationCountElement.style.display = 'none';  // Hide badge if no unread notifications
+                    }
+                }
+
+                // Fetch notifications for the current user
+                async function fetchNotifications(currentUserId) {
+                    try {
+                        // Your logic to fetch notifications from Firestore or any backend
+                        const notifications = await fetchUserNotifications(currentUserId); // Fetch notifications from Firestore or backend
+                        
+                        // Assuming you update the UI with notifications
+                        const unreadCount = notifications.filter(notification => notification.status === 'unread').length;
+                        
+                        updateNotificationCount(unreadCount); // Update notification badge count
+                    
+                        const notificationList = document.getElementById('notificationList');
+                        notificationList.innerHTML = ''; // Clear the list before adding new notifications
+                        
+                        if (notifications.length > 0) {
+                            notifications.forEach(notification => {
+                                const notificationItem = document.createElement('p');
+                                notificationItem.classList.add('dropdown-item');
+                                
+                                notificationItem.textContent = notification.message;
+                
+                                // Add click event to mark as read
+                                notificationItem.onclick = () => {
+                                    markAsRead(notification.id, currentUserId); // Mark notification as read
+                                };
+                
+                                notificationList.appendChild(notificationItem);
+                            });
+                        } else {
+                            notificationList.innerHTML = '<p class="dropdown-item text-center text-muted py-3">No new notifications</p>';
+                        }
+                    } catch (error) {
+                        console.error('Error fetching notifications:', error);
+                    }
+                }
+                
+                // Update the notification dropdown with new notifications
+                function updateNotificationList() {
+                    const notificationList = document.getElementById('notificationList');
+                    notificationList.innerHTML = ''; // Clear the existing list
+                
+                    if (notifications.length === 0) {
+                        notificationList.innerHTML = '<p class="dropdown-item">No new notifications</p>';
+                    } else {
+                        notifications.forEach((notification, index) => {
+                            const notificationItem = document.createElement('p');
+                            notificationItem.classList.add('dropdown-item');
+                            notificationItem.innerText = notification.message;
+                
+                            // If notification is unread, apply a bold style
+                            if (!notification.read) {
+                                notificationItem.style.fontWeight = 'bold';
+                            }
+                
+                            // Add click event to mark as read and display notification details
+                            notificationItem.addEventListener('click', () => {
+                                markAsRead(notification.notificationId);
+                                showNotificationDetails(notification.notificationId);
+                            });
+                            notificationList.appendChild(notificationItem);
+                        });
+                    }
+                
+                    // Update notification count based on unread notifications
+                    const unreadCount = notifications.filter(notification => !notification.read).length;
+                    document.getElementById('notification-count').innerText = unreadCount;
+                
+                    // Hide notification badge if no unread notifications
+                    if (unreadCount === 0) {
+                        document.getElementById('notification-count').style.display = 'none';
+                    } else {
+                        document.getElementById('notification-count').style.display = 'block';
+                    }
+                }
+                                
+                // Show detailed notification information in a modal
+                function showNotificationDetails(notificationId) {
+                    const notification = notifications.find(n => n.notificationId === notificationId);
+                
+                    const notificationModal = `
+                        <div class="modal fade" id="notificationDetailsModal" tabindex="-1" role="dialog" aria-labelledby="notificationDetailsLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="notificationDetailsLabel">Purchase Details</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Product: ${notification.productName}</p>
+                                        <p>Quantity: ${notification.quantity}</p>
+                                        <p>Total Price: ${notification.totalPrice}</p>
+                                        <p>Status: ${notification.status}</p>
+                                        <p>Please wait for the owner's approval. You will receive a receipt ticket for the payment.</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                
+                    // Append and show the modal in the DOM
+                    document.body.insertAdjacentHTML('beforeend', notificationModal);
+                    $('#notificationDetailsModal').modal('show');
+                
+                    // Clean up the modal after closing
+                    $('#notificationDetailsModal').on('hidden.bs.modal', function () {
+                        this.remove();
+                    });
+                }
+                
+                // Load notifications and update list when the page loads
+                window.onload = function() {
+                    fetchNotifications(currentUserId);
+                };
+            
+              // Mark notification as read and update list
+                async function markAsRead(notificationId) {
+                    try {
+                        const notificationRef = doc(db, 'Notifications', notificationId);
+                        await updateDoc(notificationRef, { read: true });
+
+                        // Update the local notifications array
+                        notifications = notifications.map(notification =>
+                            notification.notificationId === notificationId
+                                ? { ...notification, read: true }
+                                : notification
+                        );
+
+                        // Save updated notifications to localStorage (optional)
+                        localStorage.setItem('notifications', JSON.stringify(notifications));
+
+                        // Refresh the notification list
+                        updateNotificationList();
+                    } catch (error) {
+                        console.error('Error marking notification as read:', error);
+                    }
+                }
+
+
+                
+                                    
                     // Fetch products and render them
                     const productsQuery = query(
                         collection(db, 'Products'),
@@ -335,7 +570,7 @@ function formatTime(time) {
                     } else {
                         productsSection.innerHTML = '<p>No products found for this gym.</p>';
                     }
-                    
+
 
                 // Fetch membership plans where gymName matches gymProfileName
                 const membershipPlansQuery = query(
@@ -559,169 +794,6 @@ function formatTime(time) {
             // Fetch trainers when the page loads
     });
 
-    // async function showCheckoutModal(trainerId, trainerData, userData = {}) {
-//     const checkoutModal = document.getElementById('checkoutModal');
-//     const checkoutContent = document.getElementById('checkoutContent');
-
-//     // Provide default values for userData if undefined
-//     const userName = userData.name || '';
-//     const userEmail = userData.email || '';
-
-//     if (checkoutModal && checkoutContent) {
-//         checkoutContent.innerHTML = `
-//             <div class="row">
-//                 <!-- Left Column: Trainer Information -->
-//                 <div class="col-md-6">
-//                     <h2>Trainer Details</h2>
-//                     <div class="card mb-3" style="max-width: 300px; margin-left: 0;">
-//                         <img src="${trainerData.TrainerPhoto || 'default-trainer-photo.jpg'}" class="img-fluid rounded-start" alt="Trainer Photo">
-//                         <div class="card-body">
-//                             <h5 class="card-title text-center">${trainerData.TrainerName}</h5>
-//                             <p class="card-text text-center">Rate: ${trainerData.rate || 'N/A'}</p>
-//                         </div>
-//                     </div>
-//                 </div>
-
-//                 <!-- Right Column: User/Customer Details -->
-//                 <div class="col-md-6">
-//                     <h2>Reservation Details</h2>
-
-//                     <div class="form-group">
-//                         <label for="userName">Name</label>
-//                         <input type="text" id="userName" class="form-control" value="${userName}" required>
-//                     </div>
-
-//                     <div class="form-group mt-3">
-//                         <label for="userEmail">Email</label>
-//                         <input type="email" id="userEmail" class="form-control" value="${userEmail}" required>
-//                     </div>
-
-//                     <div class="form-group mt-3">
-//                         <label for="paymentMethod">Payment Method</label>
-//                         <select id="paymentMethod" class="form-control">
-//                             <option value="Over the Counter">Cash</option>
-//                         </select>
-//                     </div>
-
-//                     <div class="form-group mt-3">
-//                         <label for="reservationDate">Choose Reservation Date</label>
-//                         <input type="date" id="reservationDate" class="form-control">
-//                     </div>
-
-//                     <!-- Buttons -->
-//                     <div class="button-container mt-4 d-flex justify-content-between">
-//                         <button class="btn btn-success btn-lg" id="confirmBookingButtonCheckout" style="width: 180px;">Confirm Booking</button>
-//                         <button class="btn btn-secondary btn-lg" id="cancelBookingButtonCheckout" style="width: 180px;">Cancel</button>
-//                     </div>
-//                 </div>
-//             </div>
-//         `;
-
-//         // Show the checkout modal
-//         checkoutModal.style.display = 'block';
-
-//         // Handle confirm booking button with validation
-//         document.getElementById('confirmBookingButtonCheckout').onclick = async function() {
-//             const inputUserName = document.getElementById('userName').value.trim().toLowerCase();
-//             const inputUserEmail = document.getElementById('userEmail').value.trim().toLowerCase();
-//             const reservationDate = document.getElementById('reservationDate').value;
-
-//             // Validate if a reservation date is selected
-//             if (!reservationDate) {
-//                 alert('Please select a valid reservation date.');
-//                 return;
-//             }
-
-//             // Custom message and validation for booking confirmation
-//             try {
-//                 // Save the booking to the Transactions collection
-//                 await addDoc(collection(db, 'Transactions'), {
-//                     trainerId: trainerId,
-//                     trainerName: trainerData.TrainerName,
-//                     username: inputUserName,
-//                     email: inputUserEmail,
-//                     reservationDate: reservationDate,
-//                     paymentMethod: document.getElementById('paymentMethod').value,
-//                     rate: trainerData.rate
-//                 });
-
-//                 // Add a new notification for the user
-//                 await addDoc(collection(db, 'UserNotifications'), {
-//                     userId: auth.currentUser.uid,  // Current logged-in user ID
-//                     message: `Your booking with ${trainerData.TrainerName} is confirmed for ${reservationDate}.`,
-//                     status: 'unread',
-//                     timestamp: new Date()
-//                 });
-
-//                 // Show custom success message
-//                 alert(`🎉 Booking Confirmed! \n\nTrainer: ${trainerData.TrainerName}\nDate: ${reservationDate}\nRate: ${trainerData.rate}\n\nThank you for your reservation! We look forward to seeing you.`);
-                
-//                 // Close the modal
-//                 closeCheckoutModal();
-
-//                 // Fetch updated notifications and update the notification badge count
-//                 fetchNotifications(auth.currentUser.uid);
-//             } catch (error) {
-//                 console.error('Error saving transaction or notification:', error);
-//                 // Custom error message
-//                 alert(`⚠️ Oops! Something went wrong while processing your booking. Please try again later.\n\nError: ${error.message}`);
-//             }
-//         };
-
-//         // Handle cancel booking button with custom message
-//         document.getElementById('cancelBookingButtonCheckout').onclick = function() {
-//             if (confirm('Are you sure you want to cancel the booking?')) {
-//                 closeCheckoutModal();
-//             }
-//         };
-
-//         // Close checkout modal when clicking outside
-//         window.onclick = function(event) {
-//             if (event.target === checkoutModal) {
-//                 closeCheckoutModal();
-//             }
-//         };
-//     } else {
-//         console.error("Checkout modal or content element not found!");
-//     }
-// } 
-
-
-
-// // Function to close checkout modal
-// function closeCheckoutModal() {
-//     const checkoutModal = document.getElementById('checkoutModal');
-//     if (checkoutModal) {
-//         checkoutModal.style.display = 'none'; // Hide the modal
-//     }
-// }
-
-//     // Function to close any modal by passing its ID
-// window.closeModal = function(modalId) {
-//     const modal = document.getElementById(modalId);
-//     if (modal) {
-//         modal.style.display = 'none'; // Hide the modal
-//     }
-// }
-
-// // Close the modal when clicking outside of the modal content
-// window.onclick = function(event) {
-//     const gymModal = document.getElementById('gymProfileModal');
-//     const trainerModal = document.getElementById('trainerProfileModal');
-
-//     // Close gym modal if clicking outside of it
-//     if (event.target === gymModal) {
-//         closeModal('gymProfileModal');
-//     }
-
-//     // Close trainer modal if clicking outside of it
-//     if (event.target === trainerModal) {
-//         closeModal('trainerProfileModal');
-//     }
-// }
-
-    
-    // Function to toggle chat visibility
     window.toggleChat = function() {
         const chatBox = document.getElementById("chatBox");
         chatBox.style.display = chatBox.style.display === "none" || chatBox.style.display === "" ? "block" : "none";
@@ -782,61 +854,6 @@ function formatTime(time) {
             return [];
         }
     }
-    async function fetchNotifications(currentUserId) {
-        try {
-            const notifications = await fetchUserNotifications(currentUserId); // Fetch notifications from Firestore
-            const unreadCount = notifications.filter(notification => notification.status === 'unread').length;
-            
-            updateNotificationCount(unreadCount); // Update the count in the badge
-    
-            const notificationList = document.getElementById('notification-list');
-            notificationList.innerHTML = ''; // Clear the list before adding new notifications
-            
-            if (notifications.length > 0) {
-                notifications.forEach(notification => {
-                    const notificationItem = document.createElement('li');
-                    notificationItem.classList.add('list-group-item');
-                    
-                    // Mark as read when the user clicks on it
-                    if (notification.status === 'unread') {
-                        notificationItem.classList.add('unread');
-                    } else {
-                        notificationItem.classList.add('read');  // Add a class to style read notifications
-                    }
-                    
-                    notificationItem.textContent = notification.message;
-                    notificationItem.onclick = () => markAsRead(notification.id, currentUserId);  // Mark as read when clicked
-                    
-                    notificationList.appendChild(notificationItem);
-                });
-            } else {
-                notificationList.innerHTML = '<li class="list-group-item">No new notifications</li>';
-            }
-        } catch (error) {
-            console.error('Error fetching notifications:', error);
-        }
-    }
-    
-
-        // Function to update the notification badge with the count
-        function updateNotificationCount(count) {
-            const notificationCountElement = document.getElementById('notification-count');
-            if (notificationCountElement) {
-                notificationCountElement.textContent = count;
-                notificationCountElement.style.display = count > 0 ? 'inline-block' : 'none';
-            }
-        }
-        async function markAsRead(notificationId, currentUserId) {
-            try {
-                const notificationRef = doc(db, 'UserNotifications', notificationId);
-                await updateDoc(notificationRef, { status: 'read' });  // Update status to 'read'
-        
-                // Refresh the notifications after marking one as read
-                fetchNotifications(currentUserId); // Refresh the notifications
-            } catch (error) {
-                console.error('Error marking notification as read:', error);
-            }
-        }
         // Function to show the global spinner
         function showSpinner() {
             const spinner = document.getElementById('globalSpinner');
