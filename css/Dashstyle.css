@@ -9,14 +9,14 @@
     overflow: hidden;
     transition: all 0.4s ease-in-out;
 }
-/* product and trainer close modal*/
+/*close button for products and trainer */
 .close {
-    color: white; /* Change the color to white */
+    color: inherit; /* Use the inherited color for the close button */
+    transition: background-color 0.3s ease; /* Add transition for smooth effect */
 }
 
 .close:hover {
-    color: #ffa31a; /* Optional: Change color on hover for better visibility */
-    text-decoration: none; /* Remove underline on hover if needed */
+    color: #ffa31a; /* Set background color to yellow on hover */
 }
 /* Close Button */
 .modal-close {
@@ -25,7 +25,7 @@
     right: 15px;
     font-size: 24px;
     cursor: pointer;
-    color: #ccc;
+    color: #aaa;
     transition: color 0.3s ease-in-out;
 }
 
@@ -80,7 +80,13 @@
 }
 
 .modal-body p {
-    margin-bottom: 15px;
+    margin-bottom: 0;
+}
+.modal-body p + p{
+    margin-top: 10px;
+}
+.modal-body p:last-child{
+    margin-bottom: 20px;
 }
 
 
@@ -597,6 +603,36 @@ font-family: "Helvitica Neue", Arial, sans-serif;
     text-align: center;  /* Center the text */
     font-weight: bold;   /* Make it bold */
     color: #e0e0e0;      /* Light gray color for visibility */
+}
+#modalProductName {
+    font-size: 50px; /* Adjust the size to be a bit larger */
+    font-weight: bold; /* Make the font bold */
+    
+}
+#modalProductPhoto {
+    display: block; /* Make the image behave like a block element */
+    margin-left: auto; /* Center the image horizontally */
+    margin-right: auto; /* Center the image horizontally */
+    width: 200px;
+    height: auto;
+    border-radius: 10px; /* Add rounded corners */
+    border: 2px solid #ffa31a; /* Add a 2px solid yellow border */
+    transform: translateX(-10px); /* Move the photo 10px to the left */
+}
+.modal-title {
+    font-size: 1.5rem; /* Increase font size to make it bigger */
+    font-weight: bold; /* Make the font bold */
+    margin: 0; /* Reset default margin */
+    flex: 1;
+}
+#modalTrainerPhoto{
+    display: block; /* Make the image behave like a block element */
+    margin-left: auto; /* Center the image horizontally */
+    margin-right: auto; /* Center the image horizontally */
+    width: 200px;
+    height: auto;
+    border-radius: 10px; /* Add rounded corners */
+    border: 2px solid #ffa31a; /* Add a 2px solid yellow border */
 }
 
 

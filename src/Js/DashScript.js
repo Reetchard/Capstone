@@ -283,55 +283,23 @@ function formatTime(time) {
                             const modalProductDescription = document.getElementById('modalProductDescription');
                             const modalProductPhoto = document.getElementById('modalProductPhoto');
                             const modalProductCategory = document.getElementById('modalProductCategory');
-                            const modalProductQuantityAvailable = document.getElementById('modalProductQuantity');
-                            const modalProductQuantityInput = document.getElementById('modalProductQuantityInput');
-                            const increaseQuantityBtn = document.getElementById('increaseQuantity');
-                            const decreaseQuantityBtn = document.getElementById('decreaseQuantity');
-                
-                            let availableStock = productData.quantity || 0;
-                            let selectedQuantity = 1;
-                            let productPrice = productData.price || 0;
-                
-                            // Display product data
+
+
+            // Populate modal with product data
+            modalProductName.innerText = productData.name || 'Unnamed Product';
+            modalProductPrice.innerText = ` ₱${productData.price || 'N/A'}`;
+            modalProductDescription.innerText = productData.description || 'No description available.';
+            modalProductPhoto.src = productData.photoURL || 'default-product.jpg'; // Display the product's photo
+
+                            // Populate modal with product data
                             modalProductName.innerText = productData.name || 'Unnamed Product';
+                            modalProductPrice.innerText = `Price: ₱${productData.price || 'N/A'}`;
                             modalProductDescription.innerText = productData.description || 'No description available.';
                             modalProductPhoto.src = productData.photoURL || 'default-product.jpg'; // Display the product's photo
-                            modalProductCategory.innerText = productData.category || 'N/A';
-                            modalProductQuantityAvailable.innerText = `Available: ${availableStock}`;
-                
-                            // Function to update total price based on selected quantity
-                            function updatePrice() {
-                                const totalPrice = productPrice * selectedQuantity;
-                                modalProductPrice.innerText = `₱${totalPrice.toLocaleString()}`; // Format price with commas
-                            }
-                
-                            // Update the displayed stock and quantity
-                            function updateQuantity() {
-                                modalProductQuantityInput.value = selectedQuantity;
-                                modalProductQuantityAvailable.innerText = `Available: ${availableStock - selectedQuantity}`; // Update available stock display
-                                updatePrice(); // Update the total price when quantity changes
-                            }
-                
-                            // Increase quantity
-                            increaseQuantityBtn.addEventListener('click', function() {
-                                if (selectedQuantity < availableStock) {
-                                    selectedQuantity++;
-                                    updateQuantity();
-                                }
-                            });
-                
-                            // Decrease quantity
-                            decreaseQuantityBtn.addEventListener('click', function() {
-                                if (selectedQuantity > 1) {
-                                    selectedQuantity--;
-                                    updateQuantity();
-                                }
-                            });
-                
-                            // Set initial quantity and price
-                            modalProductQuantityInput.value = selectedQuantity;
-                            updatePrice(); // Set initial price based on quantity 1
-                
+                            modalProductQuantity.innerText = productData.quantity ;
+                            modalProductCategory.innerText = productData.category ;
+
+
                             // Show the Product Info modal
                             $('#productModal').modal('show');
                         } else {
@@ -558,8 +526,8 @@ function formatTime(time) {
                                 <div class="trainer-card">
                                     <img src="${productData.photoURL || 'default-product.jpg'}" alt="Product Photo" class="product-photo">
                                     <h5>${productData.name || 'Unnamed Product'}</h5>
-                                    <p>Category: ${productData.category || 'N/A'}</p>
-                                    <p>Price: ${productData.price || 'N/A'}</p>
+                                    <!-- <p>Category: ${productData.category || 'N/A'}</p> -->
+                                    <!-- <p>Price: ${productData.price || 'N/A'}</p> -->
                                     <button class="btn-custom btn-primary" onclick="ViewProductInfo('${doc.id}')">Check info</button>
                                 </div>
                             `;
