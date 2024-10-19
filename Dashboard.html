@@ -209,6 +209,8 @@
         </div>
     </div>
 </div>
+
+
     <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
           <div class="modal-content">
@@ -229,13 +231,15 @@
           </div>
         </div>
       </div>      
+
+
          <!-- Product Info Modal -->
         <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <!-- Modal Header -->
-                    <div class="modal-header bg-dark text-white">
-                        <h5 class="modal-title" id="modalProductName">Unnamed Product</h5>
+                    <div class="modal-header">
+                        <h3 class="modal-title">Product Information</h3>
                         <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -248,23 +252,32 @@
                             <div class="col-md-6 text-center">
                                 <div class="product-image-wrapper">
                                     <img id="modalProductPhoto" src="default-product.jpg" alt="Product Photo" class="img-fluid rounded shadow-lg mb-3">
+                                    <h5 class="modal-title" id="modalProductName">Unnamed Product</h5>
                                 </div>
                             </div>
 
                             <!-- Product Details Section -->
                             <div class="col-md-6">
+                                 <!-- Product Category -->
+                                    <div style="text-align: center;">
+                                        <span id="modalProductCategory" class="badge badge-pill badge-warning px-3 py-2">Category: N/A</span>
+                                    </div>
                                 <!-- Product Description -->
-                                <p id="modalProductDescription" class="text-muted">No description available.</p>
-                                <!-- Product Category -->
-                                <span id="modalProductCategory" class="badge badge-pill badge-warning px-3 py-2">Category: N/A</span>
+                                <strong>Description: </strong>
+                                <p><span id="modalProductDescription" class="text-muted">No description available.</span></p>
+                               
 
                                 <!-- Quantity Section -->
                                 <div class="quantity-section mt-5">
-                                    <label class="h5">Select Quantity:</label>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <label class="h5">Select Quantity:</label>
+                                            <p><strong>Price: </strong><span id="modalProductPrice" class="font-weight-bold" style="color: #ffffff; font-size: 1.25rem;">₱N/A</span></p>
+                                    </div>
+
                                     <div class="input-group justify-content-start align-items-center">
-                                        <a type="button" class="btn btn-outline-secondary btn-lg px-4" id="decreaseQuantity">−</a>
-                                        <input type="text" id="modalProductQuantityInput" value="1" readonly class="form-control text-center mx-2 font-weight-bold" style="width: 80px;">
-                                        <a type="button" class="btn btn-outline-secondary btn-lg px-4" id="increaseQuantity">+</a>
+                                        <a type="button" class="btn btn-secondary btn-small" id="decreaseQuantity">−</a>
+                                        <input type="text" id="modalProductQuantityInput" value="1" readonly class="form-control text-center mx-2 font-weight-bold">
+                                        <a type="button" class="btn btn-secondary btn-small" id="increaseQuantity">+</a>
                                     </div>
                                     <!-- Available Quantity -->
                                     <small id="modalProductQuantity" class="mt-2 d-block text-muted">Available: N/A</small>
@@ -274,13 +287,8 @@
                     </div>
 
                     <!-- Modal Footer -->
-                    <div class="modal-footer justify-content-between bg-light align-items-center">
-                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
-                        <div class="d-flex justify-content-end align-items-center">
-                            <!-- Price displayed to the left of the Buy Now button -->
-                            <p id="modalProductPrice" class="h4 font-weight-bold text-primary mb-0 mr-3">₱N/A</p>
-                            <button type="button" class="btn btn-success btn-lg" onclick="buyNow()">Buy Now</button>
-                        </div>
+                    <div class="modal-footer d-flex justify-content-end align-items-center">
+                        <button type="button" class="btn-book btn-success" onclick="buyNow()"><i class="fas fa-shopping-cart"></i>Add to cart</button>
                     </div>
                 </div>
             </div>

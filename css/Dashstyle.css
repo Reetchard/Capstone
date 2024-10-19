@@ -301,7 +301,7 @@
     display: flex;
     flex-wrap: wrap; /* Cards will wrap to the next line if necessary */
     gap: 20px; /* Space between cards */
-    justify-content: space-around; /* Distribute space between cards */
+    justify-content: flex-start; /* Distribute space between cards */
 }
 
 .book-now-button {
@@ -605,7 +605,7 @@ font-family: "Helvitica Neue", Arial, sans-serif;
     color: #e0e0e0;      /* Light gray color for visibility */
 }
 #modalProductName {
-    font-size: 50px; /* Adjust the size to be a bit larger */
+    font-size: 25px; /* Adjust the size to be a bit larger */
     font-weight: bold; /* Make the font bold */
     
 }
@@ -613,12 +613,14 @@ font-family: "Helvitica Neue", Arial, sans-serif;
     display: block; /* Make the image behave like a block element */
     margin-left: auto; /* Center the image horizontally */
     margin-right: auto; /* Center the image horizontally */
-    width: 200px;
-    height: auto;
+    object-fit: cover; /* Cover the element's box, maintaining aspect ratio */
+    width: 200px; /* Fixed width */
+    height: 200px; /* Fixed height */
     border-radius: 10px; /* Add rounded corners */
     border: 2px solid #ffa31a; /* Add a 2px solid yellow border */
     transform: translateX(-10px); /* Move the photo 10px to the left */
 }
+
 .modal-title {
     font-size: 1.5rem; /* Increase font size to make it bigger */
     font-weight: bold; /* Make the font bold */
@@ -733,3 +735,40 @@ font-family: "Helvitica Neue", Arial, sans-serif;
     font-size: 14px;
     color: gray;
 }
+.products-container {
+    display: flex;
+    flex-wrap: wrap; /* Cards will wrap to the next line if necessary */
+    gap: 20px; /* Space between cards */
+    justify-content: flex-start; /* Align cards to the left */
+}
+.btn-outline-secondary {
+    border: none; /* Remove border */
+    background-color: #6c757d; /* Optional: Set a background color */
+    color: white; /* Set text color, if needed */
+}
+
+.btn-outline-secondary:hover {
+    background-color: #5a6268; /* Optional: Change hover background color */
+    color: white; /* Ensure text remains visible */
+}
+.btn-small {
+    padding: 0.25rem 0.5rem; /* Adjust padding */
+    font-size: 0.875rem; /* Adjust font size */
+}
+
+input#modalProductQuantityInput {
+    width: 60px; /* Adjust width as needed */
+    font-size: 1rem; /* Adjust font size if necessary */
+    height: 38px; /* Adjust height to match button size */
+    text-align: center; /* Center align the text */
+    border: 1px solid #ccc; /* Add a 1px border */
+    border-radius: 10px; /* Rounded corners */
+    color: #ccc; /* Set text color to #ccc */
+    background-color: transparent; /* Keep the background transparent */
+}
+
+input#modalProductQuantityInput:focus {
+    border-color: #ffa31a; /* Change border color on focus */
+    outline: none; /* Remove focus outline */
+}
+
