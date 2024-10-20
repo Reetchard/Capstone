@@ -466,7 +466,7 @@ function formatTime(time) {
                         if (notifications.length > 0) {
                             notifications.forEach(notification => {
                                 const notificationItem = document.createElement('p');
-                                notificationItem.classList.add('dropdown-item');
+                                notificationItem.classList.add('list-group-item'); // Updated class for modal
                                 notificationItem.textContent = notification.message;
                 
                                 if (!notification.read) {
@@ -483,7 +483,7 @@ function formatTime(time) {
                                 notificationList.appendChild(notificationItem);
                             });
                         } else {
-                            notificationList.innerHTML = '<p class="dropdown-item text-center text-muted py-3">No new notifications</p>';
+                            notificationList.innerHTML = '<p class="list-group-item text-center text-muted py-3">No new notifications</p>';
                         }
                 
                         // Update notification count after fetching all notifications
@@ -493,6 +493,7 @@ function formatTime(time) {
                         console.error('Error fetching notifications:', error);
                     }
                 }
+                
                 window.updateNotificationCount = function (unreadCount) {
                     const notificationCountElement = document.getElementById('notification-count');
                 
@@ -504,6 +505,7 @@ function formatTime(time) {
                         notificationCountElement.style.display = 'none';
                     }
                 }
+                
                 // Mark a notification as read
                 async function markAsRead(notificationId, userId) {
                     try {
@@ -560,6 +562,7 @@ function formatTime(time) {
                         console.error('Error during user authentication:', error);
                     });
                 };
+                
                 let cart = []; // This array will hold the cart items
                 let totalCartAmount = 0;
                 
@@ -666,6 +669,14 @@ function formatTime(time) {
                     }
 
 
+                    // Define an array of colors for the membership cards
+                    const cardColors = [
+                        'linear-gradient(to right, #5B247A, #1BCEDF)',  
+                        'linear-gradient(to right, #184E68, #57CA85)', 
+                        'linear-gradient(to right, #F02FC2, #6094EA)', 
+                        'linear-gradient(to right, #f1c40f, #f39c12)', 
+                        'linear-gradient(to right, #8e44ad, #9b59b6)'
+                    ];
                 // Fetch membership plans where gymName matches gymProfileName
                 const membershipPlansQuery = query(
                     collection(db, 'MembershipPlans'),
@@ -678,18 +689,23 @@ function formatTime(time) {
                 console.log('Membership Plans Snapshot:', membershipPlansSnapshot);
     
                 if (!membershipPlansSnapshot.empty) {
+                    let colorIndex = 0; // Initialize a color index
                     membershipPlansSnapshot.forEach(doc => {
                         const planData = doc.data();
                         console.log('Plan Data:', planData); // Debugging log for each plan
+
+                         // Use the color index to set the background color
+                        const backgroundColor = cardColors[colorIndex % cardColors.length];
+                         colorIndex++; // Increment the color index
     
                         // Create the plan card HTML
                         const planCard = `
-                            <div class="plan-card card mb-3">
+                            <div class="plan-card card mb-3" style="background: ${backgroundColor};">
                                 <div class="card-body">
                                     <h4 class="card-title">${planData.membershipType || 'Unnamed Plan'}</h4>
+                                    <h5 class="card-title">₱${planData.price || 'N/A'}</h5>
                                     <p class="card-text">${planData.description || 'No description available.'}</p>
-                                    <p class="card-text">Price: ₱${planData.price || 'N/A'}</p>
-                                    <button class="btn-custom btn-primary" onclick="selectPlan('${doc.id}')">Apply</button>
+                                    <button class="btn-custom btn-primary" onclick="selectPlan('${doc.id}')">Purchase</button>
                                 </div>
                             </div>
                         `;

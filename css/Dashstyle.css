@@ -73,7 +73,7 @@
 }
 
 /* Modal Body */
-.modal-body {
+.product-modal-body {
     font-size: 16px;
     line-height: 1.8;
     padding: 10px;
@@ -323,6 +323,7 @@
 
 strong{
     color:#ffa31a;
+    cursor: pointer;
 }
 .btn-custom{
     border-radius: 10px; /* Adjust this value for the desired roundness */
@@ -770,5 +771,96 @@ input#modalProductQuantityInput {
 input#modalProductQuantityInput:focus {
     border-color: #ffa31a; /* Change border color on focus */
     outline: none; /* Remove focus outline */
+}
+
+#notificationList .list-group-item {
+    background-color: transparent; /* Remove the white background */
+    color: #ffffff; /* Change text color to white or your desired color */
+    border: none; /* Remove any border if present */
+    transition: color 0.3s;
+}
+
+#notificationList .list-group-item:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Optional: Add a hover effect */
+    color: #ffa31a;
+}
+.modal-body {
+    max-height: 400px !important; /* Use !important only if necessary */
+    overflow-y: auto !important; /* Use !important only if necessary */
+}
+.red-icon {
+    color: red; /* Custom color for the icon */
+}
+.custom-tooltip {
+    display: none; /* Hide by default */
+    position: absolute; /* Position it absolutely for better control */
+    background-color: transparent; /* Make the background transparent */
+    color: #ffffff; /* Change text color to white */
+    padding: 5px 10px; /* Padding for the tooltip */
+    border: 1px solid #007bff; /* Border color */
+    border-radius: 10px; /* Rounded corners */
+    font-size: 12px; /* Font size */
+    white-space: nowrap; /* Prevent text from wrapping */
+    bottom: 100%; /* Position it above the text */
+    left: 0; /* Align with the text */
+    z-index: 1000; /* Ensure it's above other elements */
+    margin-bottom: 5px; /* Space between tooltip and text */
+}
+strong:hover .custom-tooltip {
+    display: inline-block; /* Show on hover */
+}
+.memberships-container {
+    display: flex; /* Use flexbox for layout */
+    flex-wrap: wrap; /* Allow wrapping of cards */
+    justify-content: space-between; /* Space between cards */
+    max-width: 1200px; /* Max width for the container */
+    margin: 0 auto; /* Center the container */
+    padding: 20px; /* Padding around the container */
+}
+
+.memberships-container .plan-card {
+    flex: 1 1 calc(30% - 20px); /* Flex items to take up space and adjust size */
+    margin: 10px; /* Margin around each card */
+    min-width: 250px; /* Minimum width for cards */
+    border: none; /* Remove default border */
+    border-radius: 8px; /* Slightly rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    transition: transform 0.3s; /* Smooth scale transition on hover */
+}
+
+.memberships-container .plan-card:hover {
+    transform: translateY(-5px); /* Lift effect on hover */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover */
+}
+
+.memberships-container .card-body {
+    padding: 20px; /* Comfortable padding */
+}
+
+.memberships-container .card-title {
+    font-size: 1.5rem; /* Larger font for title */
+    color: #ffffff; /* White color for text */
+    margin-bottom: 15px; /* Space below title */
+}
+
+.memberships-container .card-text {
+    color: #d1d1d1; /* Light gray for description text */
+    margin-bottom: 10px; /* Space below each text */
+}
+
+.memberships-container .btn-custom {
+    background-color: transparent; /* Primary button color */
+    color: #ffffff; /* Button text color */
+    border: 2px solid #fff; /* No border */
+    border-radius: 10px; /* Updated to 10px for rounded button */
+    padding: 10px 20px; /* Increased padding for a wider button */
+    width: 60%; /* Make the button take full width of the card */
+    cursor: pointer; /* Pointer on hover */
+    transition: background-color 0.3s; /* Smooth background change */
+    text-align: center; /* Center the text */
+}
+
+.memberships-container .btn-custom:hover {
+    background-color: #ffa31a; /* Darker shade on hover */
 }
 
