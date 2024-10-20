@@ -778,15 +778,16 @@ input#modalProductQuantityInput:focus {
     color: #ffffff; /* Change text color to white or your desired color */
     border: none; /* Remove any border if present */
     transition: color 0.3s;
+    cursor: pointer;
 }
 
 #notificationList .list-group-item:hover {
     background-color: rgba(255, 255, 255, 0.1); /* Optional: Add a hover effect */
     color: #ffa31a;
 }
-.modal-body {
-    max-height: 400px !important; /* Use !important only if necessary */
-    overflow-y: auto !important; /* Use !important only if necessary */
+.notification-modal-body {
+    max-height: 400px; /* Use !important only if necessary */
+    overflow-y: auto ; /* Use !important only if necessary */
 }
 .red-icon {
     color: red; /* Custom color for the icon */
