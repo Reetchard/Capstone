@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="css/gymprof.css">
+    <link rel="stylesheet" href="css/spingymprofile.css">
+    <link rel="stylesheet" href="css/sideaccounts.css">
     <style>
         .card { margin-bottom: 20px; }
         .remove-btn { color: red; cursor: pointer; }
@@ -14,32 +16,39 @@
     </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="#"><img src="framework/img/Logoo.ico" alt="Logo"> PEAK PULSE</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav mr-auto"></ul>
-            <!-- <span class="navbar-text mx-auto text-white">
-                Admin Management Dashboard
-            </span> -->
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="accounts.html">Manage Account</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="Gym-Profile.html">Manage Gym Profile</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="reports.html">Manage Reports</a>
-                </li>
-                <div class="nav-link">
-                    <button class="btn btn-secondary mb-2" onclick="window.location.href='login.html'">Log out</button>
+
+
+    <nav class="sidebar">
+        <div class="profile-container text-center mb-4" style="position: relative;">
+            <div class="dropdown">
+                <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" class="img-fluid rounded-circle mb-2" style="width: 80px; cursor: pointer;">
+                <h3 id="profile-username" class="mt-2"></h3> <!-- Username header added here -->
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="Pinfo.html">Personal Information</a>
+                    <a class="dropdown-item" href="report.html">Submit a Complaint</a>
+                    <a class="dropdown-item" href="login.html">Log Out</a>
                 </div>
-            </ul>
+            </div>
         </div>
+    
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="accounts.html">
+                    <i class="fas fa-dumbbell"></i> Manage Account
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="Gym-Profile.html">
+                    <i class="fas fa-user-friends"></i> Manage Gym Profile
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="reports.html">
+                    <i class="fas fa-user-friends"></i> Manage reports
+                </a>
+            </li>
+                             
+        </ul>
     </nav>
 
     <div class="container mt-4">
@@ -92,12 +101,17 @@
     <div id="message-container" style="display: none; padding: 10px; margin: 0 auto; border-radius: 5px; font-weight: bold; text-align: center; max-width: 600px;">
         <span id="message-text"></span>
     </div>
+
+    <div id="spinner" class="spinner" style="display:none;">
+        <div class="loader"></div>
+    </div>
     
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script type="module" src="src/Js/gymDetails.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // Function to select or deselect all profiles
         function selectAllProfiles(selectAll) {
