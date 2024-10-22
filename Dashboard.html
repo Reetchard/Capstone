@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
     <link rel="stylesheet" href="css/Dashstyle.css">
 </head>
 <body>
@@ -47,14 +49,7 @@
                 <a class="nav-link" href="#messages">
                     <i class="fas fa-comments"></i> Message
                 </a>
-            </li>
-            <li class="nav-item position-relative">
-                <a class="nav-link" href="#" id="cartBtn" data-toggle="modal" data-target="#cartModal">
-                    <i class="fas fa-shopping-cart"></i> Cart
-                    <span id="cart-count" class="badge badge-danger position-absolute" style="right: 10px; top: 5px;">0</span>
-                </a>
-            </li>
-                        
+            </li>          
         </ul>
     </nav>
     
@@ -86,15 +81,14 @@
                     <div class="row">
                         <div class="col-md-4">
                             <p>
-                                <i class="fas fa-map-marker-alt red-icon"></i> 
+                                <i id="locationIcon" class="fas fa-map-marker-alt red-icon" style="cursor: pointer;"></i> <!-- Add an ID to the icon -->
                                 <strong>
                                     Location:
-                                    <span class="custom-tooltip">Click me!</span>
+                                    <span class="custom-tooltip">Click the icon!</span>
                                 </strong>
                             </p>
-                            <p id="modalGymLocation">Location</p>
+                            <p id="modalGymLocation">Lapu-Lapu City, Cebu</p>
                         </div>
-                        
                         <div class="col-md-4">
                             <p><strong>Equipment:</strong></p>
                             <p id="modalGymEquipment">Equipment</p>
@@ -152,7 +146,25 @@
         </div>
     </div>
     
-    
+    <!-- Modal for Map -->
+    <div class="modal fade" id="mapModal" tabindex="-1" aria-labelledby="mapModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="mapModalLabel">Gym Location</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="map" style="height: 400px; width: 100%;"></div> <!-- Map container -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 
     <!-- Trainer Info Modal -->
 <div class="modal fade" id="trainerProfileModal" tabindex="-1" aria-labelledby="trainerProfileModalLabel" aria-hidden="true">
@@ -220,7 +232,7 @@
         </div>
         <div class="notification-modal-body">
           <div id="notificationList">
-            <p class="list-group-item">No new notifications</p>
+            <p class="list-group-item"></p>
           </div>
         </div>
         <div class="modal-footer">
@@ -376,31 +388,7 @@
             </div>
         </div>
     </div>
-    
-    <div id="cartModal" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Your Cart</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <h6>Products in Cart</h6>
-                    <div id="cartProductsList">
-                        <!-- Cart items will be displayed here -->
-                        <p class="text-muted">No products in the cart.</p>
-                    </div>
-                    <h6 class="mt-4">Total</h6>
-                    <p id="cartTotalPrice">₱0</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
+
     
 
     <script>
@@ -415,6 +403,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script type="module" src="src/Js/DashScript.js"></script>
 </body>
 </html>
