@@ -447,51 +447,129 @@ function formatTime(time) {
                     }
                 };
               // Fetch notifications from Firestore and sync with localStorage
-                async function fetchNotifications(userId) {
-                    try {
-                        console.log('Fetching notifications from Firestore for userId:', userId);
-
-                        // Fetch notifications from Firestore for the specific user
-                        const notificationsSnapshot = await getDocs(
-                            query(collection(db, 'Notifications'), where('userId', '==', userId))
-                        );
-
-                        const notifications = notificationsSnapshot.docs.map(doc => {
-                            const data = doc.data();
-                            let timestamp = data.timestamp;
-
-                            // Check if the timestamp is a Firestore Timestamp
-                            if (timestamp && typeof timestamp.toDate === 'function') {
-                                timestamp = timestamp.toDate(); // Convert Firestore Timestamp to JavaScript Date
-                            } else if (typeof timestamp === 'string') {
-                                timestamp = new Date(timestamp); // If it's a string, convert it to a Date object
-                            } else if (!timestamp) {
-                                timestamp = new Date(); // If there's no timestamp, set it to now
-                            }
-
-                            return {
-                                ...data,
-                                id: doc.id,
-                                timestamp: timestamp
-                            };
+              async function fetchNotifications(userId) {
+                try {
+                    console.log('Fetching notifications from Firestore for userId:', userId);
+            
+                    // Fetch notifications from Firestore for the specific user
+                    const notificationsSnapshot = await getDocs(
+                        query(collection(db, 'Notifications'), where('userId', '==', userId))
+                    );
+            
+                    const notifications = notificationsSnapshot.docs.map(doc => {
+                        const data = doc.data();
+                        let timestamp = data.timestamp;
+            
+                        // Convert Firestore Timestamp or string to Date object
+                        if (timestamp && typeof timestamp.toDate === 'function') {
+                            timestamp = timestamp.toDate(); // Firestore Timestamp
+                        } else if (typeof timestamp === 'string') {
+                            timestamp = new Date(timestamp); // String
+                        } else if (!timestamp) {
+                            timestamp = new Date(); // No timestamp, set to now
+                        }
+            
+                        return {
+                            ...data,
+                            id: doc.id,
+                            timestamp: timestamp
+                        };
+                    });
+            
+                    // Sort notifications by timestamp in descending order (newest first)
+                    notifications.sort((a, b) => b.timestamp - a.timestamp);
+            
+                    console.log('Fetched notifications:', notifications);
+            
+                    // Store notifications in localStorage for persistence across refreshes
+                    localStorage.setItem('notifications', JSON.stringify(notifications));
+            
+                    // Categorize notifications by time
+                    const categorizedNotifications = categorizeNotifications(notifications);
+            
+                    // Display the notifications
+                    displayCategorizedNotifications(categorizedNotifications);
+            
+                    // Update notification count after fetching all notifications
+                    const unreadCount = notifications.filter(notification => !notification.read).length;
+                    updateNotificationCount(unreadCount);
+            
+                } catch (error) {
+                    console.error('Error fetching notifications:', error);
+                }
+            }
+            
+            // Function to categorize notifications based on time differences
+            function categorizeNotifications(notifications) {
+                const categorized = {
+                    'New Notifications': [],
+                    'Older Notifications': []
+                };
+            
+                const now = new Date();
+            
+                notifications.forEach(notification => {
+                    const diffInMs = now - notification.timestamp;
+                    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+            
+                    if (diffInDays < 1) { // Less than 1 day
+                        categorized['New Notifications'].push(notification);
+                    } else { // 1 day or older
+                        categorized['Older Notifications'].push(notification);
+                    }
+                });
+            
+                return categorized;
+            }
+            
+            
+            // Function to display categorized notifications
+            function displayCategorizedNotifications(categorizedNotifications) {
+                const notificationList = document.getElementById('notificationList');
+                notificationList.innerHTML = ''; // Clear the list before adding new notifications
+            
+                for (const [category, notifications] of Object.entries(categorizedNotifications)) {
+                    if (notifications.length > 0) {
+                        const categoryHeader = document.createElement('h6');
+                        categoryHeader.classList.add('category-header'); // Add a class for styling
+                        categoryHeader.innerText = category;
+                        notificationList.appendChild(categoryHeader);
+            
+                        notifications.forEach(notification => {
+                            const notificationItem = document.createElement('p');
+                            notificationItem.classList.add('list-group-item');
+            
+                            // Calculate how long ago the notification was received
+                            const timeAgo = getTimeAgo(notification.timestamp);
+            
+                            // Use <strong> for unread notifications
+                            const message = notification.read ? 
+                                notification.message : `<strong>${notification.message}</strong>`;
+            
+                            notificationItem.innerHTML = `
+                                ${message}<br>
+                                <small>${timeAgo}</small>
+                            `;
+            
+                            // Add event listener for showing notification details and marking it as read
+                            notificationItem.addEventListener('click', () => {
+                                markAsRead(notification.id, notification.userId); // Mark notification as read
+                                showNotificationDetails(notification); // Show notification details in a modal
+                            });
+            
+                            notificationList.appendChild(notificationItem);
                         });
-
-                        console.log('Fetched notifications:', notifications);
-
-                        // Store notifications in localStorage for persistence across refreshes
-                        localStorage.setItem('notifications', JSON.stringify(notifications));
-
-                        // Display the notifications
-                        displayNotifications(notifications);
-
-                        // Update notification count after fetching all notifications
-                        const unreadCount = notifications.filter(notification => !notification.read).length;
-                        updateNotificationCount(unreadCount);
-
-                    } catch (error) {
-                        console.error('Error fetching notifications:', error);
                     }
                 }
+            
+                // If no notifications, show a default message
+                if (notificationList.innerHTML === '') {
+                    notificationList.innerHTML = 
+                        '<p class="list-group-item text-center text-muted py-3">No new notifications</p>';
+                }
+            }
+            
+            
 
                 // Load notifications from localStorage when the page reloads
                 function loadNotificationsFromLocalStorage() {
@@ -517,38 +595,76 @@ function formatTime(time) {
                 function displayNotifications(notifications) {
                     const notificationList = document.getElementById('notificationList');
                     notificationList.innerHTML = ''; // Clear the list before adding new notifications
-
-                    if (notifications.length > 0) {
-                        notifications.forEach(notification => {
-                            const notificationItem = document.createElement('p');
-                            notificationItem.classList.add('list-group-item'); // Updated class for modal
-
-                            // Calculate how long ago the notification was received
-                            const timeAgo = getTimeAgo(notification.timestamp);
-
-                            notificationItem.innerHTML = `
-                                <strong>${notification.message}</strong> <br>
-                                <small>${timeAgo}</small>
-                            `;
-
-                            if (!notification.read) {
-                                notificationItem.style.fontWeight = 'bold'; // Bold style for unread notifications
-                            }
-
-                            // Add event listener for showing notification details and marking it as read
-                            notificationItem.addEventListener('click', () => {
-                                markAsRead(notification.id, notification.userId); // Mark notification as read
-                                showNotificationDetails(notification); // Show notification details in a modal
-                            });
-
+                
+                    // Categorize notifications into new and older
+                    const categorized = categorizeNotifications(notifications);
+                
+                    // Display new notifications
+                    if (categorized['New Notifications'].length > 0) {
+                        categorized['New Notifications'].forEach(notification => {
+                            const notificationItem = createNotificationItem(notification);
                             notificationList.appendChild(notificationItem);
                         });
                     } else {
-                        notificationList.innerHTML = 
-                            '<p class="list-group-item text-center text-muted py-3">No new notifications</p>';
+                        notificationList.innerHTML = '<p class="list-group-item text-center text-muted py-3">No new notifications</p>';
                     }
+                
+                    // Add toggle button for older notifications
+                    const toggleOlderBtn = document.createElement('button');
+                    toggleOlderBtn.innerText = 'Show Older Notifications';
+                    toggleOlderBtn.classList.add('btn', 'btn-link'); // Bootstrap styling
+                    toggleOlderBtn.onclick = () => {
+                        const olderNotificationsContainer = document.getElementById('olderNotifications');
+                        if (olderNotificationsContainer.style.display === 'none') {
+                            olderNotificationsContainer.style.display = 'block';
+                            toggleOlderBtn.innerText = 'Hide Older Notifications';
+                        } else {
+                            olderNotificationsContainer.style.display = 'none';
+                            toggleOlderBtn.innerText = 'Show Older Notifications';
+                        }
+                    };
+                
+                    notificationList.appendChild(toggleOlderBtn);
+                
+                    // Create container for older notifications
+                    const olderNotificationsContainer = document.createElement('div');
+                    olderNotificationsContainer.id = 'olderNotifications';
+                    olderNotificationsContainer.style.display = 'none'; // Hidden by default
+                
+                    // Display older notifications
+                    categorized['Older Notifications'].forEach(notification => {
+                        const notificationItem = createNotificationItem(notification);
+                        olderNotificationsContainer.appendChild(notificationItem);
+                    });
+                
+                    notificationList.appendChild(olderNotificationsContainer);
                 }
-
+                
+                // Helper function to create a notification item
+                function createNotificationItem(notification) {
+                    const notificationItem = document.createElement('p');
+                    notificationItem.classList.add('list-group-item');
+                
+                    // Calculate how long ago the notification was received
+                    const timeAgo = getTimeAgo(notification.timestamp);
+                    const message = notification.read ? 
+                                    notification.message : 
+                                    `<strong>${notification.message}</strong>`;
+                
+                    notificationItem.innerHTML = `
+                        ${message}<br>
+                        <small>${timeAgo}</small>
+                    `;
+                
+                    // Add event listener for showing notification details and marking it as read
+                    notificationItem.addEventListener('click', () => {
+                        markAsRead(notification.id, notification.userId); // Mark notification as read
+                        showNotificationDetails(notification); // Show notification details in a modal
+                    });
+                
+                    return notificationItem;
+                }
+                
                 // Helper function to calculate relative time (e.g., "12 hours ago")
                 function getTimeAgo(timestamp) {
                     const now = new Date();
