@@ -207,7 +207,32 @@ button:hover {
 #messageArea.fade-in {
     animation: fadeIn 1s ease-in-out;
 }
+.spinner {
+    position: fixed; /* Fix the spinner in the center of the screen */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
+    display: flex; /* Use Flexbox to center the loader */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    z-index: 9999; /* Make sure it appears on top of other elements */
+}
 
+.loader {
+    border: 8px solid #f3f3f3; /* Light gray */
+    border-top: 8px solid #3498db; /* Blue */
+    border-radius: 50%; /* Round shape */
+    width: 50px; /* Width of the spinner */
+    height: 50px; /* Height of the spinner */
+    animation: spin 1s linear infinite; /* Animation for spinning effect */
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -215,4 +240,5 @@ button:hover {
     to {
         opacity: 1;
     }
+
 }

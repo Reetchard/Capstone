@@ -1,6 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
-import { getAuth, } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js';
-import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, deleteDoc , } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js';
+import { getAuth } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js';
+import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js';
 
 // Your Firebase configuration
 const firebaseConfig = {
@@ -21,7 +21,7 @@ const db = getFirestore(app);
 async function loadGymProfiles() {
     const gymListBody = document.getElementById('gymList');
     const usersRef = collection(db, 'Users');
-    
+
     // Fetch gym owners from Users collection
     const usersSnapshot = await getDocs(usersRef);
     gymListBody.innerHTML = ''; // Clear previous data
@@ -36,9 +36,9 @@ async function loadGymProfiles() {
 
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td><input type="checkbox" class="select-gym" data-key="${userDoc.id}"></td>
+                <td><input type="checkbox" class="select-gym" data-key="${userDoc.id}" data-gym-name="${userData.gymName}"></td>
                 <td>${gymId}</td>
-                <td>${userData.gymName}</td> <!-- Assuming gymName is stored in user data -->
+                <td>${userData.gymName}</td>
                 <td><a href="#" onclick="openModal('${userData.gymPhoto}')"><img src="${userData.gymPhoto}" alt="Gym Photo" style="max-width: 100px;"></a></td>
                 <td><a href="#" onclick="openModal('${userData.gymCertifications}')"><img src="${userData.gymCertifications}" alt="Certification Image" style="max-width: 100px;"></a></td>
                 <td>${userData.gymEquipment}</td>
@@ -49,52 +49,35 @@ async function loadGymProfiles() {
                 <td>${userData.gymLocation}</td>
                 <td>${userData.status}</td>
                 <td>
-                    <button class="btn btn-success btn-sm mx-1" onclick="updateStatus('approve', '${userDoc.id}')">Approve</button>
+                    <button class="btn btn-success btn-sm mx-1" onclick="updateStatus('approved', '${userDoc.id}')">Approve</button>
                     <button class="btn btn-secondary btn-sm mx-1" onclick="updateStatus('idle', '${userDoc.id}')">Idle</button>
-                    <button class="btn btn-warning btn-sm mx-1" onclick="updateStatus('Block', '${userDoc.id}')">Block</button>
+                    <button class="btn btn-warning btn-sm mx-1" onclick="updateStatus('blocked', '${userDoc.id}')">Block</button>
                 </td>
             `;
             gymListBody.appendChild(row);
         }
     }
 }
-
-
-
-
 // Load gym profiles when the page loads
 window.onload = loadGymProfiles;
 
-// Function to display messages
+// Display messages with SweetAlert
 window.displayMessages = function(message, type) {
-    const messageArea = document.getElementById('messageArea');
-
-    // Clear previous content and remove classes
-    messageArea.textContent = '';
-    messageArea.className = 'message-area'; // Reset the class
-
-    // Set the message content
-    messageArea.textContent = message;
-
-    // Add the correct class based on the message type (success or error)
     if (type === 'success') {
-        messageArea.classList.add('success');
+        Swal.fire({
+            title: 'Success!',
+            text: message,
+            icon: 'success',
+            confirmButtonText: 'OK'
+        });
     } else if (type === 'error') {
-        messageArea.classList.add('error');
+        Swal.fire({
+            title: 'Error!',
+            text: message,
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
     }
-
-    // Add the 'show' class to display the message
-    messageArea.classList.add('show');
-
-    // Automatically hide the message after 5 seconds
-    setTimeout(() => {
-        messageArea.classList.add('fade-out'); // Start fading out
-
-        // Remove the message from the view after the fade-out transition
-        setTimeout(() => {
-            messageArea.classList.remove('show', 'fade-out');
-        }, 500); // Ensure this matches the fade-out duration (0.5s)
-    }, 5000); // Show the message for 5 seconds
 };
 
 // Delete selected gym profiles
@@ -105,106 +88,39 @@ window.deleteSelected = async function() {
         return;
     }
 
-    // Display confirmation dialog
+    // Display confirmation dialog with SweetAlert
     displayConfirmation('Are you sure you want to delete the selected profiles?', async () => {
         for (const checkbox of selectedCheckboxes) {
             const key = checkbox.getAttribute('data-key');
+            const gymName = checkbox.getAttribute('data-gym-name'); // Fetch gym name
             const gymRef = doc(db, 'Users', key);
             await deleteDoc(gymRef)
                 .then(() => {
-                    displayMessages(`Profile with key ${key} has been deleted.`, 'success');
+                    displayMessages(`Profile for ${gymName} has been deleted.`, 'success'); // Display gym name
                 })
                 .catch(() => {
-                    displayMessages(`Error deleting profile with key ${key}.`, 'error');
+                    displayMessages(`Error deleting profile for ${gymName}.`, 'error');
                 });
         }
         loadGymProfiles(); // Reload profiles after deletion
     });
 };
 
-// Function to display the floating confirmation message
+// Confirmation dialog with SweetAlert
 function displayConfirmation(message, callback) {
-    const confirmationContainer = document.createElement('div');
-    confirmationContainer.classList.add('confirmation-container');
-    
-    confirmationContainer.innerHTML = `
-        <div class="confirmation-content">
-            <p>${message}</p>
-            <div class="confirmation-buttons">
-                <button id="confirm-btn" class="confirm-btn">Yes</button>
-                <button id="cancel-btn" class="cancel-btn">No</button>
-            </div>
-        </div>
-    `;
-
-    document.body.appendChild(confirmationContainer);
-
-    // Style the confirmation container
-    confirmationContainer.style.position = 'fixed';
-    confirmationContainer.style.top = '50%';
-    confirmationContainer.style.left = '50%';
-    confirmationContainer.style.transform = 'translate(-50%, -50%)';
-    confirmationContainer.style.backgroundColor = '#fff';
-    confirmationContainer.style.borderRadius = '8px';
-    confirmationContainer.style.padding = '20px';
-    confirmationContainer.style.zIndex = '9999';
-    confirmationContainer.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.2)';
-    confirmationContainer.style.width = '300px';
-    confirmationContainer.style.textAlign = 'center';
-    confirmationContainer.style.fontFamily = 'Arial, sans-serif';
-    confirmationContainer.style.transition = 'all 0.3s ease-in-out';
-
-    // Style the confirmation message
-    const confirmationContent = confirmationContainer.querySelector('.confirmation-content');
-    confirmationContent.style.marginBottom = '20px';
-    confirmationContent.style.fontSize = '16px';
-    confirmationContent.style.color = '#333';
-    
-    // Style the buttons
-    const confirmButton = document.getElementById('confirm-btn');
-    const cancelButton = document.getElementById('cancel-btn');
-    
-    confirmButton.style.backgroundColor = '#28a745';
-    confirmButton.style.color = '#fff';
-    confirmButton.style.border = 'none';
-    confirmButton.style.borderRadius = '5px';
-    confirmButton.style.padding = '10px 20px';
-    confirmButton.style.cursor = 'pointer';
-    confirmButton.style.marginRight = '10px';
-    confirmButton.style.transition = 'background-color 0.3s';
-
-    cancelButton.style.backgroundColor = '#dc3545';
-    cancelButton.style.color = '#fff';
-    cancelButton.style.border = 'none';
-    cancelButton.style.borderRadius = '5px';
-    cancelButton.style.padding = '10px 20px';
-    cancelButton.style.cursor = 'pointer';
-    cancelButton.style.transition = 'background-color 0.3s';
-
-    // Add hover effects
-    confirmButton.addEventListener('mouseenter', () => {
-        confirmButton.style.backgroundColor = '#218838';
-    });
-    confirmButton.addEventListener('mouseleave', () => {
-        confirmButton.style.backgroundColor = '#28a745';
-    });
-
-    cancelButton.addEventListener('mouseenter', () => {
-        cancelButton.style.backgroundColor = '#c82333';
-    });
-    cancelButton.addEventListener('mouseleave', () => {
-        cancelButton.style.backgroundColor = '#dc3545';
-    });
-
-    // Handle confirm button click
-    document.getElementById('confirm-btn').addEventListener('click', () => {
-        document.body.removeChild(confirmationContainer);
-        callback();
-    });
-
-    // Handle cancel button click
-    document.getElementById('cancel-btn').addEventListener('click', () => {
-        document.body.removeChild(confirmationContainer);
+    Swal.fire({
+        title: 'Are you sure?',
+        text: message,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#dc3545',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'No, cancel!',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            callback(); // Call the provided callback function if confirmed
+        }
     });
 }
 
@@ -229,19 +145,56 @@ window.openModal = function(imageSrc) {
     }
 }
 
-
 // Function to update status of a gym
 window.updateStatus = async function(status, key) {
     const userRef = doc(db, 'Users', key);
+    const checkbox = document.querySelector(`.select-gym[data-key="${key}"]`);
+    const gymName = checkbox ? checkbox.getAttribute('data-gym-name') : 'Unknown Gym'; // Fetch gym name
+
+    // Show spinner while updating status
+    const spinner = document.getElementById('spinner');
+    spinner.style.display = 'block'; // Show the spinner
+
     await updateDoc(userRef, { status: status })
         .then(() => {
-            displayMessages(`Profile with key ${key} is now marked as ${status}.`, 'success');
-            loadGymProfiles(); // Reload profiles after update
+            // Use a timer to show the spinner for 1.5 seconds before showing SweetAlert
+            setTimeout(() => {
+                spinner.style.display = 'none'; // Hide the spinner
+
+                // Display message based on the status
+                let message = '';
+                switch (status) {
+                    case 'approved':
+                        message = `Successfully approved ${gymName}.`;
+                        break;
+                    case 'blocked':
+                        message = `Successfully blocked ${gymName}.`;
+                        break;
+                    case 'idle':
+                        message = `Successfully set ${gymName} to idle.`;
+                        break;
+                    default:
+                        message = 'Status updated.';
+                }
+
+                // Show SweetAlert
+                Swal.fire({
+                    title: 'Success!',
+                    text: message,
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
+
+                loadGymProfiles(); // Reload profiles after update
+            }, 1500); // Delay for 1.5 seconds
         })
         .catch(() => {
-            displayMessages('Error updating status. Please try again.', 'error');
+            spinner.style.display = 'none'; // Hide the spinner in case of error
+            Swal.fire({
+                title: 'Error!',
+                text: 'Error updating status. Please try again.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
         });
 };
-
-// Load gym profiles when the page loads
-window.onload = loadGymProfiles;
