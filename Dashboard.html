@@ -65,86 +65,118 @@
             </div>
             <div class="gym-profile" id="gym-profiles">
                 <!-- Add more gym profiles here -->
-            </div>                 
+            </div>
         </section>
-
-    <!-- Modal Structure for Gym Profile -->
-    <div id="gymProfileModal" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <span class="modal-close" onclick="closeModal()">&times;</span>
-                <img id="modalGymPhoto" src="" alt="" class="gym-modal-photo img-fluid">
-                <div class="modal-header">
-                    <h3 id="modalGymName">Gym Name</h3>
-                </div>
-                <div class="container mt-4">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <p>
-                                <i id="locationIcon" class="fas fa-map-marker-alt red-icon" style="cursor: pointer;"></i> <!-- Add an ID to the icon -->
-                                <strong>
-                                    Location:
-                                    <span class="custom-tooltip">Click the icon!</span>
-                                </strong>
-                            </p>
-                            <p id="modalGymLocation">Lapu-Lapu City, Cebu</p>
-                        </div>
-                        <div class="col-md-4">
-                            <p><strong>Equipment:</strong></p>
-                            <p id="modalGymEquipment">Equipment</p>
-                        </div>
-                        <div class="col-md-4">
-                            <p><strong>Programs:</strong></p>
-                            <p id="modalGymPrograms">Programs</p>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <p><strong>Email:</strong></p>
-                            <p id="modalGymEmail">Email</p>
-                        </div>
-                        <div class="col-md-4">
-                            <p><strong>Opening Time:</strong></p>
-                            <p id="modalGymOpeningTime">Opening Time</p>
-                        </div>
-                        <div class="col-md-4">
-                            <p><strong>Closing Time:</strong></p>
-                            <p id="modalGymClosingTime">Closing Time</p>
-                        </div>
-                    </div>
-                    
-
-                    <!-- Trainer Section -->
-                    <h4 class="mt-4">Trainers</h4>
-                    <div id="trainers-section" class="trainers-container">
-                        <!-- Trainer cards will be injected here dynamically -->
-                    </div>
     
-                    <!-- Products Section -->
-                    <h4 class="mt-4">Products</h4>
-                    <div id="products-section" class="products-container">
-                        <!-- Product cards will be injected here dynamically -->
+        <!-- Modal Structure with Carousel -->
+        <div id="gymProfileModal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <span class="modal-close" onclick="closeModal()">&times;</span>
+    
+                    <!-- Carousel -->
+                    <div id="gymProfileCarousel" class="carousel slide" data-ride="carousel" data-interval="false">
+                        <div class="carousel-inner">
+                            
+                            <!-- Profiling Section (First Page) -->
+                            <div class="carousel-item active">
+                                <div class="modal-header">
+                                    <h3 id="modalGymName">Gym Name</h3>
+                                </div>
+                                <img id="modalGymPhoto" src="" alt="" class="gym-modal-photo img-fluid">
+                                <div class="container mt-4">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <p>
+                                                <i id="locationIcon" class="fas fa-map-marker-alt red-icon"></i> 
+                                                <strong>Location:</strong>
+                                            </p>
+                                            <p id="modalGymLocation"></p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <p><strong>Equipment:</strong></p>
+                                            <p id="modalGymEquipment"></p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <p><strong>Programs:</strong></p>
+                                            <p id="modalGymPrograms"></p>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <p><strong>Email:</strong></p>
+                                            <p id="modalGymEmail"></p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <p><strong>Opening Time:</strong></p>
+                                            <p id="modalGymOpeningTime"></p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <p><strong>Closing Time:</strong></p>
+                                            <p id="modalGymClosingTime"></p>
+                                        </div>
+                                    </div>
+                                </div>
+    
+                                <!-- Modal Footer (Only on Profiling Section) -->
+                                <div class="modal-footer">
+                                    <button class="btn btn-secondary" onclick="">
+                                        <i class="fas fa-list-alt"></i> Membership Plans
+                                    </button>
+                                    <button id="" class="btn-book btn-success">
+                                        <i class="fas fa-calendar-check"></i> Book Now
+                                    </button>
+                                </div>
+                            </div>
+    
+                            <!-- Trainers Section -->
+                            <div class="carousel-item">
+                                <div class="modal-header">
+                                    <h3>Trainers</h3>
+                                </div>
+                                <div id="trainers-section" class="trainers-container mt-4">
+                                    <!-- Trainer cards will be injected here dynamically -->
+                                </div>
+                            </div>
+    
+                            <!-- Products Section -->
+                            <div class="carousel-item">
+                                <div class="modal-header">
+                                    <h3>Products</h3>
+                                </div>
+                                <div id="products-section" class="products-container mt-4">
+                                    <!-- Product cards will be injected here dynamically -->
+                                </div>
+                            </div>
+    
+                            <!-- Membership Plans Section -->
+                            <div class="carousel-item">
+                                <div class="modal-header">
+                                    <h3>Membership Plans</h3>
+                                </div>
+                                <div id="membership-plans-section" class="memberships-container mt-4">
+                                    <!-- Membership cards will be injected here dynamically -->
+                                </div>
+                            </div>
+                        </div>
+    
+                        <!-- Carousel Controls -->
+                        <a class="carousel-control-prev" href="#gymProfileCarousel" role="button" data-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+                        <a class="carousel-control-next" href="#gymProfileCarousel" role="button" data-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Next</span>
+                        </a>
                     </div>
-                    <h4 class="mt-4">Membership</h4>
-                    <div id="membership-plans-section" class="memberships-container">
-                        <!-- membership cards will be injected here dynamically -->
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" onclick="">
-                        <i class="fas fa-list-alt"></i> Membership Plans
-                    </button>
                 </div>
             </div>
         </div>
     </div>
     
-    <div id="membershipPlansModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeMembershipPlansModal()">&times;</span>
-            <div id="membershipPlansContent"></div> <!-- Membership plans will be dynamically inserted here -->
-        </div>
-    </div>
+    
+
     
     <!-- Modal for Map -->
     <div class="modal fade" id="mapModal" tabindex="-1" aria-labelledby="mapModalLabel" aria-hidden="true">

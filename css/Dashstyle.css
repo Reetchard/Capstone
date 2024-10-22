@@ -60,7 +60,7 @@
 /* Gym Photo */
 .gym-modal-photo {
     width: 100%;
-    height: 300px;
+    height: 200px;
     object-fit: cover;
     border-radius: 10px;
     margin-bottom: 20px;
@@ -323,7 +323,6 @@
 
 strong{
     color:#ffa31a;
-    cursor: pointer;
 }
 .btn-custom{
     border-radius: 10px; /* Adjust this value for the desired roundness */
@@ -777,6 +776,7 @@ input#modalProductQuantityInput:focus {
     background-color: transparent; /* Remove the white background */
     color: #ffffff; /* Change text color to white or your desired color */
     border: none; /* Remove any border if present */
+    border-bottom: 1px solid #555;
     transition: color 0.3s;
     cursor: pointer;
 }
@@ -786,9 +786,31 @@ input#modalProductQuantityInput:focus {
     color: #ffa31a;
 }
 .notification-modal-body {
-    max-height: 400px; /* Use !important only if necessary */
-    overflow-y: auto ; /* Use !important only if necessary */
+    max-height: 400px;
+    overflow-y: auto;
+    scrollbar-width: thin; /* For Firefox */
+    scrollbar-color: #888 transparent; /* For Firefox */
 }
+
+/* Custom scrollbar for WebKit browsers */
+.notification-modal-body::-webkit-scrollbar {
+    width: 8px; /* Scrollbar width */
+}
+
+.notification-modal-body::-webkit-scrollbar-track {
+    background: transparent; /* Track background */
+}
+
+.notification-modal-body::-webkit-scrollbar-thumb {
+    background-color: #888; /* Scrollbar thumb color */
+    border-radius: 10px; /* Rounded scrollbar thumb */
+    border: 2px solid transparent; /* Add space around the thumb */
+}
+
+.notification-modal-body::-webkit-scrollbar-thumb:hover {
+    background-color: #555; /* Darker on hover */
+}
+
 .red-icon {
     color: red; /* Custom color for the icon */
 }
@@ -863,5 +885,23 @@ strong:hover .custom-tooltip {
 
 .memberships-container .btn-custom:hover {
     background-color: #ffa31a; /* Darker shade on hover */
+}
+
+/* Adjust carousel controls */
+.carousel-control-prev,
+.carousel-control-next {
+    z-index: 100; /* Lower z-index for carousel controls */
+}
+
+/* Ensure the location icon is clickable */
+#locationIcon {
+    z-index: 200; /* Higher z-index for the location icon */
+    position: relative; /* Ensures the z-index takes effect */
+    cursor: pointer; /* Changes cursor to pointer for better UX */
+}
+
+/* Optional: Add some margin or padding to the icon for better spacing */
+#locationIcon {
+    margin-right: 5px; /* Adjust as needed */
 }
 

@@ -614,12 +614,12 @@ function formatTime(time) {
                                     </button>
                                 </div>
                                 <div class="modal-body" id="notificationDetailsContent">
-                                    <p style="text-align: center; font-size: 24px; font-weight: bold;">${notification.gymName}</p>    
-                                    <p style="text-align: center; font-size: 20px; font-weight: bold;">Que Number: ${notification.notificationId}</p>                              
-                                    <p>Product: ${notification.productName}</p>
-                                    <p>Quantity: ${notification.quantity}</p>
-                                    <p>Total Price: ${notification.totalPrice}</p>
-                                    <p>Status: ${notification.status}</p>
+                                    <p><strong>Ref. No.</strong>${notification.notificationId}</p>  
+                                    <p><strong>Gym Name:</strong> ${notification.gymName}</p>                            
+                                    <p><strong>Product:</strong> ${notification.productName}</p>
+                                    <p><strong>Quantity:</strong> ${notification.quantity}</p>
+                                    <p><strong>Total Price:</strong> ${notification.totalPrice}</p>
+                                    <p><strong>Status:</strong> ${notification.status}</p>
                                     <p>Please wait for the owner's approval. Show this receipt to the Gym owner.</p>
                                 </div>
                                 <div class="modal-footer">
