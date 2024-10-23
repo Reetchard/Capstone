@@ -1,6 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
 import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
-import { getFirestore, collection, getDocs, doc, addDoc,getDoc,query,where,updateDoc,orderBy,onSnapshot} from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js'; 
+import { getFirestore, collection, getDocs, doc, addDoc,getDoc,query,where,updateDoc,onSnapshot,orderBy, limit} from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js'; 
 import { getStorage, ref, getDownloadURL,uploadBytes  } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-storage.js';
 // Your Firebase configuration
 const firebaseConfig = {
@@ -82,6 +82,107 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// Function to show the Membership Status modal
+// Function to show the Membership Status modal
+document.querySelector('.nav-link[href="#Membership"]').addEventListener('click', async function () {
+    try {
+        // Fetch the current user's ID
+        const userId = await getCurrentUserId();
+
+        if (!userId) {
+            console.error('No user ID found. Please log in.');
+            return;
+        }
+
+        console.log(`User ID: ${userId}`);
+
+        // Fetch the user's current membership status and history
+        await fetchMembershipStatusAndHistory(userId);
+
+        // Show the membership status modal
+        $('#membershipStatusModal').modal('show');
+    } catch (error) {
+        console.error('Error showing membership status:', error);
+    }
+});
+
+// Function to fetch the user's membership status and history
+async function fetchMembershipStatusAndHistory(userId) {
+    try {
+        const currentMembershipStatusDiv = document.getElementById('currentMembershipStatus');
+        const membershipHistoryDiv = document.getElementById('membershipHistory');
+
+        currentMembershipStatusDiv.innerHTML = ''; // Clear previous data
+        membershipHistoryDiv.innerHTML = ''; // Clear previous history
+
+        console.log(`Fetching membership status for userId: ${userId}`);
+
+        // Fetch current membership status (latest transaction)
+        const currentMembershipQuery = query(
+            collection(db, 'Transactions'),
+            where('userId', '==', userId),
+            orderBy('purchaseDate', 'desc'), // Order by the latest purchase first
+            limit(1) // Get the latest membership
+        );        
+
+        const currentMembershipSnapshot = await getDocs(currentMembershipQuery);
+
+        if (!currentMembershipSnapshot.empty) {
+            const latestMembership = currentMembershipSnapshot.docs[0].data();
+            console.log('Latest membership:', latestMembership);
+
+            const currentStatusHtml = `
+                <div style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; background-color: #f9f9f9;">
+                    <h4 style="font-size: 1.5em; color: #5B247A;"><strong>Gym:</strong> ${latestMembership.gymName}</h4>
+                    <p><strong>Plan:</strong> ${latestMembership.planType}</p>
+                    <p><strong>Price:</strong> ₱${latestMembership.planPrice}</p>
+                    <p><strong>Purchased on:</strong> ${new Date(latestMembership.purchaseDate).toLocaleDateString()}</p>
+                    <p><strong>Status:</strong> ${latestMembership.status || 'Pending Owner Approval'}</p>
+                </div>
+            `;
+            currentMembershipStatusDiv.innerHTML = currentStatusHtml;
+        } else {
+            currentMembershipStatusDiv.innerHTML = '<p>No current membership found.</p>';
+        }
+
+        // Fetch membership history (all memberships, not just the latest)
+        const membershipHistoryQuery = query(
+            collection(db, 'Transactions'),
+            where('userId', '==', userId),
+            orderBy('purchaseDate', 'desc')
+        );
+
+        const membershipHistorySnapshot = await getDocs(membershipHistoryQuery);
+
+        if (!membershipHistorySnapshot.empty) {
+            console.log('Membership history found.');
+
+            let historyHtml = '<ul style="list-style: none; padding: 0;">';
+            membershipHistorySnapshot.forEach(doc => {
+                const membership = doc.data();
+                historyHtml += `
+                    <li style="margin-bottom: 15px;">
+                        <div style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; background-color: #f4f4f4;">
+                            <h4 style="font-size: 1.4em; color: #5B247A;"><strong>Gym:</strong> ${membership.gymName}</h4>
+                            <p><strong>Plan:</strong> ${membership.planType}</p>
+                            <p><strong>Price:</strong> ₱${membership.planPrice}</p>
+                            <p><strong>Purchased on:</strong> ${new Date(membership.purchaseDate).toLocaleDateString()}</p>
+                            <p><strong>Status:</strong> ${membership.status || 'Pending Owner Approval'}</p>
+                        </div>
+                    </li>
+                `;
+            });
+            historyHtml += '</ul>';
+            membershipHistoryDiv.innerHTML = historyHtml;
+        } else {
+            membershipHistoryDiv.innerHTML = '<p>No membership history found.</p>';
+        }
+
+    } catch (error) {
+        console.error('Error fetching membership status and history:', error);
+    }
+}
+
 
 
 // Function to display user profile picture
@@ -132,7 +233,9 @@ window.closeMembershipPlansModal = function() {
                 console.error('Membership Plans modal element not found.');
             }
 };
-        
+     
+
+
 // Fetch Gym Profiles and Display
     async function fetchGymProfiles() {
         const gymsCollection = collection(db, 'Users');
@@ -153,7 +256,7 @@ window.closeMembershipPlansModal = function() {
             // Check if the gym status is not "Under Review"
             if (gym.status && gym.status !== 'Under Review') {
                 const gymDiv = document.createElement('div');
-                gymDiv.classList.add('card', 'gym-profile', 'mb-3'); // Add Bootstrap card classes
+                gymDiv.classList.add('trainer-card', 'gym-profile', 'mb-3'); // Add Bootstrap card classes
 
                 gymDiv.innerHTML = `
                     <img src="${gym.gymPhoto || 'default-photo.jpg'}" alt="${gym.gymName || 'Gym'}" class="card-img-top gym-photo" />
@@ -178,20 +281,19 @@ function formatTime(time) {
 
     // Function to open the Gym Info Modal
     window.viewMore = async function (gymId) {
-
         try {
-            // Fetch the gym document from Firestore using gymId (which is the document's ID)
+            // Fetch the gym document from Firestore using gymId
             const gymDocRef = doc(db, 'Users', gymId);
             const gymDoc = await getDoc(gymDocRef);
     
             if (gymDoc.exists()) {
                 const gymData = gymDoc.data();
-                // Get gym name from the gym profile (gym owner's gym)
                 const gymProfileName = gymData.gymName;
     
-                console.log('Gym Profile Name:', gymProfileName); // Debugging log
+                // Debugging log
+                console.log('Gym Profile Name:', gymProfileName);
     
-                // Ensure each element exists before setting innerText
+                // Get and update modal elements
                 const modalGymName = document.getElementById('modalGymName');
                 const modalGymPhoto = document.getElementById('modalGymPhoto');
                 const modalGymLocation = document.getElementById('modalGymLocation');
@@ -202,9 +304,8 @@ function formatTime(time) {
                 const modalPriceRate = document.getElementById('modalPriceRate');
                 const modalGymOpeningTime = document.getElementById('modalGymOpeningTime');
                 const modalGymClosingTime = document.getElementById('modalGymClosingTime');
-                const trainersSection = document.getElementById('trainers-section'); // Trainers section
-                const productsSection = document.getElementById('products-section'); // Products section
-                const membershipPlansSection = document.getElementById('membership-plans-section'); // Membership Plans section
+                const trainersSection = document.getElementById('trainers-section');
+                const productsSection = document.getElementById('products-section');
     
                 // Populate modal content with gym details
                 if (modalGymName) modalGymName.innerText = gymProfileName || 'N/A';
@@ -215,33 +316,24 @@ function formatTime(time) {
                 if (modalGymEmail) modalGymEmail.innerText = gymData.email || 'N/A';
                 if (modalGymContact) modalGymContact.innerText = gymData.gymContact || 'N/A';
                 if (modalPriceRate) modalPriceRate.innerText = gymData.gymPriceRate || 'N/A';
-                if (modalGymOpeningTime) {
-                    const openingTime = gymData.gymOpeningTime || 'N/A';
-                    modalGymOpeningTime.innerText = formatTime(openingTime); // Use formatTime function
-                }
+                if (modalGymOpeningTime) modalGymOpeningTime.innerText = formatTime(gymData.gymOpeningTime || 'N/A');
+                if (modalGymClosingTime) modalGymClosingTime.innerText = formatTime(gymData.gymClosingTime || 'N/A');
     
-                if (modalGymClosingTime) {
-                    const closingTime = gymData.gymClosingTime || 'N/A';
-                    modalGymClosingTime.innerText = formatTime(closingTime); // Use formatTime function
-                }
+                // Clear the trainers and products sections
+                trainersSection.innerHTML = '';
+                productsSection.innerHTML = '';
     
-                trainersSection.innerHTML = ''; // Clear the trainers section
-                productsSection.innerHTML = ''; // Clear the products section
-                membershipPlansSection.innerHTML = ''; // Clear the membership plans section
-    
-                // Fetch trainers whose GymName matches the gym owner's GymName
+                // Fetch trainers for this gym
                 const trainersQuery = query(
                     collection(db, 'Users'),
                     where('role', '==', 'trainer'),
-                    where('GymName', '==', gymProfileName) // Match trainer's GymName with gymProfileName
+                    where('GymName', '==', gymProfileName)
                 );
                 const trainersSnapshot = await getDocs(trainersQuery);
     
                 if (!trainersSnapshot.empty) {
                     trainersSnapshot.forEach(doc => {
                         const trainerData = doc.data();
-    
-                        // Check if the trainer's status is not "Under Review"
                         if (trainerData.status !== "Under Review") {
                             const trainerCard = `
                                 <div class="trainer-card">
@@ -256,479 +348,28 @@ function formatTime(time) {
                 } else {
                     trainersSection.innerHTML = '<p>No trainers found for this gym.</p>';
                 }
-                
-                let notificationCount = 0;                
-                async function getCurrentUserId() {
-                    return new Promise((resolve, reject) => {
-                        onAuthStateChanged(auth, async (user) => {
-                            if (user) {
-                                const userDocRef = doc(db, 'Users', user.uid); // Fetch user doc using UID
-                                try {
-                                    const userDoc = await getDoc(userDocRef);
-                                    if (userDoc.exists()) {
-                                        const userData = userDoc.data();
-                                        const userId = userData.userId; // Retrieve the userId field from the document
-                                        if (userId) {
-                                            resolve(userId); // Resolve with userId from the document
-                                        } else {
-                                            reject('userId field not found in user document.');
-                                        }
-                                    } else {
-                                        reject('User document does not exist.');
-                                    }
-                                } catch (error) {
-                                    reject('Error fetching user document:', error);
-                                }
-                            } else {
-                                reject('No authenticated user found.');
-                            }
-                        });
-                    });
-                }
-                
-                // Function to display product information and show modal
-                window.ViewProductInfo = async function (productId) {
-                    try {
-                        $('.modal').modal('hide'); // Hide any open modals
-                
-                        // Fetch product data by ID
-                        const productDocRef = doc(db, 'Products', productId);
-                        const productDoc = await getDoc(productDocRef);
-                
-                        if (productDoc.exists()) {
-                            const productData = productDoc.data();
-                
-                            // Ensure modal elements exist
-                            const modalProductName = document.getElementById('modalProductName');
-                            const modalProductPrice = document.getElementById('modalProductPrice');
-                            const modalProductDescription = document.getElementById('modalProductDescription');
-                            const modalProductPhoto = document.getElementById('modalProductPhoto');
-                            const modalProductCategory = document.getElementById('modalProductCategory');
-                            const modalProductQuantityAvailable = document.getElementById('modalProductQuantity');
-                            const modalProductQuantityInput = document.getElementById('modalProductQuantityInput');
-                            const increaseQuantityBtn = document.getElementById('increaseQuantity');
-                            const decreaseQuantityBtn = document.getElementById('decreaseQuantity');
-                
-                            let availableStock = productData.quantity || 0;
-                            let selectedQuantity = 1;
-                            let productPrice = productData.price || 0;
-                
-                            // Display product data
-                            modalProductName.innerText = productData.name || 'Unnamed Product';
-                            modalProductPrice.innerText = `₱${productData.price || 'N/A'}`;
-                            modalProductDescription.innerText = productData.description || 'No description available.';
-                            modalProductPhoto.src = productData.photoURL || 'default-product.jpg';
-                            modalProductCategory.innerText = productData.category || 'N/A';
-                            modalProductQuantityAvailable.innerText = `Available: ${availableStock}`;
-                
-                            // Function to update total price based on selected quantity
-                            function updatePrice() {
-                                const totalPrice = productPrice * selectedQuantity;
-                                modalProductPrice.innerText = `₱${totalPrice.toLocaleString()}`; // Format price with commas
-                            }
-                
-                            // Update the displayed stock and quantity
-                            function updateQuantity() {
-                                modalProductQuantityInput.value = selectedQuantity;
-                                modalProductQuantityAvailable.innerText = `Available: ${availableStock - selectedQuantity}`;
-                                updatePrice(); // Update the total price when quantity changes
-                            }
-                
-                            // Increase quantity
-                            increaseQuantityBtn.addEventListener('click', function () {
-                                if (selectedQuantity < availableStock) {
-                                    selectedQuantity++;
-                                    updateQuantity();
-                                }
-                            });
-                
-                            // Decrease quantity
-                            decreaseQuantityBtn.addEventListener('click', function () {
-                                if (selectedQuantity > 1) {
-                                    selectedQuantity--;
-                                    updateQuantity();
-                                }
-                            });
-                
-                            // Set initial quantity and price
-                            modalProductQuantityInput.value = selectedQuantity;
-                            updatePrice(); // Set initial price based on quantity 1
-                
-                            // Show the Product Info modal
-                            $('#productModal').modal('show');
-                
-                        } else {
-                            console.error('Product not found!');
-                        }
-                    } catch (error) {
-                        console.error('Error fetching product data:', error);
-                    }
-                };
-                
-                // Buy Now function with confirmation and success messages
-                window.buyNow = async function () {
-                    try {
-                        // Ensure user ID is available before proceeding
-                        const userId = await getCurrentUserId(); // Get userId from the Users collection
-
-                        // Get product details
-                        const productName = document.getElementById('modalProductName').innerText;
-                        const quantityPurchased = document.getElementById('modalProductQuantityInput').value;
-                        const totalPrice = document.getElementById('modalProductPrice').innerText;
-
-                        // Assuming gymName is available in the GymProfile card
-                        const gymName = document.getElementById('modalGymName').innerText; // Get gym name from GymProfile card
-
-                        // Set product details in confirmation modal
-                        document.getElementById('confirmProductName').innerText = productName;
-                        document.getElementById('confirmQuantity').innerText = quantityPurchased;
-                        document.getElementById('confirmTotalPrice').innerText = totalPrice;
-
-                        // Show the confirmation modal
-                        $('#confirmationModal').modal('show');
-
-                        // Handle confirmation action
-                        document.getElementById('confirmPurchaseBtn').onclick = async function () {
-                            try {
-                                // Simulate purchase logic (e.g., update stock, etc.)
-                                notificationCount++;
-                                document.getElementById('notification-count').innerText = notificationCount;
-
-                                // Create a new notification with detailed information
-                                const newNotification = {
-                                    message: `You purchased ${quantityPurchased} of ${productName} for ${totalPrice}.`,
-                                    productName: productName,
-                                    quantity: quantityPurchased,
-                                    totalPrice: totalPrice,
-                                    status: 'Pending Owner Approval',
-                                    read: false, // Unread notification
-                                    userId: userId, // Use the current user's userId from the document
-                                    gymName: gymName, // Storing gymName from GymProfile card
-                                    notificationId: Date.now().toString(), // Unique ID based on timestamp
-                                    timestamp: new Date().toISOString() // Add timestamp for ordering or filtering if needed
-                                };
-
-                                // Save the notification to Firestore under a 'Notifications' collection
-                                await addDoc(collection(db, 'Notifications'), newNotification);
-
-                                // Save transaction to 'Transactions' collection
-                                const newTransaction = {
-                                    userId: userId, // Storing userId of the customer/user
-                                    productName: productName,
-                                    quantity: quantityPurchased,
-                                    totalPrice: totalPrice,
-                                    gymName: gymName, // Storing gymName from GymProfile card
-                                    timestamp: new Date().toISOString() // Timestamp of the transaction
-                                };
-
-                                // Save the transaction to Firestore under a 'Transactions' collection
-                                await addDoc(collection(db, 'Transactions'), newTransaction);
-
-                                // Close the confirmation modal
-                                $('#confirmationModal').modal('hide');
-
-                                // Show success modal
-                                document.getElementById('successProductName').innerText = productName;
-                                document.getElementById('successQuantity').innerText = quantityPurchased;
-                                document.getElementById('successTotalPrice').innerText = totalPrice;
-                                $('#successModal').modal('show');
-
-                                // Update the notification list
-                                await fetchNotifications(userId);
-
-                                // Close the product modal after the purchase
-                                $('#productModal').modal('hide');
-                            } catch (error) {
-                                console.error('Error saving notification or transaction:', error);
-                            }
-                        };
-                    } catch (error) {
-                        console.error('Error fetching current user ID:', error);
-                    }
-                };
-              // Fetch notifications from Firestore and sync with localStorage
-                async function fetchNotifications(userId) {
-                    try {
-                        console.log('Fetching notifications from Firestore for userId:', userId);
-
-                        // Fetch notifications from Firestore for the specific user
-                        const notificationsSnapshot = await getDocs(
-                            query(collection(db, 'Notifications'), where('userId', '==', userId))
-                        );
-
-                        const notifications = notificationsSnapshot.docs.map(doc => {
-                            const data = doc.data();
-                            let timestamp = data.timestamp;
-
-                            // Check if the timestamp is a Firestore Timestamp
-                            if (timestamp && typeof timestamp.toDate === 'function') {
-                                timestamp = timestamp.toDate(); // Convert Firestore Timestamp to JavaScript Date
-                            } else if (typeof timestamp === 'string') {
-                                timestamp = new Date(timestamp); // If it's a string, convert it to a Date object
-                            } else if (!timestamp) {
-                                timestamp = new Date(); // If there's no timestamp, set it to now
-                            }
-
-                            return {
-                                ...data,
-                                id: doc.id,
-                                timestamp: timestamp
-                            };
-                        });
-
-                        console.log('Fetched notifications:', notifications);
-
-                        // Store notifications in localStorage for persistence across refreshes
-                        localStorage.setItem('notifications', JSON.stringify(notifications));
-
-                        // Display the notifications
-                        displayNotifications(notifications);
-
-                        // Update notification count after fetching all notifications
-                        const unreadCount = notifications.filter(notification => !notification.read).length;
-                        updateNotificationCount(unreadCount);
-
-                    } catch (error) {
-                        console.error('Error fetching notifications:', error);
-                    }
-                }
-
-                // Load notifications from localStorage when the page reloads
-                function loadNotificationsFromLocalStorage() {
-                    const storedNotifications = localStorage.getItem('notifications');
-                    if (storedNotifications) {
-                        const notifications = JSON.parse(storedNotifications);
-                        console.log('Loading notifications from localStorage:', notifications);
-
-                        displayNotifications(notifications);
-
-                        // Update notification count after fetching all notifications
-                        const unreadCount = notifications.filter(notification => !notification.read).length;
-                        updateNotificationCount(unreadCount);
-                    } else {
-                        console.warn('No notifications found in localStorage');
-                        // Optional: Provide a default message if no notifications are found.
-                        document.getElementById('notificationList').innerHTML = 
-                            '<p class="list-group-item text-center text-muted py-3">No notifications available</p>';
-                    }
-                }
-
-                // Display notifications from Firestore or localStorage
-                function displayNotifications(notifications) {
-                    const notificationList = document.getElementById('notificationList');
-                    notificationList.innerHTML = ''; // Clear the list before adding new notifications
-
-                    if (notifications.length > 0) {
-                        notifications.forEach(notification => {
-                            const notificationItem = document.createElement('p');
-                            notificationItem.classList.add('list-group-item'); // Updated class for modal
-
-                            // Calculate how long ago the notification was received
-                            const timeAgo = getTimeAgo(notification.timestamp);
-
-                            notificationItem.innerHTML = `
-                                <strong>${notification.message}</strong> <br>
-                                <small>${timeAgo}</small>
-                            `;
-
-                            if (!notification.read) {
-                                notificationItem.style.fontWeight = 'bold'; // Bold style for unread notifications
-                            }
-
-                            // Add event listener for showing notification details and marking it as read
-                            notificationItem.addEventListener('click', () => {
-                                markAsRead(notification.id, notification.userId); // Mark notification as read
-                                showNotificationDetails(notification); // Show notification details in a modal
-                            });
-
-                            notificationList.appendChild(notificationItem);
-                        });
-                    } else {
-                        notificationList.innerHTML = 
-                            '<p class="list-group-item text-center text-muted py-3">No new notifications</p>';
-                    }
-                }
-
-                // Helper function to calculate relative time (e.g., "12 hours ago")
-                function getTimeAgo(timestamp) {
-                    const now = new Date();
-                    const secondsAgo = Math.floor((now - timestamp) / 1000);
-
-                    const intervals = {
-                        year: 31536000,
-                        month: 2592000,
-                        day: 86400,
-                        hour: 3600,
-                        minute: 60
-                    };
-
-                    for (const interval in intervals) {
-                        const timeInterval = Math.floor(secondsAgo / intervals[interval]);
-                        if (timeInterval >= 1) {
-                            return `${timeInterval} ${interval}${timeInterval > 1 ? 's' : ''} ago`;
-                        }
-                    }
-
-                    return 'Just now';
-                }
-
-                // Update the notification count (unread notifications)
-                window.updateNotificationCount = function (unreadCount) {
-                    const notificationCountElement = document.getElementById('notification-count');
-                    console.log('Updating unread count:', unreadCount); // Debugging
-
-                    notificationCountElement.textContent = unreadCount;
-
-                    if (unreadCount > 0) {
-                        notificationCountElement.style.display = 'inline-block';
-                    } else {
-                        notificationCountElement.style.display = 'none';
-                    }
-                }
-
-                // Mark a notification as read
-                async function markAsRead(notificationId, userId) {
-                    try {
-                        const notificationRef = doc(db, 'Notifications', notificationId);
-                        await updateDoc(notificationRef, { read: true });
-
-                        // Refresh the notifications after marking one as read
-                        fetchNotifications(userId);
-                    } catch (error) {
-                        console.error('Error marking notification as read:', error);
-                    }
-                }
-
-                // Show detailed notification information in a modal
-                function showNotificationDetails(notification) {
-                    const timeAgo = getTimeAgo(notification.timestamp);
-
-                    const notificationModal = `
-                    <div class="modal fade" id="notificationDetailsModal" tabindex="-1" role="dialog" aria-labelledby="notificationDetailsLabel" aria-hidden="true">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="notificationDetailsLabel">Purchase Details</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body" id="notificationDetailsContent">
-                                    <p style="text-align: center; font-size: 24px; font-weight: bold;">${notification.gymName}</p>    
-                                    <p style="text-align: center; font-size: 20px; font-weight: bold;">Que Number: ${notification.notificationId}</p>                              
-                                    <p>Product: ${notification.productName}</p>
-                                    <p>Quantity: ${notification.quantity}</p>
-                                    <p>Total Price: ${notification.totalPrice}</p>
-                                    <p>Status: ${notification.status}</p>
-                                    <p>Please wait for the owner's approval. Show this receipt to the Gym owner.</p>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    `;
-                    
-                    document.body.insertAdjacentHTML('beforeend', notificationModal);
-                    $('#notificationDetailsModal').modal('show');
-
-                    $('#notificationDetailsModal').on('hidden.bs.modal', function () {
-                        this.remove();
-                    });
-                }
-
-                // Ensure notifications are fetched after user logs in and on page load
-                window.onload = function () {
-                    // Load notifications from localStorage immediately on page load
-                    loadNotificationsFromLocalStorage();
-
-                    // Get the current user ID and fetch notifications from Firestore
-                    getCurrentUserId().then(userId => {
-                        fetchNotifications(userId);
-                    }).catch(error => {
-                        console.error('Error during user authentication:', error);
-                    });
-                };
-
     
-                    // Fetch products and render them
-                    const productsQuery = query(
-                        collection(db, 'Products'),
-                        where('gymName', '==', gymProfileName) // Adjust 'gymName' accordingly if needed
-                    );
-                    const productsSnapshot = await getDocs(productsQuery);
-
-                    if (!productsSnapshot.empty) {
-                        productsSnapshot.forEach(doc => {
-                            const productData = doc.data();
-
-                            // Create the product card with additional fields (category, quantity, date added)
-                            const productCard = `
-                                <div class="trainer-card">
-                                    <img src="${productData.photoURL || 'default-product.jpg'}" alt="Product Photo" class="product-photo">
-                                    <h5>${productData.name || 'Unnamed Product'}</h5>
-                                    <!-- <p>Category: ${productData.category || 'N/A'}</p> -->
-                                    <!-- <p>Price: ${productData.price || 'N/A'}</p> -->
-                                    <button class="btn-custom btn-primary" onclick="ViewProductInfo('${doc.id}')">Check info</button>
-                                </div>
-                            `;
-
-                            // Append the card to the container
-                            productsSection.innerHTML += productCard;
-                        });
-                    } else {
-                        productsSection.innerHTML = '<p>No products found for this gym.</p>';
-                    }
-
-
-                    // Define an array of colors for the membership cards
-                    const cardColors = [
-                        'linear-gradient(to right, #5B247A, #1BCEDF)',  
-                        'linear-gradient(to right, #184E68, #57CA85)', 
-                        'linear-gradient(to right, #F02FC2, #6094EA)', 
-                        'linear-gradient(to right, #f1c40f, #f39c12)', 
-                        'linear-gradient(to right, #8e44ad, #9b59b6)'
-                    ];
-                // Fetch membership plans where gymName matches gymProfileName
-                const membershipPlansQuery = query(
-                    collection(db, 'MembershipPlans'),
-                    where('gymName', '==', gymProfileName) // Match membership plans by gymName
+                // Fetch and display products for this gym
+                const productsQuery = query(
+                    collection(db, 'Products'),
+                    where('gymName', '==', gymProfileName)
                 );
+                const productsSnapshot = await getDocs(productsQuery);
     
-                const membershipPlansSnapshot = await getDocs(membershipPlansQuery);
-    
-                // Debugging log
-                console.log('Membership Plans Snapshot:', membershipPlansSnapshot);
-    
-                if (!membershipPlansSnapshot.empty) {
-                    let colorIndex = 0; // Initialize a color index
-                    membershipPlansSnapshot.forEach(doc => {
-                        const planData = doc.data();
-                        console.log('Plan Data:', planData); // Debugging log for each plan
-
-                         // Use the color index to set the background color
-                        const backgroundColor = cardColors[colorIndex % cardColors.length];
-                         colorIndex++; // Increment the color index
-    
-                        // Create the plan card HTML
-                        const planCard = `
-                            <div class="plan-card card mb-3" style="background: ${backgroundColor};">
-                                <div class="card-body">
-                                    <h4 class="card-title">${planData.membershipType || 'Unnamed Plan'}</h4>
-                                    <h5 class="card-title">₱${planData.price || 'N/A'}</h5>
-                                    <p class="card-text">${planData.description || 'No description available.'}</p>
-                                    <button class="btn-custom btn-primary" onclick="selectPlan('${doc.id}')">Purchase</button>
-                                </div>
+                if (!productsSnapshot.empty) {
+                    productsSnapshot.forEach(doc => {
+                        const productData = doc.data();
+                        const productCard = `
+                            <div class="trainer-card">
+                                <img src="${productData.photoURL || 'default-product.jpg'}" alt="Product Photo" class="product-photo">
+                                <h5>${productData.name || 'Unnamed Product'}</h5>
+                                <button class="btn-custom btn-primary" onclick="ViewProductInfo('${doc.id}')">Check info</button>
                             </div>
                         `;
-    
-                        // Append the plan card to the membership plans section
-                        membershipPlansSection.innerHTML += planCard;
+                        productsSection.innerHTML += productCard;
                     });
                 } else {
-                    console.log('No membership plans found.');
-                    membershipPlansSection.innerHTML = '<p>No membership plans found for this gym.</p>';
+                    productsSection.innerHTML = '<p>No products found for this gym.</p>';
                 }
     
                 // Show the modal
@@ -738,39 +379,456 @@ function formatTime(time) {
             }
         } catch (error) {
             console.error('Error fetching document:', error);
+        }
+    };
+    async function getCurrentUserId() {
+        return new Promise((resolve, reject) => {
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    const userDocRef = doc(db, 'Users', user.uid); // Fetch user doc using UID
+                    try {
+                        const userDoc = await getDoc(userDocRef);
+                        if (userDoc.exists()) {
+                            const userData = userDoc.data();
+                            const userId = userData.userId; // Retrieve the userId field from the document
+                            if (userId) {
+                                resolve(userId); // Resolve with userId from the document
+                            } else {
+                                reject('userId field not found in user document.');
+                            }
+                        } else {
+                            reject('User document does not exist.');
+                        }
+                    } catch (error) {
+                        reject('Error fetching user document:', error);
+                    }
+                } else {
+                    reject('No authenticated user found.');
                 }
+            });
+        });
+    }
+    window.ViewProductInfo = async function (productId) {
+        try {
+            $('.modal').modal('hide'); // Hide any open modals
+    
+            // Fetch product data by ID
+            const productDocRef = doc(db, 'Products', productId);
+            const productDoc = await getDoc(productDocRef);
+    
+            if (productDoc.exists()) {
+                const productData = productDoc.data();
+    
+                // Ensure modal elements exist
+                const modalProductName = document.getElementById('modalProductName');
+                const modalProductPrice = document.getElementById('modalProductPrice');
+                const modalProductDescription = document.getElementById('modalProductDescription');
+                const modalProductPhoto = document.getElementById('modalProductPhoto');
+                const modalProductCategory = document.getElementById('modalProductCategory');
+                const modalProductQuantityAvailable = document.getElementById('modalProductQuantity');
+                const modalProductQuantityInput = document.getElementById('modalProductQuantityInput');
+                const increaseQuantityBtn = document.getElementById('increaseQuantity');
+                const decreaseQuantityBtn = document.getElementById('decreaseQuantity');
+    
+                let availableStock = productData.quantity || 0;
+                let selectedQuantity = 1;
+                let productPrice = productData.price || 0;
+    
+                // Display product data
+                modalProductName.innerText = productData.name || 'Unnamed Product';
+                modalProductPrice.innerText = `₱${productData.price || 'N/A'}`;
+                modalProductDescription.innerText = productData.description || 'No description available.';
+                modalProductPhoto.src = productData.photoURL || 'default-product.jpg';
+                modalProductCategory.innerText = productData.category || 'N/A';
+                modalProductQuantityAvailable.innerText = `Available: ${availableStock}`;
+    
+                // Function to update total price based on selected quantity
+                function updatePrice() {
+                    const totalPrice = productPrice * selectedQuantity;
+                    modalProductPrice.innerText = `₱${totalPrice.toLocaleString()}`; // Format price with commas
+                }
+    
+                // Update the displayed stock and quantity
+                function updateQuantity() {
+                    modalProductQuantityInput.value = selectedQuantity;
+                    modalProductQuantityAvailable.innerText = `Available: ${availableStock - selectedQuantity}`;
+                    updatePrice(); // Update the total price when quantity changes
+                }
+    
+                // Increase quantity
+                increaseQuantityBtn.addEventListener('click', function () {
+                    if (selectedQuantity < availableStock) {
+                        selectedQuantity++;
+                        updateQuantity();
+                    }
+                });
+    
+                // Decrease quantity
+                decreaseQuantityBtn.addEventListener('click', function () {
+                    if (selectedQuantity > 1) {
+                        selectedQuantity--;
+                        updateQuantity();
+                    }
+                });
+    
+                // Set initial quantity and price
+                modalProductQuantityInput.value = selectedQuantity;
+                updatePrice(); // Set initial price based on quantity 1
+    
+                // Show the Product Info modal
+                $('#productModal').modal('show');
+    
+            } else {
+                console.error('Product not found!');
+            }
+        } catch (error) {
+            console.error('Error fetching product data:', error);
+        }
+    };
+     // Buy Now function with confirmation and success messages
+     window.buyNow = async function () {
+        try {
+            // Ensure user ID is available before proceeding
+            const userId = await getCurrentUserId(); // Get userId from the Users collection
+
+            // Get product details
+            const productName = document.getElementById('modalProductName').innerText;
+            const quantityPurchased = document.getElementById('modalProductQuantityInput').value;
+            const totalPrice = document.getElementById('modalProductPrice').innerText;
+
+            // Assuming gymName is available in the GymProfile card
+            const gymName = document.getElementById('modalGymName').innerText; // Get gym name from GymProfile card
+
+            // Set product details in confirmation modal
+            document.getElementById('confirmProductName').innerText = productName;
+            document.getElementById('confirmQuantity').innerText = quantityPurchased;
+            document.getElementById('confirmTotalPrice').innerText = totalPrice;
+
+            // Show the confirmation modal
+            $('#confirmationModal').modal('show');
+
+            // Handle confirmation action
+            document.getElementById('confirmPurchaseBtn').onclick = async function () {
+                try {
+                    // Simulate purchase logic (e.g., update stock, etc.)
+                    notificationCount++;
+                    document.getElementById('notification-count').innerText = notificationCount;
+
+                    // Create a new notification with detailed information
+                    const newNotification = {
+                        message: `You purchased ${quantityPurchased} of ${productName} for ${totalPrice}.`,
+                        productName: productName,
+                        quantity: quantityPurchased,
+                        totalPrice: totalPrice,
+                        status: 'Pending Owner Approval',
+                        read: false, // Unread notification
+                        userId: userId, // Use the current user's userId from the document
+                        gymName: gymName, // Storing gymName from GymProfile card
+                        notificationId: Date.now().toString(), // Unique ID based on timestamp
+                        timestamp: new Date().toISOString() // Add timestamp for ordering or filtering if needed
+                    };
+
+                    // Save the notification to Firestore under a 'Notifications' collection
+                    await addDoc(collection(db, 'Notifications'), newNotification);
+
+                    // Save transaction to 'Transactions' collection
+                    const newTransaction = {
+                        userId: userId, // Storing userId of the customer/user
+                        productName: productName,
+                        quantity: quantityPurchased,
+                        totalPrice: totalPrice,
+                        gymName: gymName, // Storing gymName from GymProfile card
+                        timestamp: new Date().toISOString() // Timestamp of the transaction
+                    };
+
+                    // Save the transaction to Firestore under a 'Transactions' collection
+                    await addDoc(collection(db, 'Transactions'), newTransaction);
+
+                    // Close the confirmation modal
+                    $('#confirmationModal').modal('hide');
+
+                    // Show success modal
+                    document.getElementById('successProductName').innerText = productName;
+                    document.getElementById('successQuantity').innerText = quantityPurchased;
+                    document.getElementById('successTotalPrice').innerText = totalPrice;
+                    $('#successModal').modal('show');
+
+                    // Update the notification list
+                    await fetchNotifications(userId);
+
+                    // Close the product modal after the purchase
+                    $('#productModal').modal('hide');
+                } catch (error) {
+                    console.error('Error saving notification or transaction:', error);
+                }
+            };
+        } catch (error) {
+            console.error('Error fetching current user ID:', error);
+        }
     };
 
-
-        // Function to fetch gym owner location from Firestore based on gymName
-        window.fetchGymOwnerLocation = async function (gymName) {
+    let notificationCount = 0; // Initialize notificationCount to 0
+    document.getElementById('confirmPurchaseBtn').onclick = async function () {
+        try {
+            // Simulate purchase logic (e.g., update stock, etc.)
+            notificationCount++; // Increment the notification count
+    
+            // Update the notification count display in the UI
+            document.getElementById('notification-count').innerText = notificationCount;
+    
+            // Create a new notification with detailed information
+            const newNotification = {
+                message: `You purchased ${quantityPurchased} of ${productName} for ${totalPrice}.`,
+                productName: productName,
+                quantity: quantityPurchased,
+                totalPrice: totalPrice,
+                status: 'Pending Owner Approval',
+                read: false, // Unread notification
+                userId: userId, // Use the current user's userId from the document
+                gymName: gymName, // Storing gymName from GymProfile card
+                notificationId: Date.now().toString(), // Unique ID based on timestamp
+                timestamp: new Date().toISOString() // Add timestamp for ordering or filtering if needed
+            };
+    
+            // Save the notification to Firestore under a 'Notifications' collection
+            await addDoc(collection(db, 'Notifications'), newNotification);
+    
+            // Save transaction to 'Transactions' collection
+            const newTransaction = {
+                userId: userId, // Storing userId of the customer/user
+                productName: productName,
+                quantity: quantityPurchased,
+                totalPrice: totalPrice,
+                gymName: gymName, // Storing gymName from GymProfile card
+                timestamp: new Date().toISOString() // Timestamp of the transaction
+            };
+    
+            // Save the transaction to Firestore under a 'Transactions' collection
+            await addDoc(collection(db, 'Transactions'), newTransaction);
+    
+            // Close the confirmation modal
+            $('#confirmationModal').modal('hide');
+    
+            // Show success modal
+            document.getElementById('successProductName').innerText = productName;
+            document.getElementById('successQuantity').innerText = quantityPurchased;
+            document.getElementById('successTotalPrice').innerText = totalPrice;
+            $('#successModal').modal('show');
+    
+            // Update the notification list (assuming this function exists)
+            await fetchNotifications(userId);
+    
+            // Close the product modal after the purchase
+            $('#productModal').modal('hide');
+        } catch (error) {
+            console.error('Error saving notification or transaction:', error);
+        }
+    };
+    document.getElementById('membershipPlansBtn').addEventListener('click', function() {
+        // Pass the gym name or profile name to fetch its membership plans
+        const gymProfileName = document.getElementById('modalGymName').innerText; // Assuming gym name is stored in this element
+        showMembershipPlans(gymProfileName); // Call the function to show the plans modal
+    });
+    
+    // Function to fetch and display the membership plans
+    window.showMembershipPlans = async function (gymProfileName) {
+        try {
+            const membershipPlansSection = document.getElementById('membershipPlansSection');
+            membershipPlansSection.innerHTML = ''; // Clear the section before appending
+        
+            // Define an array of colors for the membership cards
+            const cardColors = [
+                'linear-gradient(to right, #5B247A, #1BCEDF)',  
+                'linear-gradient(to right, #184E68, #57CA85)', 
+                'linear-gradient(to right, #F02FC2, #6094EA)', 
+                'linear-gradient(to right, #f1c40f, #f39c12)', 
+                'linear-gradient(to right, #8e44ad, #9b59b6)'
+            ];
+    
+            // Fetch membership plans where gymName matches gymProfileName
+            const membershipPlansQuery = query(
+                collection(db, 'MembershipPlans'),
+                where('gymName', '==', gymProfileName) // Match membership plans by gymName
+            );
+        
+            const membershipPlansSnapshot = await getDocs(membershipPlansQuery);
+        
+            if (!membershipPlansSnapshot.empty) {
+                let colorIndex = 0; // Initialize a color index
+                membershipPlansSnapshot.forEach(doc => {
+                    const planData = doc.data();
+                    const backgroundColor = cardColors[colorIndex % cardColors.length];
+                    colorIndex++; // Increment the color index
+        
+                    const planCard = `
+                        <div class="plan-card card mb-3" style="background: ${backgroundColor};">
+                            <div class="card-body">
+                                <h4 class="card-title">${planData.membershipType || 'Unnamed Plan'}</h4>
+                                <h5 class="card-title">₱${planData.price || 'N/A'}</h5>
+                                <p class="card-text">${planData.description || 'No description available.'}</p>
+                                <button class="btn-custom btn-primary" onclick="confirmPlanPurchase('${planData.membershipType}', '${planData.price}', '${doc.id}')">Apply</button>
+                            </div>
+                        </div>
+                    `;
+        
+                    // Append the plan card to the membership plans section
+                    membershipPlansSection.innerHTML += planCard;
+                });
+            } else {
+                membershipPlansSection.innerHTML = '<p>No membership plans found for this gym.</p>';
+            }
+        
+            // Show the membership plans modal
+            $('#membershipPlansModal').modal('show');
+        } catch (error) {
+            console.error('Error fetching membership plans:', error);
+        }
+    };
+    
+    window.confirmPlanPurchase = function (planType, planPrice, planId) {
+        console.log('confirmPlanPurchase triggered for:', planType, planPrice, planId);
+    
+        // Set the selected plan details in the confirmation modal
+        document.getElementById('selectedPlanType').innerText = planType;
+        document.getElementById('selectedPlanPrice').innerText = planPrice;
+    
+        // Show the confirmation modal
+        console.log('Showing confirmation modal.');
+        $('#confirmPurchaseModal').modal('show');
+    
+        // Set the action for the Confirm Purchase button
+        document.getElementById('confirmPurchaseBtn').onclick = async function () {
             try {
-                console.log('Fetching gym owner data for gymName:', gymName);
+                console.log('Confirm Purchase button clicked.');
+    
+                // Fetch the current user's userId
+                const userId = await getCurrentUserId(); // Ensure this function returns a valid user ID
+                console.log('User ID fetched:', userId);
+    
+                if (!userId) {
+                    console.error('No user ID found. Please log in.');
+                    return;
+                }
+    
+                const gymName = document.getElementById('modalGymName').innerText; // Assuming gym name is displayed in the modal
+                console.log('Gym Name fetched:', gymName);
+    
+                // Call the purchasePlan function to save the transaction
+                await purchasePlan(planId, planType, planPrice, userId, gymName);
+                console.log('Purchase successful, transaction saved.');
+    
+                // Close the confirmation modal
+                $('#confirmPurchaseModal').modal('hide');
+    
+                // Show the success modal to notify the user
+                console.log('Showing success modal.');
+                $('#successModal .modal-body').html(`
+                    <p>Your purchase was successful.</p>
+                    <p><strong>Plan:</strong> ${planType}</p>
+                    <p><strong>Price:</strong> ₱${planPrice}</p>
+                    <p>Please wait for the Gym owner's approval.</p>
+                `);
+                $('#successModal').modal('show');
+    
+                // Notify the user with a custom notification (in-app)
+                await notifyUser(userId, planType, gymName);
+    
+            } catch (error) {
+                console.error('Error purchasing membership plan:', error);
+    
+                // Close the confirmation modal
+                $('#confirmPurchaseModal').modal('hide');
+    
+                // Show the error modal
+                $('#errorModal').modal('show');
+            }
+        };
+    };
+    
+    // Function to handle the actual purchase process and save the transaction
+    async function purchasePlan(planId, planType, planPrice, userId, gymName) {
+        console.log('Saving transaction with:', { planId, planType, planPrice, userId, gymName });
+        try {
+            const newTransaction = {
+                userId: userId,
+                planId: planId,
+                planType: planType,
+                planPrice: planPrice,
+                gymName: gymName,
+                purchaseDate: new Date().toISOString(), // Save the current date and time
+            };
+    
+            // Save the transaction to Firestore (under a "Transactions" collection)
+            await addDoc(collection(db, 'Transactions'), newTransaction);
+            console.log('Transaction saved successfully.');
+    
+            // Notify the user about the successful purchase
+            const newNotification = {
+                userId: userId,
+                notificationId: Date.now().toString(), // Unique ID based on timestamp
+                gymName: gymName,
+                productName: planType, // Use planType as the product name
+                quantity: 1, // Quantity for membership is typically 1
+                totalPrice: planPrice,
+                status: 'Pending Owner Approval', // Purchase status
+                read: false, // Unread notification
+                timestamp: new Date().toISOString(), // Timestamp of the notification
+            };
+    
+            // Save the notification to Firestore under a "Notifications" collection
+            await addDoc(collection(db, 'Notifications'), newNotification);
+            console.log('Notification created successfully.');
+    
+            // Optionally, call fetchNotifications here to update the notification list
+            fetchNotifications(userId);
+    
+        } catch (error) {
+            console.error('Error saving transaction or creating notification:', error);
+            throw new Error('Failed to save the transaction or create notification');
+        }
+    }
+    
+    // Function to notify the user with a custom notification
+    async function notifyUser(userId, planType, gymName) {
+        try {
+            const notification = {
+                userId: userId,
+                message: `You have successfully purchased the ${planType} plan from ${gymName}.`,
+                read: false, // Unread notification
+                timestamp: new Date().toISOString(),
+            };
+    
+            // Save the notification to Firestore (or wherever your notifications are stored)
+            await addDoc(collection(db, 'Notifications'), notification);
+    
+            console.log('Notification sent successfully.');
+        } catch (error) {
+            console.error('Error sending notification:', error);
+        }
+    }
 
-                // Fetch the gym owner's data from Firestore by matching the gymName and role 'gymowner'
-                const userQuery = query(collection(db, 'Users'), where('role', '==', 'gymowner'), where('gymName', '==', gymName));
-                const userSnapshot = await getDocs(userQuery);
+        // Function to fetch the gym owner's location (e.g., city) based on the gymName
+        async function fetchGymOwnerLocation(gymName) {
+            try {
+                const gymQuery = query(
+                    collection(db, 'Users'), 
+                    where('gymName', '==', gymName), 
+                    where('role', '==', 'gymowner') 
+                );
 
-                if (!userSnapshot.empty) {
-                    console.log('Gym owner found.');
+                const gymSnapshot = await getDocs(gymQuery);
 
-                    const gymOwnerData = userSnapshot.docs[0].data();
-                    const gymOwnerName = gymOwnerData.gymName;
-
-                    console.log('Gym Owner Name:', gymOwnerName);
-
-                    // Return the gym location if names match
-                    const gymLocation = gymOwnerData.gymLocation;
-
-                    console.log('Gym location validated:', gymLocation);
+                if (!gymSnapshot.empty) {
+                    const gymData = gymSnapshot.docs[0].data();
+                    const gymLocation = gymData.gymLocation || ''; 
+                    console.log('Gym Location found:', gymLocation);
                     return gymLocation;
-
                 } else {
-                    console.error('No gym owner found for gymName:', gymName);
+                    console.error('No gym found with the given name.');
                     return null;
                 }
             } catch (error) {
-                console.error('Error fetching gym owner location:', error);
+                console.error('Error fetching gym location:', error);
                 return null;
             }
         }
@@ -796,37 +854,64 @@ function formatTime(time) {
                 alert('Could not fetch the location. Please ensure the city name is correct.');
                 return null;
             }
-        }
+        };
 
         // Initialize the map using Leaflet with OpenStreetMap tiles
-        let map;
+        let map; // Global map instance
+
         window.initMap = function(lat, lon) {
             console.log(`Initializing map with coordinates: lat=${lat}, lon=${lon}`);
 
-            if (map) {
-                console.log('Map already initialized, setting new view');
-                map.setView([lat, lon], 15);
-                map.invalidateSize(); // Important to refresh the map after being shown in the modal
-            } else {
-                console.log('Initializing new map');
-                map = L.map('map').setView([lat, lon], 15);
-
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors'
-                }).addTo(map);
-
-                L.marker([lat, lon]).addTo(map)
-                    .bindPopup('Gym Location')
-                    .openPopup();
+            const mapContainer = document.getElementById('map');
+            
+            if (!mapContainer) {
+                console.error('Map container not found in the DOM.');
+                return;
             }
-        }
 
-        window.onload = function () {
-            document.getElementById('locationIcon').addEventListener('click', async function () {
+            // Ensure the map container is visible (in the modal)
+            console.log('Map container found, attempting to initialize map.');
+
+            // Clear any existing map content or reset the map instance
+            mapContainer.innerHTML = ""; // Clear any existing map content
+
+            if (map) {
+                // If map instance already exists, reset it by removing the map
+                map.remove();
+                map = null; // Reset the map to null to allow re-initialization
+            }
+
+            // Initialize a new map instance
+            map = L.map('map').setView([lat, lon], 15);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors'
+            }).addTo(map);
+
+            L.marker([lat, lon]).addTo(map)
+                .bindPopup('Gym Location')
+                .openPopup();
+
+            console.log('Map initialized successfully.');
+        };
+
+        // Ensure map initialization happens after the modal is fully displayed
+        document.addEventListener("DOMContentLoaded", function () {
+            const locationIcon = document.getElementById('locationIcon');
+
+            if (!locationIcon) {
+                console.error('Location icon not found in the DOM.');
+                return;
+            }
+
+            locationIcon.addEventListener('click', async function () {
                 try {
-                    // Get the gym name from the modal (ensure the modal is open or has valid data)
-                    const gymName = document.getElementById('modalGymName').innerText;  // Fetch the gym name displayed in the modal
-                    
+                    console.log('Location icon clicked');
+
+                    // Get the gym name from the modal
+                    const gymName = document.getElementById('modalGymName').innerText;
+                    console.log('Gym Name:', gymName);
+
                     if (!gymName) {
                         console.error('Gym name is not provided.');
                         alert('Gym name is not available.');
@@ -835,18 +920,30 @@ function formatTime(time) {
 
                     // Fetch gym owner location using gymName
                     const gymLocation = await fetchGymOwnerLocation(gymName);
+                    console.log('Gym Location (City):', gymLocation);
 
                     if (gymLocation) {
-                        const { lat, lon } = await fetchGymCoordinates(gymLocation); // Fetch coordinates for the gym's location (city)
+                        const { lat, lon } = await fetchGymCoordinates(gymLocation);
+                        console.log('Fetched lat and lon:', lat, lon);
+
                         if (lat && lon) {
+                            // Check if the map modal exists
+                            const mapModal = document.getElementById('mapModal');
+                            if (!mapModal) {
+                                console.error('Map modal not found in the DOM.');
+                                return;
+                            }
+
                             // Show the map modal
+                            console.log('Showing map modal.');
                             $('#mapModal').modal('show');
 
-                            // Initialize the map with the coordinates after the modal is shown
+                            // Initialize the map after the modal is fully shown
                             $('#mapModal').on('shown.bs.modal', function () {
+                                console.log('Map modal fully shown, initializing map.');
                                 initMap(lat, lon); // Initialize the map inside the modal
                             });
-                            
+
                             console.log('Map modal shown');
                         } else {
                             console.error('Coordinates not found');
@@ -860,8 +957,7 @@ function formatTime(time) {
                     console.error('Error displaying the map:', error);
                 }
             });
-        };
-
+        });
 
 
 
@@ -931,7 +1027,326 @@ function formatTime(time) {
     }
 
 
-    
+              // Fetch notifications from Firestore and sync with localStorage
+              async function fetchNotifications(userId) {
+                try {
+                    console.log('Fetching notifications from Firestore for userId:', userId);
+            
+                    // Fetch notifications from Firestore for the specific user
+                    const notificationsSnapshot = await getDocs(
+                        query(collection(db, 'Notifications'), where('userId', '==', userId))
+                    );
+            
+                    const notifications = notificationsSnapshot.docs.map(doc => {
+                        const data = doc.data();
+                        let timestamp = data.timestamp;
+            
+                        // Convert Firestore Timestamp or string to Date object
+                        if (timestamp && typeof timestamp.toDate === 'function') {
+                            timestamp = timestamp.toDate(); // Firestore Timestamp
+                        } else if (typeof timestamp === 'string') {
+                            timestamp = new Date(timestamp); // String
+                        } else if (!timestamp) {
+                            timestamp = new Date(); // No timestamp, set to now
+                        }
+            
+                        return {
+                            ...data,
+                            id: doc.id,
+                            timestamp: timestamp
+                        };
+                    });
+            
+                    // Sort notifications by timestamp in descending order (newest first)
+                    notifications.sort((a, b) => b.timestamp - a.timestamp);
+            
+                    console.log('Fetched notifications:', notifications);
+            
+                    // Store notifications in localStorage for persistence across refreshes
+                    localStorage.setItem('notifications', JSON.stringify(notifications));
+            
+                    // Categorize notifications by time
+                    const categorizedNotifications = categorizeNotifications(notifications);
+            
+                    // Display the notifications
+                    displayCategorizedNotifications(categorizedNotifications);
+            
+                    // Update notification count after fetching all notifications
+                    const unreadCount = notifications.filter(notification => !notification.read).length;
+                    updateNotificationCount(unreadCount);
+            
+                } catch (error) {
+                    console.error('Error fetching notifications:', error);
+                }
+            }
+            
+            // Function to categorize notifications based on time differences
+            function categorizeNotifications(notifications) {
+                const categorized = {
+                    'New Notifications': [],
+                    'Older Notifications': []
+                };
+            
+                const now = new Date();
+            
+                notifications.forEach(notification => {
+                    const diffInMs = now - notification.timestamp;
+                    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+            
+                    if (diffInDays < 1) { // Less than 1 day
+                        categorized['New Notifications'].push(notification);
+                    } else { // 1 day or older
+                        categorized['Older Notifications'].push(notification);
+                    }
+                });
+            
+                return categorized;
+            }
+            
+            
+            // Function to display categorized notifications
+            function displayCategorizedNotifications(categorizedNotifications) {
+                const notificationList = document.getElementById('notificationList');
+                notificationList.innerHTML = ''; // Clear the list before adding new notifications
+            
+                for (const [category, notifications] of Object.entries(categorizedNotifications)) {
+                    if (notifications.length > 0) {
+                        const categoryHeader = document.createElement('h6');
+                        categoryHeader.classList.add('category-header'); // Add a class for styling
+                        categoryHeader.innerText = category;
+                        notificationList.appendChild(categoryHeader);
+            
+                        notifications.forEach(notification => {
+                            const notificationItem = document.createElement('p');
+                            notificationItem.classList.add('list-group-item');
+            
+                            // Calculate how long ago the notification was received
+                            const timeAgo = getTimeAgo(notification.timestamp);
+            
+                            // Use <strong> for unread notifications
+                            const message = notification.read ? 
+                                notification.message : `<strong>${notification.message}</strong>`;
+            
+                            notificationItem.innerHTML = `
+                                ${message}<br>
+                                <small>${timeAgo}</small>
+                            `;
+            
+                            // Add event listener for showing notification details and marking it as read
+                            notificationItem.addEventListener('click', () => {
+                                markAsRead(notification.id, notification.userId); // Mark notification as read
+                                showNotificationDetails(notification); // Show notification details in a modal
+                            });
+            
+                            notificationList.appendChild(notificationItem);
+                        });
+                    }
+                }
+            
+                // If no notifications, show a default message
+                if (notificationList.innerHTML === '') {
+                    notificationList.innerHTML = 
+                        '<p class="list-group-item text-center text-muted py-3">No new notifications</p>';
+                }
+            }
+            
+            
+
+                // Load notifications from localStorage when the page reloads
+                function loadNotificationsFromLocalStorage() {
+                    const storedNotifications = localStorage.getItem('notifications');
+                    if (storedNotifications) {
+                        const notifications = JSON.parse(storedNotifications);
+                        console.log('Loading notifications from localStorage:', notifications);
+
+                        displayNotifications(notifications);
+
+                        // Update notification count after fetching all notifications
+                        const unreadCount = notifications.filter(notification => !notification.read).length;
+                        updateNotificationCount(unreadCount);
+                    } else {
+                        console.warn('No notifications found in localStorage');
+                        // Optional: Provide a default message if no notifications are found.
+                        document.getElementById('notificationList').innerHTML = 
+                            '<p class="list-group-item text-center text-muted py-3">No notifications available</p>';
+                    }
+                }
+
+                // Display notifications from Firestore or localStorage
+                function displayNotifications(notifications) {
+                    const notificationList = document.getElementById('notificationList');
+                    notificationList.innerHTML = ''; // Clear the list before adding new notifications
+                
+                    // Categorize notifications into new and older
+                    const categorized = categorizeNotifications(notifications);
+                
+                    // Display new notifications
+                    if (categorized['New Notifications'].length > 0) {
+                        categorized['New Notifications'].forEach(notification => {
+                            const notificationItem = createNotificationItem(notification);
+                            notificationList.appendChild(notificationItem);
+                        });
+                    } else {
+                        notificationList.innerHTML = '<p class="list-group-item text-center text-muted py-3">No new notifications</p>';
+                    }
+                
+                    // Add toggle button for older notifications
+                    const toggleOlderBtn = document.createElement('button');
+                    toggleOlderBtn.innerText = 'Show Older Notifications';
+                    toggleOlderBtn.classList.add('btn', 'btn-link'); // Bootstrap styling
+                    toggleOlderBtn.onclick = () => {
+                        const olderNotificationsContainer = document.getElementById('olderNotifications');
+                        if (olderNotificationsContainer.style.display === 'none') {
+                            olderNotificationsContainer.style.display = 'block';
+                            toggleOlderBtn.innerText = 'Hide Older Notifications';
+                        } else {
+                            olderNotificationsContainer.style.display = 'none';
+                            toggleOlderBtn.innerText = 'Show Older Notifications';
+                        }
+                    };
+                
+                    notificationList.appendChild(toggleOlderBtn);
+                
+                    // Create container for older notifications
+                    const olderNotificationsContainer = document.createElement('div');
+                    olderNotificationsContainer.id = 'olderNotifications';
+                    olderNotificationsContainer.style.display = 'none'; // Hidden by default
+                
+                    // Display older notifications
+                    categorized['Older Notifications'].forEach(notification => {
+                        const notificationItem = createNotificationItem(notification);
+                        olderNotificationsContainer.appendChild(notificationItem);
+                    });
+                
+                    notificationList.appendChild(olderNotificationsContainer);
+                }
+                
+                // Helper function to create a notification item
+                function createNotificationItem(notification) {
+                    const notificationItem = document.createElement('p');
+                    notificationItem.classList.add('list-group-item');
+                
+                    // Calculate how long ago the notification was received
+                    const timeAgo = getTimeAgo(notification.timestamp);
+                    const message = notification.read ? 
+                                    notification.message : 
+                                    `<strong>${notification.message}</strong>`;
+                
+                    notificationItem.innerHTML = `
+                        ${message}<br>
+                        <small>${timeAgo}</small>
+                    `;
+                
+                    // Add event listener for showing notification details and marking it as read
+                    notificationItem.addEventListener('click', () => {
+                        markAsRead(notification.id, notification.userId); // Mark notification as read
+                        showNotificationDetails(notification); // Show notification details in a modal
+                    });
+                
+                    return notificationItem;
+                }
+                
+                // Helper function to calculate relative time (e.g., "12 hours ago")
+                function getTimeAgo(timestamp) {
+                    const now = new Date();
+                    const secondsAgo = Math.floor((now - timestamp) / 1000);
+
+                    const intervals = {
+                        year: 31536000,
+                        month: 2592000,
+                        day: 86400,
+                        hour: 3600,
+                        minute: 60
+                    };
+
+                    for (const interval in intervals) {
+                        const timeInterval = Math.floor(secondsAgo / intervals[interval]);
+                        if (timeInterval >= 1) {
+                            return `${timeInterval} ${interval}${timeInterval > 1 ? 's' : ''} ago`;
+                        }
+                    }
+
+                    return 'Just now';
+                }
+
+                // Update the notification count (unread notifications)
+                window.updateNotificationCount = function (unreadCount) {
+                    const notificationCountElement = document.getElementById('notification-count');
+                    console.log('Updating unread count:', unreadCount); // Debugging
+
+                    notificationCountElement.textContent = unreadCount;
+
+                    if (unreadCount > 0) {
+                        notificationCountElement.style.display = 'inline-block';
+                    } else {
+                        notificationCountElement.style.display = 'none';
+                    }
+                }
+
+                // Mark a notification as read
+                async function markAsRead(notificationId, userId) {
+                    try {
+                        const notificationRef = doc(db, 'Notifications', notificationId);
+                        await updateDoc(notificationRef, { read: true });
+
+                        // Refresh the notifications after marking one as read
+                        fetchNotifications(userId);
+                    } catch (error) {
+                        console.error('Error marking notification as read:', error);
+                    }
+                }
+
+                // Show detailed notification information in a modal
+                function showNotificationDetails(notification) {
+                    const timeAgo = getTimeAgo(notification.timestamp);
+
+                    const notificationModal = `
+                    <div class="modal fade" id="notificationDetailsModal" tabindex="-1" role="dialog" aria-labelledby="notificationDetailsLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="notificationDetailsLabel">Purchase Details</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body" id="notificationDetailsContent">
+                                    <p><strong>Ref. No.</strong>${notification.notificationId}</p>  
+                                    <p><strong>Gym Name:</strong> ${notification.gymName}</p>                            
+                                    <p><strong>Product:</strong> ${notification.productName}</p>
+                                    <p><strong>Quantity:</strong> ${notification.quantity}</p>
+                                    <p><strong>Total Price:</strong> ${notification.totalPrice}</p>
+                                    <p><strong>Status:</strong> ${notification.status}</p>
+                                    <p>Please wait for the owner's approval. Show this receipt to the Gym owner.</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                    
+                    document.body.insertAdjacentHTML('beforeend', notificationModal);
+                    $('#notificationDetailsModal').modal('show');
+
+                    $('#notificationDetailsModal').on('hidden.bs.modal', function () {
+                        this.remove();
+                    });
+                }
+
+                // Ensure notifications are fetched after user logs in and on page load
+                window.onload = function () {
+                    // Load notifications from localStorage immediately on page load
+                    loadNotificationsFromLocalStorage();
+
+                    // Get the current user ID and fetch notifications from Firestore
+                    getCurrentUserId().then(userId => {
+                        fetchNotifications(userId);
+                    }).catch(error => {
+                        console.error('Error during user authentication:', error);
+                    });
+                };
     // Close the modal when clicking outside of it
     window.onclick = function(event) {
         const modal = document.getElementById('confirmationModal');
@@ -943,7 +1358,7 @@ function formatTime(time) {
     document.addEventListener('DOMContentLoaded', function() {
                 // Now all event listeners and modal functions are attached when DOM is ready
                 fetchGymProfiles();
-                viewProducts();
+                fetchGymCoordinates();
             // Fetch trainers when the page loads
     });
 
