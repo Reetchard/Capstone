@@ -629,7 +629,7 @@ function formatTime(time) {
         const gymProfileName = document.getElementById('modalGymName').innerText; // Assuming gym name is stored in this element
         showMembershipPlans(gymProfileName); // Call the function to show the plans modal
     });
-    
+    //////////////////////////////////////////////////////////////////////////////////MembershipPlan
     // Function to fetch and display the membership plans
     window.showMembershipPlans = async function (gymProfileName) {
         try {
@@ -640,9 +640,7 @@ function formatTime(time) {
             const cardColors = [
                 'linear-gradient(to right, #5B247A, #1BCEDF)',  
                 'linear-gradient(to right, #184E68, #57CA85)', 
-                'linear-gradient(to right, #F02FC2, #6094EA)', 
-                'linear-gradient(to right, #f1c40f, #f39c12)', 
-                'linear-gradient(to right, #8e44ad, #9b59b6)'
+                'linear-gradient(to right, #F02FC2, #6094EA)'
             ];
     
             // Fetch membership plans where gymName matches gymProfileName
