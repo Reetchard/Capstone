@@ -521,12 +521,11 @@ function formatTime(time) {
             console.error('Error saving notification or transaction:', error);
         }
     };
-    
     window.showMembershipPlans = async function (gymProfileName) {
         try {
             const membershipPlansSection = document.getElementById('membershipPlansSection');
             membershipPlansSection.innerHTML = ''; // Clear the section before appending
-        
+    
             // Define an array of colors for the membership cards
             const cardColors = [
                 'linear-gradient(to right, #5B247A, #1BCEDF)',  
@@ -535,22 +534,22 @@ function formatTime(time) {
                 'linear-gradient(to right, #f1c40f, #f39c12)', 
                 'linear-gradient(to right, #8e44ad, #9b59b6)'
             ];
-        
+    
             // Fetch membership plans where gymName matches gymProfileName
             const membershipPlansQuery = query(
                 collection(db, 'MembershipPlans'),
                 where('gymName', '==', gymProfileName) // Match membership plans by gymName
             );
-        
+    
             const membershipPlansSnapshot = await getDocs(membershipPlansQuery);
-        
+    
             if (!membershipPlansSnapshot.empty) {
                 let colorIndex = 0; // Initialize a color index
                 membershipPlansSnapshot.forEach(doc => {
                     const planData = doc.data();
                     const backgroundColor = cardColors[colorIndex % cardColors.length];
                     colorIndex++; // Increment the color index
-        
+    
                     const planCard = `
                         <div class="plan-card card mb-3" style="background: ${backgroundColor};">
                             <div class="card-body">
@@ -561,14 +560,14 @@ function formatTime(time) {
                             </div>
                         </div>
                     `;
-        
+    
                     // Append the plan card to the membership plans section
                     membershipPlansSection.innerHTML += planCard;
                 });
             } else {
                 membershipPlansSection.innerHTML = '<p>No membership plans found for this gym.</p>';
             }
-        
+    
             // Show the membership plans modal
             $('#membershipPlansModal').modal('show');
         } catch (error) {
@@ -576,48 +575,43 @@ function formatTime(time) {
         }
     };
     
-    
-    document.getElementById('membershipPlansBtn').addEventListener('click', function() {
-        const gymProfileName = document.getElementById('modalGymName').innerText; // Get the gym name from the modal
-        showMembershipPlans(gymProfileName);
-    });
     // Function to confirm plan purchase
     window.confirmPlanPurchase = function (planType, planPrice, planId) {
         // Debug: Check if the function is triggered
         console.log('confirmPlanPurchase triggered for:', planType, planPrice, planId);
-
+    
         // Set the selected plan details in the confirmation modal
         document.getElementById('selectedPlanType').innerText = planType;
         document.getElementById('selectedPlanPrice').innerText = planPrice;
-
+    
         // Show the confirmation modal
         console.log('Showing confirmation modal.');
         $('#confirmPurchaseModal').modal('show');
-
+    
         // Set the action for the Confirm Purchase button
         document.getElementById('confirmPurchaseBtn').onclick = async function () {
             try {
                 console.log('Confirm Purchase button clicked.');
-
+    
                 // Fetch the current user's userId
                 const userId = await getCurrentUserId(); // Ensure this function returns a valid user ID
                 console.log('User ID fetched:', userId);
-
+    
                 if (!userId) {
                     console.error('No user ID found. Please log in.');
                     return;
                 }
-
+    
                 const gymName = document.getElementById('modalGymName').innerText; // Assuming gym name is displayed in the modal
                 console.log('Gym Name fetched:', gymName);
-
+    
                 // Call the purchasePlan function to save the transaction
                 await purchasePlan(planId, planType, planPrice, userId, gymName);
                 console.log('Purchase successful, transaction saved.');
-
+    
                 // Close the confirmation modal
                 $('#confirmPurchaseModal').modal('hide');
-
+    
                 // Show the success modal to notify the user
                 console.log('Showing success modal.');
                 $('#successModal .modal-body').html(`
@@ -627,22 +621,22 @@ function formatTime(time) {
                     <p>Please wait for the Gym owner's approval.</p>
                 `);
                 $('#successModal').modal('show');
-
+    
                 // Notify the user with a custom notification (in-app)
                 await notifyUser(userId, planType, gymName);
-
+    
             } catch (error) {
                 console.error('Error purchasing membership plan:', error);
-
+    
                 // Close the confirmation modal
                 $('#confirmPurchaseModal').modal('hide');
-
+    
                 // Show the error modal
                 $('#errorModal').modal('show');
             }
         };
     };
-
+    
     // Function to handle the actual purchase process
     async function purchasePlan(planId, planType, planPrice, userId, gymName) {
         console.log('Saving transaction with:', { planId, planType, planPrice, userId, gymName });
@@ -655,11 +649,11 @@ function formatTime(time) {
                 gymName: gymName,
                 purchaseDate: new Date().toISOString(),
             };
-
+    
             // Save the transaction to Firestore
             await addDoc(collection(db, 'Transactions'), newTransaction);
             console.log('Transaction saved successfully.');
-
+    
             // Notify the user about the successful purchase
             const newNotification = {
                 userId: userId,
@@ -672,11 +666,11 @@ function formatTime(time) {
                 read: false, // Unread notification
                 timestamp: new Date().toISOString(), // Timestamp of the notification
             };
-
+    
             // Save the notification to Firestore under a 'Notifications' collection
             await addDoc(collection(db, 'Notifications'), newNotification);
             console.log('Notification created successfully.');
-
+    
             // Optionally, call fetchNotifications here to update the notification list
             fetchNotifications(userId);
         } catch (error) {
@@ -684,7 +678,7 @@ function formatTime(time) {
             throw new Error('Failed to save the transaction or create notification');
         }
     }
-
+    
     // Function to notify the user with a custom notification
     async function notifyUser(userId, planType, gymName) {
         try {
@@ -694,15 +688,16 @@ function formatTime(time) {
                 read: false, // Unread notification
                 timestamp: new Date().toISOString(),
             };
-
+    
             // Save the notification to Firestore (or wherever your notifications are stored)
             await addDoc(collection(db, 'Notifications'), notification);
-
+    
             console.log('Notification sent successfully.');
         } catch (error) {
             console.error('Error sending notification:', error);
         }
     }
+    
 // Function to fetch the gym owner's location (e.g., city) based on the gymName
 async function fetchGymOwnerLocation(gymName) {
     try {
@@ -729,128 +724,132 @@ async function fetchGymOwnerLocation(gymName) {
     }
 }
 
-// Function to fetch location coordinates from Nominatim (OpenStreetMap Geocoding service)
-window.fetchGymCoordinates = async function (cityName) {
-    const apiUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=1`;
+        // Function to fetch location coordinates from Nominatim (OpenStreetMap Geocoding service)
+        window.fetchGymCoordinates = async function (cityName) {
+            const apiUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=1`;
 
-    try {
-        console.log(`Fetching coordinates for city: ${cityName}`);
-        const response = await fetch(apiUrl);
-        const data = await response.json();
+            try {
+                console.log(`Fetching coordinates for city: ${cityName}`);
+                const response = await fetch(apiUrl);
+                const data = await response.json();
 
-        if (data && data.length > 0) {
-            const { lat, lon } = data[0];
-            console.log('Fetched coordinates:', lat, lon);
-            return { lat, lon };
-        } else {
-            throw new Error('Location not found');
-        }
-    } catch (error) {
-        console.error('Error fetching gym coordinates:', error);
-        alert('Could not fetch the location. Please ensure the city name is correct.');
-        return null;
-    }
-};
+                if (data && data.length > 0) {
+                    const { lat, lon } = data[0];
+                    console.log('Fetched coordinates:', lat, lon);
+                    return { lat, lon };
+                } else {
+                    throw new Error('Location not found');
+                }
+            } catch (error) {
+                console.error('Error fetching gym coordinates:', error);
+                alert('Could not fetch the location. Please ensure the city name is correct.');
+                return null;
+            }
+        };
 
-// Initialize the map using Leaflet with OpenStreetMap tiles
-let map;
-window.initMap = function(lat, lon) {
-    console.log(`Initializing map with coordinates: lat=${lat}, lon=${lon}`);
+        // Initialize the map using Leaflet with OpenStreetMap tiles
+        let map; // Global map instance
 
-    const mapContainer = document.getElementById('map');
-    
-    if (!mapContainer) {
-        console.error('Map container not found in the DOM.');
-        return;
-    }
+        window.initMap = function(lat, lon) {
+            console.log(`Initializing map with coordinates: lat=${lat}, lon=${lon}`);
 
-    console.log('Map container found, attempting to initialize map.');
-
-    // Ensure map container is cleared before initializing
-    mapContainer.innerHTML = ""; // Clear any existing map content
-
-    if (!map) {
-        console.log('Initializing new map instance.');
-        map = L.map('map').setView([lat, lon], 15);
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors'
-        }).addTo(map);
-
-        L.marker([lat, lon]).addTo(map)
-            .bindPopup('Gym Location')
-            .openPopup();
-    } else {
-        console.log('Map already initialized, updating view to new coordinates.');
-        map.setView([lat, lon], 15);
-        map.invalidateSize(); // Important to refresh the map after being shown in the modal
-    }
-};
-
-// Ensure map initialization happens after the modal is fully displayed
-document.addEventListener("DOMContentLoaded", function () {
-    const locationIcon = document.getElementById('locationIcon');
-
-    if (!locationIcon) {
-        console.error('Location icon not found in the DOM.');
-        return;
-    }
-
-    locationIcon.addEventListener('click', async function () {
-        try {
-            console.log('Location icon clicked');
-
-            // Get the gym name from the modal
-            const gymName = document.getElementById('modalGymName').innerText;
-            console.log('Gym Name:', gymName);
-
-            if (!gymName) {
-                console.error('Gym name is not provided.');
-                alert('Gym name is not available.');
+            const mapContainer = document.getElementById('map');
+            
+            if (!mapContainer) {
+                console.error('Map container not found in the DOM.');
                 return;
             }
 
-            // Fetch gym owner location using gymName
-            const gymLocation = await fetchGymOwnerLocation(gymName);
-            console.log('Gym Location (City):', gymLocation);
+            // Ensure the map container is visible (in the modal)
+            console.log('Map container found, attempting to initialize map.');
 
-            if (gymLocation) {
-                const { lat, lon } = await fetchGymCoordinates(gymLocation);
-                console.log('Fetched lat and lon:', lat, lon);
+            // Clear any existing map content or reset the map instance
+            mapContainer.innerHTML = ""; // Clear any existing map content
 
-                if (lat && lon) {
-                    // Check if the map modal exists
-                    const mapModal = document.getElementById('mapModal');
-                    if (!mapModal) {
-                        console.error('Map modal not found in the DOM.');
+            if (map) {
+                // If map instance already exists, reset it by removing the map
+                map.remove();
+                map = null; // Reset the map to null to allow re-initialization
+            }
+
+            // Initialize a new map instance
+            map = L.map('map').setView([lat, lon], 15);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors'
+            }).addTo(map);
+
+            L.marker([lat, lon]).addTo(map)
+                .bindPopup('Gym Location')
+                .openPopup();
+
+            console.log('Map initialized successfully.');
+        };
+
+        // Ensure map initialization happens after the modal is fully displayed
+        document.addEventListener("DOMContentLoaded", function () {
+            const locationIcon = document.getElementById('locationIcon');
+
+            if (!locationIcon) {
+                console.error('Location icon not found in the DOM.');
+                return;
+            }
+
+            locationIcon.addEventListener('click', async function () {
+                try {
+                    console.log('Location icon clicked');
+
+                    // Get the gym name from the modal
+                    const gymName = document.getElementById('modalGymName').innerText;
+                    console.log('Gym Name:', gymName);
+
+                    if (!gymName) {
+                        console.error('Gym name is not provided.');
+                        alert('Gym name is not available.');
                         return;
                     }
 
-                    // Show the map modal
-                    console.log('Showing map modal.');
-                    $('#mapModal').modal('show');
+                    // Fetch gym owner location using gymName
+                    const gymLocation = await fetchGymOwnerLocation(gymName);
+                    console.log('Gym Location (City):', gymLocation);
 
-                    // Initialize the map after the modal is fully shown
-                    $('#mapModal').on('shown.bs.modal', function () {
-                        console.log('Map modal fully shown, initializing map.');
-                        initMap(lat, lon); // Initialize the map inside the modal
-                        map.invalidateSize(); // Fix map size issue inside the modal
-                    });
+                    if (gymLocation) {
+                        const { lat, lon } = await fetchGymCoordinates(gymLocation);
+                        console.log('Fetched lat and lon:', lat, lon);
 
-                    console.log('Map modal shown');
-                } else {
-                    console.error('Coordinates not found');
-                    alert('Could not fetch gym location.');
+                        if (lat && lon) {
+                            // Check if the map modal exists
+                            const mapModal = document.getElementById('mapModal');
+                            if (!mapModal) {
+                                console.error('Map modal not found in the DOM.');
+                                return;
+                            }
+
+                            // Show the map modal
+                            console.log('Showing map modal.');
+                            $('#mapModal').modal('show');
+
+                            // Initialize the map after the modal is fully shown
+                            $('#mapModal').on('shown.bs.modal', function () {
+                                console.log('Map modal fully shown, initializing map.');
+                                initMap(lat, lon); // Initialize the map inside the modal
+                            });
+
+                            console.log('Map modal shown');
+                        } else {
+                            console.error('Coordinates not found');
+                            alert('Could not fetch gym location.');
+                        }
+                    } else {
+                        console.error('Gym location not found');
+                        alert('Could not fetch gym location.');
+                    }
+                } catch (error) {
+                    console.error('Error displaying the map:', error);
                 }
-            } else {
-                console.error('Gym location not found');
-                alert('Could not fetch gym location.');
-            }
-        } catch (error) {
-            console.error('Error displaying the map:', error);
-        }
-    });
-});
+            });
+        });
+
 
 
     // Function to view trainer info in a new modal
