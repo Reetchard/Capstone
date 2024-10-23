@@ -576,55 +576,74 @@ function formatTime(time) {
         }
     };
     
+    
     document.getElementById('membershipPlansBtn').addEventListener('click', function() {
         const gymProfileName = document.getElementById('modalGymName').innerText; // Get the gym name from the modal
         showMembershipPlans(gymProfileName);
     });
-    
+    // Function to confirm plan purchase
     window.confirmPlanPurchase = function (planType, planPrice, planId) {
+        // Debug: Check if the function is triggered
+        console.log('confirmPlanPurchase triggered for:', planType, planPrice, planId);
+
         // Set the selected plan details in the confirmation modal
-        console.log('Setting selected plan details for confirmation modal.');
         document.getElementById('selectedPlanType').innerText = planType;
         document.getElementById('selectedPlanPrice').innerText = planPrice;
-    
+
         // Show the confirmation modal
         console.log('Showing confirmation modal.');
         $('#confirmPurchaseModal').modal('show');
-    
+
         // Set the action for the Confirm Purchase button
         document.getElementById('confirmPurchaseBtn').onclick = async function () {
             try {
                 console.log('Confirm Purchase button clicked.');
-    
-                // Simulate the purchase process: get the userId and gymName, then save the transaction
-                const userId = await getCurrentUserId(); // Fetch the current user's userId
+
+                // Fetch the current user's userId
+                const userId = await getCurrentUserId(); // Ensure this function returns a valid user ID
                 console.log('User ID fetched:', userId);
-    
+
+                if (!userId) {
+                    console.error('No user ID found. Please log in.');
+                    return;
+                }
+
                 const gymName = document.getElementById('modalGymName').innerText; // Assuming gym name is displayed in the modal
                 console.log('Gym Name fetched:', gymName);
-    
+
                 // Call the purchasePlan function to save the transaction
                 await purchasePlan(planId, planType, planPrice, userId, gymName);
                 console.log('Purchase successful, transaction saved.');
-    
+
                 // Close the confirmation modal
                 $('#confirmPurchaseModal').modal('hide');
-    
-                // Show the success modal
+
+                // Show the success modal to notify the user
                 console.log('Showing success modal.');
+                $('#successModal .modal-body').html(`
+                    <p>Your purchase was successful.</p>
+                    <p><strong>Plan:</strong> ${planType}</p>
+                    <p><strong>Price:</strong> ₱${planPrice}</p>
+                    <p>Please wait for the Gym owner's approval.</p>
+                `);
                 $('#successModal').modal('show');
+
+                // Notify the user with a custom notification (in-app)
+                await notifyUser(userId, planType, gymName);
+
             } catch (error) {
                 console.error('Error purchasing membership plan:', error);
-    
+
                 // Close the confirmation modal
                 $('#confirmPurchaseModal').modal('hide');
-    
+
                 // Show the error modal
                 $('#errorModal').modal('show');
             }
         };
     };
-    
+
+    // Function to handle the actual purchase process
     async function purchasePlan(planId, planType, planPrice, userId, gymName) {
         console.log('Saving transaction with:', { planId, planType, planPrice, userId, gymName });
         try {
@@ -636,19 +655,56 @@ function formatTime(time) {
                 gymName: gymName,
                 purchaseDate: new Date().toISOString(),
             };
-    
+
             // Save the transaction to Firestore
             await addDoc(collection(db, 'Transactions'), newTransaction);
             console.log('Transaction saved successfully.');
+
+            // Notify the user about the successful purchase
+            const newNotification = {
+                userId: userId,
+                notificationId: Date.now().toString(), // Unique ID based on timestamp
+                gymName: gymName,
+                productName: planType, // Use planType as the product name
+                quantity: 1, // Quantity for membership is typically 1
+                totalPrice: planPrice,
+                status: 'Pending Owner Approval',
+                read: false, // Unread notification
+                timestamp: new Date().toISOString(), // Timestamp of the notification
+            };
+
+            // Save the notification to Firestore under a 'Notifications' collection
+            await addDoc(collection(db, 'Notifications'), newNotification);
+            console.log('Notification created successfully.');
+
+            // Optionally, call fetchNotifications here to update the notification list
+            fetchNotifications(userId);
         } catch (error) {
-            console.error('Error saving transaction:', error);
-            throw new Error('Failed to save the transaction');
+            console.error('Error saving transaction or creating notification:', error);
+            throw new Error('Failed to save the transaction or create notification');
         }
     }
-    
-    
 
+    // Function to notify the user with a custom notification
+    async function notifyUser(userId, planType, gymName) {
+        try {
+            const notification = {
+                userId: userId,
+                message: `You have successfully purchased the ${planType} plan from ${gymName}.`,
+                read: false, // Unread notification
+                timestamp: new Date().toISOString(),
+            };
 
+            // Save the notification to Firestore (or wherever your notifications are stored)
+            await addDoc(collection(db, 'Notifications'), notification);
+
+            console.log('Notification sent successfully.');
+        } catch (error) {
+            console.error('Error sending notification:', error);
+        }
+    }
+
+    
         // Function to fetch gym owner location from Firestore based on gymName
         window.fetchGymOwnerLocation = async function (gymName) {
             try {
