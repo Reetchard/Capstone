@@ -17,6 +17,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const accountRef = collection(db, 'Users');
   // Toggle dropdown on profile picture click
+  
   document.getElementById('profile-picture').addEventListener('click', function(event) {
     const dropdownMenu = document.querySelector('.dropdown-menu');
     event.stopPropagation();
@@ -160,8 +161,26 @@ async function displayAccountInfo(searchQuery = '') {
 function handleButtonClick(action) {
     showSpinner(); // Show spinner
     setTimeout(async () => {
-        await action(); // Execute the action
-        hideSpinner(); // Hide spinner
+        try {
+            await action(); // Execute the action
+            // After action completes successfully, show success alert
+            Swal.fire({
+                title: 'Action Complete',
+                text: 'The action was executed successfully!',
+                icon: 'success',
+                confirmButtonText: 'Okay'
+            });
+        } catch (error) {
+            console.error('Error executing action:', error);
+            Swal.fire({
+                title: 'Error!',
+                text: 'There was an issue executing the action. Please try again.',
+                icon: 'error',
+                confirmButtonText: 'Okay'
+            });
+        } finally {
+            hideSpinner(); // Hide spinner
+        }
     }, 1500); // Minimum 1.5 seconds delay
 }
 

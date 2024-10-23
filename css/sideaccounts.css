@@ -350,7 +350,7 @@ h4 {
  body {
     font-family: "Helvitica Neue", Arial, sans-serif;
     background-color: #1b1b1b; /* Dark background */
-    color: #FAF0E6; /* Light gray text */
+    color: #000000; /* Light gray text */
     display: flex;
     min-height: 100vh;
 }

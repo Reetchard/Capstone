@@ -8,23 +8,23 @@
     <link rel="stylesheet" href="css/membership.css">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-
+    <link rel="stylesheet" href="css/sideaccounts.css">
 
 </head>
 
 <body>
-    <div class="content">
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <a class="navbar-brand" href="#"><img src="framework/img/Logoo.ico" alt="Logo"> PEAK PULSE</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav mr-auto"></ul>
-                <span class="navbar-text mx-auto text-white">
-                    Gym Management Dashboard
-                </span>
-                <ul class="navbar-nav ml-auto">
+    <nav class="sidebar">
+        <div class="profile-container text-center mb-4" style="position: relative;">
+            <div class="dropdown">
+                <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" class="img-fluid rounded-circle mb-2" style="width: 80px; cursor: pointer;">
+                <h3 id="profile-username" class="mt-2"></h3> <!-- Username header added here -->
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="login.html">Log Out</a>
+                </div>
+            </div>
+        </div>
+    
+        <ul class="nav flex-column">
                     <li class="nav-item">
                         <a class="nav-link" href="member.html">Manage Members</a>
                     </li>
@@ -41,15 +41,12 @@
                         <a class="nav-link" href="Transactions.html">Manage Transactions</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="membership.html">Conflict Management</a>
+                        <a class="nav-link" href="reservation.html">Conflict Manageent</a>
                     </li>
-                    <div class="nav-link">
-                        <button class="btn btn-secondary mb-2" onclick="window.location.href='login.html'">Log out</button>
-                    </div>
                 </ul>
-            </div>
-        </nav>
-        
+                </div>
+    </nav>
+    <!--end-->
         <div class="container mt-5">
             <h1 class="text-center mb-4">Manage Membership Plans</h1>
 

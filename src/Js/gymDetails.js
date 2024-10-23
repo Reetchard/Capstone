@@ -17,6 +17,68 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+document.getElementById('profile-picture').addEventListener('click', function(event) {
+    const dropdownMenu = document.querySelector('.dropdown-menu');
+    event.stopPropagation();
+    
+    // If the dropdown is currently hidden, show it
+    if (!dropdownMenu.classList.contains('show')) {
+        dropdownMenu.classList.remove('hide'); // Remove hide class if present
+        dropdownMenu.classList.add('show'); // Show the dropdown
+        
+        // Also add a class for animating the profile picture
+        this.classList.add('active'); // Optional for additional effect
+    } else {
+        dropdownMenu.classList.add('hide'); // Add hide class for smooth closing
+        setTimeout(() => {
+            dropdownMenu.classList.remove('show', 'hide'); // Remove show and hide after transition
+        }, 300); // Match the duration with the CSS transition time
+        
+        // Optionally remove active class from profile picture
+        this.classList.remove('active'); // Optional for additional effect
+    }
+});
+
+// Close dropdown when clicking outside
+window.addEventListener('click', function(event) {
+    const dropdownMenu = document.querySelector('.dropdown-menu');
+    if (!event.target.closest('.dropdown')) {
+        dropdownMenu.classList.add('hide'); // Add hide class for smooth closing
+        setTimeout(() => {
+            dropdownMenu.classList.remove('show', 'hide'); // Remove show and hide after transition
+        }, 300); // Match the duration with the CSS transition time
+        
+        // Optionally remove active class from profile picture
+        document.getElementById('profile-picture').classList.remove('active'); // Optional for additional effect
+    }
+});
+document.addEventListener('DOMContentLoaded', () => {
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            const userId = user.uid;
+            const userDocRef = doc(db, 'Users', userId); // Fetch user doc from Firestore
+
+            try {
+                const userDoc = await getDoc(userDocRef);
+                if (userDoc.exists()) {
+                    const userData = userDoc.data(); // Get user data
+                    const username = userData.username || 'User'; // Username with fallback
+
+                    // Display profile picture and username
+                    displayProfilePicture(user, username); // Pass the user object and username
+
+                } else {
+                    console.error("User document does not exist.");
+                    window.location.href = 'login.html'; // Redirect to login if no user document found
+                }
+            } catch (error) {
+                console.error("Error fetching user data:", error); // Error handling
+            }
+        } else {
+            window.location.href = 'login.html'; // Redirect if user is not authenticated
+        }
+    });
+});
 
 async function loadGymProfiles() {
     const gymListBody = document.getElementById('gymList');
