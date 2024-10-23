@@ -178,20 +178,19 @@ function formatTime(time) {
 
     // Function to open the Gym Info Modal
     window.viewMore = async function (gymId) {
-
         try {
-            // Fetch the gym document from Firestore using gymId (which is the document's ID)
+            // Fetch the gym document from Firestore using gymId
             const gymDocRef = doc(db, 'Users', gymId);
             const gymDoc = await getDoc(gymDocRef);
     
             if (gymDoc.exists()) {
                 const gymData = gymDoc.data();
-                // Get gym name from the gym profile (gym owner's gym)
                 const gymProfileName = gymData.gymName;
     
-                console.log('Gym Profile Name:', gymProfileName); // Debugging log
+                // Debugging log
+                console.log('Gym Profile Name:', gymProfileName);
     
-                // Ensure each element exists before setting innerText
+                // Get and update modal elements
                 const modalGymName = document.getElementById('modalGymName');
                 const modalGymPhoto = document.getElementById('modalGymPhoto');
                 const modalGymLocation = document.getElementById('modalGymLocation');
@@ -202,9 +201,8 @@ function formatTime(time) {
                 const modalPriceRate = document.getElementById('modalPriceRate');
                 const modalGymOpeningTime = document.getElementById('modalGymOpeningTime');
                 const modalGymClosingTime = document.getElementById('modalGymClosingTime');
-                const trainersSection = document.getElementById('trainers-section'); // Trainers section
-                const productsSection = document.getElementById('products-section'); // Products section
-                const membershipPlansSection = document.getElementById('membership-plans-section'); // Membership Plans section
+                const trainersSection = document.getElementById('trainers-section');
+                const productsSection = document.getElementById('products-section');
     
                 // Populate modal content with gym details
                 if (modalGymName) modalGymName.innerText = gymProfileName || 'N/A';
@@ -215,33 +213,24 @@ function formatTime(time) {
                 if (modalGymEmail) modalGymEmail.innerText = gymData.email || 'N/A';
                 if (modalGymContact) modalGymContact.innerText = gymData.gymContact || 'N/A';
                 if (modalPriceRate) modalPriceRate.innerText = gymData.gymPriceRate || 'N/A';
-                if (modalGymOpeningTime) {
-                    const openingTime = gymData.gymOpeningTime || 'N/A';
-                    modalGymOpeningTime.innerText = formatTime(openingTime); // Use formatTime function
-                }
+                if (modalGymOpeningTime) modalGymOpeningTime.innerText = formatTime(gymData.gymOpeningTime || 'N/A');
+                if (modalGymClosingTime) modalGymClosingTime.innerText = formatTime(gymData.gymClosingTime || 'N/A');
     
-                if (modalGymClosingTime) {
-                    const closingTime = gymData.gymClosingTime || 'N/A';
-                    modalGymClosingTime.innerText = formatTime(closingTime); // Use formatTime function
-                }
+                // Clear the trainers and products sections
+                trainersSection.innerHTML = '';
+                productsSection.innerHTML = '';
     
-                trainersSection.innerHTML = ''; // Clear the trainers section
-                productsSection.innerHTML = ''; // Clear the products section
-                membershipPlansSection.innerHTML = ''; // Clear the membership plans section
-    
-                // Fetch trainers whose GymName matches the gym owner's GymName
+                // Fetch trainers for this gym
                 const trainersQuery = query(
                     collection(db, 'Users'),
                     where('role', '==', 'trainer'),
-                    where('GymName', '==', gymProfileName) // Match trainer's GymName with gymProfileName
+                    where('GymName', '==', gymProfileName)
                 );
                 const trainersSnapshot = await getDocs(trainersQuery);
     
                 if (!trainersSnapshot.empty) {
                     trainersSnapshot.forEach(doc => {
                         const trainerData = doc.data();
-    
-                        // Check if the trainer's status is not "Under Review"
                         if (trainerData.status !== "Under Review") {
                             const trainerCard = `
                                 <div class="trainer-card">
@@ -256,196 +245,599 @@ function formatTime(time) {
                 } else {
                     trainersSection.innerHTML = '<p>No trainers found for this gym.</p>';
                 }
-                
-                let notificationCount = 0;                
-                async function getCurrentUserId() {
-                    return new Promise((resolve, reject) => {
-                        onAuthStateChanged(auth, async (user) => {
-                            if (user) {
-                                const userDocRef = doc(db, 'Users', user.uid); // Fetch user doc using UID
-                                try {
-                                    const userDoc = await getDoc(userDocRef);
-                                    if (userDoc.exists()) {
-                                        const userData = userDoc.data();
-                                        const userId = userData.userId; // Retrieve the userId field from the document
-                                        if (userId) {
-                                            resolve(userId); // Resolve with userId from the document
-                                        } else {
-                                            reject('userId field not found in user document.');
-                                        }
-                                    } else {
-                                        reject('User document does not exist.');
-                                    }
-                                } catch (error) {
-                                    reject('Error fetching user document:', error);
-                                }
-                            } else {
-                                reject('No authenticated user found.');
-                            }
-                        });
+    
+                // Fetch and display products for this gym
+                const productsQuery = query(
+                    collection(db, 'Products'),
+                    where('gymName', '==', gymProfileName)
+                );
+                const productsSnapshot = await getDocs(productsQuery);
+    
+                if (!productsSnapshot.empty) {
+                    productsSnapshot.forEach(doc => {
+                        const productData = doc.data();
+                        const productCard = `
+                            <div class="product-card">
+                                <img src="${productData.photoURL || 'default-product.jpg'}" alt="Product Photo" class="product-photo">
+                                <h5>${productData.name || 'Unnamed Product'}</h5>
+                                <button class="btn-custom btn-primary" onclick="ViewProductInfo('${doc.id}')">Check info</button>
+                            </div>
+                        `;
+                        productsSection.innerHTML += productCard;
                     });
+                } else {
+                    productsSection.innerHTML = '<p>No products found for this gym.</p>';
                 }
-                
-                // Function to display product information and show modal
-                window.ViewProductInfo = async function (productId) {
+    
+                // Show the modal
+                $('#gymProfileModal').modal('show');
+            } else {
+                console.error('No such document!');
+            }
+        } catch (error) {
+            console.error('Error fetching document:', error);
+        }
+    };
+    async function getCurrentUserId() {
+        return new Promise((resolve, reject) => {
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    const userDocRef = doc(db, 'Users', user.uid); // Fetch user doc using UID
                     try {
-                        $('.modal').modal('hide'); // Hide any open modals
-                
-                        // Fetch product data by ID
-                        const productDocRef = doc(db, 'Products', productId);
-                        const productDoc = await getDoc(productDocRef);
-                
-                        if (productDoc.exists()) {
-                            const productData = productDoc.data();
-                
-                            // Ensure modal elements exist
-                            const modalProductName = document.getElementById('modalProductName');
-                            const modalProductPrice = document.getElementById('modalProductPrice');
-                            const modalProductDescription = document.getElementById('modalProductDescription');
-                            const modalProductPhoto = document.getElementById('modalProductPhoto');
-                            const modalProductCategory = document.getElementById('modalProductCategory');
-                            const modalProductQuantityAvailable = document.getElementById('modalProductQuantity');
-                            const modalProductQuantityInput = document.getElementById('modalProductQuantityInput');
-                            const increaseQuantityBtn = document.getElementById('increaseQuantity');
-                            const decreaseQuantityBtn = document.getElementById('decreaseQuantity');
-                
-                            let availableStock = productData.quantity || 0;
-                            let selectedQuantity = 1;
-                            let productPrice = productData.price || 0;
-                
-                            // Display product data
-                            modalProductName.innerText = productData.name || 'Unnamed Product';
-                            modalProductPrice.innerText = `₱${productData.price || 'N/A'}`;
-                            modalProductDescription.innerText = productData.description || 'No description available.';
-                            modalProductPhoto.src = productData.photoURL || 'default-product.jpg';
-                            modalProductCategory.innerText = productData.category || 'N/A';
-                            modalProductQuantityAvailable.innerText = `Available: ${availableStock}`;
-                
-                            // Function to update total price based on selected quantity
-                            function updatePrice() {
-                                const totalPrice = productPrice * selectedQuantity;
-                                modalProductPrice.innerText = `₱${totalPrice.toLocaleString()}`; // Format price with commas
+                        const userDoc = await getDoc(userDocRef);
+                        if (userDoc.exists()) {
+                            const userData = userDoc.data();
+                            const userId = userData.userId; // Retrieve the userId field from the document
+                            if (userId) {
+                                resolve(userId); // Resolve with userId from the document
+                            } else {
+                                reject('userId field not found in user document.');
                             }
-                
-                            // Update the displayed stock and quantity
-                            function updateQuantity() {
-                                modalProductQuantityInput.value = selectedQuantity;
-                                modalProductQuantityAvailable.innerText = `Available: ${availableStock - selectedQuantity}`;
-                                updatePrice(); // Update the total price when quantity changes
-                            }
-                
-                            // Increase quantity
-                            increaseQuantityBtn.addEventListener('click', function () {
-                                if (selectedQuantity < availableStock) {
-                                    selectedQuantity++;
-                                    updateQuantity();
-                                }
-                            });
-                
-                            // Decrease quantity
-                            decreaseQuantityBtn.addEventListener('click', function () {
-                                if (selectedQuantity > 1) {
-                                    selectedQuantity--;
-                                    updateQuantity();
-                                }
-                            });
-                
-                            // Set initial quantity and price
-                            modalProductQuantityInput.value = selectedQuantity;
-                            updatePrice(); // Set initial price based on quantity 1
-                
-                            // Show the Product Info modal
-                            $('#productModal').modal('show');
-                
                         } else {
-                            console.error('Product not found!');
+                            reject('User document does not exist.');
                         }
                     } catch (error) {
-                        console.error('Error fetching product data:', error);
+                        reject('Error fetching user document:', error);
                     }
-                };
-                
-                // Buy Now function with confirmation and success messages
-                window.buyNow = async function () {
-                    try {
-                        // Ensure user ID is available before proceeding
-                        const userId = await getCurrentUserId(); // Get userId from the Users collection
-
-                        // Get product details
-                        const productName = document.getElementById('modalProductName').innerText;
-                        const quantityPurchased = document.getElementById('modalProductQuantityInput').value;
-                        const totalPrice = document.getElementById('modalProductPrice').innerText;
-
-                        // Assuming gymName is available in the GymProfile card
-                        const gymName = document.getElementById('modalGymName').innerText; // Get gym name from GymProfile card
-
-                        // Set product details in confirmation modal
-                        document.getElementById('confirmProductName').innerText = productName;
-                        document.getElementById('confirmQuantity').innerText = quantityPurchased;
-                        document.getElementById('confirmTotalPrice').innerText = totalPrice;
-
-                        // Show the confirmation modal
-                        $('#confirmationModal').modal('show');
-
-                        // Handle confirmation action
-                        document.getElementById('confirmPurchaseBtn').onclick = async function () {
-                            try {
-                                // Simulate purchase logic (e.g., update stock, etc.)
-                                notificationCount++;
-                                document.getElementById('notification-count').innerText = notificationCount;
-
-                                // Create a new notification with detailed information
-                                const newNotification = {
-                                    message: `You purchased ${quantityPurchased} of ${productName} for ${totalPrice}.`,
-                                    productName: productName,
-                                    quantity: quantityPurchased,
-                                    totalPrice: totalPrice,
-                                    status: 'Pending Owner Approval',
-                                    read: false, // Unread notification
-                                    userId: userId, // Use the current user's userId from the document
-                                    gymName: gymName, // Storing gymName from GymProfile card
-                                    notificationId: Date.now().toString(), // Unique ID based on timestamp
-                                    timestamp: new Date().toISOString() // Add timestamp for ordering or filtering if needed
-                                };
-
-                                // Save the notification to Firestore under a 'Notifications' collection
-                                await addDoc(collection(db, 'Notifications'), newNotification);
-
-                                // Save transaction to 'Transactions' collection
-                                const newTransaction = {
-                                    userId: userId, // Storing userId of the customer/user
-                                    productName: productName,
-                                    quantity: quantityPurchased,
-                                    totalPrice: totalPrice,
-                                    gymName: gymName, // Storing gymName from GymProfile card
-                                    timestamp: new Date().toISOString() // Timestamp of the transaction
-                                };
-
-                                // Save the transaction to Firestore under a 'Transactions' collection
-                                await addDoc(collection(db, 'Transactions'), newTransaction);
-
-                                // Close the confirmation modal
-                                $('#confirmationModal').modal('hide');
-
-                                // Show success modal
-                                document.getElementById('successProductName').innerText = productName;
-                                document.getElementById('successQuantity').innerText = quantityPurchased;
-                                document.getElementById('successTotalPrice').innerText = totalPrice;
-                                $('#successModal').modal('show');
-
-                                // Update the notification list
-                                await fetchNotifications(userId);
-
-                                // Close the product modal after the purchase
-                                $('#productModal').modal('hide');
-                            } catch (error) {
-                                console.error('Error saving notification or transaction:', error);
-                            }
-                        };
-                    } catch (error) {
-                        console.error('Error fetching current user ID:', error);
+                } else {
+                    reject('No authenticated user found.');
+                }
+            });
+        });
+    }
+    window.ViewProductInfo = async function (productId) {
+        try {
+            $('.modal').modal('hide'); // Hide any open modals
+    
+            // Fetch product data by ID
+            const productDocRef = doc(db, 'Products', productId);
+            const productDoc = await getDoc(productDocRef);
+    
+            if (productDoc.exists()) {
+                const productData = productDoc.data();
+    
+                // Ensure modal elements exist
+                const modalProductName = document.getElementById('modalProductName');
+                const modalProductPrice = document.getElementById('modalProductPrice');
+                const modalProductDescription = document.getElementById('modalProductDescription');
+                const modalProductPhoto = document.getElementById('modalProductPhoto');
+                const modalProductCategory = document.getElementById('modalProductCategory');
+                const modalProductQuantityAvailable = document.getElementById('modalProductQuantity');
+                const modalProductQuantityInput = document.getElementById('modalProductQuantityInput');
+                const increaseQuantityBtn = document.getElementById('increaseQuantity');
+                const decreaseQuantityBtn = document.getElementById('decreaseQuantity');
+    
+                let availableStock = productData.quantity || 0;
+                let selectedQuantity = 1;
+                let productPrice = productData.price || 0;
+    
+                // Display product data
+                modalProductName.innerText = productData.name || 'Unnamed Product';
+                modalProductPrice.innerText = `₱${productData.price || 'N/A'}`;
+                modalProductDescription.innerText = productData.description || 'No description available.';
+                modalProductPhoto.src = productData.photoURL || 'default-product.jpg';
+                modalProductCategory.innerText = productData.category || 'N/A';
+                modalProductQuantityAvailable.innerText = `Available: ${availableStock}`;
+    
+                // Function to update total price based on selected quantity
+                function updatePrice() {
+                    const totalPrice = productPrice * selectedQuantity;
+                    modalProductPrice.innerText = `₱${totalPrice.toLocaleString()}`; // Format price with commas
+                }
+    
+                // Update the displayed stock and quantity
+                function updateQuantity() {
+                    modalProductQuantityInput.value = selectedQuantity;
+                    modalProductQuantityAvailable.innerText = `Available: ${availableStock - selectedQuantity}`;
+                    updatePrice(); // Update the total price when quantity changes
+                }
+    
+                // Increase quantity
+                increaseQuantityBtn.addEventListener('click', function () {
+                    if (selectedQuantity < availableStock) {
+                        selectedQuantity++;
+                        updateQuantity();
                     }
-                };
+                });
+    
+                // Decrease quantity
+                decreaseQuantityBtn.addEventListener('click', function () {
+                    if (selectedQuantity > 1) {
+                        selectedQuantity--;
+                        updateQuantity();
+                    }
+                });
+    
+                // Set initial quantity and price
+                modalProductQuantityInput.value = selectedQuantity;
+                updatePrice(); // Set initial price based on quantity 1
+    
+                // Show the Product Info modal
+                $('#productModal').modal('show');
+    
+            } else {
+                console.error('Product not found!');
+            }
+        } catch (error) {
+            console.error('Error fetching product data:', error);
+        }
+    };
+     // Buy Now function with confirmation and success messages
+     window.buyNow = async function () {
+        try {
+            // Ensure user ID is available before proceeding
+            const userId = await getCurrentUserId(); // Get userId from the Users collection
+
+            // Get product details
+            const productName = document.getElementById('modalProductName').innerText;
+            const quantityPurchased = document.getElementById('modalProductQuantityInput').value;
+            const totalPrice = document.getElementById('modalProductPrice').innerText;
+
+            // Assuming gymName is available in the GymProfile card
+            const gymName = document.getElementById('modalGymName').innerText; // Get gym name from GymProfile card
+
+            // Set product details in confirmation modal
+            document.getElementById('confirmProductName').innerText = productName;
+            document.getElementById('confirmQuantity').innerText = quantityPurchased;
+            document.getElementById('confirmTotalPrice').innerText = totalPrice;
+
+            // Show the confirmation modal
+            $('#confirmationModal').modal('show');
+
+            // Handle confirmation action
+            document.getElementById('confirmPurchaseBtn').onclick = async function () {
+                try {
+                    // Simulate purchase logic (e.g., update stock, etc.)
+                    notificationCount++;
+                    document.getElementById('notification-count').innerText = notificationCount;
+
+                    // Create a new notification with detailed information
+                    const newNotification = {
+                        message: `You purchased ${quantityPurchased} of ${productName} for ${totalPrice}.`,
+                        productName: productName,
+                        quantity: quantityPurchased,
+                        totalPrice: totalPrice,
+                        status: 'Pending Owner Approval',
+                        read: false, // Unread notification
+                        userId: userId, // Use the current user's userId from the document
+                        gymName: gymName, // Storing gymName from GymProfile card
+                        notificationId: Date.now().toString(), // Unique ID based on timestamp
+                        timestamp: new Date().toISOString() // Add timestamp for ordering or filtering if needed
+                    };
+
+                    // Save the notification to Firestore under a 'Notifications' collection
+                    await addDoc(collection(db, 'Notifications'), newNotification);
+
+                    // Save transaction to 'Transactions' collection
+                    const newTransaction = {
+                        userId: userId, // Storing userId of the customer/user
+                        productName: productName,
+                        quantity: quantityPurchased,
+                        totalPrice: totalPrice,
+                        gymName: gymName, // Storing gymName from GymProfile card
+                        timestamp: new Date().toISOString() // Timestamp of the transaction
+                    };
+
+                    // Save the transaction to Firestore under a 'Transactions' collection
+                    await addDoc(collection(db, 'Transactions'), newTransaction);
+
+                    // Close the confirmation modal
+                    $('#confirmationModal').modal('hide');
+
+                    // Show success modal
+                    document.getElementById('successProductName').innerText = productName;
+                    document.getElementById('successQuantity').innerText = quantityPurchased;
+                    document.getElementById('successTotalPrice').innerText = totalPrice;
+                    $('#successModal').modal('show');
+
+                    // Update the notification list
+                    await fetchNotifications(userId);
+
+                    // Close the product modal after the purchase
+                    $('#productModal').modal('hide');
+                } catch (error) {
+                    console.error('Error saving notification or transaction:', error);
+                }
+            };
+        } catch (error) {
+            console.error('Error fetching current user ID:', error);
+        }
+    };
+
+    let notificationCount = 0; // Initialize notificationCount to 0
+    document.getElementById('confirmPurchaseBtn').onclick = async function () {
+        try {
+            // Simulate purchase logic (e.g., update stock, etc.)
+            notificationCount++; // Increment the notification count
+    
+            // Update the notification count display in the UI
+            document.getElementById('notification-count').innerText = notificationCount;
+    
+            // Create a new notification with detailed information
+            const newNotification = {
+                message: `You purchased ${quantityPurchased} of ${productName} for ${totalPrice}.`,
+                productName: productName,
+                quantity: quantityPurchased,
+                totalPrice: totalPrice,
+                status: 'Pending Owner Approval',
+                read: false, // Unread notification
+                userId: userId, // Use the current user's userId from the document
+                gymName: gymName, // Storing gymName from GymProfile card
+                notificationId: Date.now().toString(), // Unique ID based on timestamp
+                timestamp: new Date().toISOString() // Add timestamp for ordering or filtering if needed
+            };
+    
+            // Save the notification to Firestore under a 'Notifications' collection
+            await addDoc(collection(db, 'Notifications'), newNotification);
+    
+            // Save transaction to 'Transactions' collection
+            const newTransaction = {
+                userId: userId, // Storing userId of the customer/user
+                productName: productName,
+                quantity: quantityPurchased,
+                totalPrice: totalPrice,
+                gymName: gymName, // Storing gymName from GymProfile card
+                timestamp: new Date().toISOString() // Timestamp of the transaction
+            };
+    
+            // Save the transaction to Firestore under a 'Transactions' collection
+            await addDoc(collection(db, 'Transactions'), newTransaction);
+    
+            // Close the confirmation modal
+            $('#confirmationModal').modal('hide');
+    
+            // Show success modal
+            document.getElementById('successProductName').innerText = productName;
+            document.getElementById('successQuantity').innerText = quantityPurchased;
+            document.getElementById('successTotalPrice').innerText = totalPrice;
+            $('#successModal').modal('show');
+    
+            // Update the notification list (assuming this function exists)
+            await fetchNotifications(userId);
+    
+            // Close the product modal after the purchase
+            $('#productModal').modal('hide');
+        } catch (error) {
+            console.error('Error saving notification or transaction:', error);
+        }
+    };
+    
+    window.showMembershipPlans = async function (gymProfileName) {
+        try {
+            const membershipPlansSection = document.getElementById('membershipPlansSection');
+            membershipPlansSection.innerHTML = ''; // Clear the section before appending
+        
+            // Define an array of colors for the membership cards
+            const cardColors = [
+                'linear-gradient(to right, #5B247A, #1BCEDF)',  
+                'linear-gradient(to right, #184E68, #57CA85)', 
+                'linear-gradient(to right, #F02FC2, #6094EA)', 
+                'linear-gradient(to right, #f1c40f, #f39c12)', 
+                'linear-gradient(to right, #8e44ad, #9b59b6)'
+            ];
+        
+            // Fetch membership plans where gymName matches gymProfileName
+            const membershipPlansQuery = query(
+                collection(db, 'MembershipPlans'),
+                where('gymName', '==', gymProfileName) // Match membership plans by gymName
+            );
+        
+            const membershipPlansSnapshot = await getDocs(membershipPlansQuery);
+        
+            if (!membershipPlansSnapshot.empty) {
+                let colorIndex = 0; // Initialize a color index
+                membershipPlansSnapshot.forEach(doc => {
+                    const planData = doc.data();
+                    const backgroundColor = cardColors[colorIndex % cardColors.length];
+                    colorIndex++; // Increment the color index
+        
+                    const planCard = `
+                        <div class="plan-card card mb-3" style="background: ${backgroundColor};">
+                            <div class="card-body">
+                                <h4 class="card-title">${planData.membershipType || 'Unnamed Plan'}</h4>
+                                <h5 class="card-title">₱${planData.price || 'N/A'}</h5>
+                                <p class="card-text">${planData.description || 'No description available.'}</p>
+                                <button class="btn-custom btn-primary" onclick="confirmPlanPurchase('${planData.membershipType}', '${planData.price}', '${doc.id}')">Apply</button>
+                            </div>
+                        </div>
+                    `;
+        
+                    // Append the plan card to the membership plans section
+                    membershipPlansSection.innerHTML += planCard;
+                });
+            } else {
+                membershipPlansSection.innerHTML = '<p>No membership plans found for this gym.</p>';
+            }
+        
+            // Show the membership plans modal
+            $('#membershipPlansModal').modal('show');
+        } catch (error) {
+            console.error('Error fetching membership plans:', error);
+        }
+    };
+    
+    document.getElementById('membershipPlansBtn').addEventListener('click', function() {
+        const gymProfileName = document.getElementById('modalGymName').innerText; // Get the gym name from the modal
+        showMembershipPlans(gymProfileName);
+    });
+    
+    window.confirmPlanPurchase = function (planType, planPrice, planId) {
+        // Set the selected plan details in the confirmation modal
+        console.log('Setting selected plan details for confirmation modal.');
+        document.getElementById('selectedPlanType').innerText = planType;
+        document.getElementById('selectedPlanPrice').innerText = planPrice;
+    
+        // Show the confirmation modal
+        console.log('Showing confirmation modal.');
+        $('#confirmPurchaseModal').modal('show');
+    
+        // Set the action for the Confirm Purchase button
+        document.getElementById('confirmPurchaseBtn').onclick = async function () {
+            try {
+                console.log('Confirm Purchase button clicked.');
+    
+                // Simulate the purchase process: get the userId and gymName, then save the transaction
+                const userId = await getCurrentUserId(); // Fetch the current user's userId
+                console.log('User ID fetched:', userId);
+    
+                const gymName = document.getElementById('modalGymName').innerText; // Assuming gym name is displayed in the modal
+                console.log('Gym Name fetched:', gymName);
+    
+                // Call the purchasePlan function to save the transaction
+                await purchasePlan(planId, planType, planPrice, userId, gymName);
+                console.log('Purchase successful, transaction saved.');
+    
+                // Close the confirmation modal
+                $('#confirmPurchaseModal').modal('hide');
+    
+                // Show the success modal
+                console.log('Showing success modal.');
+                $('#successModal').modal('show');
+            } catch (error) {
+                console.error('Error purchasing membership plan:', error);
+    
+                // Close the confirmation modal
+                $('#confirmPurchaseModal').modal('hide');
+    
+                // Show the error modal
+                $('#errorModal').modal('show');
+            }
+        };
+    };
+    
+    async function purchasePlan(planId, planType, planPrice, userId, gymName) {
+        console.log('Saving transaction with:', { planId, planType, planPrice, userId, gymName });
+        try {
+            const newTransaction = {
+                userId: userId,
+                planId: planId,
+                planType: planType,
+                planPrice: planPrice,
+                gymName: gymName,
+                purchaseDate: new Date().toISOString(),
+            };
+    
+            // Save the transaction to Firestore
+            await addDoc(collection(db, 'Transactions'), newTransaction);
+            console.log('Transaction saved successfully.');
+        } catch (error) {
+            console.error('Error saving transaction:', error);
+            throw new Error('Failed to save the transaction');
+        }
+    }
+    
+    
+
+
+        // Function to fetch gym owner location from Firestore based on gymName
+        window.fetchGymOwnerLocation = async function (gymName) {
+            try {
+                console.log('Fetching gym owner data for gymName:', gymName);
+
+                // Fetch the gym owner's data from Firestore by matching the gymName and role 'gymowner'
+                const userQuery = query(collection(db, 'Users'), where('role', '==', 'gymowner'), where('gymName', '==', gymName));
+                const userSnapshot = await getDocs(userQuery);
+
+                if (!userSnapshot.empty) {
+                    console.log('Gym owner found.');
+
+                    const gymOwnerData = userSnapshot.docs[0].data();
+                    const gymOwnerName = gymOwnerData.gymName;
+
+                    console.log('Gym Owner Name:', gymOwnerName);
+
+                    // Return the gym location if names match
+                    const gymLocation = gymOwnerData.gymLocation;
+
+                    console.log('Gym location validated:', gymLocation);
+                    return gymLocation;
+
+                } else {
+                    console.error('No gym owner found for gymName:', gymName);
+                    return null;
+                }
+            } catch (error) {
+                console.error('Error fetching gym owner location:', error);
+                return null;
+            }
+        }
+
+        // Function to fetch location coordinates from Nominatim (OpenStreetMap Geocoding service)
+        window.fetchGymCoordinates = async function (cityName) {
+            const apiUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=1`;
+
+            try {
+                console.log(`Fetching coordinates for city: ${cityName}`);
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data && data.length > 0) {
+                    const { lat, lon } = data[0];
+                    console.log('Fetched coordinates:', lat, lon);
+                    return { lat, lon };
+                } else {
+                    throw new Error('Location not found');
+                }
+            } catch (error) {
+                console.error('Error fetching gym coordinates:', error);
+                alert('Could not fetch the location. Please ensure the city name is correct.');
+                return null;
+            }
+        }
+
+        // Initialize the map using Leaflet with OpenStreetMap tiles
+        let map;
+        window.initMap = function(lat, lon) {
+            console.log(`Initializing map with coordinates: lat=${lat}, lon=${lon}`);
+
+            if (map) {
+                console.log('Map already initialized, setting new view');
+                map.setView([lat, lon], 15);
+                map.invalidateSize(); // Important to refresh the map after being shown in the modal
+            } else {
+                console.log('Initializing new map');
+                map = L.map('map').setView([lat, lon], 15);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors'
+                }).addTo(map);
+
+                L.marker([lat, lon]).addTo(map)
+                    .bindPopup('Gym Location')
+                    .openPopup();
+            }
+        }
+
+        window.onload = function () {
+            document.getElementById('locationIcon').addEventListener('click', async function () {
+                try {
+                    // Get the gym name from the modal (ensure the modal is open or has valid data)
+                    const gymName = document.getElementById('modalGymName').innerText;  // Fetch the gym name displayed in the modal
+                    
+                    if (!gymName) {
+                        console.error('Gym name is not provided.');
+                        alert('Gym name is not available.');
+                        return;
+                    }
+
+                    // Fetch gym owner location using gymName
+                    const gymLocation = await fetchGymOwnerLocation(gymName);
+
+                    if (gymLocation) {
+                        const { lat, lon } = await fetchGymCoordinates(gymLocation); // Fetch coordinates for the gym's location (city)
+                        if (lat && lon) {
+                            // Show the map modal
+                            $('#mapModal').modal('show');
+
+                            // Initialize the map with the coordinates after the modal is shown
+                            $('#mapModal').on('shown.bs.modal', function () {
+                                initMap(lat, lon); // Initialize the map inside the modal
+                            });
+                            
+                            console.log('Map modal shown');
+                        } else {
+                            console.error('Coordinates not found');
+                            alert('Could not fetch gym location.');
+                        }
+                    } else {
+                        console.error('Gym location not found');
+                        alert('Could not fetch gym location.');
+                    }
+                } catch (error) {
+                    console.error('Error displaying the map:', error);
+                }
+            });
+        };
+
+
+
+
+    // Function to view trainer info in a new modal
+    window.ViewTrainerInfo = async function (trainerId) {
+        try {
+            // Close Gym modal
+            $('#gymProfileModal').modal('hide');
+
+            // Fetch trainer data by ID
+            const trainerDocRef = doc(db, 'Users', trainerId);
+            const trainerDoc = await getDoc(trainerDocRef);
+
+            if (trainerDoc.exists()) {
+                const trainerData = trainerDoc.data();
+
+                // Check if the trainer's status is "Under Review"
+                if (trainerData.status === "Under Review") {
+                    console.warn('Trainer is under review. Cannot display.');
+                    return; // Do not display the trainer if they are under review
+                }
+
+                // Ensure each trainer modal element exists
+                const modalTrainerName = document.getElementById('modalTrainerName');
+                const modalTrainerPhoto = document.getElementById('modalTrainerPhoto');
+                const modalTrainerExpertise = document.getElementById('modalTrainerExpertise');
+                const modalTrainerExperience = document.getElementById('modalTrainerExperience');
+                const modalTrainerDays = document.getElementById('modalTrainerDays');
+                const modalTrainerRate = document.getElementById('modalTrainerRate'); // Trainer rate element
+                const bookNowButton = document.getElementById('bookNowButton'); // Book Now button
+
+                // Populate trainer modal with the trainer's data
+                if (modalTrainerName) modalTrainerName.innerText = trainerData.TrainerName || 'N/A';
+                if (modalTrainerPhoto) modalTrainerPhoto.src = trainerData.TrainerPhoto || 'default-trainer-photo.jpg';
+                if (modalTrainerExpertise) modalTrainerExpertise.innerText = trainerData.Expertise || 'N/A';
+                if (modalTrainerExperience) modalTrainerExperience.innerText = trainerData.Experience || 'N/A';
+                if (modalTrainerDays) modalTrainerDays.innerText = trainerData.Days || 'N/A';
+                if (modalTrainerRate) modalTrainerRate.innerText = `₱${trainerData.rate || 'N/A'}`; // Display rate with currency
+
+                // Handle Book Now button (add trainer ID for booking logic)
+                if (bookNowButton) {
+                    bookNowButton.onclick = function() {
+                        alert(`Booking Trainer: ${trainerId}`);
+                        // Add your booking logic here
+                    };
+                }
+
+                // Step 4: Show the Trainer Info modal
+                $('#trainerProfileModal').modal('show');
+            } else {
+                console.error('Trainer not found!');
+            }
+        } catch (error) {
+            console.error('Error fetching trainer data:', error);
+        }
+    }
+    
+
+    // Optionally, you can have other modal functions like closeModal()
+    window.closeModal=function() {
+        $('#gymProfileModal').modal('hide');
+    }
+
+    // Function to close the modal
+    window.closeModal = function() {
+        $('#gymProfileModal').modal('hide'); // Use Bootstrap's modal hide method
+    }
+
+
               // Fetch notifications from Firestore and sync with localStorage
               async function fetchNotifications(userId) {
                 try {
@@ -766,288 +1158,6 @@ function formatTime(time) {
                         console.error('Error during user authentication:', error);
                     });
                 };
-
-    
-                    // Fetch products and render them
-                    const productsQuery = query(
-                        collection(db, 'Products'),
-                        where('gymName', '==', gymProfileName) // Adjust 'gymName' accordingly if needed
-                    );
-                    const productsSnapshot = await getDocs(productsQuery);
-
-                    if (!productsSnapshot.empty) {
-                        productsSnapshot.forEach(doc => {
-                            const productData = doc.data();
-
-                            // Create the product card with additional fields (category, quantity, date added)
-                            const productCard = `
-                                <div class="trainer-card">
-                                    <img src="${productData.photoURL || 'default-product.jpg'}" alt="Product Photo" class="product-photo">
-                                    <h5>${productData.name || 'Unnamed Product'}</h5>
-                                    <!-- <p>Category: ${productData.category || 'N/A'}</p> -->
-                                    <!-- <p>Price: ${productData.price || 'N/A'}</p> -->
-                                    <button class="btn-custom btn-primary" onclick="ViewProductInfo('${doc.id}')">Check info</button>
-                                </div>
-                            `;
-
-                            // Append the card to the container
-                            productsSection.innerHTML += productCard;
-                        });
-                    } else {
-                        productsSection.innerHTML = '<p>No products found for this gym.</p>';
-                    }
-
-
-                    // Define an array of colors for the membership cards
-                    const cardColors = [
-                        'linear-gradient(to right, #5B247A, #1BCEDF)',  
-                        'linear-gradient(to right, #184E68, #57CA85)', 
-                        'linear-gradient(to right, #F02FC2, #6094EA)', 
-                        'linear-gradient(to right, #f1c40f, #f39c12)', 
-                        'linear-gradient(to right, #8e44ad, #9b59b6)'
-                    ];
-                // Fetch membership plans where gymName matches gymProfileName
-                const membershipPlansQuery = query(
-                    collection(db, 'MembershipPlans'),
-                    where('gymName', '==', gymProfileName) // Match membership plans by gymName
-                );
-    
-                const membershipPlansSnapshot = await getDocs(membershipPlansQuery);
-    
-                // Debugging log
-                console.log('Membership Plans Snapshot:', membershipPlansSnapshot);
-    
-                if (!membershipPlansSnapshot.empty) {
-                    let colorIndex = 0; // Initialize a color index
-                    membershipPlansSnapshot.forEach(doc => {
-                        const planData = doc.data();
-                        console.log('Plan Data:', planData); // Debugging log for each plan
-
-                         // Use the color index to set the background color
-                        const backgroundColor = cardColors[colorIndex % cardColors.length];
-                         colorIndex++; // Increment the color index
-    
-                        // Create the plan card HTML
-                        const planCard = `
-                            <div class="plan-card card mb-3" style="background: ${backgroundColor};">
-                                <div class="card-body">
-                                    <h4 class="card-title">${planData.membershipType || 'Unnamed Plan'}</h4>
-                                    <h5 class="card-title">₱${planData.price || 'N/A'}</h5>
-                                    <p class="card-text">${planData.description || 'No description available.'}</p>
-                                    <button class="btn-custom btn-primary" onclick="selectPlan('${doc.id}')">Purchase</button>
-                                </div>
-                            </div>
-                        `;
-    
-                        // Append the plan card to the membership plans section
-                        membershipPlansSection.innerHTML += planCard;
-                    });
-                } else {
-                    console.log('No membership plans found.');
-                    membershipPlansSection.innerHTML = '<p>No membership plans found for this gym.</p>';
-                }
-    
-                // Show the modal
-                $('#gymProfileModal').modal('show');
-            } else {
-                console.error('No such document!');
-            }
-        } catch (error) {
-            console.error('Error fetching document:', error);
-                }
-    };
-
-
-        // Function to fetch gym owner location from Firestore based on gymName
-        window.fetchGymOwnerLocation = async function (gymName) {
-            try {
-                console.log('Fetching gym owner data for gymName:', gymName);
-
-                // Fetch the gym owner's data from Firestore by matching the gymName and role 'gymowner'
-                const userQuery = query(collection(db, 'Users'), where('role', '==', 'gymowner'), where('gymName', '==', gymName));
-                const userSnapshot = await getDocs(userQuery);
-
-                if (!userSnapshot.empty) {
-                    console.log('Gym owner found.');
-
-                    const gymOwnerData = userSnapshot.docs[0].data();
-                    const gymOwnerName = gymOwnerData.gymName;
-
-                    console.log('Gym Owner Name:', gymOwnerName);
-
-                    // Return the gym location if names match
-                    const gymLocation = gymOwnerData.gymLocation;
-
-                    console.log('Gym location validated:', gymLocation);
-                    return gymLocation;
-
-                } else {
-                    console.error('No gym owner found for gymName:', gymName);
-                    return null;
-                }
-            } catch (error) {
-                console.error('Error fetching gym owner location:', error);
-                return null;
-            }
-        }
-
-        // Function to fetch location coordinates from Nominatim (OpenStreetMap Geocoding service)
-        window.fetchGymCoordinates = async function (cityName) {
-            const apiUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=1`;
-
-            try {
-                console.log(`Fetching coordinates for city: ${cityName}`);
-                const response = await fetch(apiUrl);
-                const data = await response.json();
-
-                if (data && data.length > 0) {
-                    const { lat, lon } = data[0];
-                    console.log('Fetched coordinates:', lat, lon);
-                    return { lat, lon };
-                } else {
-                    throw new Error('Location not found');
-                }
-            } catch (error) {
-                console.error('Error fetching gym coordinates:', error);
-                alert('Could not fetch the location. Please ensure the city name is correct.');
-                return null;
-            }
-        }
-
-        // Initialize the map using Leaflet with OpenStreetMap tiles
-        let map;
-        window.initMap = function(lat, lon) {
-            console.log(`Initializing map with coordinates: lat=${lat}, lon=${lon}`);
-
-            if (map) {
-                console.log('Map already initialized, setting new view');
-                map.setView([lat, lon], 15);
-                map.invalidateSize(); // Important to refresh the map after being shown in the modal
-            } else {
-                console.log('Initializing new map');
-                map = L.map('map').setView([lat, lon], 15);
-
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors'
-                }).addTo(map);
-
-                L.marker([lat, lon]).addTo(map)
-                    .bindPopup('Gym Location')
-                    .openPopup();
-            }
-        }
-
-        window.onload = function () {
-            document.getElementById('locationIcon').addEventListener('click', async function () {
-                try {
-                    // Get the gym name from the modal (ensure the modal is open or has valid data)
-                    const gymName = document.getElementById('modalGymName').innerText;  // Fetch the gym name displayed in the modal
-                    
-                    if (!gymName) {
-                        console.error('Gym name is not provided.');
-                        alert('Gym name is not available.');
-                        return;
-                    }
-
-                    // Fetch gym owner location using gymName
-                    const gymLocation = await fetchGymOwnerLocation(gymName);
-
-                    if (gymLocation) {
-                        const { lat, lon } = await fetchGymCoordinates(gymLocation); // Fetch coordinates for the gym's location (city)
-                        if (lat && lon) {
-                            // Show the map modal
-                            $('#mapModal').modal('show');
-
-                            // Initialize the map with the coordinates after the modal is shown
-                            $('#mapModal').on('shown.bs.modal', function () {
-                                initMap(lat, lon); // Initialize the map inside the modal
-                            });
-                            
-                            console.log('Map modal shown');
-                        } else {
-                            console.error('Coordinates not found');
-                            alert('Could not fetch gym location.');
-                        }
-                    } else {
-                        console.error('Gym location not found');
-                        alert('Could not fetch gym location.');
-                    }
-                } catch (error) {
-                    console.error('Error displaying the map:', error);
-                }
-            });
-        };
-
-
-
-
-    // Function to view trainer info in a new modal
-    window.ViewTrainerInfo = async function (trainerId) {
-        try {
-            // Close Gym modal
-            $('#gymProfileModal').modal('hide');
-
-            // Fetch trainer data by ID
-            const trainerDocRef = doc(db, 'Users', trainerId);
-            const trainerDoc = await getDoc(trainerDocRef);
-
-            if (trainerDoc.exists()) {
-                const trainerData = trainerDoc.data();
-
-                // Check if the trainer's status is "Under Review"
-                if (trainerData.status === "Under Review") {
-                    console.warn('Trainer is under review. Cannot display.');
-                    return; // Do not display the trainer if they are under review
-                }
-
-                // Ensure each trainer modal element exists
-                const modalTrainerName = document.getElementById('modalTrainerName');
-                const modalTrainerPhoto = document.getElementById('modalTrainerPhoto');
-                const modalTrainerExpertise = document.getElementById('modalTrainerExpertise');
-                const modalTrainerExperience = document.getElementById('modalTrainerExperience');
-                const modalTrainerDays = document.getElementById('modalTrainerDays');
-                const modalTrainerRate = document.getElementById('modalTrainerRate'); // Trainer rate element
-                const bookNowButton = document.getElementById('bookNowButton'); // Book Now button
-
-                // Populate trainer modal with the trainer's data
-                if (modalTrainerName) modalTrainerName.innerText = trainerData.TrainerName || 'N/A';
-                if (modalTrainerPhoto) modalTrainerPhoto.src = trainerData.TrainerPhoto || 'default-trainer-photo.jpg';
-                if (modalTrainerExpertise) modalTrainerExpertise.innerText = trainerData.Expertise || 'N/A';
-                if (modalTrainerExperience) modalTrainerExperience.innerText = trainerData.Experience || 'N/A';
-                if (modalTrainerDays) modalTrainerDays.innerText = trainerData.Days || 'N/A';
-                if (modalTrainerRate) modalTrainerRate.innerText = `₱${trainerData.rate || 'N/A'}`; // Display rate with currency
-
-                // Handle Book Now button (add trainer ID for booking logic)
-                if (bookNowButton) {
-                    bookNowButton.onclick = function() {
-                        alert(`Booking Trainer: ${trainerId}`);
-                        // Add your booking logic here
-                    };
-                }
-
-                // Step 4: Show the Trainer Info modal
-                $('#trainerProfileModal').modal('show');
-            } else {
-                console.error('Trainer not found!');
-            }
-        } catch (error) {
-            console.error('Error fetching trainer data:', error);
-        }
-    }
-    
-
-    // Optionally, you can have other modal functions like closeModal()
-    window.closeModal=function() {
-        $('#gymProfileModal').modal('hide');
-    }
-
-    // Function to close the modal
-    window.closeModal = function() {
-        $('#gymProfileModal').modal('hide'); // Use Bootstrap's modal hide method
-    }
-
-
-    
     // Close the modal when clicking outside of it
     window.onclick = function(event) {
         const modal = document.getElementById('confirmationModal');
