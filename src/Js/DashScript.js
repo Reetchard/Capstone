@@ -1,6 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
 import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
-import { getFirestore, collection, getDocs, doc, addDoc,getDoc,query,where,updateDoc,orderBy,onSnapshot} from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js'; 
+import { getFirestore, collection, getDocs, doc, addDoc,getDoc,query,where,updateDoc,onSnapshot,orderBy, limit} from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js'; 
 import { getStorage, ref, getDownloadURL,uploadBytes  } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-storage.js';
 // Your Firebase configuration
 const firebaseConfig = {
@@ -82,6 +82,107 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// Function to show the Membership Status modal
+// Function to show the Membership Status modal
+document.querySelector('.nav-link[href="#Membership"]').addEventListener('click', async function () {
+    try {
+        // Fetch the current user's ID
+        const userId = await getCurrentUserId();
+
+        if (!userId) {
+            console.error('No user ID found. Please log in.');
+            return;
+        }
+
+        console.log(`User ID: ${userId}`);
+
+        // Fetch the user's current membership status and history
+        await fetchMembershipStatusAndHistory(userId);
+
+        // Show the membership status modal
+        $('#membershipStatusModal').modal('show');
+    } catch (error) {
+        console.error('Error showing membership status:', error);
+    }
+});
+
+// Function to fetch the user's membership status and history
+async function fetchMembershipStatusAndHistory(userId) {
+    try {
+        const currentMembershipStatusDiv = document.getElementById('currentMembershipStatus');
+        const membershipHistoryDiv = document.getElementById('membershipHistory');
+
+        currentMembershipStatusDiv.innerHTML = ''; // Clear previous data
+        membershipHistoryDiv.innerHTML = ''; // Clear previous history
+
+        console.log(`Fetching membership status for userId: ${userId}`);
+
+        // Fetch current membership status (latest transaction)
+        const currentMembershipQuery = query(
+            collection(db, 'Transactions'),
+            where('userId', '==', userId),
+            orderBy('purchaseDate', 'desc'), // Order by the latest purchase first
+            limit(1) // Get the latest membership
+        );        
+
+        const currentMembershipSnapshot = await getDocs(currentMembershipQuery);
+
+        if (!currentMembershipSnapshot.empty) {
+            const latestMembership = currentMembershipSnapshot.docs[0].data();
+            console.log('Latest membership:', latestMembership);
+
+            const currentStatusHtml = `
+                <div style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; background-color: #f9f9f9;">
+                    <h4 style="font-size: 1.5em; color: #5B247A;"><strong>Gym:</strong> ${latestMembership.gymName}</h4>
+                    <p><strong>Plan:</strong> ${latestMembership.planType}</p>
+                    <p><strong>Price:</strong> ₱${latestMembership.planPrice}</p>
+                    <p><strong>Purchased on:</strong> ${new Date(latestMembership.purchaseDate).toLocaleDateString()}</p>
+                    <p><strong>Status:</strong> ${latestMembership.status || 'Pending Owner Approval'}</p>
+                </div>
+            `;
+            currentMembershipStatusDiv.innerHTML = currentStatusHtml;
+        } else {
+            currentMembershipStatusDiv.innerHTML = '<p>No current membership found.</p>';
+        }
+
+        // Fetch membership history (all memberships, not just the latest)
+        const membershipHistoryQuery = query(
+            collection(db, 'Transactions'),
+            where('userId', '==', userId),
+            orderBy('purchaseDate', 'desc')
+        );
+
+        const membershipHistorySnapshot = await getDocs(membershipHistoryQuery);
+
+        if (!membershipHistorySnapshot.empty) {
+            console.log('Membership history found.');
+
+            let historyHtml = '<ul style="list-style: none; padding: 0;">';
+            membershipHistorySnapshot.forEach(doc => {
+                const membership = doc.data();
+                historyHtml += `
+                    <li style="margin-bottom: 15px;">
+                        <div style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; background-color: #f4f4f4;">
+                            <h4 style="font-size: 1.4em; color: #5B247A;"><strong>Gym:</strong> ${membership.gymName}</h4>
+                            <p><strong>Plan:</strong> ${membership.planType}</p>
+                            <p><strong>Price:</strong> ₱${membership.planPrice}</p>
+                            <p><strong>Purchased on:</strong> ${new Date(membership.purchaseDate).toLocaleDateString()}</p>
+                            <p><strong>Status:</strong> ${membership.status || 'Pending Owner Approval'}</p>
+                        </div>
+                    </li>
+                `;
+            });
+            historyHtml += '</ul>';
+            membershipHistoryDiv.innerHTML = historyHtml;
+        } else {
+            membershipHistoryDiv.innerHTML = '<p>No membership history found.</p>';
+        }
+
+    } catch (error) {
+        console.error('Error fetching membership status and history:', error);
+    }
+}
+
 
 
 // Function to display user profile picture
@@ -132,7 +233,9 @@ window.closeMembershipPlansModal = function() {
                 console.error('Membership Plans modal element not found.');
             }
 };
-        
+     
+
+
 // Fetch Gym Profiles and Display
     async function fetchGymProfiles() {
         const gymsCollection = collection(db, 'Users');
@@ -521,11 +624,18 @@ function formatTime(time) {
             console.error('Error saving notification or transaction:', error);
         }
     };
+    document.getElementById('membershipPlansBtn').addEventListener('click', function() {
+        // Pass the gym name or profile name to fetch its membership plans
+        const gymProfileName = document.getElementById('modalGymName').innerText; // Assuming gym name is stored in this element
+        showMembershipPlans(gymProfileName); // Call the function to show the plans modal
+    });
+    
+    // Function to fetch and display the membership plans
     window.showMembershipPlans = async function (gymProfileName) {
         try {
             const membershipPlansSection = document.getElementById('membershipPlansSection');
             membershipPlansSection.innerHTML = ''; // Clear the section before appending
-    
+        
             // Define an array of colors for the membership cards
             const cardColors = [
                 'linear-gradient(to right, #5B247A, #1BCEDF)',  
@@ -540,16 +650,16 @@ function formatTime(time) {
                 collection(db, 'MembershipPlans'),
                 where('gymName', '==', gymProfileName) // Match membership plans by gymName
             );
-    
+        
             const membershipPlansSnapshot = await getDocs(membershipPlansQuery);
-    
+        
             if (!membershipPlansSnapshot.empty) {
                 let colorIndex = 0; // Initialize a color index
                 membershipPlansSnapshot.forEach(doc => {
                     const planData = doc.data();
                     const backgroundColor = cardColors[colorIndex % cardColors.length];
                     colorIndex++; // Increment the color index
-    
+        
                     const planCard = `
                         <div class="plan-card card mb-3" style="background: ${backgroundColor};">
                             <div class="card-body">
@@ -560,14 +670,14 @@ function formatTime(time) {
                             </div>
                         </div>
                     `;
-    
+        
                     // Append the plan card to the membership plans section
                     membershipPlansSection.innerHTML += planCard;
                 });
             } else {
                 membershipPlansSection.innerHTML = '<p>No membership plans found for this gym.</p>';
             }
-    
+        
             // Show the membership plans modal
             $('#membershipPlansModal').modal('show');
         } catch (error) {
@@ -575,9 +685,7 @@ function formatTime(time) {
         }
     };
     
-    // Function to confirm plan purchase
     window.confirmPlanPurchase = function (planType, planPrice, planId) {
-        // Debug: Check if the function is triggered
         console.log('confirmPlanPurchase triggered for:', planType, planPrice, planId);
     
         // Set the selected plan details in the confirmation modal
@@ -637,7 +745,7 @@ function formatTime(time) {
         };
     };
     
-    // Function to handle the actual purchase process
+    // Function to handle the actual purchase process and save the transaction
     async function purchasePlan(planId, planType, planPrice, userId, gymName) {
         console.log('Saving transaction with:', { planId, planType, planPrice, userId, gymName });
         try {
@@ -647,10 +755,10 @@ function formatTime(time) {
                 planType: planType,
                 planPrice: planPrice,
                 gymName: gymName,
-                purchaseDate: new Date().toISOString(),
+                purchaseDate: new Date().toISOString(), // Save the current date and time
             };
     
-            // Save the transaction to Firestore
+            // Save the transaction to Firestore (under a "Transactions" collection)
             await addDoc(collection(db, 'Transactions'), newTransaction);
             console.log('Transaction saved successfully.');
     
@@ -662,17 +770,18 @@ function formatTime(time) {
                 productName: planType, // Use planType as the product name
                 quantity: 1, // Quantity for membership is typically 1
                 totalPrice: planPrice,
-                status: 'Pending Owner Approval',
+                status: 'Pending Owner Approval', // Purchase status
                 read: false, // Unread notification
                 timestamp: new Date().toISOString(), // Timestamp of the notification
             };
     
-            // Save the notification to Firestore under a 'Notifications' collection
+            // Save the notification to Firestore under a "Notifications" collection
             await addDoc(collection(db, 'Notifications'), newNotification);
             console.log('Notification created successfully.');
     
             // Optionally, call fetchNotifications here to update the notification list
             fetchNotifications(userId);
+    
         } catch (error) {
             console.error('Error saving transaction or creating notification:', error);
             throw new Error('Failed to save the transaction or create notification');
@@ -697,32 +806,32 @@ function formatTime(time) {
             console.error('Error sending notification:', error);
         }
     }
-    
-// Function to fetch the gym owner's location (e.g., city) based on the gymName
-async function fetchGymOwnerLocation(gymName) {
-    try {
-        const gymQuery = query(
-            collection(db, 'Users'), 
-            where('gymName', '==', gymName), 
-            where('role', '==', 'gymowner') 
-        );
 
-        const gymSnapshot = await getDocs(gymQuery);
+        // Function to fetch the gym owner's location (e.g., city) based on the gymName
+        async function fetchGymOwnerLocation(gymName) {
+            try {
+                const gymQuery = query(
+                    collection(db, 'Users'), 
+                    where('gymName', '==', gymName), 
+                    where('role', '==', 'gymowner') 
+                );
 
-        if (!gymSnapshot.empty) {
-            const gymData = gymSnapshot.docs[0].data();
-            const gymLocation = gymData.gymLocation || ''; 
-            console.log('Gym Location found:', gymLocation);
-            return gymLocation;
-        } else {
-            console.error('No gym found with the given name.');
-            return null;
+                const gymSnapshot = await getDocs(gymQuery);
+
+                if (!gymSnapshot.empty) {
+                    const gymData = gymSnapshot.docs[0].data();
+                    const gymLocation = gymData.gymLocation || ''; 
+                    console.log('Gym Location found:', gymLocation);
+                    return gymLocation;
+                } else {
+                    console.error('No gym found with the given name.');
+                    return null;
+                }
+            } catch (error) {
+                console.error('Error fetching gym location:', error);
+                return null;
+            }
         }
-    } catch (error) {
-        console.error('Error fetching gym location:', error);
-        return null;
-    }
-}
 
         // Function to fetch location coordinates from Nominatim (OpenStreetMap Geocoding service)
         window.fetchGymCoordinates = async function (cityName) {
