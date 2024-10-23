@@ -703,129 +703,154 @@ function formatTime(time) {
             console.error('Error sending notification:', error);
         }
     }
+// Function to fetch the gym owner's location (e.g., city) based on the gymName
+async function fetchGymOwnerLocation(gymName) {
+    try {
+        const gymQuery = query(
+            collection(db, 'Users'), 
+            where('gymName', '==', gymName), 
+            where('role', '==', 'gymowner') 
+        );
 
+        const gymSnapshot = await getDocs(gymQuery);
+
+        if (!gymSnapshot.empty) {
+            const gymData = gymSnapshot.docs[0].data();
+            const gymLocation = gymData.gymLocation || ''; 
+            console.log('Gym Location found:', gymLocation);
+            return gymLocation;
+        } else {
+            console.error('No gym found with the given name.');
+            return null;
+        }
+    } catch (error) {
+        console.error('Error fetching gym location:', error);
+        return null;
+    }
+}
+
+// Function to fetch location coordinates from Nominatim (OpenStreetMap Geocoding service)
+window.fetchGymCoordinates = async function (cityName) {
+    const apiUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=1`;
+
+    try {
+        console.log(`Fetching coordinates for city: ${cityName}`);
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+
+        if (data && data.length > 0) {
+            const { lat, lon } = data[0];
+            console.log('Fetched coordinates:', lat, lon);
+            return { lat, lon };
+        } else {
+            throw new Error('Location not found');
+        }
+    } catch (error) {
+        console.error('Error fetching gym coordinates:', error);
+        alert('Could not fetch the location. Please ensure the city name is correct.');
+        return null;
+    }
+};
+
+// Initialize the map using Leaflet with OpenStreetMap tiles
+let map;
+window.initMap = function(lat, lon) {
+    console.log(`Initializing map with coordinates: lat=${lat}, lon=${lon}`);
+
+    const mapContainer = document.getElementById('map');
     
-        // Function to fetch gym owner location from Firestore based on gymName
-        window.fetchGymOwnerLocation = async function (gymName) {
-            try {
-                console.log('Fetching gym owner data for gymName:', gymName);
+    if (!mapContainer) {
+        console.error('Map container not found in the DOM.');
+        return;
+    }
 
-                // Fetch the gym owner's data from Firestore by matching the gymName and role 'gymowner'
-                const userQuery = query(collection(db, 'Users'), where('role', '==', 'gymowner'), where('gymName', '==', gymName));
-                const userSnapshot = await getDocs(userQuery);
+    console.log('Map container found, attempting to initialize map.');
 
-                if (!userSnapshot.empty) {
-                    console.log('Gym owner found.');
+    // Ensure map container is cleared before initializing
+    mapContainer.innerHTML = ""; // Clear any existing map content
 
-                    const gymOwnerData = userSnapshot.docs[0].data();
-                    const gymOwnerName = gymOwnerData.gymName;
+    if (!map) {
+        console.log('Initializing new map instance.');
+        map = L.map('map').setView([lat, lon], 15);
 
-                    console.log('Gym Owner Name:', gymOwnerName);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors'
+        }).addTo(map);
 
-                    // Return the gym location if names match
-                    const gymLocation = gymOwnerData.gymLocation;
+        L.marker([lat, lon]).addTo(map)
+            .bindPopup('Gym Location')
+            .openPopup();
+    } else {
+        console.log('Map already initialized, updating view to new coordinates.');
+        map.setView([lat, lon], 15);
+        map.invalidateSize(); // Important to refresh the map after being shown in the modal
+    }
+};
 
-                    console.log('Gym location validated:', gymLocation);
-                    return gymLocation;
+// Ensure map initialization happens after the modal is fully displayed
+document.addEventListener("DOMContentLoaded", function () {
+    const locationIcon = document.getElementById('locationIcon');
 
-                } else {
-                    console.error('No gym owner found for gymName:', gymName);
-                    return null;
-                }
-            } catch (error) {
-                console.error('Error fetching gym owner location:', error);
-                return null;
+    if (!locationIcon) {
+        console.error('Location icon not found in the DOM.');
+        return;
+    }
+
+    locationIcon.addEventListener('click', async function () {
+        try {
+            console.log('Location icon clicked');
+
+            // Get the gym name from the modal
+            const gymName = document.getElementById('modalGymName').innerText;
+            console.log('Gym Name:', gymName);
+
+            if (!gymName) {
+                console.error('Gym name is not provided.');
+                alert('Gym name is not available.');
+                return;
             }
-        }
 
-        // Function to fetch location coordinates from Nominatim (OpenStreetMap Geocoding service)
-        window.fetchGymCoordinates = async function (cityName) {
-            const apiUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=1`;
+            // Fetch gym owner location using gymName
+            const gymLocation = await fetchGymOwnerLocation(gymName);
+            console.log('Gym Location (City):', gymLocation);
 
-            try {
-                console.log(`Fetching coordinates for city: ${cityName}`);
-                const response = await fetch(apiUrl);
-                const data = await response.json();
+            if (gymLocation) {
+                const { lat, lon } = await fetchGymCoordinates(gymLocation);
+                console.log('Fetched lat and lon:', lat, lon);
 
-                if (data && data.length > 0) {
-                    const { lat, lon } = data[0];
-                    console.log('Fetched coordinates:', lat, lon);
-                    return { lat, lon };
-                } else {
-                    throw new Error('Location not found');
-                }
-            } catch (error) {
-                console.error('Error fetching gym coordinates:', error);
-                alert('Could not fetch the location. Please ensure the city name is correct.');
-                return null;
-            }
-        }
-
-        // Initialize the map using Leaflet with OpenStreetMap tiles
-        let map;
-        window.initMap = function(lat, lon) {
-            console.log(`Initializing map with coordinates: lat=${lat}, lon=${lon}`);
-
-            if (map) {
-                console.log('Map already initialized, setting new view');
-                map.setView([lat, lon], 15);
-                map.invalidateSize(); // Important to refresh the map after being shown in the modal
-            } else {
-                console.log('Initializing new map');
-                map = L.map('map').setView([lat, lon], 15);
-
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors'
-                }).addTo(map);
-
-                L.marker([lat, lon]).addTo(map)
-                    .bindPopup('Gym Location')
-                    .openPopup();
-            }
-        }
-
-        window.onload = function () {
-            document.getElementById('locationIcon').addEventListener('click', async function () {
-                try {
-                    // Get the gym name from the modal (ensure the modal is open or has valid data)
-                    const gymName = document.getElementById('modalGymName').innerText;  // Fetch the gym name displayed in the modal
-                    
-                    if (!gymName) {
-                        console.error('Gym name is not provided.');
-                        alert('Gym name is not available.');
+                if (lat && lon) {
+                    // Check if the map modal exists
+                    const mapModal = document.getElementById('mapModal');
+                    if (!mapModal) {
+                        console.error('Map modal not found in the DOM.');
                         return;
                     }
 
-                    // Fetch gym owner location using gymName
-                    const gymLocation = await fetchGymOwnerLocation(gymName);
+                    // Show the map modal
+                    console.log('Showing map modal.');
+                    $('#mapModal').modal('show');
 
-                    if (gymLocation) {
-                        const { lat, lon } = await fetchGymCoordinates(gymLocation); // Fetch coordinates for the gym's location (city)
-                        if (lat && lon) {
-                            // Show the map modal
-                            $('#mapModal').modal('show');
+                    // Initialize the map after the modal is fully shown
+                    $('#mapModal').on('shown.bs.modal', function () {
+                        console.log('Map modal fully shown, initializing map.');
+                        initMap(lat, lon); // Initialize the map inside the modal
+                        map.invalidateSize(); // Fix map size issue inside the modal
+                    });
 
-                            // Initialize the map with the coordinates after the modal is shown
-                            $('#mapModal').on('shown.bs.modal', function () {
-                                initMap(lat, lon); // Initialize the map inside the modal
-                            });
-                            
-                            console.log('Map modal shown');
-                        } else {
-                            console.error('Coordinates not found');
-                            alert('Could not fetch gym location.');
-                        }
-                    } else {
-                        console.error('Gym location not found');
-                        alert('Could not fetch gym location.');
-                    }
-                } catch (error) {
-                    console.error('Error displaying the map:', error);
+                    console.log('Map modal shown');
+                } else {
+                    console.error('Coordinates not found');
+                    alert('Could not fetch gym location.');
                 }
-            });
-        };
-
-
+            } else {
+                console.error('Gym location not found');
+                alert('Could not fetch gym location.');
+            }
+        } catch (error) {
+            console.error('Error displaying the map:', error);
+        }
+    });
+});
 
 
     // Function to view trainer info in a new modal
@@ -1225,7 +1250,7 @@ function formatTime(time) {
     document.addEventListener('DOMContentLoaded', function() {
                 // Now all event listeners and modal functions are attached when DOM is ready
                 fetchGymProfiles();
-                viewProducts();
+                fetchGymCoordinates();
             // Fetch trainers when the page loads
     });
 

@@ -932,4 +932,47 @@ strong:hover .custom-tooltip {
 #locationIcon {
     margin-right: 5px; /* Adjust as needed */
 }
+/* Map modal design improvements */
+#mapModal .modal-content {
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+#mapModal .modal-header {
+    border-bottom: none;
+    padding: 1.25rem 1.5rem;
+}
+
+#mapModal .modal-body {
+    padding: 0; /* Remove padding for a clean map view */
+}
+
+#mapModal .modal-footer {
+    border-top: none;
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#mapModal .modal-footer button {
+    padding: 0.5rem 1.5rem;
+    border-radius: 5px;
+}
+
+#map {
+    border-radius: 0 0 10px 10px; /* Rounded corners for the bottom of the modal */
+}
+
+/* Style the close button to match the modal's theme */
+#mapModal .modal-header .close {
+    font-size: 1.4rem;
+    color: white;
+    opacity: 0.8;
+}
+
+#mapModal .modal-header .close:hover {
+    opacity: 1;
+    color: #ffcccb;
+}
 

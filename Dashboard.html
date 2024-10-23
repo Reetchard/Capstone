@@ -88,8 +88,8 @@
                                     <div class="row">
                                         <div class="col-md-4">
                                             <p>
-                                                <i id="locationIcon" class="fas fa-map-marker-alt red-icon"></i> 
                                                 <strong>Location:</strong>
+                                                <i id="locationIcon" class="fas fa-map-marker-alt red-icon"></i> <!-- Location icon -->
                                             </p>
                                             <p id="modalGymLocation"></p>
                                         </div>
@@ -163,27 +163,23 @@
         </div>
     </div>
     
-    
-
-    
-    <!-- Modal for Map -->
-    <div class="modal fade" id="mapModal" tabindex="-1" aria-labelledby="mapModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="mapModalLabel">Gym Location</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div id="map" style="height: 400px; width: 100%;"></div> <!-- Map container -->
-                </div>
-                <div class="modal-footer">
-                </div>
+<!-- Map Modal -->
+<div class="modal fade" id="mapModal" tabindex="-1" aria-labelledby="mapModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mapModalLabel">Gym Location</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="map" style="height: 400px;"></div> <!-- Ensure the map has a height -->
             </div>
         </div>
     </div>
+</div>
+  
 
 
 
