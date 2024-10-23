@@ -153,7 +153,7 @@ window.closeMembershipPlansModal = function() {
             // Check if the gym status is not "Under Review"
             if (gym.status && gym.status !== 'Under Review') {
                 const gymDiv = document.createElement('div');
-                gymDiv.classList.add('card', 'gym-profile', 'mb-3'); // Add Bootstrap card classes
+                gymDiv.classList.add('trainer-card', 'gym-profile', 'mb-3'); // Add Bootstrap card classes
 
                 gymDiv.innerHTML = `
                     <img src="${gym.gymPhoto || 'default-photo.jpg'}" alt="${gym.gymName || 'Gym'}" class="card-img-top gym-photo" />
@@ -257,7 +257,7 @@ function formatTime(time) {
                     productsSnapshot.forEach(doc => {
                         const productData = doc.data();
                         const productCard = `
-                            <div class="product-card">
+                            <div class="trainer-card">
                                 <img src="${productData.photoURL || 'default-product.jpg'}" alt="Product Photo" class="product-photo">
                                 <h5>${productData.name || 'Unnamed Product'}</h5>
                                 <button class="btn-custom btn-primary" onclick="ViewProductInfo('${doc.id}')">Check info</button>

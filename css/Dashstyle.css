@@ -230,7 +230,7 @@
     transition: background-color 0.3s ease; /* Transition for the hover effect */
 }
 .gym-title {
-    color: #292929; /* Set the text color to black */
+    color: #f9f9f9; /* Set the text color to black */
     font-weight: bolder; /* Optional: Make the text bold */
     font-size: 1.25rem; /* Optional: Increase the font size */
     font-family: "Helvetica Neue", Arial, sans-serif;
@@ -467,7 +467,9 @@ font-family: "Helvitica Neue", Arial, sans-serif;
     width: 100%;
     height: 150px;
     object-fit: cover;
-    border-bottom: 2px solid #e0e0e0; /* Light gray border */
+    border-radius: 10px;
+    border: 1px solid #ffa31a;
+    border-bottom: 2px solid #ffa31a; 
     transition: filter 0.3s;
 }
 
@@ -887,11 +889,37 @@ strong:hover .custom-tooltip {
     background-color: #ffa31a; /* Darker shade on hover */
 }
 
-/* Adjust carousel controls */
+/* Adjust the size of the carousel control icons */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    width: 25px; /* Smaller width */
+    height: 25px; /* Smaller height */
+    background-size: 100%; /* Ensures the icon fills the area */
+}
+
+/* Adjust the clickable area */
 .carousel-control-prev,
 .carousel-control-next {
-    z-index: 100; /* Lower z-index for carousel controls */
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px; /* Narrower clickable area */
+    height: 40px; /* Narrower clickable area */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none; /* Remove background */
+    border: none; /* Remove any borders */
+    padding: 0; /* Remove padding */
 }
+
+/* Add hover effect to the controls */
+.carousel-control-prev:hover .carousel-control-prev-icon,
+.carousel-control-next:hover .carousel-control-next-icon {
+    background-color: rgba(0, 0, 0, 0.2); /* Add a subtle background on hover */
+    border-radius: 50%; /* Rounded shape */
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
 
 /* Ensure the location icon is clickable */
 #locationIcon {
