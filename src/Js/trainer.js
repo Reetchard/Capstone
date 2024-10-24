@@ -20,7 +20,41 @@ const db = getFirestore(app);
 // Function to fetch trainer data from Firestore
 
 const auth = getAuth(app); // Initialize Firebase Auth
+document.getElementById('profile-picture').addEventListener('click', function(event) {
+    const dropdownMenu = document.querySelector('.dropdown-menu');
+    event.stopPropagation();
+    
+    // If the dropdown is currently hidden, show it
+    if (!dropdownMenu.classList.contains('show')) {
+        dropdownMenu.classList.remove('hide'); // Remove hide class if present
+        dropdownMenu.classList.add('show'); // Show the dropdown
+        
+        // Also add a class for animating the profile picture
+        this.classList.add('active'); // Optional for additional effect
+    } else {
+        dropdownMenu.classList.add('hide'); // Add hide class for smooth closing
+        setTimeout(() => {
+            dropdownMenu.classList.remove('show', 'hide'); // Remove show and hide after transition
+        }, 300); // Match the duration with the CSS transition time
+        
+        // Optionally remove active class from profile picture
+        this.classList.remove('active'); // Optional for additional effect
+    }
+});
 
+// Close dropdown when clicking outside
+window.addEventListener('click', function(event) {
+    const dropdownMenu = document.querySelector('.dropdown-menu');
+    if (!event.target.closest('.dropdown')) {
+        dropdownMenu.classList.add('hide'); // Add hide class for smooth closing
+        setTimeout(() => {
+            dropdownMenu.classList.remove('show', 'hide'); // Remove show and hide after transition
+        }, 300); // Match the duration with the CSS transition time
+        
+        // Optionally remove active class from profile picture
+        document.getElementById('profile-picture').classList.remove('active'); // Optional for additional effect
+    }
+});
 // Function to fetch Gym Owner's username (or GymName) from Firestore
 onAuthStateChanged(auth, async (user) => {
     if (user) {
@@ -217,16 +251,27 @@ window.deleteSelected = function() {
 // Function to update trainer status
 window.updateTrainerStatus = async function(key, status) {
     const trainerRef = doc(db, 'Users', key); // Updated to Users collection
+    const spinner = document.getElementById('spinner'); // Get spinner element
+
     try {
+        // Show the spinner
+        spinner.style.display = 'block';
+
+        // Perform the update
         await updateDoc(trainerRef, { status: status });
+
         displayMessage(`Trainer status updated to ${status}.`, 'success');
+
+        // Refresh the trainer data
         fetchTrainerData();
     } catch (error) {
         displayMessage('Failed to update trainer status. Try again later.', 'error');
         console.error('Error updating trainer status:', error);
+    } finally {
+        // Hide the spinner after operation is complete
+        spinner.style.display = 'none';
     }
 };
-
 // Function to display messages with transition
 function displayMessage(message, type) {
     const messageContainer = document.getElementById('messageContainer');

@@ -467,9 +467,7 @@ font-family: "Helvitica Neue", Arial, sans-serif;
     width: 100%;
     height: 150px;
     object-fit: cover;
-    border-radius: 10px;
-    border: 1px solid #ffa31a;
-    border-bottom: 2px solid #ffa31a; 
+    border-radius: 10px; 
     transition: filter 0.3s;
 }
 
@@ -819,26 +817,46 @@ input#modalProductQuantityInput:focus {
 .custom-tooltip {
     display: none; /* Hide by default */
     position: absolute; /* Position it absolutely for better control */
-    background-color: transparent; /* Make the background transparent */
-    color: #ffffff; /* Change text color to white */
+    background-color: #ffa31a; /* Set background to transparent */
+    color: #292929; /* Change text color to white */
     padding: 5px 10px; /* Padding for the tooltip */
-    border: 1px solid #007bff; /* Border color */
     border-radius: 10px; /* Rounded corners */
     font-size: 12px; /* Font size */
     white-space: nowrap; /* Prevent text from wrapping */
     bottom: 100%; /* Position it above the text */
-    left: 0; /* Align with the text */
+    left: 30%; /* Position it to the right of the text */
+    margin-left: 10px; /* Space between the tooltip and the text */
     z-index: 1000; /* Ensure it's above other elements */
     margin-bottom: 5px; /* Space between tooltip and text */
+    transition: opacity 0.3s ease; /* Smooth transition */
+    opacity: 0; /* Initially transparent */
+    border: 2px solid #ffa31a; /* Border color */
 }
+
+.custom-tooltip::after {
+    content: ''; /* Create a pseudo-element */
+    position: absolute; /* Position it absolutely */
+    top: 60%; /* Center it vertically */
+    left: 0; /* Position it on the left of the tooltip */
+    margin-left: -5px; /* Adjust left margin to center it */
+    border-width: 5px; /* Triangle size */
+    border-style: solid; /* Make it solid */
+    border-color: transparent transparent #ffa31a transparent; /* Triangle color */
+}
+
+/* Show tooltip on hover */
 strong:hover .custom-tooltip {
     display: inline-block; /* Show on hover */
+    opacity: 1; /* Make it visible */
 }
+
+
+
 .memberships-container {
     display: flex; /* Use flexbox for layout */
     flex-wrap: wrap; /* Allow wrapping of cards */
-    justify-content: space-between; /* Space between cards */
-    max-width: 1200px; /* Max width for the container */
+    justify-content: flex-start; /* Align items to the start */
+    max-width: 100%; /* Max width for the container */
     margin: 0 auto; /* Center the container */
     padding: 20px; /* Padding around the container */
 }
@@ -879,7 +897,7 @@ strong:hover .custom-tooltip {
     border: 2px solid #fff; /* No border */
     border-radius: 10px; /* Updated to 10px for rounded button */
     padding: 10px 20px; /* Increased padding for a wider button */
-    width: 60%; /* Make the button take full width of the card */
+    width: 100%; /* Make the button take full width of the card */
     cursor: pointer; /* Pointer on hover */
     transition: background-color 0.3s; /* Smooth background change */
     text-align: center; /* Center the text */
@@ -887,6 +905,20 @@ strong:hover .custom-tooltip {
 
 .memberships-container .btn-custom:hover {
     background-color: #ffa31a; /* Darker shade on hover */
+}
+
+.membership-status,
+.membership-history {
+    background-color: transparent;
+    border: 1px solid #555;
+    border-radius: 6px;
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+.membership-status p,
+.membership-history p {
+    margin: 0; /* Remove default margin for better alignment */
 }
 
 /* Adjust the size of the carousel control icons */
@@ -928,10 +960,6 @@ strong:hover .custom-tooltip {
     cursor: pointer; /* Changes cursor to pointer for better UX */
 }
 
-/* Optional: Add some margin or padding to the icon for better spacing */
-#locationIcon {
-    margin-right: 5px; /* Adjust as needed */
-}
 /* Map modal design improvements */
 #mapModal .modal-content {
     border-radius: 10px;
