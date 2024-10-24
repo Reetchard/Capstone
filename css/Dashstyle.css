@@ -976,3 +976,6 @@ strong:hover .custom-tooltip {
     color: #ffcccb;
 }
 
+.modal {
+    z-index: 1050 !important; /* Ensures the modal is on top of other elements */
+}

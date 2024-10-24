@@ -83,7 +83,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Function to show the Membership Status modal
-// Function to show the Membership Status modal
 document.querySelector('.nav-link[href="#Membership"]').addEventListener('click', async function () {
     try {
         // Fetch the current user's ID
@@ -117,71 +116,117 @@ async function fetchMembershipStatusAndHistory(userId) {
 
         console.log(`Fetching membership status for userId: ${userId}`);
 
-        // Fetch current membership status (latest transaction)
-        const currentMembershipQuery = query(
+        // Fetch all memberships (current and history)
+        const membershipQuery = query(
             collection(db, 'Transactions'),
             where('userId', '==', userId),
-            orderBy('purchaseDate', 'desc'), // Order by the latest purchase first
-            limit(1) // Get the latest membership
-        );        
-
-        const currentMembershipSnapshot = await getDocs(currentMembershipQuery);
-
-        if (!currentMembershipSnapshot.empty) {
-            const latestMembership = currentMembershipSnapshot.docs[0].data();
-            console.log('Latest membership:', latestMembership);
-
-            const currentStatusHtml = `
-                <div style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; background-color: #f9f9f9;">
-                    <h4 style="font-size: 1.5em; color: #5B247A;"><strong>Gym:</strong> ${latestMembership.gymName}</h4>
-                    <p><strong>Plan:</strong> ${latestMembership.planType}</p>
-                    <p><strong>Price:</strong> ₱${latestMembership.planPrice}</p>
-                    <p><strong>Purchased on:</strong> ${new Date(latestMembership.purchaseDate).toLocaleDateString()}</p>
-                    <p><strong>Status:</strong> ${latestMembership.status || 'Pending Owner Approval'}</p>
-                </div>
-            `;
-            currentMembershipStatusDiv.innerHTML = currentStatusHtml;
-        } else {
-            currentMembershipStatusDiv.innerHTML = '<p>No current membership found.</p>';
-        }
-
-        // Fetch membership history (all memberships, not just the latest)
-        const membershipHistoryQuery = query(
-            collection(db, 'Transactions'),
-            where('userId', '==', userId),
-            orderBy('purchaseDate', 'desc')
+            orderBy('purchaseDate', 'desc') // Order by the latest purchase first
         );
 
-        const membershipHistorySnapshot = await getDocs(membershipHistoryQuery);
+        const membershipSnapshot = await getDocs(membershipQuery);
 
-        if (!membershipHistorySnapshot.empty) {
-            console.log('Membership history found.');
+        let currentMembershipHtml = '';
+        let historyHtml = '<ul style="list-style: none; padding: 0;">';
+        const today = new Date(); // Get the current date
 
-            let historyHtml = '<ul style="list-style: none; padding: 0;">';
-            membershipHistorySnapshot.forEach(doc => {
-                const membership = doc.data();
-                historyHtml += `
-                    <li style="margin-bottom: 15px;">
-                        <div style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; background-color: #f4f4f4;">
-                            <h4 style="font-size: 1.4em; color: #5B247A;"><strong>Gym:</strong> ${membership.gymName}</h4>
-                            <p><strong>Plan:</strong> ${membership.planType}</p>
-                            <p><strong>Price:</strong> ₱${membership.planPrice}</p>
-                            <p><strong>Purchased on:</strong> ${new Date(membership.purchaseDate).toLocaleDateString()}</p>
-                            <p><strong>Status:</strong> ${membership.status || 'Pending Owner Approval'}</p>
-                        </div>
-                    </li>
+        membershipSnapshot.forEach(doc => {
+            const membership = doc.data();
+            const purchaseDate = new Date(membership.purchaseDate);
+            const durationInDays = membership.duration || 30; // Use duration from Firestore or default to 30 days
+            const expirationDate = new Date(purchaseDate.getTime() + durationInDays * 24 * 60 * 60 * 1000);
+
+            // Skip memberships that are still in "Pending Owner Approval" status
+            if (membership.status === 'Pending Owner Approval') {
+                return; // Skip this iteration if the status is pending
+            }
+
+            const membershipHtml = `
+                <li style="margin-bottom: 15px;">
+                    <div style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; background-color: #f4f4f4;">
+                        <h4 style="font-size: 1.4em; color: #5B247A;"><strong>Gym:</strong> ${membership.gymName}</h4>
+                        <p><strong>Plan:</strong> ${membership.planType}</p>
+                        <p><strong>Price:</strong> ₱${membership.planPrice}</p>
+                        <p><strong>Purchased on:</strong> ${purchaseDate.toLocaleDateString()}</p>
+                        <p><strong>Expires on:</strong> ${expirationDate.toLocaleDateString()}</p>
+                        <p><strong>Status:</strong> ${membership.status}</p>
+                    </div>
+                </li>
+            `;
+
+            // Check if the membership has expired
+            if (expirationDate < today) {
+                // If expired, add to membership history
+                historyHtml += membershipHtml;
+            } else {
+                // If not expired, show as the current membership with countdown
+                currentMembershipHtml = `
+                    <div style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; background-color: #f9f9f9;">
+                        <h4 style="font-size: 1.5em; color: #5B247A;"><strong>Gym:</strong> ${membership.gymName}</h4>
+                        <p><strong>Plan:</strong> ${membership.planType}</p>
+                        <p><strong>Price:</strong> ₱${membership.planPrice}</p>
+                        <p><strong>Purchased on:</strong> ${purchaseDate.toLocaleDateString()}</p>
+                        <p><strong>Expires on:</strong> ${expirationDate.toLocaleDateString()}</p>
+                        <p><strong>Time Remaining:</strong> <span id="countdown"></span></p>
+                        <p><strong>Status:</strong> ${membership.status}</p>
+                    </div>
                 `;
-            });
-            historyHtml += '</ul>';
-            membershipHistoryDiv.innerHTML = historyHtml;
-        } else {
-            membershipHistoryDiv.innerHTML = '<p>No membership history found.</p>';
+
+                // Render the current membership HTML before starting the countdown
+                currentMembershipStatusDiv.innerHTML = currentMembershipHtml;
+
+                // Now that the HTML is rendered, start the countdown
+                startCountdown(expirationDate);
+            }
+        });
+
+        historyHtml += '</ul>';
+
+        // If no current membership, show message
+        if (currentMembershipHtml === '') {
+            currentMembershipHtml = '<p>No active membership found.</p>';
         }
+
+        // Render HTML for the membership history
+        membershipHistoryDiv.innerHTML = historyHtml;
 
     } catch (error) {
         console.error('Error fetching membership status and history:', error);
     }
 }
+
+// Function to start the countdown timer
+function startCountdown(expirationDate) {
+    const countdownElement = document.getElementById('countdown');
+    
+    // Check if the countdown element is present in the DOM
+    if (!countdownElement) {
+        console.error('Countdown element not found');
+        return;
+    }
+
+    const updateCountdown = () => {
+        const now = new Date();
+        const timeRemaining = expirationDate - now;
+
+        if (timeRemaining <= 0) {
+            countdownElement.innerText = 'Expired';
+            return;
+        }
+
+        const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+        countdownElement.innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    };
+
+    // Update countdown every second
+    setInterval(updateCountdown, 1000);
+}
+
+
+
 
 
 
@@ -625,17 +670,16 @@ function formatTime(time) {
         }
     };
     document.getElementById('membershipPlansBtn').addEventListener('click', function() {
-        // Pass the gym name or profile name to fetch its membership plans
-        const gymProfileName = document.getElementById('modalGymName').innerText; // Assuming gym name is stored in this element
-        showMembershipPlans(gymProfileName); // Call the function to show the plans modal
+        const gymProfileName = document.getElementById('modalGymName').innerText;
+        showMembershipPlans(gymProfileName);
     });
     
     // Function to fetch and display the membership plans
-    window.showMembershipPlans = async function (gymProfileName) {
+    window.showMembershipPlans = async function(gymProfileName) {
         try {
             const membershipPlansSection = document.getElementById('membershipPlansSection');
-            membershipPlansSection.innerHTML = ''; // Clear the section before appending
-        
+            membershipPlansSection.innerHTML = ''; 
+    
             // Define an array of colors for the membership cards
             const cardColors = [
                 'linear-gradient(to right, #5B247A, #1BCEDF)',  
@@ -648,18 +692,18 @@ function formatTime(time) {
             // Fetch membership plans where gymName matches gymProfileName
             const membershipPlansQuery = query(
                 collection(db, 'MembershipPlans'),
-                where('gymName', '==', gymProfileName) // Match membership plans by gymName
+                where('gymName', '==', gymProfileName)
             );
-        
+    
             const membershipPlansSnapshot = await getDocs(membershipPlansQuery);
-        
+    
             if (!membershipPlansSnapshot.empty) {
-                let colorIndex = 0; // Initialize a color index
+                let colorIndex = 0;
                 membershipPlansSnapshot.forEach(doc => {
                     const planData = doc.data();
                     const backgroundColor = cardColors[colorIndex % cardColors.length];
-                    colorIndex++; // Increment the color index
-        
+                    colorIndex++;
+    
                     const planCard = `
                         <div class="plan-card card mb-3" style="background: ${backgroundColor};">
                             <div class="card-body">
@@ -670,143 +714,130 @@ function formatTime(time) {
                             </div>
                         </div>
                     `;
-        
+    
                     // Append the plan card to the membership plans section
                     membershipPlansSection.innerHTML += planCard;
                 });
             } else {
                 membershipPlansSection.innerHTML = '<p>No membership plans found for this gym.</p>';
             }
-        
-            // Show the membership plans modal
-            $('#membershipPlansModal').modal('show');
+    
+            // Show the membership plans modal using Bootstrap 5's JavaScript API
+            const membershipPlansModal = new bootstrap.Modal(document.getElementById('membershipPlansModal'), { backdrop: 'static', keyboard: false });
+            membershipPlansModal.show();
         } catch (error) {
             console.error('Error fetching membership plans:', error);
         }
     };
     
-    window.confirmPlanPurchase = function (planType, planPrice, planId) {
+    window.confirmPlanPurchase = function(planType, planPrice, planId) {
         console.log('confirmPlanPurchase triggered for:', planType, planPrice, planId);
     
         // Set the selected plan details in the confirmation modal
         document.getElementById('selectedPlanType').innerText = planType;
         document.getElementById('selectedPlanPrice').innerText = planPrice;
     
-        // Show the confirmation modal
-        console.log('Showing confirmation modal.');
-        $('#confirmPurchaseModal').modal('show');
+        // Show the confirmation modal using Bootstrap 5's JavaScript API
+        const confirmPurchaseModal = new bootstrap.Modal(document.getElementById('confirmPurchaseModal'), { backdrop: 'static', keyboard: false });
+        confirmPurchaseModal.show();
     
         // Set the action for the Confirm Purchase button
-        document.getElementById('confirmPurchaseBtn').onclick = async function () {
+        document.getElementById('confirmPurchaseBtn').onclick = async function() {
             try {
                 console.log('Confirm Purchase button clicked.');
     
-                // Fetch the current user's userId
-                const userId = await getCurrentUserId(); // Ensure this function returns a valid user ID
-                console.log('User ID fetched:', userId);
-    
+                const userId = await getCurrentUserId();
+                console.log('User ID:', userId);
                 if (!userId) {
-                    console.error('No user ID found. Please log in.');
-                    return;
+                    throw new Error('No user ID found. Please log in.');
                 }
     
-                const gymName = document.getElementById('modalGymName').innerText; // Assuming gym name is displayed in the modal
-                console.log('Gym Name fetched:', gymName);
+                const gymName = document.getElementById('modalGymName').innerText;
+                console.log('Gym Name:', gymName);
+                if (!gymName) {
+                    throw new Error('Gym name not available.');
+                }
+    
+                console.log('Proceeding with purchase for:', planType, planPrice, planId, userId, gymName);
     
                 // Call the purchasePlan function to save the transaction
                 await purchasePlan(planId, planType, planPrice, userId, gymName);
                 console.log('Purchase successful, transaction saved.');
     
                 // Close the confirmation modal
-                $('#confirmPurchaseModal').modal('hide');
+                confirmPurchaseModal.hide();
     
-                // Show the success modal to notify the user
-                console.log('Showing success modal.');
-                $('#successModal .modal-body').html(`
-                    <p>Your purchase was successful.</p>
-                    <p><strong>Plan:</strong> ${planType}</p>
-                    <p><strong>Price:</strong> ₱${planPrice}</p>
-                    <p>Please wait for the Gym owner's approval.</p>
-                `);
-                $('#successModal').modal('show');
+                // Update membership success modal fields
+                document.getElementById('successPlanType').innerText = planType;
+                document.getElementById('successPlanPrice').innerText = planPrice;
+                document.getElementById('gymNameSuccess').innerText = gymName;
+    
+                // Show the membership success modal using Bootstrap 5's JavaScript API
+                const membershipSuccessModal = new bootstrap.Modal(document.getElementById('membershipSuccessModal'), { backdrop: 'static', keyboard: false });
+                membershipSuccessModal.show();
     
                 // Notify the user with a custom notification (in-app)
                 await notifyUser(userId, planType, gymName);
     
             } catch (error) {
-                console.error('Error purchasing membership plan:', error);
+                console.error('Error during membership purchase:', error.message);
+                alert('There was an error: ' + error.message);
     
-                // Close the confirmation modal
-                $('#confirmPurchaseModal').modal('hide');
+                // Close the confirmation modal in case of an error
+                confirmPurchaseModal.hide();
     
-                // Show the error modal
-                $('#errorModal').modal('show');
+                // Show the error modal using Bootstrap 5's JavaScript API
+                const errorModal = new bootstrap.Modal(document.getElementById('errorModal'), { backdrop: 'static', keyboard: false });
+                errorModal.show();
             }
         };
     };
     
-    // Function to handle the actual purchase process and save the transaction
-    async function purchasePlan(planId, planType, planPrice, userId, gymName) {
-        console.log('Saving transaction with:', { planId, planType, planPrice, userId, gymName });
-        try {
-            const newTransaction = {
-                userId: userId,
-                planId: planId,
-                planType: planType,
-                planPrice: planPrice,
-                gymName: gymName,
-                purchaseDate: new Date().toISOString(), // Save the current date and time
-            };
-    
-            // Save the transaction to Firestore (under a "Transactions" collection)
-            await addDoc(collection(db, 'Transactions'), newTransaction);
-            console.log('Transaction saved successfully.');
-    
-            // Notify the user about the successful purchase
-            const newNotification = {
-                userId: userId,
-                notificationId: Date.now().toString(), // Unique ID based on timestamp
-                gymName: gymName,
-                productName: planType, // Use planType as the product name
-                quantity: 1, // Quantity for membership is typically 1
-                totalPrice: planPrice,
-                status: 'Pending Owner Approval', // Purchase status
-                read: false, // Unread notification
-                timestamp: new Date().toISOString(), // Timestamp of the notification
-            };
-    
-            // Save the notification to Firestore under a "Notifications" collection
-            await addDoc(collection(db, 'Notifications'), newNotification);
-            console.log('Notification created successfully.');
-    
-            // Optionally, call fetchNotifications here to update the notification list
-            fetchNotifications(userId);
-    
-        } catch (error) {
-            console.error('Error saving transaction or creating notification:', error);
-            throw new Error('Failed to save the transaction or create notification');
-        }
-    }
-    
-    // Function to notify the user with a custom notification
-    async function notifyUser(userId, planType, gymName) {
-        try {
-            const notification = {
-                userId: userId,
-                message: `You have successfully purchased the ${planType} plan from ${gymName}.`,
-                read: false, // Unread notification
-                timestamp: new Date().toISOString(),
-            };
-    
-            // Save the notification to Firestore (or wherever your notifications are stored)
-            await addDoc(collection(db, 'Notifications'), notification);
-    
-            console.log('Notification sent successfully.');
-        } catch (error) {
-            console.error('Error sending notification:', error);
-        }
-    }
 
+// Function to handle the actual purchase process and save the transaction
+async function purchasePlan(planId, planType, planPrice, userId, gymName) {
+    try {
+        console.log('Attempting to save transaction:', { planId, planType, planPrice, userId, gymName });
+        const newTransaction = {
+            userId: userId,
+            planId: planId,
+            planType: planType,
+            planPrice: planPrice,
+            gymName: gymName,
+            purchaseDate: new Date().toISOString(), // Save the current date and time
+            status: 'Pending Owner Approval' // Default status for membership
+        };
+
+        // Save the transaction to Firestore
+        await addDoc(collection(db, 'Transactions'), newTransaction);
+        console.log('Transaction saved successfully.');
+    } catch (error) {
+        console.error('Error saving transaction:', error);
+        throw new Error('Failed to save the transaction');
+    }
+}
+
+// Function to notify the user with a custom notification
+async function notifyUser(userId, planType, gymName) {
+    try {
+        console.log('Notifying user:', { userId, planType, gymName });
+        const notification = {
+            userId: userId,
+            message: `You have successfully purchased the ${planType} plan from ${gymName}.`,
+            read: false, // Unread notification
+            timestamp: new Date().toISOString(),
+        };
+
+        // Save the notification to Firestore
+        await addDoc(collection(db, 'Notifications'), notification);
+        console.log('Notification sent successfully.');
+    } catch (error) {
+        console.error('Error sending notification:', error.message);
+    }
+}
+
+    
+    
         // Function to fetch the gym owner's location (e.g., city) based on the gymName
         async function fetchGymOwnerLocation(gymName) {
             try {
