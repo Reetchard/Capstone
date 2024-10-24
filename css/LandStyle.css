@@ -12,7 +12,7 @@ body {
 
 /* Navigation */
 nav {
-    background-color: #161a2d;
+    background-color: #1b1b1b;
     padding: 1px 0;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Added shadow for depth */
     transition: background-color 0.3s ease;
@@ -68,7 +68,7 @@ nav ul li a {
 }
 
 nav ul li a:hover {
-    color: #ffbe33;
+    color: #ffa31a;
     transform: scale(1.1); /* Subtle grow effect on hover */
 }
 
@@ -77,7 +77,7 @@ nav ul li a::after {
     display: block;
     width: 0;
     height: 2px;
-    background-color: #ffbe33;
+    background-color: #ffa31a;
     transition: width 0.3s ease; /* Underline effect */
     position: absolute;
     left: 0;
@@ -93,7 +93,10 @@ nav ul li a:hover {
 }
 
 nav:hover {
-    background-color: #161a2d; /* Slightly darken nav on hover */
+    background-color: #1b1b1b; /* Slightly darken nav on hover */
+}
+.profile-text{
+    color: #ffa31a;
 }
 
 /* Hero Section */
@@ -248,7 +251,7 @@ section h2:after {
     display: block;
     width: 50px;
     height: 3px;
-    background-color: #ffbe33;
+    background-color: #ffa31a;
     margin: 20px auto;
 }
 
@@ -275,7 +278,7 @@ section h2:after {
 }
 
 .features .feature h3, .trainers-content .trainer h3 {
-    color: #ffbe33;
+    color: #ffa31a;
     margin-bottom: 20px;
 }
 
@@ -370,7 +373,7 @@ p {
 }
 
 .trainer-card h3 {
-    color: #ff8e00;
+    color: #ffa31a;
     margin-bottom: 10px;
     font-size: 1.6rem;
     letter-spacing: 0.5px;
@@ -516,7 +519,7 @@ p {
 
 /* Trainers Section */
 #trainers {
-    background: #161a2d; /* Soft gradient background */
+    background: #1b1b1b; /* Soft gradient background */
     padding: 40px 20px; /* Add padding for spacing */
     border-radius: 10px; /* Rounded corners */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
@@ -536,24 +539,20 @@ p {
 /* Container for horizontal scrolling */
 .trainers-scroll-container {
     overflow-x: auto; /* Enable horizontal scrolling */
-    white-space: nowrap; /* Keep items in a single line */
-    padding: 0 20px; /* Adjust horizontal padding */
+    max-height: 400px;
     scrollbar-width: thin; /* For Firefox */
-    display: flex; /* Ensure items align properly */
-    align-items: center; /* Align items vertically in the center */
-    background: transparent; /* Transparent background for troubleshooting */
-    position: relative; /* Position relative for any additional styling */
+    scrollbar-color: #888 transparent; /* For Firefox */
 }
 
 /* Custom scrollbar for WebKit browsers */
 .trainers-scroll-container::-webkit-scrollbar {
-    height: 12px; /* Height of the scrollbar for WebKit browsers */
+    width: 8px; /* Scrollbar width */
 }
 
 .trainers-scroll-container::-webkit-scrollbar-thumb {
-    background-color: #d1d1d1;
-    border-radius: 10px;
-    transition: background-color 0.3s ease;
+    background-color: #888; /* Scrollbar thumb color */
+    border-radius: 10px; /* Rounded scrollbar thumb */
+    border: 2px solid transparent; /* Add space around the thumb */
 }
 
 .trainers-scroll-container::-webkit-scrollbar-thumb:hover {
@@ -561,9 +560,8 @@ p {
 }
 
 .trainers-scroll-container::-webkit-scrollbar-track {
-    background: #f0f0f0;
+    background: transparent; /* Track background */
 }
-
 /* Trainer items alignment and spacing */
 .trainers-content {
     display: flex; /* Display trainer cards in a row */
@@ -647,7 +645,7 @@ p {
 
 /* Profiling Section */
 #profiling {
-    background: #161a2d; /* Soft gradient background */
+    background: #1b1b1b; /* Soft gradient background */
     padding: 40px 20px; /* Add padding for spacing */
     border-radius: 10px; /* Rounded corners */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
@@ -947,6 +945,6 @@ p1 {
 }
 
 .services .service h3 {
-    color: #ffbe33;
+    color: #ffa31a;
     margin-bottom: 20px;
 }

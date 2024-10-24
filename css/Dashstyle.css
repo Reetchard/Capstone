@@ -1,3 +1,47 @@
+nav ul {
+    display: flex;
+    list-style: none;
+    padding: 0;
+}
+
+nav ul li {
+    margin: 0 15px;
+    position: relative;
+}
+
+nav ul li a {
+    color: #FAF6F0; /* Text color */
+    text-decoration: none; /* Remove underline */
+    font-weight: bold; /* Bold text */
+    transition: color 0.3s ease, transform 0.3s ease; /* Transition effects */
+    letter-spacing: 0.5px; /* Letter spacing for a modern feel */
+}
+
+nav ul li a:hover {
+    color: #ffa31a; /* Text color on hover */
+    transform: scale(1.1); /* Subtle grow effect on hover */
+}
+
+nav ul li a::after {
+    content: ''; /* Create an empty element */
+    display: block; /* Display as block */
+    width: 0; /* Initial width for underline effect */
+    height: 2px; /* Height of the underline */
+    background-color: #ffa31a; /* Underline color */
+    transition: width 0.3s ease; /* Transition effect for underline */
+    position: absolute; /* Position it relative to the parent */
+    left: 0; /* Align to the left */
+    bottom: -5px; /* Position below the text */
+}
+
+nav ul li a:hover::after {
+    width: 100%; /* Full width on hover */
+}
+
+nav ul li a:hover {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Soft shadow on hover */
+}
+
 /* General Modal Styles */
 .gym-modal-content {
     background-color: #1e1e1e;
@@ -897,7 +941,7 @@ strong:hover .custom-tooltip {
     border: 2px solid #fff; /* No border */
     border-radius: 10px; /* Updated to 10px for rounded button */
     padding: 10px 20px; /* Increased padding for a wider button */
-    width: 100%; /* Make the button take full width of the card */
+    width: 70%; /* Make the button take full width of the card */
     cursor: pointer; /* Pointer on hover */
     transition: background-color 0.3s; /* Smooth background change */
     text-align: center; /* Center the text */
@@ -1006,4 +1050,19 @@ strong:hover .custom-tooltip {
 
 .modal {
     z-index: 1050 !important; /* Ensures the modal is on top of other elements */
+}
+.btn-link {
+    color: white; /* Set text color to white */
+    background: none; /* No background */
+    border: none; /* No border */
+    text-decoration: underline; /* Optional: underline for link effect */
+}
+
+.btn-link:hover {
+    color: #ffa31a; /* Change text color to yellow on hover */
+    cursor: pointer; /* Change cursor to pointer on hover */
+}
+.btn-link:focus {
+    outline: none; /* Remove outline on focus */
+    box-shadow: none; /* Remove box shadow if present */
 }

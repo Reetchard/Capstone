@@ -1132,52 +1132,98 @@ async function notifyUser(userId, planType, gymName) {
                 return categorized;
             }
             
-            
             // Function to display categorized notifications
             function displayCategorizedNotifications(categorizedNotifications) {
                 const notificationList = document.getElementById('notificationList');
                 notificationList.innerHTML = ''; // Clear the list before adding new notifications
             
-                for (const [category, notifications] of Object.entries(categorizedNotifications)) {
-                    if (notifications.length > 0) {
-                        const categoryHeader = document.createElement('h6');
-                        categoryHeader.classList.add('category-header'); // Add a class for styling
-                        categoryHeader.innerText = category;
-                        notificationList.appendChild(categoryHeader);
+                // Display New Notifications
+                const newNotifications = categorizedNotifications['New Notifications'];
+                if (newNotifications.length > 0) {
+                    const newHeader = document.createElement('h6');
+                    newHeader.classList.add('category-header');
+                    newHeader.innerText = 'New Notifications';
+                    notificationList.appendChild(newHeader);
             
-                        notifications.forEach(notification => {
-                            const notificationItem = document.createElement('p');
-                            notificationItem.classList.add('list-group-item');
+                    newNotifications.forEach(notification => {
+                        const notificationItem = document.createElement('p');
+                        notificationItem.classList.add('list-group-item');
             
-                            // Calculate how long ago the notification was received
-                            const timeAgo = getTimeAgo(notification.timestamp);
+                        // Calculate how long ago the notification was received
+                        const timeAgo = getTimeAgo(notification.timestamp);
+                        const message = notification.read ? 
+                            notification.message : `<strong>${notification.message}</strong>`;
             
-                            // Use <strong> for unread notifications
-                            const message = notification.read ? 
-                                notification.message : `<strong>${notification.message}</strong>`;
+                        notificationItem.innerHTML = `
+                            ${message}<br>
+                            <small>${timeAgo}</small>
+                        `;
             
-                            notificationItem.innerHTML = `
-                                ${message}<br>
-                                <small>${timeAgo}</small>
-                            `;
-            
-                            // Add event listener for showing notification details and marking it as read
-                            notificationItem.addEventListener('click', () => {
-                                markAsRead(notification.id, notification.userId); // Mark notification as read
-                                showNotificationDetails(notification); // Show notification details in a modal
-                            });
-            
-                            notificationList.appendChild(notificationItem);
+                        // Add event listener for showing notification details and marking it as read
+                        notificationItem.addEventListener('click', () => {
+                            markAsRead(notification.id, notification.userId);
+                            showNotificationDetails(notification);
                         });
-                    }
-                }
             
-                // If no notifications, show a default message
-                if (notificationList.innerHTML === '') {
-                    notificationList.innerHTML = 
+                        notificationList.appendChild(notificationItem);
+                    });
+                } else {
+                    notificationList.innerHTML += 
                         '<p class="list-group-item text-center text-muted py-3">No new notifications</p>';
                 }
+            
+                // Display Older Notifications with toggle
+                const olderNotifications = categorizedNotifications['Older Notifications'];
+                if (olderNotifications.length > 0) {
+                    const toggleButton = document.createElement('button');
+                    toggleButton.innerText = 'Show Older Notifications';
+                    toggleButton.classList.add('btn', 'btn-link');
+                    toggleButton.style.cursor = 'pointer';
+                    let isOpen = false; // State for dropdown visibility
+            
+                    // Create a container for older notifications
+                    const notificationItems = document.createElement('div');
+                    notificationItems.style.display = 'none'; // Hide older notifications by default
+            
+                    // Event listener to toggle visibility
+                    toggleButton.addEventListener('click', () => {
+                        isOpen = !isOpen; // Toggle state
+                        notificationItems.style.display = isOpen ? 'block' : 'none'; // Show or hide notifications
+                        toggleButton.innerText = isOpen ? 'Hide Older Notifications' : 'Show Older Notifications';
+                    });
+            
+                    notificationList.appendChild(toggleButton); // Add the toggle button
+                    notificationList.appendChild(notificationItems); // Add the notification items container
+            
+                    olderNotifications.forEach(notification => {
+                        const notificationItem = document.createElement('p');
+                        notificationItem.classList.add('list-group-item');
+            
+                        // Calculate how long ago the notification was received
+                        const timeAgo = getTimeAgo(notification.timestamp);
+                        const message = notification.read ? 
+                            notification.message : `<strong>${notification.message}</strong>`;
+            
+                        notificationItem.innerHTML = `
+                            ${message}<br>
+                            <small>${timeAgo}</small>
+                        `;
+            
+                        // Add event listener for showing notification details and marking it as read
+                        notificationItem.addEventListener('click', () => {
+                            markAsRead(notification.id, notification.userId);
+                            showNotificationDetails(notification);
+                        });
+            
+                        notificationItems.appendChild(notificationItem); // Add notification item to the container
+                    });
+                } else {
+                    notificationList.innerHTML += 
+                        '<p class="list-group-item text-center text-muted py-3">No older notifications</p>';
+                }
             }
+            
+            
             
             
 
