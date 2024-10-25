@@ -910,7 +910,30 @@ function formatTime(time) {
     }
     
 
+        async function fetchGymOwnerLocation(gymName) {
+            try {
+                const gymQuery = query(
+                    collection(db, 'Users'), 
+                    where('gymName', '==', gymName), 
+                    where('role', '==', 'gymowner') 
+                );
 
+                const gymSnapshot = await getDocs(gymQuery);
+
+                if (!gymSnapshot.empty) {
+                    const gymData = gymSnapshot.docs[0].data();
+                    const gymLocation = gymData.gymLocation || ''; 
+                    console.log('Gym Location found:', gymLocation);
+                    return gymLocation;
+                } else {
+                    console.error('No gym found with the given name.');
+                    return null;
+                }
+            } catch (error) {
+                console.error('Error fetching gym location:', error);
+                return null;
+            }
+        }
 
         // Function to fetch location coordinates from Nominatim (OpenStreetMap Geocoding service)
         window.fetchGymCoordinates = async function (cityName) {
@@ -1435,8 +1458,7 @@ function formatTime(time) {
                                     <div style="font-size: 1.1rem; margin-bottom: 10px; line-height: 1.6; color: #222;">
                                         <p><strong>Product:</strong> ${notification.productName}</p>
                                         <p><strong>Quantity:</strong> ${notification.quantity}</p>
-                                        <p><strong>Total Price:</strong> ₱${notification.totalPrice}</p>
-                                        <p><strong>Status:</strong> ${notification.status}</p>
+                                        <p><strong>Total Price:</strong> ${notification.totalPrice}</p>
                                     </div>
                                     
                                     <hr style="border-top: 1px dashed #333; margin: 20px 0;">
