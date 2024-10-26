@@ -1066,3 +1066,227 @@ strong:hover .custom-tooltip {
     outline: none; /* Remove outline on focus */
     box-shadow: none; /* Remove box shadow if present */
 }
+/* Red dot notification styling */
+/* Container for the nav-link to handle positioning */
+.nav-link {
+    position: relative;
+}
+
+/* Red dot notification styling */
+#membershipNotificationDot {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 1px;
+    right: 10px;
+    color: red;
+    font-size: 20px; /* Adjust the size as needed */
+}
+/* Styles for the membership status container */
+.no-membership-container {
+    text-align: center;
+    padding: 20px;
+    background-color: transparent;
+    border-radius: 10px;
+}
+
+/* Styling for the message text */
+.no-membership-message {
+    font-size: 1.2em;
+    color: #888;
+}
+
+/* Container for membership history */
+.membership-history-container {
+    padding: 20px;
+    background-color: transparent;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Styling for the membership history heading */
+.membership-history-heading {
+    color: #ffffff;
+    font-weight: bold;
+    margin-bottom: 10px; /* Optional: Add space below the heading */
+}
+/* Container for the "No active membership" message */
+.no-active-membership-container {
+    text-align: center;
+    padding: 20px;
+    background-color: transparent;
+    border-radius: 10px;
+}
+
+/* Styling for the message text */
+.no-active-membership-message {
+    font-size: 1.2em;
+    color: #888;
+}
+
+.membership-item {
+    margin-bottom: 15px;
+}
+
+.membership-card,
+.current-membership-card {
+    padding: 20px;
+    border: 1px solid #888;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+}
+
+.membership-card {
+    background: #1b1b1b;
+}
+
+.current-membership-card {
+    background: #1b1b1b;
+}
+
+.membership-title {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 8px;
+}
+
+.membership-detail {
+    margin: 8px 0;
+    text-align: left;
+}
+
+.membership-price {
+    color: #28a745;
+}
+
+.membership-status-text {
+    color: #28a745; /* Default color, will be overridden inline if needed */
+    border: none;
+}
+
+.countdown-timer {
+    color: #1BCEDF;
+}
+/* Modal header styles */
+.modal-header-custom {
+    background-color: #ffa31a; 
+    color: white; 
+    border-top-left-radius: 8px; 
+    border-top-right-radius: 8px;
+}
+.modal-header-custom h5{
+    color: #1b1b1b;
+}
+
+/* Modal body styles */
+.modal-body-custom {
+    padding: 20px;
+    background-color: #1b1b1b;
+}
+
+.check-icon-container {
+    margin-bottom: 20px;
+}
+
+.success-icon {
+    color: #28a745;
+}
+
+.success-message {
+    font-size: 1.1em; 
+    color: #fff;
+}
+
+.approval-message {
+    color: #fff;
+}
+
+.processing-time {
+    padding: 15px 0; 
+    text-align: center;
+}
+
+.processing-time-text {
+    color: #888;
+}
+
+/* Modal footer styles */
+.modal-footer-custom {
+    background-color: #ffa31a; 
+    border-bottom-left-radius: 8px; 
+    border-bottom-right-radius: 8px;
+}
+
+.ok-button {
+    background-color: #28a745; 
+    border: none;
+}
+.custom-close {
+    background: #1b1b1b; /* Remove default background */
+    border: none; /* Remove border */
+    color: #1b1b1b; /* Text color */
+    font-size: 1.5em; /* Font size */
+    cursor: pointer; /* Change cursor to pointer */
+    transition: color 0.3s ease; /* Smooth color transition */
+}
+.notification-modal-content {
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.notification-modal-header {
+    background-color: #1b1b1b;
+    border-bottom: 1px dashed #ffa31a;
+}
+
+.modal-title-custom {
+    font-weight: bold;
+    font-size: 1.2rem;
+    text-align: center;
+    width: 100%;
+    color: #fff;
+}
+
+.close {
+    color: #333;
+}
+
+
+.gym-name {
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.8rem;
+    margin-bottom: 5px;
+    color: #fff;
+}
+
+.reference-number {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #fff;
+    margin-bottom: 25px;
+}
+
+.product-info {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    line-height: 1.6;
+    color: #fff;
+}
+
+.separator {
+    border-top: 1px dashed #ffa31a;
+    margin: 20px 0;
+}
+
+.footer-info {
+    font-size: 0.9rem;
+    text-align: center;
+    color: #fff;
+}
+
+.notification-modal-footer {
+    background-color: #1b1b1b;
+    border-top: 1px dashed #ffa31a;
+}

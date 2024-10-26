@@ -144,3 +144,258 @@
     display: block; /* Show the section with opacity */
 }
 
+#profile-picture {
+    width: 80px; /* Set your preferred width */
+    height: 80px; /* Set a height equal to the width to make it a circle */
+    border-radius: 50%; /* This makes the image circular */
+    object-fit: cover; /* Ensures the image fills the circle without distortion */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); /* Optional: Adds a subtle shadow for depth */
+    cursor: pointer;
+}
+
+
+#profile-picture.active {
+    transform: scale(1.1); /* Scale up slightly */
+    transition: transform 0.3s ease; /* Transition for scaling */
+}
+#profile-username {
+    color: #ffffff; /* Set the font color */
+    font-family: "Helvetica Neue", Arial, sans-serif; /* Set the font */
+    font-size: 1.5rem; /* Adjust the size as needed */
+    font-weight: bold;
+}
+.dropdown-menu {
+    display: none; /* Hide dropdown by default */
+    position: absolute; /* Position dropdown below the profile picture */
+    background-color: #808080; /* Dark background */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); /* Shadow effect */
+    z-index: 1000; /* Ensure dropdown is above other elements */
+    padding: 10px 0; /* Space around dropdown items */
+    width: 200px; /* Width of the dropdown */
+    opacity: 0; /* Start with transparent */
+    transform: translateY(-10px); /* Initial position for animation */
+    transition: opacity 0.3s ease, transform 0.3s ease; /* Transition for opacity and position */
+}
+
+.dropdown-menu.show {
+    display: block; /* Display dropdown when shown */
+    opacity: 1; /* Fully opaque */
+    transform: translateY(0); /* Move to original position */
+}
+
+/* Optional: Hiding dropdown smoothly when removed */
+.dropdown-menu.hide {
+    opacity: 0; /* Make it transparent */
+    transform: translateY(-10px); /* Move it up */
+    transition: opacity 0.3s ease, transform 0.3s ease; /* Same transition for hiding */
+}
+.dropdown-item:hover {
+    background-color: #3A3D42; /* Slightly lighter dark gray on hover */
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+    padding: 0;
+}
+
+nav ul li {
+    margin: 0 15px;
+    position: relative;
+}
+
+nav ul li a {
+    color: #FAF6F0; /* Text color */
+    text-decoration: none; /* Remove underline */
+    font-weight: bold; /* Bold text */
+    transition: color 0.3s ease, transform 0.3s ease; /* Transition effects */
+    letter-spacing: 0.5px; /* Letter spacing for a modern feel */
+}
+
+nav ul li a:hover {
+    color: #ffa31a; /* Text color on hover */
+    transform: scale(1.1); /* Subtle grow effect on hover */
+}
+
+nav ul li a::after {
+    content: ''; /* Create an empty element */
+    display: block; /* Display as block */
+    width: 0; /* Initial width for underline effect */
+    height: 2px; /* Height of the underline */
+    background-color: #ffa31a; /* Underline color */
+    transition: width 0.3s ease; /* Transition effect for underline */
+    position: absolute; /* Position it relative to the parent */
+    left: 0; /* Align to the left */
+    bottom: -5px; /* Position below the text */
+}
+
+nav ul li a:hover::after {
+    width: 100%; /* Full width on hover */
+}
+
+nav ul li a:hover {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Soft shadow on hover */
+}
+.gym-title {
+    color: #f9f9f9; /* Set the text color to black */
+    font-weight: bolder; /* Optional: Make the text bold */
+    font-size: 1.25rem; /* Optional: Increase the font size */
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    margin-bottom: 10px; /* Optional: Add some space below the title */
+}
+.card-body {
+    display: flex; /* Use flexbox for alignment */
+    flex-direction: column; /* Stack children vertically */
+    align-items: center; /* Center items horizontally */
+    justify-content: center; /* Center items vertically */
+    text-align: center; /* Center text */
+    padding: 20px; /* Optional: Adjust padding as needed */
+}
+.btn-custom{
+    border-radius: 10px; /* Adjust this value for the desired roundness */
+    padding: 10px 10px; /* Optional: Adjust padding for better button size */
+    background-color: #ffa31a; /* Ensure it retains the Bootstrap success color */
+    border: none; /* Optional: Remove border if not needed */
+    color: #ffffff; /* Ensure text is readable */
+    font-weight: bold; /* Make the text bold */
+    transition: background-color 0.3s ease; /* Smooth hover effect */
+    font-size: 12px;
+}
+
+.btn-custom:hover {
+    background-color: #cc8215; /* Darken the color on hover */
+    
+}
+
+/* Search Bar Styles */
+.search-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end; /* Move content to the right */
+    margin-bottom: 20px;
+}
+
+.search-container input {
+    padding: 10px;
+    margin-right: 10px;
+    border: 1px solid #444; /* Dark gray border */
+    border-radius: 20px;
+    background-color: #ffffff; /* Darker input background */
+    color: white; /* Default text color to white */
+    width: 200px; /* Set a fixed width for the input */
+    outline: none; /* Remove the default outline on focus */
+    transition: color 0.3s; /* Smooth transition for color change */
+}
+
+/* Change text color on input hover */
+.search-container input:hover {
+color: #ffa31a; /* Text color on hover */
+}
+
+.search-icon {
+cursor: pointer;
+display: flex;
+align-items: center;
+font-family: "Helvitica Neue", Arial, sans-serif; /* Set your custom font */
+font-size: 16px; /* Adjust size */
+color: white; /* Set text color to white */
+transition: color 0.3s; /* Smooth transition for color change */
+}
+
+/* Change icon color on hover */
+.search-icon:hover {
+    color: #ffa31a; /* Icon color on hover */
+}
+
+
+
+/* Ensure the text inside the input is light */
+.search-container input::placeholder {
+color: #888; /* Light gray placeholder text */
+font-family: "Helvitica Neue", Arial, sans-serif;
+}
+.profile-text{
+    color: #ffa31a;
+}
+#profiling-section h2 {
+    color: white; /* Set text color to white */
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-weight: bold;
+}
+strong {
+    color: #ffa31a;
+}
+.red-icon {
+    color: red; /* Custom color for the icon */
+}
+.custom-tooltip {
+    display: none; /* Hide by default */
+    position: absolute; /* Position it absolutely for better control */
+    background-color: #ffa31a; /* Set background to transparent */
+    color: #292929; /* Change text color to white */
+    padding: 5px 10px; /* Padding for the tooltip */
+    border-radius: 10px; /* Rounded corners */
+    font-size: 12px; /* Font size */
+    white-space: nowrap; /* Prevent text from wrapping */
+    bottom: 100%; /* Position it above the text */
+    left: 30%; /* Position it to the right of the text */
+    margin-left: 10px; /* Space between the tooltip and the text */
+    z-index: 1000; /* Ensure it's above other elements */
+    margin-bottom: 5px; /* Space between tooltip and text */
+    transition: opacity 0.3s ease; /* Smooth transition */
+    opacity: 0; /* Initially transparent */
+    border: 2px solid #ffa31a; /* Border color */
+}
+
+.custom-tooltip::after {
+    content: ''; /* Create a pseudo-element */
+    position: absolute; /* Position it absolutely */
+    top: 60%; /* Center it vertically */
+    left: 0; /* Position it on the left of the tooltip */
+    margin-left: -5px; /* Adjust left margin to center it */
+    border-width: 5px; /* Triangle size */
+    border-style: solid; /* Make it solid */
+    border-color: transparent transparent #ffa31a transparent; /* Triangle color */
+}
+
+/* Show tooltip on hover */
+strong:hover .custom-tooltip {
+    display: inline-block; /* Show on hover */
+    opacity: 1; /* Make it visible */
+}
+.modal-header h3 {
+    text-align: center;
+    font-weight: bold;
+    color: #ffffff;
+    margin: 0 auto;
+}
+
+/* Close Button Styles */
+.btn-close {
+    background-color: #4a4a4a; /* Darker color for the close button */
+    color: #fff; /* White text */
+    border-radius: 10px; /* Rounded corners */
+    transition: background-color 0.3s, transform 0.3s; /* Transition effects */
+}
+
+.btn-close:hover {
+    background-color: #333; /* Darker shade on hover */
+    color: #fff;
+    transform: scale(1.05); /* Slightly enlarge on hover */
+}
+
+/* Apply as Trainer Button Styles */
+.btn-apply {
+    background-color: #28a745; /* Original green color */
+    color: #fff; /* White text */
+    border-radius: 5px; /* Rounded corners */
+    transition: background-color 0.3s, transform 0.3s; /* Transition effects */
+}
+
+.btn-apply:hover {
+    background-color: #218838; /* Darker shade on hover */
+    color: #fff;
+    transform: scale(1.05); /* Slightly enlarge on hover */
+}
+

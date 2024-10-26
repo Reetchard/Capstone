@@ -630,31 +630,32 @@ function formatTime(time) {
                     <div id="membershipSuccessModal" class="modal fade" tabindex="-1" role="dialog">
                         <div class="modal-dialog modal-dialog-centered" role="document">
                             <div class="modal-content">
-                                <div class="modal-header" style="background-color: #5B247A; color: white; border-top-left-radius: 8px; border-top-right-radius: 8px;">
+                                <div class="modal-header modal-header-custom">
                                     <h5 class="modal-title">🎉 Membership Purchase Successful!</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="color: white;"></button>
+                                    <button type="button" class="custom-close" data-dismiss="modal" aria-label="Close">
                                 </div>
-                                <div class="modal-body text-center" style="background-color: #f9f9f9;">
-                                    <div style="margin-bottom: 20px;">
-                                        <i class="fas fa-check-circle fa-3x" style="color: #28a745;"></i>
-                                    </div>
-                                    <p style="font-size: 1.1em; color: #333;">
-                                        Your membership purchase was successful! Thank you for choosing <strong id="gymNameSuccess" style="color: #5B247A;">${gymName}</strong>.
-                                    </p>
-                                    <p><strong>Plan:</strong> ${planType}</p>
-                                    <p><strong>Price:</strong> ₱${planPrice}</p>
-                                    <p style="color: #555;">Please wait for the Gym owner's approval.</p>
-                                    <div style="padding: 15px 0; text-align: center;">
-                                        <i class="fas fa-clock"></i> <span style="color: #888;">Processing Time: Up to 24 hours</span>
-                                    </div>
+                            <div class="modal-body text-center modal-body-custom">
+                                <div class="check-icon-container">
+                                    <i class="fas fa-check-circle fa-3x success-icon"></i>
                                 </div>
-                                <div class="modal-footer" style="background-color: #f1f1f1; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
-                                    <button type="button" id="okButton" class="btn btn-success" style="background-color: #5B247A; border: none;">OK</button>
+                                <p class="success-message">
+                                    Your membership purchase was successful! Thank you for choosing <strong id="gymNameSuccess" class="gym-name">${gymName}</strong>.
+                                </p>
+                                <p><strong>Plan:</strong> ${planType}</p>
+                                <p><strong>Price:</strong> ₱${planPrice}</p>
+                                <p class="approval-message">Please wait for the Gym owner's approval.</p>
+                                <div class="processing-time">
+                                    <i class="fas fa-clock"></i> <span class="processing-time-text">Processing Time: Up to 24 hours</span>
                                 </div>
                             </div>
+                         <div class="modal-footer modal-footer-custom">
+                            <button type="button" id="okButton" class="btn btn-success ok-button">OK</button>
                         </div>
                     </div>
-                `;
+                 </div>
+            </div>
+        `;
+
     
                 // Inject success modal into the body (if not already present)
                 document.body.insertAdjacentHTML('beforeend', successModalContent);
@@ -778,11 +779,12 @@ function formatTime(time) {
             if (membershipSnapshot.empty) {
                 console.log('No memberships found for this user.');
                 currentMembershipStatusDiv.innerHTML = `
-                    <div style="text-align: center; padding: 20px; background-color: #f9f9f9; border-radius: 10px;">
-                        <p style="font-size: 1.2em; color: #888;">No active membership found.</p>
+                    <div class="no-membership-container">
+                        <p class="no-membership-message">No active membership found.</p>
                     </div>`;
                 return;
             }
+            
     
             let currentMembershipHtml = '';
             let historyHtml = '<ul style="list-style: none; padding: 0;">';
@@ -791,30 +793,29 @@ function formatTime(time) {
             membershipSnapshot.forEach(doc => {
                 const membership = doc.data();
                 console.log('Membership Data:', membership); // Debug the membership data
-    
+            
                 const purchaseDate = new Date(membership.purchaseDate);
                 const durationInDays = membership.duration || 30; // Use duration from Firestore or default to 30 days
                 const expirationDate = new Date(purchaseDate.getTime() + durationInDays * 24 * 60 * 60 * 1000);
-    
+            
                 const membershipHtml = `
-                    <li style="margin-bottom: 15px;">
-                        <div style="padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; background: linear-gradient(135deg, #f7f7f7 0%, #eaeaea 100%);
-                            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: transform 0.3s;">
-                            <h4 style="font-size: 1.5em; font-weight: bold; color: #5B247A; margin-bottom: 8px;">
-                                <i class="fas fa-dumbbell" style="color: #1BCEDF;"></i> 
+                    <li class="membership-item">
+                        <div class="membership-card">
+                            <h4 class="membership-title">
+                                <i class="fas fa-dumbbell membership-icon"></i> 
                                 ${membership.gymName || 'Unnamed Gym'}
                             </h4>
-                            <p style="margin: 8px 0;"><strong>Plan:</strong> ${membership.planType || 'N/A'}</p>
-                            <p style="margin: 8px 0;"><strong>Price:</strong> <span style="color: #28a745;">₱${membership.planPrice || 'N/A'}</span></p>
-                            <p style="margin: 8px 0;"><strong>Purchased on:</strong> ${purchaseDate.toLocaleDateString()}</p>
-                            <p style="margin: 8px 0;"><strong>Expires on:</strong> ${expirationDate.toLocaleDateString()}</p>
-                            <p style="margin: 8px 0;"><strong>Status:</strong> 
-                                <span style="color: ${membership.status === 'Approved' ? '#28a745' : '#FF5722'};">${membership.status || 'N/A'}</span>
+                            <p class="membership-detail"><strong>Plan:</strong> ${membership.planType || 'N/A'}</p>
+                            <p class="membership-detail"><strong>Price:</strong> <span class="membership-price">₱${membership.planPrice || 'N/A'}</span></p>
+                            <p class="membership-detail"><strong>Purchased on:</strong> ${purchaseDate.toLocaleDateString()}</p>
+                            <p class="membership-detail"><strong>Expires on:</strong> ${expirationDate.toLocaleDateString()}</p>
+                            <p class="membership-detail"><strong>Status:</strong> 
+                                <span class="membership-status" style="color: ${membership.status === 'Approved' ? '#28a745' : '#FF5722'};">${membership.status || 'N/A'}</span>
                             </p>
                         </div>
                     </li>
                 `;
-    
+            
                 // Check if the membership has expired
                 if (expirationDate < today) {
                     // If expired, add to membership history
@@ -822,48 +823,49 @@ function formatTime(time) {
                 } else {
                     // If not expired, show as the current membership with countdown
                     currentMembershipHtml = `
-                        <div style="padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; background: linear-gradient(135deg, #f9f9f9 0%, #f0f0f0 100%);
-                            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: transform 0.3s;">
-                            <h4 style="font-size: 1.7em; font-weight: bold; color: #5B247A; margin-bottom: 10px;">
-                                <i class="fas fa-dumbbell" style="color: #1BCEDF;"></i> 
+                        <div class="current-membership-card">
+                            <h4 class="membership-title">
                                 ${membership.gymName || 'Unnamed Gym'}
                             </h4>
-                            <p style="margin: 10px 0;"><strong>Plan:</strong> ${membership.planType || 'N/A'}</p>
-                            <p style="margin: 10px 0;"><strong>Price:</strong> <span style="color: #28a745;">₱${membership.planPrice || 'N/A'}</span></p>
-                            <p style="margin: 10px 0;"><strong>Purchased on:</strong> ${purchaseDate.toLocaleDateString()}</p>
-                            <p style="margin: 10px 0;"><strong>Expires on:</strong> ${expirationDate.toLocaleDateString()}</p>
-                            <p style="margin: 10px 0; font-weight: bold;"><strong>Time Remaining:</strong> <span id="countdown" style="color: #1BCEDF;"></span></p>
-                            <p style="margin: 10px 0;"><strong>Status:</strong> 
-                                <span style="color: ${membership.status === 'Approved' ? '#28a745' : '#FF5722'};">${membership.status || 'N/A'}</span>
+                            <p class="membership-detail"><strong>Plan:</strong> ${membership.planType || 'N/A'}</p>
+                            <p class="membership-detail"><strong>Price:</strong> <span class="membership-price">₱${membership.planPrice || 'N/A'}</span></p>
+                            <p class="membership-detail"><strong>Purchased on:</strong> ${purchaseDate.toLocaleDateString()}</p>
+                            <p class="membership-detail"><strong>Expires on:</strong> ${expirationDate.toLocaleDateString()}</p>
+                            <p class="membership-detail"><strong>Time Remaining:</strong> <span id="countdown" class="countdown-timer"></span></p>
+                            <p class="membership-detail"><strong>Status:</strong> 
+                                <span class="membership-status-text" style="color: ${membership.status === 'Approved' ? '#28a745' : '#FF5722'};">${membership.status || 'N/A'}</span>
                             </p>
                         </div>
                     `;
-    
+            
                     // Render the current membership HTML before starting the countdown
                     currentMembershipStatusDiv.innerHTML = currentMembershipHtml;
-    
+            
                     // Now that the HTML is rendered, start the countdown only if the status is approved
                     startCountdown(expirationDate, membership.status);
                 }
             });
+            
     
             historyHtml += '</ul>';
     
             // If no current membership, show message
             if (currentMembershipHtml === '') {
                 currentMembershipStatusDiv.innerHTML = `
-                    <div style="text-align: center; padding: 20px; background-color: #f9f9f9; border-radius: 10px;">
-                        <p style="font-size: 1.2em; color: #888;">No active membership found.</p>
+                    <div class="no-active-membership-container">
+                        <p class="no-active-membership-message">No active membership found.</p>
                     </div>`;
             }
+            
     
             // Render HTML for the membership history
             membershipHistoryDiv.innerHTML = `
-                <div style="padding: 20px; background-color: #f9f9f9; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-                    <h4 style="color: #5B247A; font-weight: bold;">Membership History</h4>
+                <div class="membership-history-container">
+                    <h4 class="membership-history-heading">Membership History</h4>
                     ${historyHtml}
                 </div>`;
-        } catch (error) {
+
+            } catch (error) {
             console.error('Error fetching membership status and history:', error);
         }
     }
@@ -1432,51 +1434,39 @@ function formatTime(time) {
                     const timeAgo = getTimeAgo(notification.timestamp);
                     
                     const notificationModal = `
-                    <div class="modal fade" id="notificationDetailsModal" tabindex="-1" role="dialog" aria-labelledby="notificationDetailsLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered" role="document">
-                            <div class="modal-content" style="border-radius: 10px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);">
-                                <div class="modal-header" style="background-color: #f3f3f3; border-bottom: 1px dashed #333;">
-                                    <h5 class="modal-title" id="notificationDetailsLabel" style="font-weight: bold; font-size: 1.2rem; text-align: center; width: 100%; color: #222;">
-                                        Purchase Receipt
-                                    </h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #333;">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body" id="notificationDetailsContent" style="padding: 20px; background-color: #fff;">
-                                    <!-- Gym Name - Large and centered -->
-                                    <p style="text-align: center; font-weight: bold; font-size: 1.8rem; margin-bottom: 5px; color: #000;">
-                                        ${notification.gymName}
-                                    </p> 
-                                    
-                                    <!-- Reference Number - Centered and styled -->
-                                    <p style="text-align: center; font-size: 1.2rem; color: #222; margin-bottom: 25px;">
+                        <div class="modal fade" id="notificationDetailsModal" tabindex="-1" role="dialog" aria-labelledby="notificationDetailsLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content notification-modal-content">
+                                    <div class="modal-header notification-modal-header">
+                                        <h5 class="modal-title-custom" id="notificationDetailsLabel">
+                                            Purchase Receipt
+                                        </h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body-custom" id="notificationDetailsContent">
+                                        <p class="gym-name">
+                                            ${notification.gymName}
+                                        </p> 
+                                    <p class="reference-number">
                                         <strong>Ref. No:</strong> ${notification.notificationId}
                                     </p> 
-
-                                    <!-- Product Information -->
-                                    <div style="font-size: 1.1rem; margin-bottom: 10px; line-height: 1.6; color: #222;">
+                                    <div class="product-info">
                                         <p><strong>Product:</strong> ${notification.productName}</p>
                                         <p><strong>Quantity:</strong> ${notification.quantity}</p>
                                         <p><strong>Total Price:</strong> ${notification.totalPrice}</p>
                                     </div>
-                                    
-                                    <hr style="border-top: 1px dashed #333; margin: 20px 0;">
-
-                                    <!-- Footer Info -->
-                                    <p style="font-size: 0.9rem; text-align: center; color: #444;">
-                                        Please wait for the owner's approval.<br>
+                                    <hr class="separator">
+                                    <p class="footer-info">
                                         Show this receipt to the Gym owner upon collection.
                                     </p>
-                                </div>
-                                <div class="modal-footer" style="background-color: #f3f3f3; border-top: 1px dashed #333;">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal" style="width: 100%;">Close</button>
+                                    <hr class="separator">
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    `;
+                `;
                     
                     document.body.insertAdjacentHTML('beforeend', notificationModal);
                     $('#notificationDetailsModal').modal('show');

@@ -91,13 +91,13 @@ async function fetchGymProfiles() {
         // Check if the gym status is not "Under Review"
         if (gym.status && gym.status !== 'Under review') {
             const gymDiv = document.createElement('div');
-            gymDiv.classList.add('card', 'gym-profile', 'mb-3'); // Add Bootstrap card classes
+            gymDiv.classList.add('profile-card', 'gym-profile', 'mb-3'); // Add Bootstrap card classes
 
             gymDiv.innerHTML = `
                 <img src="${gym.gymPhoto || 'default-photo.jpg'}" alt="${gym.gymName || 'Gym'}" class="card-img-top gym-photo" />
                 <div class="card-body">
-                    <h5 class="card-title">${gym.gymName || 'N/A'}</h5>
-                    <button class="custom-button btn-primary" onclick="viewMore('${gym.id}')">Gym Info</button>
+                    <h5 class="card-title gym-title">${gym.gymName || 'N/A'}</h5>
+                    <button class="btn-custom btn-primary" onclick="viewMore('${gym.id}')">Gym Info</button>
                 </div>
             `;
 
@@ -120,6 +120,7 @@ window.viewMore = async function (gymId) {
             const modalGymLocation = document.getElementById('modalGymLocation');
             const modalGymEquipment = document.getElementById('modalGymEquipment');
             const modalGymPrograms = document.getElementById('modalGymPrograms');
+            const modalGymEmail = document.getElementById('modalGymEmail');
             const modalGymContact = document.getElementById('modalGymContact');
             const modalPriceRate = document.getElementById('modalpriceRate');
             const modalGymOpeningTime = document.getElementById('modalGymOpeningTime');
@@ -130,10 +131,11 @@ window.viewMore = async function (gymId) {
             if (modalGymLocation) modalGymLocation.innerText = gymData.gymLocation || 'N/A';
             if (modalGymEquipment) modalGymEquipment.innerText = gymData.gymEquipment || 'N/A';
             if (modalGymPrograms) modalGymPrograms.innerText = gymData.gymPrograms || 'N/A';
+            if (modalGymEmail) modalGymEmail.innerText = gymData.email || 'N/A';
             if (modalGymContact) modalGymContact.innerText = gymData.gymContact || 'N/A';
             if (modalPriceRate) modalPriceRate.innerText = gymData.gymPriceRate || 'N/A';
-            if (modalGymOpeningTime) modalGymOpeningTime.innerText = gymData.gymOpeningTime || 'N/A';
-            if (modalGymClosingTime) modalGymClosingTime.innerText = gymData.gymClosingTime || 'N/A';
+            if (modalGymOpeningTime) modalGymOpeningTime.innerText = formatTime(gymData.gymOpeningTime || 'N/A');
+            if (modalGymClosingTime) modalGymClosingTime.innerText =formatTime (gymData.gymClosingTime || 'N/A');
 
             // Show the modal using Bootstrap's modal method
             $('#gymProfileModal').modal('show');
@@ -167,6 +169,13 @@ document.addEventListener('DOMContentLoaded', function () {
         $('#messagesModal').modal('show'); // Show the Messages Modal
     });
 });
+ // Function to format time from 24-hour to 12-hour format with AM/PM
+ function formatTime(time) {
+    const [hours, minutes] = time.split(':');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const formattedHours = hours % 12 || 12; // Convert to 12-hour format
+    return `${formattedHours}:${minutes} ${ampm}`;
+}
 
 
 async function fetchNotifications(currentUserId) {
