@@ -593,38 +593,92 @@ function formatTime(time) {
             console.error('Error fetching membership plans:', error);
         }
     };  
-    
-    window.confirmPlanPurchase = function(planType, planPrice, membershipDays, planId) {
+    // Function to show custom error messages in a modal
+    function showCustomError(message) {
+        document.getElementById('errorModalMessage').innerText = message;
+        const customErrorModal = new bootstrap.Modal(document.getElementById('customErrorModal'), {
+            backdrop: 'static',
+            keyboard: false
+        });
+        customErrorModal.show();
+    }
+
+    // Function to check if the user has an active membership
+    async function isMembershipActive(userId) {
+        try {
+            const today = new Date();
+
+            // Query for active memberships
+            const activeMembershipQuery = query(
+                collection(db, 'Transactions'),
+                where('userId', '==', userId),
+                where('status', '==', 'Approved')
+            );
+
+            const membershipSnapshot = await getDocs(activeMembershipQuery);
+
+            for (const doc of membershipSnapshot.docs) {
+                const membership = doc.data();
+                const purchaseDate = new Date(membership.purchaseDate);
+                const membershipDays = parseInt(membership.membershipDays, 10) || 30;
+                const expirationDate = new Date(purchaseDate.getTime() + membershipDays * 24 * 60 * 60 * 1000);
+
+                // Check if membership is still active
+                if (expirationDate >= today) {
+                    return true; // Membership is still active
+                }
+            }
+            return false; // No active membership found
+        } catch (error) {
+            console.error('Error checking membership status:', error);
+            showCustomError('An error occurred while checking membership status. Please try again later.');
+            return false;
+        }
+    }
+
+    // Modify confirmPlanPurchase to check for active membership before proceeding
+    window.confirmPlanPurchase = async function(planType, planPrice, membershipDays, planId) {
+        const userId = await getCurrentUserId();
+        if (!userId) {
+            showCustomError('You need to log in to apply for a membership plan.');
+            return;
+        }
+
+        // Check if the user has an active membership
+        const hasActiveMembership = await isMembershipActive(userId);
+        if (hasActiveMembership) {
+            showCustomError('You already have an active membership. Please wait until it expires before applying for a new plan.');
+            return;
+        }
+
         console.log('confirmPlanPurchase triggered for:', planType, planPrice, planId, membershipDays);
+
         // Set the selected plan details in the confirmation modal
         document.getElementById('selectedPlanType').innerText = planType;
         document.getElementById('selectedPlanPrice').innerText = planPrice;
-    
+
         // Show the confirmation modal using Bootstrap 5's JavaScript API with focus disabled
         const confirmPurchaseModal = new bootstrap.Modal(document.getElementById('confirmPurchaseModal'), {
             backdrop: 'static',
             keyboard: false,
-            focus: false // Disable focus trap to avoid conflicts
+            focus: false
         });
-    
+
         confirmPurchaseModal.show();
-    
+
         // Set the action for the Confirm Purchase button
         document.getElementById('confirmMemberPurchaseBtn').onclick = async function() {
             try {
-                const userId = await getCurrentUserId();
-                if (!userId) throw new Error('No user ID found. Please log in.');
-    
                 const gymName = document.getElementById('modalGymName').innerText;
                 if (!gymName) throw new Error('Gym name not available.');
-    
+
                 console.log('Proceeding with purchase for:', planType, planPrice, membershipDays, planId, userId, gymName);
-    
+
                 // Call the purchasePlan function to save the transaction
                 await purchasePlan(planId, planType, planPrice, membershipDays, userId, gymName);
                 await displayMembershipNotificationDot();
                 confirmPurchaseModal.hide();
-    
+
                 // Success modal content
                 const successModalContent = `
                     <div id="membershipSuccessModal" class="modal fade" tabindex="-1" role="dialog">
@@ -648,45 +702,41 @@ function formatTime(time) {
                                     <i class="fas fa-clock"></i> <span class="processing-time-text">Processing Time: Up to 24 hours</span>
                                 </div>
                             </div>
-                         <div class="modal-footer modal-footer-custom">
+                        <div class="modal-footer modal-footer-custom">
                             <button type="button" id="okButton" class="btn btn-success ok-button">OK</button>
                         </div>
                     </div>
-                 </div>
+                </div>
             </div>
         `;
 
-    
                 // Inject success modal into the body (if not already present)
                 document.body.insertAdjacentHTML('beforeend', successModalContent);
-    
+
                 // Show the success modal with focus disabled
                 const membershipSuccessModal = new bootstrap.Modal(document.getElementById('membershipSuccessModal'), {
                     backdrop: 'static',
                     keyboard: false,
-                    focus: false // Disable focus trap to prevent recursion
+                    focus: false
                 });
-    
+
                 membershipSuccessModal.show();
-    
+
                 // Add event listener to the dynamically created OK button to close the modal
                 document.getElementById('okButton').addEventListener('click', function() {
-                    membershipSuccessModal.hide();  // Hide the success modal when OK is clicked
-                    document.getElementById('membershipSuccessModal').remove(); // Clean up the modal from DOM after it's hidden
+                    membershipSuccessModal.hide();
+                    document.getElementById('membershipSuccessModal').remove();
                 });
-    
+
             } catch (error) {
                 console.error('Error during membership purchase:', error.message);
-                alert('There was an error: ' + error.message);
-    
+                showCustomError('An error occurred while processing your membership purchase. Please try again later.');
                 confirmPurchaseModal.hide();
-    
-                const errorModal = new bootstrap.Modal(document.getElementById('errorModal'), { backdrop: 'static', keyboard: false });
-                errorModal.show();
             }
         };
     };
-    
+
+
 
     async function purchasePlan(planId, planType, planPrice, membershipDays, userId, gymName) {
         try {
@@ -869,8 +919,8 @@ function formatTime(time) {
             console.error('Error fetching membership status and history:', error);
         }
     }
-    // Function to start the countdown timer
-    function startCountdown(membershipDays, status) {
+        // Function to start the countdown timer
+    function startCountdown(expirationDate, status) {
         const countdownElement = document.getElementById('countdown');
         
         // Check if the countdown element is present in the DOM
@@ -878,38 +928,36 @@ function formatTime(time) {
             console.error('Countdown element not found');
             return;
         }
-    
+
         // Only start the countdown if the status is "Approved"
-        if (status === 'Pending Owner Approval') {
+        if (status !== 'Approved') {
             countdownElement.innerText = 'Pending Owner Approval'; // Show pending message instead of countdown
             console.log('Countdown will not start, status is pending approval.');
             return;
         }
-    
-        // Calculate the expiration date based on the membershipDays
-        const now = new Date();
-        const expirationDate = new Date(now.getTime() + membershipDays * 24 * 60 * 60 * 1000); // Add membershipDays to current date
-    
+
         const updateCountdown = () => {
             const currentTime = new Date();
             const timeRemaining = expirationDate - currentTime;
-    
+
             if (timeRemaining <= 0) {
                 countdownElement.innerText = 'Expired';
                 return;
             }
-    
+
             const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
             const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
-    
+
             countdownElement.innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
         };
-    
+
         // Update countdown every second
+        updateCountdown(); // Initial call to display immediately
         setInterval(updateCountdown, 1000);
     }
+
     
 
         async function fetchGymOwnerLocation(gymName) {
