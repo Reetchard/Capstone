@@ -424,29 +424,30 @@
     </div>
 
  <!-- Success Modal -->
-<div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
+ <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content" style="border-radius: 10px; overflow: hidden; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);">
-            <div class="modal-header" style="background-color: #5B247A; color: white; border-bottom: 2px solid #1BCEDF;">
-                <h5 class="modal-title" id="successModalLabel" style="font-size: 1.25rem; font-weight: bold;">🎉 Purchase Successful!</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: white;">
+        <div class="modal-content success-modal-content">
+            <div class="modal-header success-modal-header">
+                <h5 class="modal-title" id="successModalLabel">🎉 Purchase Successful!</h5>
+                <button type="button" class="close success-modal-close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body" style="background-color: #f9f9f9; color: #333;">
-                <div style="text-align: center; margin-bottom: 15px;">
-                    <i class="fas fa-check-circle" style="color: #28a745; font-size: 2.5rem;"></i>
+            <div class="modal-body success-modal-body">
+                <div class="icon-container">
+                    <i class="fas fa-check-circle success-icon"></i>
                 </div>
-                <p style="font-size: 1.1rem;">You have successfully purchased <strong><span id="successProductName"></span></strong> for <strong><span id="successTotalPrice"></span></strong>.</p>
-                <p style="font-size: 1rem;">Please visit <strong><span id="successGymName"></span></strong> to claim your product and present your receipt to the cashier, go to the Notification for the reciept.</p>
-                <p style="font-size: 1rem;">Quantity: <strong><span id="successQuantity"></span></strong></p>
+                <p class="modal-text">You have successfully purchased <strong><span id="successProductName"></span></strong> for <strong><span id="successTotalPrice"></span></strong>.</p>
+                <p class="modal-text">Please visit <strong><span id="successGymName"></span></strong> to claim your product and present your receipt to the cashier, go to the Notification for the receipt.</p>
+                <p class="modal-text"><strong>Quantity:</strong> <span id="successQuantity"></span></p>
             </div>
-            <div class="modal-footer" style="background-color: #f1f1f1;">
-                <button type="button" class="btn btn-primary" data-dismiss="modal" style="background-color: #1BCEDF; border: none;">OK</button>
+            <div class="modal-footer success-modal-footer">
+                <button type="button" class="btn-book success-btn" data-dismiss="modal">OK</button>
             </div>
         </div>
     </div>
 </div>
+
 
 
     <!-- Confirmation Modal -->
@@ -465,7 +466,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-success" id="confirmPurchaseBtn">Confirm Purchase</button>
+                    <button type="button" class="btn-book btn-success" id="confirmPurchaseBtn">Confirm Purchase</button>
                 </div>
             </div>
         </div>
@@ -485,7 +486,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-primary" id="confirmMemberPurchaseBtn">Confirm Purchase</button>
+                        <button type="button" class="btn-book btn-success" id="confirmMemberPurchaseBtn">Confirm Purchase</button>
                     </div>
                 </div>
             </div>
@@ -504,7 +505,7 @@
                     <p>There was an issue with your purchase. Please try again later.</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                    <button type="button" class="btn-book" data-dismiss="modal">OK</button>
                 </div>
             </div>
         </div>
