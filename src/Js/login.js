@@ -134,6 +134,7 @@ async function signUpWithEmail(username, email, password, role, errorMessageElem
             userId,
             username,
             email,
+            password,
             role,
             status: 'Under review' // Initial status is 'Under review'
         });

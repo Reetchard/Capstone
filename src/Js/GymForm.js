@@ -31,6 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const gymPhotoPreview = document.getElementById("gymPhotoPreview"); 
     const errorMessage = document.getElementById("gymOwnerFormErrorMessage");
     const successMessage = document.getElementById("gymOwnerFormSuccessMessage");
+    const gymCertificationsInput = document.getElementById("gymCertifications"); // Ensure this element exists
 
     // Display preview for selected gym photo
     gymPhotoInput.addEventListener("change", () => {
@@ -70,6 +71,13 @@ document.addEventListener("DOMContentLoaded", () => {
             showSpinner();
             const user = auth.currentUser;
 
+            // Ensure user is logged in
+            if (!user) {
+                errorMessage.innerHTML = "Error: User not authenticated.";
+                hideSpinner();
+                return;
+            }
+
             // Ensure photo is uploaded and get download URL
             if (!gymPhotoInput.files.length) {
                 errorMessage.innerHTML = "Please upload a gym photo.";
@@ -94,8 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 gymOpeningTime: gymOpeningTime.value,
                 gymClosingTime: gymClosingTime.value,
                 gymLocation: gymLocation.value,
-                gymPriceRate: gymPriceRate.value,
-                status: "Under Review"
+                status: "Under review"
             }, { merge: true });
 
             successMessage.innerHTML = "Gym information submitted successfully!";

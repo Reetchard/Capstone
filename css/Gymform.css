@@ -214,3 +214,19 @@ button.submit-btn:hover {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+.photo-preview {
+    width: 100%;
+    height: 200px; /* Adjust this value to match the desired preview area height */
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #e0e0e0; /* Optional: sets a background color for better contrast */
+    border: 2px solid #ccc; /* Optional: border for styling */
+    border-radius: 8px; /* Optional: adds rounded corners */
+}
+
+.photo-preview img {
+    width: auto;
+    height: 100%;
+    object-fit: contain; /* Ensures the whole i
