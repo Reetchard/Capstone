@@ -420,8 +420,10 @@ body {
 
 /* Main container */
 .container {
-    margin-top: 40px;
-    max-width: 900px;
+    max-width: 600px; /* Adjust the width to make it smaller */
+    margin: 0 auto;   /* Center the container horizontally */
+    position: relative; /* Position relative to avoid overlap issues */
+    padding: 20px;    /* Optional: Add some padding for spacing */
 }
 
 /* Form card */

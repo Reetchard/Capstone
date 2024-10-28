@@ -381,7 +381,7 @@ h4 {
     transform: scale(1.1); /* Subtle grow effect on hover */
 }
 
-sidebar ul li a::after {
+.sidebar ul li a::after {
     content: '';
     display: block;
     width: 0;
@@ -843,5 +843,21 @@ strong:hover .custom-tooltip {
 
 .memberships-container .btn-custom:hover {
     background-color: #ffa31a; /* Darker shade on hover */
+}
+.custom-card-container {
+    display: flex;
+    justify-content: flex-end; /* Aligns the card to the right */
+    max-width: 100%; /* Ensures it doesn't exceed the viewport */
+}
+
+.custom-card {
+    width: 100%; /* Set width to fit content or adjust as needed */
+    max-width: 700px;
+    margin-top: 20px;
+
+}
+
+.custom-card .card-body {
+    padding: 1rem;
 }
 

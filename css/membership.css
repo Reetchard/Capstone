@@ -298,3 +298,24 @@ h1 {
     font-size: 1.2rem;
     font-weight: bold;
 }
+.centered-container {
+    max-width: 600px;  /* Adjust the width as necessary */
+    margin: 0 auto;    /* Center the container horizontally */
+    position: relative; /* Helps in managing overlap */
+    padding: 20px;     /* Optional: Add some padding for spacing */
+}
+/* Style for the Current Plans section */
+h2 {
+    color: white; /* Set text color to white */
+}
+
+/* Style for table headers */
+.table th {
+    color: white; /* Set text color to white for table headers */
+    background-color: #007bff; /* Optional: Add a background color for contrast */
+}
+
+/* Optional: Style for table body text */
+.table td {
+    color: white; /* Set text color to white for table data */
+}
