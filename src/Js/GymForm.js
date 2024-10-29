@@ -39,6 +39,21 @@ window.addEventListener('load', () => {
     const gymPriceRate = document.getElementById("gymPriceRate");
     const errorMessage = document.getElementById("gymOwnerFormErrorMessage");
     const successMessage = document.getElementById("gymOwnerFormSuccessMessage");
+    const photoPreview = document.getElementById("photoPreview");
+
+    // Display selected photo in the preview container
+    gymPhotoInput.addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                photoPreview.innerHTML = `<img src="${e.target.result}" alt="Gym Photo Preview" style="width: 100%; height: auto; border-radius: 8px;">`;
+            };
+            reader.readAsDataURL(file);
+        } else {
+            photoPreview.innerHTML = ""; // Clear preview if no file is selected
+        }
+    });
 
     // Function to handle image upload
     async function uploadFile(file, path) {
@@ -114,7 +129,7 @@ window.addEventListener('load', () => {
                 gymClosingTime: gymClosingTime.value,
                 gymLocation: gymLocation.value,
                 gymPriceRate: gymPriceRate.value,
-                status: "Under Review"
+                status: "Under review"
             }, { merge: true });
 
             // Success message logic
@@ -128,6 +143,7 @@ window.addEventListener('load', () => {
             }, 2000);
 
             form.reset();  // Clear the form after successful submission
+            photoPreview.innerHTML = ""; // Clear photo preview after submission
         } catch (error) {
             errorMessage.innerHTML = "Error: Could not submit the form. " + error.message;
             successMessage.innerHTML = "";

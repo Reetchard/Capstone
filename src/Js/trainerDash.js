@@ -389,6 +389,61 @@ async function fetchNotifications(currentUserId) {
         });
     });
     
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Elements related to chat functionality
+        const chatModalLink = document.querySelector('a[href="#chatModal"]');
+        const inboxContainer = document.getElementById('inboxContainer');
+        const chatHeader = document.getElementById('chatHeader');
+        const messagesContainer = document.getElementById('messagesContainer');
+        const messageInput = document.getElementById('messageInput');
+        const sendMessageButton = document.getElementById('sendMessageButton');
+    
+        // Check if modal link exists
+        if (chatModalLink) {
+            chatModalLink.addEventListener('click', (event) => {
+                event.preventDefault();
+    
+                // Show chat modal
+                const chatModal = new bootstrap.Modal(document.getElementById('chatModal'));
+                chatModal.show();
+    
+                // Clear previous chat data in the inbox and messages
+                if (inboxContainer) {
+                    inboxContainer.innerHTML = ''; // Clear inbox
+                    loadInboxMessages();
+                } else {
+                    console.error("Element with ID 'inboxContainer' not found in the DOM.");
+                }
+    
+                if (messagesContainer) {
+                    messagesContainer.innerHTML = ''; // Clear messages
+                } else {
+                    console.error("Element with ID 'messagesContainer' not found in the DOM.");
+                }
+            });
+        } else {
+            console.error("Chat modal link not found.");
+        }
+    
+        // Search users input listener
+        const searchInput = document.querySelector('#searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', (event) => {
+                const searchTerm = event.target.value;
+                searchUsers(searchTerm);
+            });
+        } else {
+            console.error("Element with ID 'searchInput' not found in the DOM.");
+        }
+    
+        // Send message button listener
+        if (sendMessageButton) {
+            sendMessageButton.addEventListener('click', sendMessage);
+        } else {
+            console.error("Send message button not found.");
+        }
+    });
     let currentChatUserId = null;
     const userCache = {}; // Cache for user details to reduce database calls
     
@@ -415,17 +470,24 @@ async function fetchNotifications(currentUserId) {
     
     // Display users in the search result
     function displayUsers(users) {
-        const usersContainer = document.querySelector('#usersContainer');
-        usersContainer.innerHTML = '';
+        const inboxContainer = document.querySelector('#inboxContainer');
+        
+        if (!inboxContainer) {
+            console.error("Element with ID 'inboxContainer' not found in the DOM.");
+            return;
+        }
+
+        inboxContainer.innerHTML = '';
         users.forEach(user => {
             const userElement = document.createElement('div');
             userElement.className = 'user-email';
             userElement.textContent = `${user.username} (${user.email})`;
             userElement.addEventListener('click', () => startChat(user.id, user.username));
-            usersContainer.appendChild(userElement);
+            inboxContainer.appendChild(userElement);
         });
     }
-    
+
+
     // Search users based on the input
     async function searchUsers(searchTerm) {
         if (!searchTerm) {
@@ -442,14 +504,24 @@ async function fetchNotifications(currentUserId) {
     // Start a chat with a selected user
     function startChat(userId, username) {
         currentChatUserId = userId;
-        document.getElementById('chatWith').textContent = `Chat with ${username}`;
-        document.querySelector('#searchInput').value = username;
-        document.querySelector('#usersContainer').innerHTML = '';
-        document.getElementById('chatHeader').style.display = 'block';
-        document.getElementById('messagesContainer').style.display = 'block';
-        document.getElementById('messageInputContainer').style.display = 'block';
-        loadMessages(); // Load messages for the chat
+        const chatWithElement = document.getElementById('chatWith');
+        const chatUserPhoto = document.getElementById('chatUserPhoto');
+    
+        if (chatWithElement) {
+            chatWithElement.textContent = `Chat with ${username}`;
+        }
+        if (chatUserPhoto) {
+            chatUserPhoto.src = 'path-to-default-or-user-photo'; // Adjust photo URL accordingly
+        }
+    
+        // Show chat elements if they exist
+        if (chatHeader) chatHeader.style.display = 'flex';
+        if (messagesContainer) messagesContainer.style.display = 'block';
+        if (messageInput) messageInput.value = ''; // Clear input after sending
+    
+        loadMessages();
     }
+    
     
     async function getUserDetails(userId) {
         if (userCache[userId]) {
@@ -606,64 +678,64 @@ async function fetchNotifications(currentUserId) {
         });
     }
 
-    async function loadInboxMessages() {
-        const userId = auth.currentUser.uid;
-        const inboxContainer = document.getElementById('inboxContainer');
-        inboxContainer.innerHTML = ''; // Clear previous inbox content
-    
-        // Query to get the messages where the current user is either the sender or receiver
-        const inboxQuery = query(
-            collection(db, 'Messages'),
-            where('from', '==', userId),
-            orderBy('timestamp', 'desc')
-        );
-    
-        const querySnapshot = await getDocs(inboxQuery);
-    
-        // Map to store the most recent message for each unique user
-        const recentMessages = new Map();
-    
-        // Iterate through each message
-        querySnapshot.forEach((doc) => {
-            const messageData = doc.data();
-            const otherUserId = messageData.to === userId ? messageData.from : messageData.to;
-    
-            // If this user has no previous message in the Map or the current message is more recent, update the Map
-            if (!recentMessages.has(otherUserId) || recentMessages.get(otherUserId).timestamp < messageData.timestamp) {
-                recentMessages.set(otherUserId, { ...messageData, docId: doc.id });
-            }
-        });
-    
-        // Check if there are no messages
-        if (recentMessages.size === 0) {
-            const noConversationMessage = document.createElement('div');
-            noConversationMessage.className = 'no-conversation-message'; // Add a class for styling if needed
-            noConversationMessage.textContent = 'No Conversation Available';
-            inboxContainer.appendChild(noConversationMessage);
-            return; // Exit the function if no messages found
+async function loadInboxMessages() {
+    const userId = auth.currentUser.uid;
+    const inboxContainer = document.getElementById('inboxContainer');
+    inboxContainer.innerHTML = ''; // Clear previous inbox content
+
+    // Query to get the messages where the current user is either the sender or receiver
+    const inboxQuery = query(
+        collection(db, 'Messages'),
+        where('from', '==', userId),
+        orderBy('timestamp', 'desc')
+    );
+
+    const querySnapshot = await getDocs(inboxQuery);
+
+    // Map to store the most recent message for each unique user
+    const recentMessages = new Map();
+
+    // Iterate through each message
+    querySnapshot.forEach((doc) => {
+        const messageData = doc.data();
+        const otherUserId = messageData.to === userId ? messageData.from : messageData.to;
+
+        // If this user has no previous message in the Map or the current message is more recent, update the Map
+        if (!recentMessages.has(otherUserId) || recentMessages.get(otherUserId).timestamp < messageData.timestamp) {
+            recentMessages.set(otherUserId, { ...messageData, docId: doc.id });
         }
-    
-        // Display each recent message in the inbox
-        for (const [otherUserId, messageData] of recentMessages.entries()) {
-            const otherUser = await getUserDetails(otherUserId);
-    
-            if (otherUser) {
-                const inboxItem = document.createElement('div');
-                inboxItem.className = 'inbox-item';
-                inboxItem.textContent = `${otherUser.username || otherUser.email}: ${messageData.message}`;
-                
-                // Add event listener to load messages for this conversation
-                inboxItem.addEventListener('click', () => {
-                    currentChatUserId = otherUserId;
-                    loadMessages();
-                    displayChatHeader(otherUser);
-                });
-    
-                inboxContainer.appendChild(inboxItem);
-            }
+    });
+
+    // Check if there are no messages
+    if (recentMessages.size === 0) {
+        const noConversationMessage = document.createElement('div');
+        noConversationMessage.className = 'no-conversation-message'; // Add a class for styling if needed
+        noConversationMessage.textContent = 'No Conversation Available';
+        inboxContainer.appendChild(noConversationMessage);
+        return; // Exit the function if no messages found
+    }
+
+    // Display each recent message in the inbox
+    for (const [otherUserId, messageData] of recentMessages.entries()) {
+        const otherUser = await getUserDetails(otherUserId);
+
+        if (otherUser) {
+            const inboxItem = document.createElement('div');
+            inboxItem.className = 'inbox-item';
+            inboxItem.textContent = `${otherUser.username || otherUser.email}: ${messageData.message}`;
+            
+            // Add event listener to load messages for this conversation
+            inboxItem.addEventListener('click', () => {
+                currentChatUserId = otherUserId;
+                loadMessages();
+                displayChatHeader(otherUser);
+            });
+
+            inboxContainer.appendChild(inboxItem);
         }
     }
-    
+}
+
     function displayChatHeader(user) {
         document.getElementById('chatHeader').style.display = 'flex';
         document.getElementById('chatWith').textContent = user.username || user.email;
