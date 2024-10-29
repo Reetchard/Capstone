@@ -17,7 +17,7 @@
     <nav class="sidebar">
         <div class="profile-container text-center mb-4" style="position: relative;">
             <div class="dropdown">
-                <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" class="img-fluid rounded-circle mb-2" style="width: 80px; cursor: pointer;">
+                <img id="profile-picture" src="img/Profile.png" alt="Profile Picture" class="img-fluid rounded-circle mb-2" style="width: 80px; cursor: pointer;">
                 <h3 id="profile-username" class="mt-2"></h3> <!-- Username header added here -->
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <a class="dropdown-item" href="Pinfo.html">Personal Information</a>
@@ -36,7 +36,7 @@
             <li class="nav-item">
                 <a class="nav-link" href="#Membership">
                     <i class="fas fa-user-friends"></i> Membership
-                    <span id="membershipNotificationDot">●</span>
+                    <span id="membershipNotificationDot" style="display: none; margin-left: 5px; color: red;">●</span>
                 </a>
             </li>
             
@@ -49,10 +49,10 @@
             </li>
             
             <li class="nav-item">
-                <a class="nav-link" href="#messages">
+                <a class="nav-link" data-toggle="modal" href="#chatModal">
                     <i class="fas fa-comments"></i> Message
                 </a>
-            </li>          
+            </li>         
         </ul>
     </nav>
 
@@ -271,6 +271,30 @@
         </div>
     </div>
 </div>
+<!-- Booking Confirmation Modal -->
+<div class="modal fade" id="bookingConfirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">Confirm Booking</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Trainer name and rate for confirmation -->
+                <p>Are you sure you want to book a session with <strong id="confirmTrainerName">Trainer Name</strong>?</p>
+                <p>Rate: <strong id="confirmTrainerRate">₱0</strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmBookingButton">Yes, Book Now</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Toast Notifications Container -->
+<div id="toastContainer" aria-live="polite" aria-atomic="true" style="position: fixed; top: 20px; right: 20px; z-index: 1050;">
+    <!-- Toast messages will be dynamically added here -->
+</div>
 
 
 <!-- Membership Plans Modal -->
@@ -424,30 +448,29 @@
     </div>
 
  <!-- Success Modal -->
- <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
+<div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content success-modal-content">
-            <div class="modal-header success-modal-header">
-                <h5 class="modal-title" id="successModalLabel">🎉 Purchase Successful!</h5>
-                <button type="button" class="close success-modal-close" data-dismiss="modal" aria-label="Close">
+        <div class="modal-content" style="border-radius: 10px; overflow: hidden; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);">
+            <div class="modal-header" style="background-color: #5B247A; color: white; border-bottom: 2px solid #1BCEDF;">
+                <h5 class="modal-title" id="successModalLabel" style="font-size: 1.25rem; font-weight: bold;">🎉 Purchase Successful!</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: white;">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body success-modal-body">
-                <div class="icon-container">
-                    <i class="fas fa-check-circle success-icon"></i>
+            <div class="modal-body" style="background-color: #f9f9f9; color: #333;">
+                <div style="text-align: center; margin-bottom: 15px;">
+                    <i class="fas fa-check-circle" style="color: #28a745; font-size: 2.5rem;"></i>
                 </div>
-                <p class="modal-text">You have successfully purchased <strong><span id="successProductName"></span></strong> for <strong><span id="successTotalPrice"></span></strong>.</p>
-                <p class="modal-text">Please visit <strong><span id="successGymName"></span></strong> to claim your product and present your receipt to the cashier, go to the Notification for the receipt.</p>
-                <p class="modal-text"><strong>Quantity:</strong> <span id="successQuantity"></span></p>
+                <p style="font-size: 1.1rem;">You have successfully purchased <strong><span id="successProductName"></span></strong> for <strong><span id="successTotalPrice"></span></strong>.</p>
+                <p style="font-size: 1rem;">Please visit <strong><span id="successGymName"></span></strong> to claim your product and present your receipt to the cashier, go to the Notification for the reciept.</p>
+                <p style="font-size: 1rem;">Quantity: <strong><span id="successQuantity"></span></strong></p>
             </div>
-            <div class="modal-footer success-modal-footer">
-                <button type="button" class="btn-book success-btn" data-dismiss="modal">OK</button>
+            <div class="modal-footer" style="background-color: #f1f1f1;">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" style="background-color: #1BCEDF; border: none;">OK</button>
             </div>
         </div>
     </div>
 </div>
-
 
 
     <!-- Confirmation Modal -->
@@ -466,7 +489,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn-book btn-success" id="confirmPurchaseBtn">Confirm Purchase</button>
+                    <button type="button" class="btn btn-success" id="confirmPurchaseBtn">Confirm Purchase</button>
                 </div>
             </div>
         </div>
@@ -486,7 +509,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn-book btn-success" id="confirmMemberPurchaseBtn">Confirm Purchase</button>
+                        <button type="button" class="btn btn-primary" id="confirmMemberPurchaseBtn">Confirm Purchase</button>
                     </div>
                 </div>
             </div>
@@ -505,31 +528,47 @@
                     <p>There was an issue with your purchase. Please try again later.</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn-book" data-dismiss="modal">OK</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
                 </div>
             </div>
         </div>
     </div>
 
-        <!-- Custom Error Modal -->
-    <div id="customErrorModal" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title">⚠️ Error</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+    <div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" style="background-color: #1b1b1b; color: #ffffff;">
+                <div class="modal-header" style="border-bottom: 1px solid #2c2c2c;">
+                    <h5 class="modal-title" id="chatModalLabel">Chat</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1);"></button>
                 </div>
-                <div class="modal-body">
-                    <p id="errorModalMessage" class="text-center"></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-dismiss="modal">OK</button>
+                <div class="modal-body d-flex">
+                    <!-- Left Side: Inbox List -->
+                    <div class="me-3 inbox-list-container" style="width: 30%;">
+                        <input type="text" id="searchInput" placeholder="Search users..." class="form-control mb-3" style="background-color: #333; color: #ffffff; border: none;">
+                        <div id="inboxContainer" class="inbox-list">
+                            <!-- Inbox items will be populated here -->
+                        </div>
+                    </div>
+                    <!-- Right Side: Chat Messages -->
+                    <div class="flex-grow-1">
+                        <div id="chatHeader" style="display: none; display: flex; align-items: center; padding-bottom: 10px; border-bottom: 1px solid #2c2c2c;">
+                            <img id="chatUserPhoto" src="framework/img/Profile.png" alt="User Photo" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
+                            <h6 id="chatWith"></h6>
+                        </div>
+                        <div id="messagesContainer" style="display: none; height: 300px; overflow-y: auto; padding: 10px;">
+                            <!-- Messages will be loaded here -->
+                        </div>
+                        <div id="messageInputContainer" style="display: none;">
+                            <input type="text" id="messageInput" class="form-control" placeholder="Type your message..." style="background-color: #333; color: #ffffff; border: none;">
+                            <button id="sendMessageButton" class="btn btn-primary mt-2" style="background-color: #007bff; border-color: #007bff;">Send</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+    
+    
 
     <script>
         $(document).ready(function(){

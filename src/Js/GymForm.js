@@ -21,77 +21,88 @@ const firestore = getFirestore(app);
 const storage = getStorage(app);
 const auth = getAuth(app); // Initialize Auth
 
-// Ensure all elements are loaded
-document.addEventListener("DOMContentLoaded", () => {
+window.addEventListener('load', () => {
     const form = document.getElementById("gymOwnerDetailsForm");
     const spinnerModal = document.getElementById("spinnerModal");
 
     // Element declarations
+    const gymName = document.getElementById("gymName");
     const gymPhotoInput = document.getElementById("gymPhoto");
-    const gymPhotoPreview = document.getElementById("gymPhotoPreview"); 
+    const gymCertificationsInput = document.getElementById("gymCertifications");
+    const gymEmailInput = document.getElementById("gymemail");
+    const gymEquipment = document.getElementById("gymEquipment");
+    const gymContact = document.getElementById("gymContact");
+    const gymPrograms = document.getElementById("gymPrograms");
+    const gymOpeningTime = document.getElementById("gymOpeningTime");
+    const gymClosingTime = document.getElementById("gymClosingTime");
+    const gymLocation = document.getElementById("gymLocation");
+    const gymPriceRate = document.getElementById("gymPriceRate");
     const errorMessage = document.getElementById("gymOwnerFormErrorMessage");
     const successMessage = document.getElementById("gymOwnerFormSuccessMessage");
-    const gymCertificationsInput = document.getElementById("gymCertifications"); // Ensure this element exists
 
-    // Display preview for selected gym photo
-    gymPhotoInput.addEventListener("change", () => {
-        const file = gymPhotoInput.files[0];
-        if (file && gymPhotoPreview) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                gymPhotoPreview.src = e.target.result;
-                gymPhotoPreview.style.display = "block";
-            };
-            reader.readAsDataURL(file);
-        } else if (gymPhotoPreview) {
-            gymPhotoPreview.src = "";
-            gymPhotoPreview.style.display = "none";
-        }
-    });
-
-    // Function to upload file to Firebase Storage
+    // Function to handle image upload
     async function uploadFile(file, path) {
         const storageReference = storageRef(storage, path);
         const snapshot = await uploadBytes(storageReference, file);
         return await getDownloadURL(snapshot.ref);
     }
 
-    // Show and hide spinner modal
+    // Function to check if the authenticated user's email matches the gymEmail
+    async function isUserEmailValid(gymEmail) {
+        const user = auth.currentUser; // Get the current authenticated user
+        if (user) {
+            const userEmail = user.email;
+            return userEmail === gymEmail; // Email matches
+        } else {
+            return false; // Not authenticated
+        }
+    }
+
+    // Show the spinner modal
     function showSpinner() {
         spinnerModal.style.display = 'block';
     }
+
+    // Hide the spinner modal
     function hideSpinner() {
         spinnerModal.style.display = 'none';
     }
 
-    // Form submission
+    // Listen for form submit
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
+
         try {
+            // Show spinner when form is being submitted
             showSpinner();
-            const user = auth.currentUser;
 
-            // Ensure user is logged in
-            if (!user) {
-                errorMessage.innerHTML = "Error: User not authenticated.";
-                hideSpinner();
+            const gymEmail = gymEmailInput.value;
+
+            // Validate the user's email
+            const isValidEmail = await isUserEmailValid(gymEmail);
+            if (!isValidEmail) {
+                errorMessage.innerHTML = "Error: User email does not match the GymForm email.";
+                hideSpinner(); // Hide spinner if error occurs
                 return;
             }
 
-            // Ensure photo is uploaded and get download URL
-            if (!gymPhotoInput.files.length) {
+            // Custom validation for the file input
+            if (gymPhotoInput.files.length === 0) {
                 errorMessage.innerHTML = "Please upload a gym photo.";
-                hideSpinner();
+                hideSpinner(); // Hide spinner if error occurs
                 return;
             }
 
+            // Upload files and get URLs
             const gymPhotoURL = await uploadFile(gymPhotoInput.files[0], `gym_photos/${gymName.value}`);
-            const gymCertificationsURL = gymCertificationsInput.files[0] 
-                ? await uploadFile(gymCertificationsInput.files[0], `gym_certifications/${gymName.value}`) 
-                : "";
+            const gymCertificationsURL = gymCertificationsInput.files[0] ? await uploadFile(gymCertificationsInput.files[0], `gym_certifications/${gymName.value}`) : "";
 
-            // Submit data to Firestore
-            const userDocRef = doc(firestore, 'Users', user.uid);
+            // Get authenticated user details
+            const user = auth.currentUser;
+            const userId = user.uid; // User's unique ID
+
+            // Create or update the user's document with gym information
+            const userDocRef = doc(firestore, 'Users', userId);
             await setDoc(userDocRef, {
                 gymName: gymName.value,
                 gymPhoto: gymPhotoURL,
@@ -102,22 +113,26 @@ document.addEventListener("DOMContentLoaded", () => {
                 gymOpeningTime: gymOpeningTime.value,
                 gymClosingTime: gymClosingTime.value,
                 gymLocation: gymLocation.value,
-                status: "Under review"
+                gymPriceRate: gymPriceRate.value,
+                status: "Under Review"
             }, { merge: true });
 
-            successMessage.innerHTML = "Gym information submitted successfully!";
+            // Success message logic
+            successMessage.innerHTML = "Gym information submitted successfully! Please wait for admin's approval.";
             errorMessage.innerHTML = "";
-
+            
+            // After a brief delay, redirect to login.html
             setTimeout(() => {
                 hideSpinner();
                 window.location.href = "login.html";
             }, 2000);
 
-            form.reset();
-            gymPhotoPreview.style.display = "none"; 
+            form.reset();  // Clear the form after successful submission
         } catch (error) {
             errorMessage.innerHTML = "Error: Could not submit the form. " + error.message;
-            hideSpinner();
+            successMessage.innerHTML = "";
+            hideSpinner(); // Hide spinner if error occurs
+            setTimeout(() => { errorMessage.innerHTML = ""; }, 3000);
         }
     });
 });

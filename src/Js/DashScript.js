@@ -593,150 +593,99 @@ function formatTime(time) {
             console.error('Error fetching membership plans:', error);
         }
     };  
-    // Function to show custom error messages in a modal
-    function showCustomError(message) {
-        document.getElementById('errorModalMessage').innerText = message;
-        const customErrorModal = new bootstrap.Modal(document.getElementById('customErrorModal'), {
-            backdrop: 'static',
-            keyboard: false
-        });
-        customErrorModal.show();
-    }
-
-    // Function to check if the user has an active membership
-    async function isMembershipActive(userId) {
-        try {
-            const today = new Date();
-
-            // Query for active memberships
-            const activeMembershipQuery = query(
-                collection(db, 'Transactions'),
-                where('userId', '==', userId),
-                where('status', '==', 'Approved')
-            );
-
-            const membershipSnapshot = await getDocs(activeMembershipQuery);
-
-            for (const doc of membershipSnapshot.docs) {
-                const membership = doc.data();
-                const purchaseDate = new Date(membership.purchaseDate);
-                const membershipDays = parseInt(membership.membershipDays, 10) || 30;
-                const expirationDate = new Date(purchaseDate.getTime() + membershipDays * 24 * 60 * 60 * 1000);
-
-                // Check if membership is still active
-                if (expirationDate >= today) {
-                    return true; // Membership is still active
-                }
-            }
-            return false; // No active membership found
-        } catch (error) {
-            console.error('Error checking membership status:', error);
-            showCustomError('An error occurred while checking membership status. Please try again later.');
-            return false;
-        }
-    }
-
-    // Modify confirmPlanPurchase to check for active membership before proceeding
-    window.confirmPlanPurchase = async function(planType, planPrice, membershipDays, planId) {
-        const userId = await getCurrentUserId();
-        if (!userId) {
-            showCustomError('You need to log in to apply for a membership plan.');
-            return;
-        }
-
-        // Check if the user has an active membership
-        const hasActiveMembership = await isMembershipActive(userId);
-        if (hasActiveMembership) {
-            showCustomError('You already have an active membership. Please wait until it expires before applying for a new plan.');
-            return;
-        }
-
+    
+    window.confirmPlanPurchase = function(planType, planPrice, membershipDays, planId) {
         console.log('confirmPlanPurchase triggered for:', planType, planPrice, planId, membershipDays);
-
         // Set the selected plan details in the confirmation modal
         document.getElementById('selectedPlanType').innerText = planType;
         document.getElementById('selectedPlanPrice').innerText = planPrice;
-
+    
         // Show the confirmation modal using Bootstrap 5's JavaScript API with focus disabled
         const confirmPurchaseModal = new bootstrap.Modal(document.getElementById('confirmPurchaseModal'), {
             backdrop: 'static',
             keyboard: false,
-            focus: false
+            focus: false // Disable focus trap to avoid conflicts
         });
-
+    
         confirmPurchaseModal.show();
-
+    
         // Set the action for the Confirm Purchase button
         document.getElementById('confirmMemberPurchaseBtn').onclick = async function() {
             try {
+                const userId = await getCurrentUserId();
+                if (!userId) throw new Error('No user ID found. Please log in.');
+    
                 const gymName = document.getElementById('modalGymName').innerText;
                 if (!gymName) throw new Error('Gym name not available.');
-
+    
                 console.log('Proceeding with purchase for:', planType, planPrice, membershipDays, planId, userId, gymName);
-
+    
                 // Call the purchasePlan function to save the transaction
                 await purchasePlan(planId, planType, planPrice, membershipDays, userId, gymName);
                 await displayMembershipNotificationDot();
                 confirmPurchaseModal.hide();
-
+    
                 // Success modal content
                 const successModalContent = `
                     <div id="membershipSuccessModal" class="modal fade" tabindex="-1" role="dialog">
                         <div class="modal-dialog modal-dialog-centered" role="document">
                             <div class="modal-content">
-                                <div class="modal-header modal-header-custom">
+                                <div class="modal-header" style="background-color: #5B247A; color: white; border-top-left-radius: 8px; border-top-right-radius: 8px;">
                                     <h5 class="modal-title">🎉 Membership Purchase Successful!</h5>
-                                    <button type="button" class="custom-close" data-dismiss="modal" aria-label="Close">
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="color: white;"></button>
                                 </div>
-                            <div class="modal-body text-center modal-body-custom">
-                                <div class="check-icon-container">
-                                    <i class="fas fa-check-circle fa-3x success-icon"></i>
+                                <div class="modal-body text-center" style="background-color: #f9f9f9;">
+                                    <div style="margin-bottom: 20px;">
+                                        <i class="fas fa-check-circle fa-3x" style="color: #28a745;"></i>
+                                    </div>
+                                    <p style="font-size: 1.1em; color: #333;">
+                                        Your membership purchase was successful! Thank you for choosing <strong id="gymNameSuccess" style="color: #5B247A;">${gymName}</strong>.
+                                    </p>
+                                    <p><strong>Plan:</strong> ${planType}</p>
+                                    <p><strong>Price:</strong> ₱${planPrice}</p>
+                                    <p style="color: #555;">Please wait for the Gym owner's approval.</p>
+                                    <div style="padding: 15px 0; text-align: center;">
+                                        <i class="fas fa-clock"></i> <span style="color: #888;">Processing Time: Up to 24 hours</span>
+                                    </div>
                                 </div>
-                                <p class="success-message">
-                                    Your membership purchase was successful! Thank you for choosing <strong id="gymNameSuccess" class="gym-name">${gymName}</strong>.
-                                </p>
-                                <p><strong>Plan:</strong> ${planType}</p>
-                                <p><strong>Price:</strong> ₱${planPrice}</p>
-                                <p class="approval-message">Please wait for the Gym owner's approval.</p>
-                                <div class="processing-time">
-                                    <i class="fas fa-clock"></i> <span class="processing-time-text">Processing Time: Up to 24 hours</span>
+                                <div class="modal-footer" style="background-color: #f1f1f1; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
+                                    <button type="button" id="okButton" class="btn btn-success" style="background-color: #5B247A; border: none;">OK</button>
                                 </div>
                             </div>
-                        <div class="modal-footer modal-footer-custom">
-                            <button type="button" id="okButton" class="btn btn-success ok-button">OK</button>
                         </div>
                     </div>
-                </div>
-            </div>
-        `;
-
+                `;
+    
                 // Inject success modal into the body (if not already present)
                 document.body.insertAdjacentHTML('beforeend', successModalContent);
-
+    
                 // Show the success modal with focus disabled
                 const membershipSuccessModal = new bootstrap.Modal(document.getElementById('membershipSuccessModal'), {
                     backdrop: 'static',
                     keyboard: false,
-                    focus: false
+                    focus: false // Disable focus trap to prevent recursion
                 });
-
+    
                 membershipSuccessModal.show();
-
+    
                 // Add event listener to the dynamically created OK button to close the modal
                 document.getElementById('okButton').addEventListener('click', function() {
-                    membershipSuccessModal.hide();
-                    document.getElementById('membershipSuccessModal').remove();
+                    membershipSuccessModal.hide();  // Hide the success modal when OK is clicked
+                    document.getElementById('membershipSuccessModal').remove(); // Clean up the modal from DOM after it's hidden
                 });
-
+    
             } catch (error) {
                 console.error('Error during membership purchase:', error.message);
-                showCustomError('An error occurred while processing your membership purchase. Please try again later.');
+                alert('There was an error: ' + error.message);
+    
                 confirmPurchaseModal.hide();
+    
+                const errorModal = new bootstrap.Modal(document.getElementById('errorModal'), { backdrop: 'static', keyboard: false });
+                errorModal.show();
             }
         };
     };
-
-
+    
 
     async function purchasePlan(planId, planType, planPrice, membershipDays, userId, gymName) {
         try {
@@ -829,12 +778,11 @@ function formatTime(time) {
             if (membershipSnapshot.empty) {
                 console.log('No memberships found for this user.');
                 currentMembershipStatusDiv.innerHTML = `
-                    <div class="no-membership-container">
-                        <p class="no-membership-message">No active membership found.</p>
+                    <div style="text-align: center; padding: 20px; background-color: #f9f9f9; border-radius: 10px;">
+                        <p style="font-size: 1.2em; color: #888;">No active membership found.</p>
                     </div>`;
                 return;
             }
-            
     
             let currentMembershipHtml = '';
             let historyHtml = '<ul style="list-style: none; padding: 0;">';
@@ -843,29 +791,30 @@ function formatTime(time) {
             membershipSnapshot.forEach(doc => {
                 const membership = doc.data();
                 console.log('Membership Data:', membership); // Debug the membership data
-            
+    
                 const purchaseDate = new Date(membership.purchaseDate);
                 const durationInDays = membership.duration || 30; // Use duration from Firestore or default to 30 days
                 const expirationDate = new Date(purchaseDate.getTime() + durationInDays * 24 * 60 * 60 * 1000);
-            
+    
                 const membershipHtml = `
-                    <li class="membership-item">
-                        <div class="membership-card">
-                            <h4 class="membership-title">
-                                <i class="fas fa-dumbbell membership-icon"></i> 
+                    <li style="margin-bottom: 15px;">
+                        <div style="padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; background: linear-gradient(135deg, #f7f7f7 0%, #eaeaea 100%);
+                            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: transform 0.3s;">
+                            <h4 style="font-size: 1.5em; font-weight: bold; color: #5B247A; margin-bottom: 8px;">
+                                <i class="fas fa-dumbbell" style="color: #1BCEDF;"></i> 
                                 ${membership.gymName || 'Unnamed Gym'}
                             </h4>
-                            <p class="membership-detail"><strong>Plan:</strong> ${membership.planType || 'N/A'}</p>
-                            <p class="membership-detail"><strong>Price:</strong> <span class="membership-price">₱${membership.planPrice || 'N/A'}</span></p>
-                            <p class="membership-detail"><strong>Purchased on:</strong> ${purchaseDate.toLocaleDateString()}</p>
-                            <p class="membership-detail"><strong>Expires on:</strong> ${expirationDate.toLocaleDateString()}</p>
-                            <p class="membership-detail"><strong>Status:</strong> 
-                                <span class="membership-status" style="color: ${membership.status === 'Approved' ? '#28a745' : '#FF5722'};">${membership.status || 'N/A'}</span>
+                            <p style="margin: 8px 0;"><strong>Plan:</strong> ${membership.planType || 'N/A'}</p>
+                            <p style="margin: 8px 0;"><strong>Price:</strong> <span style="color: #28a745;">₱${membership.planPrice || 'N/A'}</span></p>
+                            <p style="margin: 8px 0;"><strong>Purchased on:</strong> ${purchaseDate.toLocaleDateString()}</p>
+                            <p style="margin: 8px 0;"><strong>Expires on:</strong> ${expirationDate.toLocaleDateString()}</p>
+                            <p style="margin: 8px 0;"><strong>Status:</strong> 
+                                <span style="color: ${membership.status === 'Approved' ? '#28a745' : '#FF5722'};">${membership.status || 'N/A'}</span>
                             </p>
                         </div>
                     </li>
                 `;
-            
+    
                 // Check if the membership has expired
                 if (expirationDate < today) {
                     // If expired, add to membership history
@@ -873,54 +822,53 @@ function formatTime(time) {
                 } else {
                     // If not expired, show as the current membership with countdown
                     currentMembershipHtml = `
-                        <div class="current-membership-card">
-                            <h4 class="membership-title">
+                        <div style="padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; background: linear-gradient(135deg, #f9f9f9 0%, #f0f0f0 100%);
+                            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: transform 0.3s;">
+                            <h4 style="font-size: 1.7em; font-weight: bold; color: #5B247A; margin-bottom: 10px;">
+                                <i class="fas fa-dumbbell" style="color: #1BCEDF;"></i> 
                                 ${membership.gymName || 'Unnamed Gym'}
                             </h4>
-                            <p class="membership-detail"><strong>Plan:</strong> ${membership.planType || 'N/A'}</p>
-                            <p class="membership-detail"><strong>Price:</strong> <span class="membership-price">₱${membership.planPrice || 'N/A'}</span></p>
-                            <p class="membership-detail"><strong>Purchased on:</strong> ${purchaseDate.toLocaleDateString()}</p>
-                            <p class="membership-detail"><strong>Expires on:</strong> ${expirationDate.toLocaleDateString()}</p>
-                            <p class="membership-detail"><strong>Time Remaining:</strong> <span id="countdown" class="countdown-timer"></span></p>
-                            <p class="membership-detail"><strong>Status:</strong> 
-                                <span class="membership-status-text" style="color: ${membership.status === 'Approved' ? '#28a745' : '#FF5722'};">${membership.status || 'N/A'}</span>
+                            <p style="margin: 10px 0;"><strong>Plan:</strong> ${membership.planType || 'N/A'}</p>
+                            <p style="margin: 10px 0;"><strong>Price:</strong> <span style="color: #28a745;">₱${membership.planPrice || 'N/A'}</span></p>
+                            <p style="margin: 10px 0;"><strong>Purchased on:</strong> ${purchaseDate.toLocaleDateString()}</p>
+                            <p style="margin: 10px 0;"><strong>Expires on:</strong> ${expirationDate.toLocaleDateString()}</p>
+                            <p style="margin: 10px 0; font-weight: bold;"><strong>Time Remaining:</strong> <span id="countdown" style="color: #1BCEDF;"></span></p>
+                            <p style="margin: 10px 0;"><strong>Status:</strong> 
+                                <span style="color: ${membership.status === 'Approved' ? '#28a745' : '#FF5722'};">${membership.status || 'N/A'}</span>
                             </p>
                         </div>
                     `;
-            
+    
                     // Render the current membership HTML before starting the countdown
                     currentMembershipStatusDiv.innerHTML = currentMembershipHtml;
-            
+    
                     // Now that the HTML is rendered, start the countdown only if the status is approved
                     startCountdown(expirationDate, membership.status);
                 }
             });
-            
     
             historyHtml += '</ul>';
     
             // If no current membership, show message
             if (currentMembershipHtml === '') {
                 currentMembershipStatusDiv.innerHTML = `
-                    <div class="no-active-membership-container">
-                        <p class="no-active-membership-message">No active membership found.</p>
+                    <div style="text-align: center; padding: 20px; background-color: #f9f9f9; border-radius: 10px;">
+                        <p style="font-size: 1.2em; color: #888;">No active membership found.</p>
                     </div>`;
             }
-            
     
             // Render HTML for the membership history
             membershipHistoryDiv.innerHTML = `
-                <div class="membership-history-container">
-                    <h4 class="membership-history-heading">Membership History</h4>
+                <div style="padding: 20px; background-color: #f9f9f9; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                    <h4 style="color: #5B247A; font-weight: bold;">Membership History</h4>
                     ${historyHtml}
                 </div>`;
-
-            } catch (error) {
+        } catch (error) {
             console.error('Error fetching membership status and history:', error);
         }
     }
-        // Function to start the countdown timer
-    function startCountdown(expirationDate, status) {
+    // Function to start the countdown timer
+    function startCountdown(membershipDays, status) {
         const countdownElement = document.getElementById('countdown');
         
         // Check if the countdown element is present in the DOM
@@ -928,36 +876,38 @@ function formatTime(time) {
             console.error('Countdown element not found');
             return;
         }
-
+    
         // Only start the countdown if the status is "Approved"
-        if (status !== 'Approved') {
+        if (status === 'Pending Owner Approval') {
             countdownElement.innerText = 'Pending Owner Approval'; // Show pending message instead of countdown
             console.log('Countdown will not start, status is pending approval.');
             return;
         }
-
+    
+        // Calculate the expiration date based on the membershipDays
+        const now = new Date();
+        const expirationDate = new Date(now.getTime() + membershipDays * 24 * 60 * 60 * 1000); // Add membershipDays to current date
+    
         const updateCountdown = () => {
             const currentTime = new Date();
             const timeRemaining = expirationDate - currentTime;
-
+    
             if (timeRemaining <= 0) {
                 countdownElement.innerText = 'Expired';
                 return;
             }
-
+    
             const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
             const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
-
+    
             countdownElement.innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
         };
-
+    
         // Update countdown every second
-        updateCountdown(); // Initial call to display immediately
         setInterval(updateCountdown, 1000);
     }
-
     
 
         async function fetchGymOwnerLocation(gymName) {
@@ -1113,60 +1063,129 @@ function formatTime(time) {
 
 
 
-    // Function to view trainer info in a new modal
-    window.ViewTrainerInfo = async function (trainerId) {
-        try {
-            // Close Gym modal
-            $('#gymProfileModal').modal('hide');
-
-            // Fetch trainer data by ID
-            const trainerDocRef = doc(db, 'Users', trainerId);
-            const trainerDoc = await getDoc(trainerDocRef);
-
-            if (trainerDoc.exists()) {
-                const trainerData = trainerDoc.data();
-
-                // Check if the trainer's status is "Under Review"
-                if (trainerData.status === "Under Review") {
-                    console.warn('Trainer is under review. Cannot display.');
-                    return; // Do not display the trainer if they are under review
+        window.ViewTrainerInfo = async function(trainerId) {
+            try {
+                $('#gymProfileModal').modal('hide');
+        
+                const trainerDocRef = doc(db, 'Users', trainerId);
+                const trainerDoc = await getDoc(trainerDocRef);
+        
+                if (trainerDoc.exists()) {
+                    const trainerData = trainerDoc.data();
+        
+                    if (trainerData.status === "Under Review") {
+                        showToast("error", "This trainer is currently under review and cannot be booked.");
+                        return;
+                    }
+        
+                    const modalTrainerName = document.getElementById('modalTrainerName');
+                    const modalTrainerPhoto = document.getElementById('modalTrainerPhoto');
+                    const modalTrainerExpertise = document.getElementById('modalTrainerExpertise');
+                    const modalTrainerExperience = document.getElementById('modalTrainerExperience');
+                    const modalTrainerDays = document.getElementById('modalTrainerDays');
+                    const modalTrainerRate = document.getElementById('modalTrainerRate');
+                    const bookNowButton = document.getElementById('bookNowButton');
+        
+                    if (modalTrainerName) modalTrainerName.innerText = trainerData.TrainerName || 'N/A';
+                    if (modalTrainerPhoto) modalTrainerPhoto.src = trainerData.TrainerPhoto || 'default-trainer-photo.jpg';
+                    if (modalTrainerExpertise) modalTrainerExpertise.innerText = trainerData.Expertise || 'N/A';
+                    if (modalTrainerExperience) modalTrainerExperience.innerText = trainerData.Experience || 'N/A';
+                    if (modalTrainerDays) modalTrainerDays.innerText = trainerData.Days || 'N/A';
+                    if (modalTrainerRate) modalTrainerRate.innerText = `₱${trainerData.rate || 'N/A'}`;
+        
+                    if (bookNowButton) {
+                        bookNowButton.onclick = function() {
+                            $('#trainerProfileModal').modal('hide');
+                            showBookingConfirmation(trainerData, trainerId);
+                        };
+                    }
+        
+                    $('#trainerProfileModal').modal('show');
+                } else {
+                    showToast("error", "Trainer not found.");
                 }
-
-                // Ensure each trainer modal element exists
-                const modalTrainerName = document.getElementById('modalTrainerName');
-                const modalTrainerPhoto = document.getElementById('modalTrainerPhoto');
-                const modalTrainerExpertise = document.getElementById('modalTrainerExpertise');
-                const modalTrainerExperience = document.getElementById('modalTrainerExperience');
-                const modalTrainerDays = document.getElementById('modalTrainerDays');
-                const modalTrainerRate = document.getElementById('modalTrainerRate'); // Trainer rate element
-                const bookNowButton = document.getElementById('bookNowButton'); // Book Now button
-
-                // Populate trainer modal with the trainer's data
-                if (modalTrainerName) modalTrainerName.innerText = trainerData.TrainerName || 'N/A';
-                if (modalTrainerPhoto) modalTrainerPhoto.src = trainerData.TrainerPhoto || 'default-trainer-photo.jpg';
-                if (modalTrainerExpertise) modalTrainerExpertise.innerText = trainerData.Expertise || 'N/A';
-                if (modalTrainerExperience) modalTrainerExperience.innerText = trainerData.Experience || 'N/A';
-                if (modalTrainerDays) modalTrainerDays.innerText = trainerData.Days || 'N/A';
-                if (modalTrainerRate) modalTrainerRate.innerText = `₱${trainerData.rate || 'N/A'}`; // Display rate with currency
-
-                // Handle Book Now button (add trainer ID for booking logic)
-                if (bookNowButton) {
-                    bookNowButton.onclick = function() {
-                        alert(`Booking Trainer: ${trainerId}`);
-                        // Add your booking logic here
-                    };
-                }
-
-                // Step 4: Show the Trainer Info modal
-                $('#trainerProfileModal').modal('show');
-            } else {
-                console.error('Trainer not found!');
+            } catch (error) {
+                console.error("Error fetching trainer data:", error);
+                showToast("error", "An error occurred while fetching trainer data.");
             }
-        } catch (error) {
-            console.error('Error fetching trainer data:', error);
+        };
+        
+        // Function to display the booking confirmation modal
+        window.showBookingConfirmation=function(trainerData, trainerId) {
+            const confirmTrainerName = document.getElementById('confirmTrainerName');
+            const confirmTrainerRate = document.getElementById('confirmTrainerRate');
+            const confirmBookingButton = document.getElementById('confirmBookingButton');
+
+            // Check if elements exist before setting innerText
+            if (confirmTrainerName) {
+                confirmTrainerName.innerText = trainerData.TrainerName || "the trainer";
+            } else {
+                console.warn("Element 'confirmTrainerName' not found in DOM.");
+            }
+
+            if (confirmTrainerRate) {
+                confirmTrainerRate.innerText = `₱${trainerData.rate || 'N/A'}`;
+            } else {
+                console.warn("Element 'confirmTrainerRate' not found in DOM.");
+            }
+
+            // Set up booking confirmation button
+            if (confirmBookingButton) {
+                confirmBookingButton.onclick = async function() {
+                    try {
+                        // Your booking logic goes here
+                        // For now, just show success toast
+                        $('#bookingConfirmationModal').modal('hide');
+                        showToast("success", `Successfully booked a session with ${trainerData.TrainerName}!`);
+                    } catch (error) {
+                        console.error("Error booking trainer:", error);
+                        showToast("error", "Failed to book the trainer. Please try again.");
+                    }
+                };
+            } else {
+                console.warn("Element 'confirmBookingButton' not found in DOM.");
+            }
+
+            $('#bookingConfirmationModal').modal('show');
         }
-    }
-    
+        // Function to show toast notifications
+        function showToast(type, message) {
+            const toastContainer = document.getElementById('toastContainer');
+
+            if (!toastContainer) {
+                console.error("Toast container element 'toastContainer' not found in the DOM.");
+                return; // Exit the function if toastContainer is not found
+            }
+
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-bg-${type === "success" ? "success" : "danger"} border-0`;
+            toast.setAttribute("role", "alert");
+            toast.setAttribute("aria-live", "assertive");
+            toast.setAttribute("aria-atomic", "true");
+
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            `;
+
+            // Append the toast to the toast container
+            toastContainer.appendChild(toast);
+
+            // Initialize Bootstrap toast
+            const bsToast = new bootstrap.Toast(toast, { delay: 3000 });
+            bsToast.show();
+
+            // Remove the toast from DOM after it's hidden
+            toast.addEventListener('hidden.bs.toast', () => {
+                toastContainer.removeChild(toast);
+            });
+        }
+
+        
 
     // Optionally, you can have other modal functions like closeModal()
     window.closeModal=function() {
@@ -1482,39 +1501,51 @@ function formatTime(time) {
                     const timeAgo = getTimeAgo(notification.timestamp);
                     
                     const notificationModal = `
-                        <div class="modal fade" id="notificationDetailsModal" tabindex="-1" role="dialog" aria-labelledby="notificationDetailsLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered" role="document">
-                                <div class="modal-content notification-modal-content">
-                                    <div class="modal-header notification-modal-header">
-                                        <h5 class="modal-title-custom" id="notificationDetailsLabel">
-                                            Purchase Receipt
-                                        </h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body-custom" id="notificationDetailsContent">
-                                        <p class="gym-name">
-                                            ${notification.gymName}
-                                        </p> 
-                                    <p class="reference-number">
+                    <div class="modal fade" id="notificationDetailsModal" tabindex="-1" role="dialog" aria-labelledby="notificationDetailsLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content" style="border-radius: 10px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);">
+                                <div class="modal-header" style="background-color: #f3f3f3; border-bottom: 1px dashed #333;">
+                                    <h5 class="modal-title" id="notificationDetailsLabel" style="font-weight: bold; font-size: 1.2rem; text-align: center; width: 100%; color: #222;">
+                                        Purchase Receipt
+                                    </h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #333;">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body" id="notificationDetailsContent" style="padding: 20px; background-color: #fff;">
+                                    <!-- Gym Name - Large and centered -->
+                                    <p style="text-align: center; font-weight: bold; font-size: 1.8rem; margin-bottom: 5px; color: #000;">
+                                        ${notification.gymName}
+                                    </p> 
+                                    
+                                    <!-- Reference Number - Centered and styled -->
+                                    <p style="text-align: center; font-size: 1.2rem; color: #222; margin-bottom: 25px;">
                                         <strong>Ref. No:</strong> ${notification.notificationId}
                                     </p> 
-                                    <div class="product-info">
+
+                                    <!-- Product Information -->
+                                    <div style="font-size: 1.1rem; margin-bottom: 10px; line-height: 1.6; color: #222;">
                                         <p><strong>Product:</strong> ${notification.productName}</p>
                                         <p><strong>Quantity:</strong> ${notification.quantity}</p>
                                         <p><strong>Total Price:</strong> ${notification.totalPrice}</p>
                                     </div>
-                                    <hr class="separator">
-                                    <p class="footer-info">
+                                    
+                                    <hr style="border-top: 1px dashed #333; margin: 20px 0;">
+
+                                    <!-- Footer Info -->
+                                    <p style="font-size: 0.9rem; text-align: center; color: #444;">
+                                        Please wait for the owner's approval.<br>
                                         Show this receipt to the Gym owner upon collection.
                                     </p>
-                                    <hr class="separator">
+                                </div>
+                                <div class="modal-footer" style="background-color: #f3f3f3; border-top: 1px dashed #333;">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal" style="width: 100%;">Close</button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                `;
+
+                    `;
                     
                     document.body.insertAdjacentHTML('beforeend', notificationModal);
                     $('#notificationDetailsModal').modal('show');
@@ -1553,23 +1584,6 @@ function formatTime(time) {
             // Fetch trainers when the page loads
     });
 
-    window.toggleChat = function() {
-        const chatBox = document.getElementById("chatBox");
-        chatBox.style.display = chatBox.style.display === "none" || chatBox.style.display === "" ? "block" : "none";
-    };
-
-    // Initialize chat box visibility
-    document.addEventListener("DOMContentLoaded", () => {
-        const chatBox = document.getElementById("chatBox");
-        chatBox.style.display = "none"; // Hide chat box by default
-    });
-    // Ensure the membership modal is hidden on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        const modal = document.getElementById('membershipPlansModal');
-        if (modal) {
-            modal.style.display = 'none'; // Hide the modal initially
-        }
-    });
 
     window. closeMembershipPlansModal = function() {
         const modal = document.getElementById('membershipPlansModal');
@@ -1648,3 +1662,322 @@ function formatTime(time) {
                 }, 1500); // 2 seconds delay
             }
         });
+
+
+        let currentChatUserId = null;
+        const userCache = {}; // Cache for user details to reduce database calls
+        
+        // Initialize the chat modal and clear previous chats
+        document.querySelector('a[href="#chatModal"]').addEventListener('click', function (event) {
+            event.preventDefault();
+            const chatModal = new bootstrap.Modal(document.getElementById('chatModal'));
+            chatModal.show();
+            document.querySelector('#usersContainer').innerHTML = '';
+            document.querySelector('#inboxContainer').innerHTML = '';
+        });
+        
+        // Fetch all users for searching
+        async function fetchUsers() {
+            const userQuery = query(collection(db, 'Users'));
+            try {
+                const querySnapshot = await getDocs(userQuery);
+                return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            } catch (error) {
+                console.error("Error fetching users: ", error);
+                return [];
+            }
+        }
+        
+        // Display users in the search result
+        function displayUsers(users) {
+            const usersContainer = document.querySelector('#usersContainer');
+            usersContainer.innerHTML = '';
+            users.forEach(user => {
+                const userElement = document.createElement('div');
+                userElement.className = 'user-email';
+                userElement.textContent = `${user.username} (${user.email})`;
+                userElement.addEventListener('click', () => startChat(user.id, user.username));
+                usersContainer.appendChild(userElement);
+            });
+        }
+        
+        // Search users based on the input
+        async function searchUsers(searchTerm) {
+            if (!searchTerm) {
+                displayUsers([]);
+                return;
+            }
+            const users = await fetchUsers();
+            const filteredUsers = users.filter(user =>
+                user.email.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            displayUsers(filteredUsers);
+        }
+        
+        // Start a chat with a selected user
+        function startChat(userId, username) {
+            currentChatUserId = userId;
+            document.getElementById('chatWith').textContent = `Chat with ${username}`;
+            document.querySelector('#searchInput').value = username;
+            document.querySelector('#usersContainer').innerHTML = '';
+            document.getElementById('chatHeader').style.display = 'block';
+            document.getElementById('messagesContainer').style.display = 'block';
+            document.getElementById('messageInputContainer').style.display = 'block';
+            loadMessages(); // Load messages for the chat
+        }
+        
+        async function getUserDetails(userId) {
+            if (userCache[userId]) {
+                return userCache[userId];
+            }
+            try {
+                const userRef = doc(db, 'Users', userId); 
+                const userSnap = await getDoc(userRef);
+                if (userSnap.exists()) {
+                    const userData = userSnap.data();
+        
+                    // Define potential photo paths with .jpg and .png
+                    const photoPathJpg = `profilePictures/${userId}.jpg`;
+                    const photoPathPng = `profilePictures/${userId}.png`;
+        
+                    try {
+                        // First, try to get the .jpg photo URL from Firebase Storage
+                        const photoURL = await getDownloadURL(storageRef(storage, photoPathJpg));
+                        userData.photoURL = photoURL; // Add photoURL to userData
+                    } catch (error) {
+                        console.warn(`No .jpg photo found for user: ${userId}, trying .png...`);
+                        
+                        try {
+                            // If .jpg is not found, try fetching the .png photo URL
+                            const photoURL = await getDownloadURL(storageRef(storage, photoPathPng));
+                            userData.photoURL = photoURL; // Add photoURL to userData
+                        } catch (error) {
+                            console.warn(`No .png photo found in storage for user: ${userId}`);
+                            userData.photoURL = null; // Set to null if no photo found
+                        }
+                    }
+        
+                    userCache[userId] = userData; // Cache the user data
+                    return userData;
+                } else {
+                    console.warn("No user found for ID:", userId);
+                    return null;
+                }
+            } catch (error) {
+                console.error("Error fetching user details:", error);
+                return null;
+            }
+        }
+        
+        let unsubscribeSentMessages = null;
+        let unsubscribeReceivedMessages = null;
+        
+        async function loadMessages() {
+            const userId = auth.currentUser.uid;
+            const messagesContainer = document.querySelector('#messagesContainer');
+            messagesContainer.innerHTML = '';
+        
+            // Clear any previous listeners if they exist
+            if (unsubscribeSentMessages) unsubscribeSentMessages();
+            if (unsubscribeReceivedMessages) unsubscribeReceivedMessages();
+        
+            // Real-time listener for messages sent by the user
+            const sentMessagesQuery = query(
+                collection(db, 'Messages'),
+                where('from', '==', userId),
+                where('to', '==', currentChatUserId),
+                orderBy('timestamp')
+            );
+        
+            // Real-time listener for messages received by the user
+            const receivedMessagesQuery = query(
+                collection(db, 'Messages'),
+                where('from', '==', currentChatUserId),
+                where('to', '==', userId),
+                orderBy('timestamp')
+            );
+        
+            // Function to render messages
+            const renderMessages = async (messages) => {
+                messagesContainer.innerHTML = ''; // Clear previous messages
+                for (const messageData of messages) {
+                    const fromUser = await getUserDetails(messageData.from);
+                    const isSelf = messageData.from === auth.currentUser.uid;
+        
+                    // Message wrapper
+                    const messageElement = document.createElement('div');
+                    messageElement.className = 'message ' + (isSelf ? 'self' : 'other');
+        
+                    // Avatar
+                    const avatarElement = document.createElement('div');
+                    avatarElement.className = 'avatar';
+        
+                    if (fromUser && fromUser.photoURL) {
+                        // If a photo URL is available, display the image
+                        const avatarImage = document.createElement('img');
+                        avatarImage.src = fromUser.photoURL;
+                        avatarImage.alt = `${fromUser.username}'s avatar`;
+                        avatarImage.style.width = '30px';
+                        avatarImage.style.height = '30px';
+                        avatarImage.style.borderRadius = '50%';
+                        avatarElement.appendChild(avatarImage);
+                    } else {
+                        // Display initials as fallback if photoURL is missing
+                        avatarElement.textContent = isSelf ? 'You' : (fromUser ? fromUser.username[0].toUpperCase() : '?');
+                    }
+        
+                    // Message content
+                    const messageContent = document.createElement('div');
+                    messageContent.className = 'message-content ' + (isSelf ? 'self' : 'other');
+                    messageContent.textContent = messageData.message;
+        
+                    // Timestamp
+                    const timestamp = document.createElement('span');
+                    timestamp.className = 'timestamp';
+        
+                    // Ensure timestamp is valid and properly formatted
+                    if (messageData.timestamp && messageData.timestamp.toDate) {
+                        timestamp.textContent = messageData.timestamp.toDate().toLocaleTimeString();
+                    } else {
+                        timestamp.textContent = "Invalid Date"; // Placeholder for testing
+                    }
+        
+                    messageContent.appendChild(timestamp);
+        
+                    // Append elements based on message sender
+                    if (isSelf) {
+                        messageElement.appendChild(messageContent);
+                        messageElement.appendChild(avatarElement);
+                    } else {
+                        messageElement.appendChild(avatarElement);
+                        messageElement.appendChild(messageContent);
+                    }
+        
+                    messagesContainer.appendChild(messageElement);
+                }
+                messagesContainer.scrollTop = messagesContainer.scrollHeight; // Auto-scroll to the latest message
+            };
+        
+            // Combine and render messages in real-time
+            const messages = [];
+            unsubscribeSentMessages = onSnapshot(sentMessagesQuery, (snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === "added") {
+                        messages.push({ id: change.doc.id, ...change.doc.data() });
+                    }
+                });
+                messages.sort((a, b) => a.timestamp - b.timestamp);
+                renderMessages(messages);
+            });
+        
+            unsubscribeReceivedMessages = onSnapshot(receivedMessagesQuery, (snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === "added") {
+                        messages.push({ id: change.doc.id, ...change.doc.data() });
+                    }
+                });
+                messages.sort((a, b) => a.timestamp - b.timestamp);
+                renderMessages(messages);
+            });
+        }
+
+        async function loadInboxMessages() {
+            const userId = auth.currentUser.uid;
+            const inboxContainer = document.getElementById('inboxContainer');
+            inboxContainer.innerHTML = ''; // Clear previous inbox content
+        
+            // Query to get the messages where the current user is either the sender or receiver
+            const inboxQuery = query(
+                collection(db, 'Messages'),
+                where('from', '==', userId),
+                orderBy('timestamp', 'desc')
+            );
+        
+            const querySnapshot = await getDocs(inboxQuery);
+        
+            // Map to store the most recent message for each unique user
+            const recentMessages = new Map();
+        
+            // Iterate through each message
+            querySnapshot.forEach((doc) => {
+                const messageData = doc.data();
+                const otherUserId = messageData.to === userId ? messageData.from : messageData.to;
+        
+                // If this user has no previous message in the Map or the current message is more recent, update the Map
+                if (!recentMessages.has(otherUserId) || recentMessages.get(otherUserId).timestamp < messageData.timestamp) {
+                    recentMessages.set(otherUserId, { ...messageData, docId: doc.id });
+                }
+            });
+        
+            // Check if there are no messages
+            if (recentMessages.size === 0) {
+                const noConversationMessage = document.createElement('div');
+                noConversationMessage.className = 'no-conversation-message'; // Add a class for styling if needed
+                noConversationMessage.textContent = 'No Conversation Available';
+                inboxContainer.appendChild(noConversationMessage);
+                return; // Exit the function if no messages found
+            }
+        
+            // Display each recent message in the inbox
+            for (const [otherUserId, messageData] of recentMessages.entries()) {
+                const otherUser = await getUserDetails(otherUserId);
+        
+                if (otherUser) {
+                    const inboxItem = document.createElement('div');
+                    inboxItem.className = 'inbox-item';
+                    inboxItem.textContent = `${otherUser.username || otherUser.email}: ${messageData.message}`;
+                    
+                    // Add event listener to load messages for this conversation
+                    inboxItem.addEventListener('click', () => {
+                        currentChatUserId = otherUserId;
+                        loadMessages();
+                        displayChatHeader(otherUser);
+                    });
+        
+                    inboxContainer.appendChild(inboxItem);
+                }
+            }
+        }
+        
+        function displayChatHeader(user) {
+            document.getElementById('chatHeader').style.display = 'flex';
+            document.getElementById('chatWith').textContent = user.username || user.email;
+            document.getElementById('chatUserPhoto').src = user.photoURL || 'default-profile.png'; // Display user photo or a default if unavailable
+            document.getElementById('messagesContainer').style.display = 'block';
+            document.getElementById('messageInputContainer').style.display = 'block';
+        }
+        
+        // Send a message
+        async function sendMessage() {
+            const messageInput = document.querySelector('#messageInput');
+            const messageText = messageInput.value.trim();
+            if (messageText && currentChatUserId) {
+                const userId = auth.currentUser.uid;
+                try {
+                    await addDoc(collection(db, 'Messages'), {
+                        from: userId,
+                        to: currentChatUserId,
+                        message: messageText,
+                        timestamp: new Date() // Firebase.Timestamp can also be used for consistency
+                    });
+                    messageInput.value = ''; // Clear input after sending
+                    loadMessages();
+                } catch (error) {
+                    console.error("Error sending message: ", error); // Log any errors
+                }
+            }
+        }
+        
+        
+        // Event listener for the search input
+        document.querySelector('#searchInput').addEventListener('input', (event) => {
+            const searchTerm = event.target.value;
+            searchUsers(searchTerm);
+        });
+        
+        // Event listener for the send message button
+        document.getElementById('sendMessageButton').addEventListener('click', sendMessage);
+        
+        // Load inbox messages when the chat modal is opened
+        document.querySelector('a[href="#chatModal"]').addEventListener('click', loadInboxMessages);
+        

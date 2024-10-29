@@ -6,15 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/main.min.css">
     <link rel="stylesheet" href="css/trainer.css">
     <style>
         /* General Styles */
         body {
-            font-family: "Helvetica Neue", Arial, sans-serif; /* Set the font */
+            font-family: 'Georgia', serif;
             background-color: #1a1a1a; /* Dark background */
             color: #e0e0e0; /* Light gray text */
             display: flex;
@@ -24,8 +23,8 @@
         /* Sidebar Styles */
         .sidebar {
             width: 250px;
-            background-color: #1b1b1b; /* Dark gray background */
-            color: #fff; /* Light gray text */
+            background-color: #2c2c2c; /* Dark gray background */
+            color: #e0e0e0; /* Light gray text */
             padding: 20px;
             position: fixed;
             height: 100vh;
@@ -34,7 +33,7 @@
         }
 
         .sidebar a {
-            color: #ffffff; /* Light gray text */
+            color: #e0e0e0; /* Light gray text */
             text-decoration: none;
             padding: 10px 15px;
             border-radius: 5px;
@@ -56,6 +55,32 @@
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
         }
+
+        /* Search Bar Styles */
+        .search-container {
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-container input,
+        .search-container select {
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #444; /* Dark gray border */
+            border-radius: 5px;
+            background-color: #333; /* Darker input background */
+            color: #e0e0e0; /* Light gray text */
+            width: 100%;
+        }
+
+        .search-container input:focus,
+        .search-container select:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
         /* Profile Card Styles */
         .gym-profile, .trainers-content {
             display: flex;
@@ -83,7 +108,7 @@
             width: 100%;
             height: 150px;
             object-fit: cover;
-            border-bottom: 2px solid #ffa31a; /* Light gray border */
+            border-bottom: 2px solid #e0e0e0; /* Light gray border */
             transition: filter 0.3s;
         }
 
@@ -128,7 +153,22 @@
             color: #fff;
         }
 
+        /* Footer Styles */
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #1a1a1a; /* Dark background */
+            color: #e0e0e0; /* Light gray text */
+            margin-top: 20px;
+        }
+
         /* Responsive Styles */
+        @media (max-width: 768px) {
+            .profile-card, .trainer-card {
+                width: calc(50% - 20px);
+            }
+        }
+
         @media (max-width: 576px) {
             .profile-card, .trainer-card {
                 width: 100%;
@@ -146,34 +186,36 @@
 </head>
 <body>
     <nav class="sidebar">
-        <div class="profile-container text-center mb-4" style="position: relative;">
+        <div class="profile-container text-center mb-4">
+            <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" class="img-fluid rounded-circle mb-2" style="width: 80px;">
+            <h3 id="profile-username" class="mt-2"></h3> <!-- Username header added here -->
             <div class="dropdown">
-                <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" class="img-fluid rounded-circle mb-2" style="width: 80px; cursor: pointer;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <h3 id="profile-username" class="mt-2"></h3>
-                <div class="dropdown-menu">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Menu
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <a class="dropdown-item" href="PinfoTrainer.html">Personal Information</a>
                     <a class="dropdown-item" href="report.html">Submit a Complaint</a>
                     <a class="dropdown-item" href="login.html">Log Out</a>
                 </div>
             </div>
         </div>
-        
         <ul class="nav flex-column">
             <li class="nav-item">
                 <a class="nav-link" href="#profiling">
-                    <i class="fas fa-dumbbell"></i> Gym Profile
+                    <i class="fas fa-gym"></i> Gym Profile
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#notifications">
-                    <i class="fas fa-bell"></i> Notifications
+                    <i class="fas fa-bell"></i> Notification
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#messages">
+                <a class="nav-link" data-toggle="modal" href="#chatModal">
                     <i class="fas fa-comments"></i> Message
                 </a>
-            </li>
+            </li> 
         </ul>
     </nav>
     <!--Sections Here-->
@@ -189,12 +231,10 @@
     </div>   
     <div class="content">
         <section id="profiling-section">
-            <h2 class="mb-4 text-center">Gym <span class="profile-text">Profile</span></h2>
+            <h2 class="mb-4">Find the Best Gym Profile</h2>
             <div class="search-container">
-                <input type="text" placeholder="Search PeakPulse" id="gymSearch">
-                <span class="search-icon" onclick="filterGyms()">
-                    <i class="fas fa-search">Search</i>
-                </span>
+                <input type="text" placeholder="Search gym..." id="gymSearch">
+                <button class="btn btn-secondary" onclick="SearchGym()">Search</button>
             </div>
             <div class="gym-profile" id="gym-profiles">
 
@@ -247,52 +287,27 @@
         </div>
         <!-- Gym Info Modal -->
         <div id="gymProfileModal" class="modal fade" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <span class="modal-close" onclick="closeModal()">&times;</span>
                     <div class="modal-header">
                         <h3 id="modalGymName">Gym Name</h3>
                     </div>
-                    <img id="modalGymPhoto" src="" alt="" class="gym-modal-photo img-fluid">
-                    <div class="container mt-4">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <p><i id="locationIcon" class="fas fa-map-marker-alt red-icon"></i> <!-- Location icon -->
-                                    <strong>Location: <span class="custom-tooltip">Click the icon</span></strong>
-                                </p>
-                                <p id="modalGymLocation"></p>
-                            </div>
-                            <div class="col-md-4">
-                                <p><strong>Equipment:</strong></p>
-                                <p id="modalGymEquipment"></p>
-                            </div>
-                            <div class="col-md-4">
-                                <p><strong>Programs:</strong></p>
-                                <p id="modalGymPrograms"></p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <p><strong>Email:</strong></p>
-                                <p id="modalGymEmail"></p>
-                            </div>
-                            <div class="col-md-4">
-                                <p><strong>Opening Time:</strong></p>
-                                <p id="modalGymOpeningTime"></p>
-                            </div>
-                            <div class="col-md-4">
-                                <p><strong>Closing Time:</strong></p>
-                                <p id="modalGymClosingTime"></p>
-                            </div>
-                        </div>
+                    <img id="modalGymPhoto" src="" alt="" class="gym-photo img-fluid">
+                    <div class="modal-body text-center"> <!-- Added text-center class -->
+                        <p><strong>Location:</strong> <span id="modalGymLocation">Location</span></p>
+                        <p><strong>Equipment:</strong> <span id="modalGymEquipment">Equipment</span></p>
+                        <p><strong>Programs:</strong> <span id="modalGymPrograms">Programs</span></p>
+                        <p><strong>Contact:</strong> <span id="modalGymContact">Contact</span></p>
+                        <p><strong>Price Rate:</strong> <span id="modalpriceRate">Price Rate</span></p>
+                        <p><strong>Opening Time:</strong> <span id="modalGymOpeningTime">Opening Time</span></p>
+                        <p><strong>Closing Time:</strong> <span id="modalGymClosingTime">Closing Time</span></p>
+        
+                        <!-- Apply as Trainer Button centered -->
+                        <button class="btn btn-success my-4" onclick="openConfirmationModal()">Apply as Trainer</button> <!-- Ensure correct function call -->
                     </div>
-                    <!-- Modal Footer within .modal-content -->
                     <div class="modal-footer">
-                        <button class="btn btn-apply" onclick="openConfirmationModal()">
-                            <i class="fas fa-user-plus"></i> <!-- Icon for applying as a trainer -->
-                            Apply as Trainer
-                        </button>
-                        <button class="btn btn-close" onclick="closeModal()">Close</button>
+                        <button class="btn btn-secondary" onclick="closeModal()">Close</button>
                     </div>
                 </div>
             </div>
@@ -371,7 +386,39 @@
             </div>
         </div>
     </div>
-
+    <div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" style="background-color: #1b1b1b; color: #ffffff;">
+                <div class="modal-header" style="border-bottom: 1px solid #2c2c2c;">
+                    <h5 class="modal-title" id="chatModalLabel">Chat</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1);"></button>
+                </div>
+                <div class="modal-body d-flex">
+                    <!-- Left Side: Inbox List -->
+                    <div class="me-3 inbox-list-container" style="width: 30%;">
+                        <input type="text" id="searchInput" placeholder="Search users..." class="form-control mb-3" style="background-color: #333; color: #ffffff; border: none;">
+                        <div id="inboxContainer" class="inbox-list">
+                            <!-- Inbox items will be populated here -->
+                        </div>
+                    </div>
+                    <!-- Right Side: Chat Messages -->
+                    <div class="flex-grow-1">
+                        <div id="chatHeader" style="display: none; display: flex; align-items: center; padding-bottom: 10px; border-bottom: 1px solid #2c2c2c;">
+                            <img id="chatUserPhoto" src="framework/img/Profile.png" alt="User Photo" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
+                            <h6 id="chatWith"></h6>
+                        </div>
+                        <div id="messagesContainer" style="display: none; height: 300px; overflow-y: auto; padding: 10px;">
+                            <!-- Messages will be loaded here -->
+                        </div>
+                        <div id="messageInputContainer" style="display: none;">
+                            <input type="text" id="messageInput" class="form-control" placeholder="Type your message..." style="background-color: #333; color: #ffffff; border: none;">
+                            <button id="sendMessageButton" class="btn btn-primary mt-2" style="background-color: #007bff; border-color: #007bff;">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Include jQuery before Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
