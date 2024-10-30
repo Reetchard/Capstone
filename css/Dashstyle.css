@@ -1634,4 +1634,13 @@ strong:hover .custom-tooltip {
 
 #searchInput::placeholder {
     color: #aaa;
+}.red-dot::after {
+    content: '';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
+    background-color: red;
+    border-radius: 50%;
 }
