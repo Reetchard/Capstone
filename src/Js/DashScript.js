@@ -261,7 +261,7 @@ function formatTime(time) {
                             <div class="trainer-card">
                                 <img src="${productData.photoURL || 'default-product.jpg'}" alt="Product Photo" class="product-photo">
                                 <h5>${productData.name || 'Unnamed Product'}</h5>
-                                <button class="btn-custom btn-primary" onclick="ViewProductInfo('${doc.id}')">Check info</button>
+                                <button class="btn-custom btn-primary" onclick="ViewProductInfo('${doc.id}')">View Details</button>
                             </div>
                         `;
                         productsSection.innerHTML += productCard;
@@ -778,7 +778,7 @@ function formatTime(time) {
             if (membershipSnapshot.empty) {
                 console.log('No memberships found for this user.');
                 currentMembershipStatusDiv.innerHTML = `
-                    <div style="text-align: center; padding: 20px; background-color: #f9f9f9; border-radius: 10px;">
+                    <div style="text-align: center; padding: 20px; background-color: transparent; border-radius: 10px;">
                         <p style="font-size: 1.2em; color: #888;">No active membership found.</p>
                     </div>`;
                 return;
@@ -852,7 +852,7 @@ function formatTime(time) {
             // If no current membership, show message
             if (currentMembershipHtml === '') {
                 currentMembershipStatusDiv.innerHTML = `
-                    <div style="text-align: center; padding: 20px; background-color: #f9f9f9; border-radius: 10px;">
+                    <div style="text-align: center; padding: 20px; background-color: transparent; border-radius: 10px;">
                         <p style="font-size: 1.2em; color: #888;">No active membership found.</p>
                     </div>`;
             }
@@ -1532,49 +1532,32 @@ function formatTime(time) {
                     const timeAgo = getTimeAgo(notification.timestamp);
                     
                     const notificationModal = `
-                    <div class="modal fade" id="notificationDetailsModal" tabindex="-1" role="dialog" aria-labelledby="notificationDetailsLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered" role="document">
-                            <div class="modal-content" style="border-radius: 10px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);">
-                                <div class="modal-header" style="background-color: #f3f3f3; border-bottom: 1px dashed #333;">
-                                    <h5 class="modal-title" id="notificationDetailsLabel" style="font-weight: bold; font-size: 1.2rem; text-align: center; width: 100%; color: #222;">
-                                        Purchase Receipt
-                                    </h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #333;">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body" id="notificationDetailsContent" style="padding: 20px; background-color: #fff;">
-                                    <!-- Gym Name - Large and centered -->
-                                    <p style="text-align: center; font-weight: bold; font-size: 1.8rem; margin-bottom: 5px; color: #000;">
-                                        ${notification.gymName}
-                                    </p> 
-                                    
-                                    <!-- Reference Number - Centered and styled -->
-                                    <p style="text-align: center; font-size: 1.2rem; color: #222; margin-bottom: 25px;">
-                                        <strong>Ref. No:</strong> ${notification.notificationId}
-                                    </p> 
+                  <div class="modal fade" id="notificationDetailsModal" tabindex="-1" role="dialog" aria-labelledby="notificationDetailsLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="notificationDetailsLabel">Purchase Receipt</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="notificationDetailsContent">
+                <p class="gym-name">${notification.gymName}</p>
+                <p class="ref-number"><strong>Ref. No:</strong> ${notification.notificationId}</p>
+                <div class="product-info">
+                    <p><strong>Product:</strong> ${notification.productName}</p>
+                    <p><strong>Quantity:</strong> ${notification.quantity}</p>
+                    <p><strong>Total Price:</strong> ${notification.totalPrice}</p>
+                </div>
+                <hr>
+                <p class="footer-info">
+                    Show this receipt to the Gym owner upon collection.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
 
-                                    <!-- Product Information -->
-                                    <div style="font-size: 1.1rem; margin-bottom: 10px; line-height: 1.6; color: #222;">
-                                        <p><strong>Product:</strong> ${notification.productName}</p>
-                                        <p><strong>Quantity:</strong> ${notification.quantity}</p>
-                                        <p><strong>Total Price:</strong> ${notification.totalPrice}</p>
-                                    </div>
-                                    
-                                    <hr style="border-top: 1px dashed #333; margin: 20px 0;">
-
-                                    <!-- Footer Info -->
-                                    <p style="font-size: 0.9rem; text-align: center; color: #444;">
-                                        Please wait for the owner's approval.<br>
-                                        Show this receipt to the Gym owner upon collection.
-                                    </p>
-                                </div>
-                                <div class="modal-footer" style="background-color: #f3f3f3; border-top: 1px dashed #333;">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal" style="width: 100%;">Close</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
                     `;
                     

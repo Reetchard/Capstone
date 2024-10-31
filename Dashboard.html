@@ -126,15 +126,15 @@
                                             <p><i id="locationIcon" class="fas fa-map-marker-alt red-icon"></i> <!-- Location icon -->
                                                 <strong>Location: <span class="custom-tooltip">Click the icon</span></strong>
                                             </p>
-                                            <p id="modalGymLocation"></p>
+                                            <p id="modalGymLocation" style="text-align: justify;"></p>
                                         </div>
                                         <div class="col-md-4">
                                             <p><strong>Equipment:</strong></p>
-                                            <p id="modalGymEquipment"></p>
+                                            <p id="modalGymEquipment" style="text-align: justify;"></p>
                                         </div>
                                         <div class="col-md-4">
                                             <p><strong>Programs:</strong></p>
-                                            <p id="modalGymPrograms"></p>
+                                            <p id="modalGymPrograms" text-align: justify;></p>
                                         </div>
                                     </div>
                                     <div class="row">
@@ -155,7 +155,7 @@
     
                                 <!-- Modal Footer (Only on Profiling Section) -->
                                 <div class="modal-footer">
-                                        <button class="btn btn-secondary" id="membershipPlansBtn">
+                                        <button class="btn btn-cust-secondary" id="membershipPlansBtn">
                                             <i class="fas fa-list-alt"></i> Membership Plans
                                         </button>
                                     <button id="" class="btn-book btn-success">
@@ -536,37 +536,43 @@
 
     <div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content" style="background-color: #1b1b1b; color: #ffffff;">
-                <div class="modal-header" style="border-bottom: 1px solid #2c2c2c;">
+            <div class="modal-content chat-modal-content">
+                <div class="modal-header chat-modal-header">
                     <h5 class="modal-title" id="chatModalLabel">Chat</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1);"></button>
+                    <button type="button" class="btn-close chat-close-button" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body d-flex">
-                    <!-- Left Side: Inbox List -->
-                    <div class="me-3 inbox-list-container" style="width: 30%;">
-                        <input type="text" id="searchInput" placeholder="Search users..." class="form-control mb-3" style="background-color: #333; color: #ffffff; border: none;">
-                        <div id="inboxContainer" class="inbox-list">
+                    <!-- Left Side: Search and Inbox List -->
+                    <div class="left-side-container">
+                        <input type="text" id="searchInput" placeholder="Search users..." class="form-control search-input">
+                        <div id="inboxContainer" class="inbox-list-container">
                             <!-- Inbox items will be populated here -->
                         </div>
                     </div>
                     <!-- Right Side: Chat Messages -->
-                    <div class="flex-grow-1">
-                        <div id="chatHeader" style="display: none; display: flex; align-items: center; padding-bottom: 10px; border-bottom: 1px solid #2c2c2c;">
-                            <img id="chatUserPhoto" src="framework/img/Profile.png" alt="User Photo" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
+                    <div class="chat-messages">
+                        <div id="chatHeader" class="chat-header">
+                            <img id="chatUserPhoto" src="framework/img/Profile.png" alt="User Photo" class="chat-user-photo">
                             <h6 id="chatWith"></h6>
                         </div>
-                        <div id="messagesContainer" style="display: none; height: 300px; overflow-y: auto; padding: 10px;">
+                        <div id="messagesContainer" class="messages-container">
                             <!-- Messages will be loaded here -->
                         </div>
-                        <div id="messageInputContainer" style="display: none;">
-                            <input type="text" id="messageInput" class="form-control" placeholder="Type your message..." style="background-color: #333; color: #ffffff; border: none;">
-                            <a id="sendMessageButton" class="btn btn-primary mt-2" style="background-color: #007bff; border-color: #007bff;">Send</a>
+                        <div id="messageInputContainer" class="message-input-container d-flex align-items-center">
+                            <input type="text" id="messageInput" class="form-control message-input" placeholder="Type your message...">
+                            <a id="sendMessageButton" class="send-button">
+                                <i class="fas fa-paper-plane"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    
+</div>
+
+    
     
     
 
