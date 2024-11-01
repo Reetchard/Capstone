@@ -1422,11 +1422,14 @@ strong:hover .custom-tooltip {
 
 /* Avatar in Chat Header */
 #chatUserPhoto {
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
+    width: 35px; /* Set a fixed width */
+    height: 35px; /* Set a fixed height */
+    border-radius: 50%; /* Make it a circle */
     border: 2px solid #007bff; /* Add border to make avatar stand out */
+    object-fit: cover; /* Ensure the image covers the area without stretching */
+    object-position: center; /* Center the image within the container */
 }
+
 
 /* Messages Container */
 #messagesContainer {
@@ -1472,36 +1475,48 @@ strong:hover .custom-tooltip {
 
 /* Message Content */
 .message-content {
-    max-width: 70%;
+    max-width: 70%; /* Adjusted for a slightly wider message area */
     padding: 12px;
-    border-radius: 12px;
-    background-color: #444851;
-    color: #ffffff;
+    border-radius: 20px; /* More rounded corners for a softer look */
+    background-color: #2c2f33; /* Light gray background for received messages */
+    color: #ffffff; /* Dark text color for better contrast */
     font-size: 0.9em;
     position: relative;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease; /* Add animation for message appearance */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    transition: transform 0.3s ease, background-color 0.3s ease; /* Add animation for message appearance */
+    overflow-wrap: break-word; /* Allow breaking long words */
+    word-wrap: break-word; /* Support for older browsers */
+    overflow: hidden; /* Hide overflow text */
+    white-space: normal; /* Allow text to wrap */
+    max-height: 100px; /* Set a maximum height for the message */
 }
 
+/* Self Message (sent messages) */
 .message-content.self {
-    background-color: #007bff;
-    color: #ffffff;
+    background-color: #7289da; /* Blue background for sent messages */
+    color: #ffffff; /* White text for contrast */
 }
 
+/* Hover Effects for both self and other messages */
 .message-content.self:hover, .message-content.other:hover {
-    transform: scale(1.05); /* Slight enlargement on hover */
+    transform: scale(1.03); /* Slight enlargement on hover */
 }
 
+/* Other Messages (received messages) */
 .message-content.other {
-    background-color: #555b6b;
+    background-color: #23272a; /* Light gray color for received messages */
+    color: #ffffff; /* White text for better contrast */
 }
 
+/* Timestamp Styles */
 .timestamp {
     display: block;
     font-size: 0.75em;
-    color: #bbbbbb;
+    color: #ffffff; /* Slightly darker gray for timestamps */
     margin-top: 5px;
+    text-align: right; /* Align the timestamp to the right */
 }
+
 
 /* Scrollbar Styling */
 #messagesContainer::-webkit-scrollbar, .inbox-list::-webkit-scrollbar {
@@ -1794,4 +1809,22 @@ strong:hover .custom-tooltip {
 .message-input:focus {
     outline: none; /* Remove default outline */
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Add a subtle glow */
+}
+.left-side-container {
+    position: relative; /* Set position relative to allow absolute positioning of child elements */
+}
+
+.search-results-container {
+    position: absolute; /* Position it absolutely within the left-side-container */
+    top: 40px; /* Adjust this value based on the height of your search input */
+    left: 0;
+    right: 0;
+    max-height: 200px; /* Set a maximum height */
+    overflow: hidden; /* Hide overflow content */
+    background-color: #333; /* Background color to distinguish it from the inbox */
+    border: 1px solid #333; /* Optional border for better visibility */
+    z-index: 10; /* Ensure it appears above other content */
+    display: none; /* Initially hidden */
+    padding: 0; /* Optional: Remove padding for tighter layout */
+    border-radius: 4px; /* Optional: Add rounded corners */
 }
