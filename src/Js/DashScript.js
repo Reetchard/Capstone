@@ -1115,6 +1115,7 @@ function formatTime(time) {
                     const modalTrainerExperience = document.getElementById('modalTrainerExperience');
                     const modalTrainerDays = document.getElementById('modalTrainerDays');
                     const modalTrainerRate = document.getElementById('modalTrainerRate');
+                    const trainerRatingContainer = document.getElementById('trainerRating');
                     const bookNowButton = document.getElementById('bookNowButton');
         
                     if (modalTrainerName) modalTrainerName.innerText = trainerData.TrainerName || 'N/A';
@@ -1123,6 +1124,11 @@ function formatTime(time) {
                     if (modalTrainerExperience) modalTrainerExperience.innerText = trainerData.Experience || 'N/A';
                     if (modalTrainerDays) modalTrainerDays.innerText = trainerData.Days || 'N/A';
                     if (modalTrainerRate) modalTrainerRate.innerText = `₱${trainerData.rate || 'N/A'}`;
+
+                   // Set Trainer Rating in the trainerRatingContainer
+                    const rating = trainerData.rating || 0; // Assume 0 if no rating available
+                    setTrainerRating(trainerRatingContainer, rating, trainerData.ratingCount || 0); // Pass container and rating count
+
         
                     if (bookNowButton) {
                         bookNowButton.onclick = function() {
@@ -1140,6 +1146,73 @@ function formatTime(time) {
                 showToast("error", "An error occurred while fetching trainer data.");
             }
         };
+
+        // Function to update star icons and rating count in a given container
+function setTrainerRating(container, rating, ratingCount) {
+    const stars = container.querySelectorAll('.star'); // Assuming stars are in the #trainerRating container
+    stars.forEach((star, index) => {
+        if (index < rating) {
+            star.classList.add('filled');
+        } else {
+            star.classList.remove('filled');
+        }
+    });
+    // Display the rating count next to the stars
+    const ratingCountContainer = container.querySelector('.rating-count');
+    if (ratingCountContainer) {
+        ratingCountContainer.innerText = `(${ratingCount})`;
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    const rateTrainerButton = document.getElementById("rateTrainerButton");
+    const rateStars = document.querySelectorAll("#rateStars .rate-star");
+    let selectedRating = 0;
+
+    // Open the Rating Modal when "Rate Trainer" button is clicked
+    rateTrainerButton.addEventListener("click", function() {
+        $('#rateTrainerModal').modal('show');
+    });
+
+    // Set up star rating selection in the modal
+    rateStars.forEach(star => {
+        star.addEventListener("click", function() {
+            selectedRating = parseInt(this.getAttribute("data-value"));
+            updateStarSelection(selectedRating);
+        });
+    });
+
+    // Function to highlight stars based on selection
+    function updateStarSelection(rating) {
+        rateStars.forEach((star, index) => {
+            if (index < rating) {
+                star.classList.add("selected");
+            } else {
+                star.classList.remove("selected");
+            }
+        });
+    }
+
+    // Submit Rating button functionality
+    document.getElementById("submitRatingButton").addEventListener("click", function() {
+        if (selectedRating > 0) {
+            $('#rateTrainerModal').modal('hide');
+            alert(`You rated the trainer ${selectedRating} stars!`);
+
+            // Here you could save the rating to the database
+            // Assuming an increment of 1 for the count
+            const trainerRatingContainer = document.getElementById("trainerRating");
+            const currentRatingCount = parseInt(trainerRatingContainer.getAttribute('data-rating-count')) || 0;
+            const newRatingCount = currentRatingCount + 1;
+
+            // Update the displayed rating and increment rating count in main view
+            setTrainerRating(trainerRatingContainer, selectedRating, newRatingCount);
+        } else {
+            alert("Please select a rating before submitting.");
+        }
+    });
+});
+        
         
         // Function to display the booking confirmation modal
         window.showBookingConfirmation=function(trainerData, trainerId) {

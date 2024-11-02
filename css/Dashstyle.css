@@ -996,6 +996,26 @@ strong:hover .custom-tooltip {
     transition: background-color 0.3s ease; /* Smooth transition */
 }
 
+.carousel-indicators {
+    position: relative;
+    top: 10px; /* Adjust this value to position the indicators */
+    display: flex;
+    justify-content: center;
+}
+
+.carousel-indicators li {
+    background-color: #007bff; /* Change color to match your theme */
+    border-radius: 50%; /* Make them circular */
+    width: 12px; /* Adjust size */
+    height: 12px; /* Adjust size */
+    margin: 0 2px;
+}
+
+.carousel-indicators .active {
+    background-color: #ffa31a; /* Different color for active indicator */
+}
+
+
 
 /* Ensure the location icon is clickable */
 #locationIcon {
@@ -1827,4 +1847,90 @@ strong:hover .custom-tooltip {
     display: none; /* Initially hidden */
     padding: 0; /* Optional: Remove padding for tighter layout */
     border-radius: 4px; /* Optional: Add rounded corners */
+}
+
+/* General modal styling */
+#rateTrainerModal .modal-dialog {
+    max-width: 400px;
+    margin: 30px auto;
+}
+
+#rateTrainerModal .modal-header {
+    background-color: #007bff;
+    color: white;
+    text-align: center;
+}
+
+#rateTrainerModal .modal-body {
+    text-align: center;
+}
+
+#rateTrainerModal .modal-footer {
+    display: flex;
+    justify-content: center;
+}
+
+/* Star rating container in main trainer information */
+#trainerRating {
+    display: flex;
+    align-items: center;
+}
+
+#trainerRating .star {
+    font-size: 1.5rem;
+    color: #ccc;
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+#trainerRating .star.filled {
+    color: #ffcc00; /* Gold color for filled stars */
+}
+
+#trainerRating .rating-count {
+    margin-left: 8px;
+    font-size: 1rem;
+    color: #555;
+}
+
+/* Star selection within the modal */
+#rateStars .rate-star {
+    font-size: 2rem;
+    color: #ccc;
+    margin: 0 5px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+#rateStars .rate-star.selected {
+    color: #ffcc00; /* Gold color for selected stars */
+}
+
+/* Submit button */
+#submitRatingButton {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#submitRatingButton:hover {
+    background-color: #218838;
+}
+
+#rateTrainerButton {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#rateTrainerButton:hover {
+    background-color: #0069d9;
 }
