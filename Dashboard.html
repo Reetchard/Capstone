@@ -220,8 +220,7 @@
   
 
 
-
-    <!-- Trainer Info Modal -->
+<!-- Trainer Info Modal -->
 <div class="modal fade" id="trainerProfileModal" tabindex="-1" aria-labelledby="trainerProfileModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -259,27 +258,62 @@
                             </div>
                             <div class="col-md-6">
                                 <strong>Experience:</strong>
-                                </p><span id="modalTrainerExperience">N/A</span></p>
+                                <p><span id="modalTrainerExperience">N/A</span></p>
                             </div>
                         </div>
+                       <!-- Trainer Rating Section -->
+                        <div class="col-md-12 trainer-rating-section">
+                            <strong>Trainer Rating:</strong>
+                            <div id="trainerRatingContainer" class="rating-container">
+                                <!-- Overall Rating with animation and larger icon -->
+                                <div class="star-rating overall-rating">
+                                    <span class="star" data-value="average">Overall Rating: ★★★★☆</span>
+                                    <span class="star-count" id="average-rating-count">0</span>
+                                </div>
+
+                                <!-- Collapsible section for individual star ratings -->
+                                <div id="collapsibleRatings" class="individual-ratings">
+                                    <div class="star-rating">
+                                        <span class="star" data-value="5">★★★★★</span>
+                                        <span class="star-count" id="star-5-count">0</span>
+                                    </div>
+                                    <div class="star-rating">
+                                        <span class="star" data-value="4">★★★★</span>
+                                        <span class="star-count" id="star-4-count">0</span>
+                                    </div>
+                                    <div class="star-rating">
+                                        <span class="star" data-value="3">★★★</span>
+                                        <span class="star-count" id="star-3-count">0</span>
+                                    </div>
+                                    <div class="star-rating">
+                                        <span class="star" data-value="2">★★</span>
+                                        <span class="star-count" id="star-2-count">0</span>
+                                    </div>
+                                    <div class="star-rating">
+                                        <span class="star" data-value="1">★</span>
+                                        <span class="star-count" id="star-1-count">0</span>
+                                    </div>
+                                </div>
+                               <a href="#" id="toggleRatings" class="toggle-ratings" onclick="toggleRatings(event)">Show More</a>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-
-                <!-- Trainer Rating Button -->
                 <button id="rateTrainerButton" class="btn btn-primary mt-4">
                     <i class="fas fa-star"></i> Rate Trainer
                 </button>
-
-                <!-- Book Now Button with Icon -->
-                <button id="bookNowButton" class="btn-book btn-success mt-4">
+                <button id="bookNowButton" class="btn btn-success mt-4">
                     <i class="fas fa-calendar-check"></i> Book Now
                 </button>
             </div>
         </div>
     </div>
 </div>
+
+    
 
 
 <!-- Booking Confirmation Modal -->
@@ -583,7 +617,34 @@
             </div>
         </div>
     </div>
-    
+</div>
+<div id="rateTrainerModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="rateTrainerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rateTrainerModalLabel">Rate Trainer</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <p>Select your rating:</p>
+                <div id="rateStars">
+                    <span class="rate-star" data-value="1">★</span>
+                    <span class="rate-star" data-value="2">★</span>
+                    <span class="rate-star" data-value="3">★</span>
+                    <span class="rate-star" data-value="4">★</span>
+                    <span class="rate-star" data-value="5">★</span>
+                </div>
+                <p class="mt-3">Leave your feedback:</p>
+                <textarea id="feedbackText" class="form-control" rows="3" placeholder="Write your feedback here..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="submitRatingButton">Submit Rating</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
 </div>
 
     

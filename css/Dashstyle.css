@@ -1848,3 +1848,115 @@ strong:hover .custom-tooltip {
     padding: 0; /* Optional: Remove padding for tighter layout */
     border-radius: 4px; /* Optional: Add rounded corners */
 }
+/* Overall Trainer Rating Section Styles */
+.trainer-rating-section {
+    background-color: #333;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+.rating-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.overall-rating {
+    font-size: 1.2em;
+    color: #ffcc00;
+    margin-bottom: 10px;
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+.star-rating {
+    display: flex;
+    align-items: center;
+    font-size: 1em;
+    color: #ffcc00;
+    transition: color 0.3s ease;
+}
+
+.star-rating:hover {
+    color: #ffd966;
+}
+
+.star-count {
+    font-size: 0.9em;
+    color: #fffb00;
+    margin-left: 8px;
+    transition: transform 0.2s ease;
+}
+
+.star-count:hover {
+    transform: scale(1.1);
+}
+
+/* Toggle link style with smooth hover effect */
+.toggle-ratings {
+    margin-top: 15px;
+    font-size: 0.9em;
+    color: #007bff;
+    text-decoration: underline;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.toggle-ratings:hover {
+    color: #0056b3;
+}
+
+/* Individual ratings collapse section */
+.individual-ratings {
+    display: none;
+    padding-left: 10px;
+    margin-top: 15px;
+    transition: max-height 0.5s ease-in-out;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    0% { opacity: 0; transform: translateY(-10px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+/* Star selection within the modal */
+#rateStars .rate-star {
+    font-size: 2rem;
+    color: #ccc;
+    margin: 0 5px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+#rateStars .rate-star.selected {
+    color: #ffcc00; /* Gold color for selected stars */
+}
+/* Toggle link without underline and with enhanced styling */
+.toggle-ratings {
+    margin-top: 15px;
+    font-size: 0.95em;
+    color: #007bff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.toggle-ratings:hover {
+    color: #0056b3;
+}
+
+/* Add icon with rotation animation */
+.toggle-ratings::after {
+    content: '▼'; /* Arrow icon */
+    font-size: 0.85em;
+    margin-left: 6px;
+    transition: transform 0.3s ease;
+}
+
+/* Rotate icon on active toggle */
+.toggle-ratings.active::after {
+    transform: rotate(180deg);
+}
