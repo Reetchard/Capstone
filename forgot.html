@@ -27,6 +27,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             var forgotPasswordForm = document.getElementById('forgotPasswordForm');
             var messageElement = document.getElementById('message');
+            var spinner = document.getElementById('spinner');
 
             forgotPasswordForm.addEventListener('submit', function(event) {
                 event.preventDefault();
@@ -37,11 +38,26 @@
                     return;
                 }
 
+                // Show the spinner
+                spinner.style.display = 'inline-block';
+                messageElement.textContent = '';
+
+                // Set a timeout to hide the spinner after 5 seconds
+                var spinnerTimeout = setTimeout(function() {
+                    spinner.style.display = 'none';
+                    messageElement.textContent = 'Request timeout. Please try again.';
+                }, 5000);
+
+                // Firebase password reset with spinner control
                 auth.sendPasswordResetEmail(email)
                     .then(function() {
+                        clearTimeout(spinnerTimeout); // Clear timeout on success
+                        spinner.style.display = 'none';
                         messageElement.textContent = 'Password reset email sent. Please check your inbox.';
                     })
                     .catch(function(error) {
+                        clearTimeout(spinnerTimeout); // Clear timeout on error
+                        spinner.style.display = 'none';
                         messageElement.textContent = 'Error: ' + error.message;
                     });
             });
@@ -136,7 +152,6 @@
             color: #555;
         }
 
-        input[type="text"],
         input[type="email"] {
             padding: 12px;
             font-size: 16px;
@@ -147,7 +162,6 @@
             margin: 0 auto;
         }
 
-        input[type="text"]:focus,
         input[type="email"]:focus {
             border-color: #ff7e5f;
             box-shadow: 0 0 8px rgba(255, 126, 95, 0.3);
@@ -177,8 +191,25 @@
 
         #message {
             font-size: 14px;
-            color: #d9534f;
+            color: #21aa05;
             margin-top: 20px;
+        }
+
+        /* Spinner Styles */
+        #spinner {
+            display: none;
+            margin: 10px auto;
+            border: 4px solid #f3f3f3; /* Light grey */
+            border-top: 4px solid #ff7e5f; /* Spinner color */
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         /* Media Queries for Responsiveness */
@@ -227,12 +258,11 @@
     <div class="container">
         <h1>Forgot Your Password?</h1>
         <form id="forgotPasswordForm">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
             <label for="email">Enter your Gmail address:</label>
             <input type="email" id="email" name="email" required>
             <button type="submit">Submit</button>
         </form>
+        <div id="spinner"></div>
         <p id="message"></p>
     </div>
 </body>

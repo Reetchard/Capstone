@@ -390,62 +390,9 @@ async function fetchNotifications(currentUserId) {
     });
     
 
-    document.addEventListener('DOMContentLoaded', function () {
-        // Elements related to chat functionality
-        const chatModalLink = document.querySelector('a[href="#chatModal"]');
-        const inboxContainer = document.getElementById('inboxContainer');
-        const chatHeader = document.getElementById('chatHeader');
-        const messagesContainer = document.getElementById('messagesContainer');
-        const messageInput = document.getElementById('messageInput');
-        const sendMessageButton = document.getElementById('sendMessageButton');
-    
-        // Check if modal link exists
-        if (chatModalLink) {
-            chatModalLink.addEventListener('click', (event) => {
-                event.preventDefault();
-    
-                // Show chat modal
-                const chatModal = new bootstrap.Modal(document.getElementById('chatModal'));
-                chatModal.show();
-    
-                // Clear previous chat data in the inbox and messages
-                if (inboxContainer) {
-                    inboxContainer.innerHTML = ''; // Clear inbox
-                    loadInboxMessages();
-                } else {
-                    console.error("Element with ID 'inboxContainer' not found in the DOM.");
-                }
-    
-                if (messagesContainer) {
-                    messagesContainer.innerHTML = ''; // Clear messages
-                } else {
-                    console.error("Element with ID 'messagesContainer' not found in the DOM.");
-                }
-            });
-        } else {
-            console.error("Chat modal link not found.");
-        }
-    
-        // Search users input listener
-        const searchInput = document.querySelector('#searchInput');
-        if (searchInput) {
-            searchInput.addEventListener('input', (event) => {
-                const searchTerm = event.target.value;
-                searchUsers(searchTerm);
-            });
-        } else {
-            console.error("Element with ID 'searchInput' not found in the DOM.");
-        }
-    
-        // Send message button listener
-        if (sendMessageButton) {
-            sendMessageButton.addEventListener('click', sendMessage);
-        } else {
-            console.error("Send message button not found.");
-        }
-    });
     let currentChatUserId = null;
     const userCache = {}; // Cache for user details to reduce database calls
+    const unreadMessages = new Set(); // Track unread messages
     
     // Initialize the chat modal and clear previous chats
     document.querySelector('a[href="#chatModal"]').addEventListener('click', function (event) {
@@ -471,91 +418,134 @@ async function fetchNotifications(currentUserId) {
     // Display users in the search result
     function displayUsers(users) {
         const inboxContainer = document.querySelector('#inboxContainer');
-        
-        if (!inboxContainer) {
-            console.error("Element with ID 'inboxContainer' not found in the DOM.");
-            return;
-        }
-
-        inboxContainer.innerHTML = '';
-        users.forEach(user => {
+        const searchResultsContainer = document.querySelector('#searchResultsContainer');
+    
+        searchResultsContainer.innerHTML = ''; // Clear previous search results
+    
+        // Limit to a certain number of users displayed
+        const maxDisplayCount = 5; // Set the maximum number of results to display
+    
+        // Display only the first maxDisplayCount users
+        users.slice(0, maxDisplayCount).forEach(user => {
             const userElement = document.createElement('div');
             userElement.className = 'user-email';
             userElement.textContent = `${user.username} (${user.email})`;
-            userElement.addEventListener('click', () => startChat(user.id, user.username));
-            inboxContainer.appendChild(userElement);
+    
+            userElement.addEventListener('click', async () => {
+                startChat(user.id, user.username);
+                searchResultsContainer.innerHTML = ''; // Clear the search results
+                searchResultsContainer.style.display = 'none'; // Hide the search results
+                inboxContainer.style.display = 'block'; // Show the inbox
+                await loadInboxMessages(); // Reload inbox messages
+            });
+    
+            searchResultsContainer.appendChild(userElement); // Append to search results
         });
+    
+        // Show search results only if there are users found
+        searchResultsContainer.style.display = users.length > 0 ? 'block' : 'none';
     }
-
-
-    // Search users based on the input
+    
+    
+    
+    
+    // Update searchUsers function to pass isSearch = true when displaying results
     async function searchUsers(searchTerm) {
-        if (!searchTerm) {
-            displayUsers([]);
+        const inboxContainer = document.getElementById('inboxContainer');
+        const searchResultsContainer = document.getElementById('searchResultsContainer');
+    
+        // If the search term is empty, clear search results, show inbox, and reload inbox messages
+        if (!searchTerm.trim()) {
+            searchResultsContainer.innerHTML = '';  // Clear search results
+            searchResultsContainer.style.display = 'none';  // Hide search results container
+            inboxContainer.style.display = 'block';  // Show inbox container
+    
+            await loadInboxMessages();  // Reload inbox messages to restore the original inbox content
             return;
         }
+    
+        // If there's a search term, perform the search and display results
         const users = await fetchUsers();
         const filteredUsers = users.filter(user =>
             user.email.toLowerCase().includes(searchTerm.toLowerCase())
         );
-        displayUsers(filteredUsers);
+    
+        displayUsers(filteredUsers, true);  // Display results in searchResultsContainer
     }
+    
+    
+    
     
     // Start a chat with a selected user
     function startChat(userId, username) {
         currentChatUserId = userId;
-        const chatWithElement = document.getElementById('chatWith');
-        const chatUserPhoto = document.getElementById('chatUserPhoto');
+        document.getElementById('chatWith').textContent = `${username}`;
+        document.querySelector('#searchInput').value = username;
     
-        if (chatWithElement) {
-            chatWithElement.textContent = `Chat with ${username}`;
+        // Ensure the target container exists before modifying it
+        const usersContainer = document.querySelector('#inboxContainer'); // Use #inboxContainer if #usersContainer doesn't exist
+        if (usersContainer) {
+            usersContainer.innerHTML = ''; // Clear the container if it exists
+        } else {
+            console.error("Element with ID 'inboxContainer' not found in the DOM.");
         }
-        if (chatUserPhoto) {
-            chatUserPhoto.src = 'path-to-default-or-user-photo'; // Adjust photo URL accordingly
-        }
     
-        // Show chat elements if they exist
-        if (chatHeader) chatHeader.style.display = 'flex';
-        if (messagesContainer) messagesContainer.style.display = 'block';
-        if (messageInput) messageInput.value = ''; // Clear input after sending
+        // Display chat elements
+        document.getElementById('chatHeader').style.display = 'block';
+        document.getElementById('messagesContainer').style.display = 'block';
+        document.getElementById('messageInputContainer').style.display = 'block';
     
-        loadMessages();
+        loadMessages(); // Load messages for the chat
     }
     
-    
     async function getUserDetails(userId) {
+        // Return cached data if available
         if (userCache[userId]) {
             return userCache[userId];
         }
+    
         try {
-            const userRef = doc(db, 'Users', userId); 
+            const userRef = doc(db, 'Users', userId);
             const userSnap = await getDoc(userRef);
+    
             if (userSnap.exists()) {
                 const userData = userSnap.data();
     
-                // Define potential photo paths with .jpg and .png
-                const photoPathJpg = `profilePictures/${userId}.jpg`;
-                const photoPathPng = `profilePictures/${userId}.png`;
-    
-                try {
-                    // First, try to get the .jpg photo URL from Firebase Storage
-                    const photoURL = await getDownloadURL(storageRef(storage, photoPathJpg));
-                    userData.photoURL = photoURL; // Add photoURL to userData
-                } catch (error) {
-                    console.warn(`No .jpg photo found for user: ${userId}, trying .png...`);
+                // Check if photoURL exists directly in Firestore
+                if (userData.photoURL) {
+                    console.log(`Found photoURL in Firestore for user: ${userId}`);
+                    userCache[userId] = userData; // Cache user data with Firestore photoURL
+                    return userData; // Return data directly if photoURL exists
+                } else {
+                    // Fallback to fetching the photo from Firebase Storage
+                    const photoPaths = [
+                        `profilePictures/${userId}.jpg`,
+                        `profilePictures/${userId}.png`
+                    ];
                     
-                    try {
-                        // If .jpg is not found, try fetching the .png photo URL
-                        const photoURL = await getDownloadURL(storageRef(storage, photoPathPng));
-                        userData.photoURL = photoURL; // Add photoURL to userData
-                    } catch (error) {
-                        console.warn(`No .png photo found in storage for user: ${userId}`);
-                        userData.photoURL = null; // Set to null if no photo found
-                    }
-                }
+                    let photoURL = null;
     
-                userCache[userId] = userData; // Cache the user data
-                return userData;
+                    for (let path of photoPaths) {
+                        try {
+                            // Try retrieving the photo URL from Firebase Storage
+                            photoURL = await getDownloadURL(storageRef(storage, path));
+                            userData.photoURL = photoURL;
+                            break; // Stop if photo is found
+                        } catch (error) {
+                            console.warn(`No photo found at path: ${path}`);
+                        }
+                    }
+    
+                    // Log if no photo was found in Storage
+                    if (!photoURL) {
+                        console.warn(`No photo (jpg or png) found in storage for user: ${userId}`);
+                        userData.photoURL = null; // Explicitly set to null if no photo was found
+                    }
+    
+                    // Cache and return user data
+                    userCache[userId] = userData;
+                    return userData;
+                }
             } else {
                 console.warn("No user found for ID:", userId);
                 return null;
@@ -565,6 +555,7 @@ async function fetchNotifications(currentUserId) {
             return null;
         }
     }
+    
     
     let unsubscribeSentMessages = null;
     let unsubscribeReceivedMessages = null;
@@ -678,63 +669,73 @@ async function fetchNotifications(currentUserId) {
         });
     }
 
-async function loadInboxMessages() {
-    const userId = auth.currentUser.uid;
-    const inboxContainer = document.getElementById('inboxContainer');
-    inboxContainer.innerHTML = ''; // Clear previous inbox content
-
-    // Query to get the messages where the current user is either the sender or receiver
-    const inboxQuery = query(
-        collection(db, 'Messages'),
-        where('from', '==', userId),
-        orderBy('timestamp', 'desc')
-    );
-
-    const querySnapshot = await getDocs(inboxQuery);
-
-    // Map to store the most recent message for each unique user
-    const recentMessages = new Map();
-
-    // Iterate through each message
-    querySnapshot.forEach((doc) => {
-        const messageData = doc.data();
-        const otherUserId = messageData.to === userId ? messageData.from : messageData.to;
-
-        // If this user has no previous message in the Map or the current message is more recent, update the Map
-        if (!recentMessages.has(otherUserId) || recentMessages.get(otherUserId).timestamp < messageData.timestamp) {
-            recentMessages.set(otherUserId, { ...messageData, docId: doc.id });
+    async function loadInboxMessages() {
+        const userId = auth.currentUser.uid;
+        const inboxContainer = document.getElementById('inboxContainer');
+        inboxContainer.innerHTML = ''; // Clear previous inbox content
+    
+        // Query to get the messages where the current user is either the sender or receiver
+        const inboxQuery = query(
+            collection(db, 'Messages'),
+            where('from', '==', userId),
+            orderBy('timestamp', 'desc')
+        );
+    
+        const querySnapshot = await getDocs(inboxQuery);
+    
+        // Map to store the most recent message for each unique user
+        const recentMessages = new Map();
+    
+        // Iterate through each message
+        querySnapshot.forEach((doc) => {
+            const messageData = doc.data();
+            const otherUserId = messageData.to === userId ? messageData.from : messageData.to;
+    
+            // Check if this message is the most recent for the other user
+            if (!recentMessages.has(otherUserId) || recentMessages.get(otherUserId).timestamp < messageData.timestamp) {
+                recentMessages.set(otherUserId, { ...messageData, docId: doc.id });
+                unreadMessages.add(otherUserId); // Mark as unread when adding new messages
+            }
+        });
+    
+        // Check if there are no messages
+        if (recentMessages.size === 0) {
+            const noConversationMessage = document.createElement('div');
+            noConversationMessage.className = 'no-conversation-message';
+            noConversationMessage.textContent = 'No Conversation Available';
+            inboxContainer.appendChild(noConversationMessage);
+            return; // Exit if no messages found
         }
-    });
-
-    // Check if there are no messages
-    if (recentMessages.size === 0) {
-        const noConversationMessage = document.createElement('div');
-        noConversationMessage.className = 'no-conversation-message'; // Add a class for styling if needed
-        noConversationMessage.textContent = 'No Conversation Available';
-        inboxContainer.appendChild(noConversationMessage);
-        return; // Exit the function if no messages found
-    }
-
-    // Display each recent message in the inbox
-    for (const [otherUserId, messageData] of recentMessages.entries()) {
-        const otherUser = await getUserDetails(otherUserId);
-
-        if (otherUser) {
+    
+        // Display each recent message in the inbox
+        for (const [otherUserId, messageData] of recentMessages.entries()) {
+            const otherUser = await getUserDetails(otherUserId);
             const inboxItem = document.createElement('div');
             inboxItem.className = 'inbox-item';
             inboxItem.textContent = `${otherUser.username || otherUser.email}: ${messageData.message}`;
-            
+    
+            // Style the inbox item based on whether it is unread
+            if (unreadMessages.has(otherUserId)) {
+                inboxItem.style.fontWeight = 'bold'; // Set font weight to bold for unread messages
+            } else {
+                inboxItem.style.fontWeight = 'normal'; // Normal weight for read messages
+            }
+    
             // Add event listener to load messages for this conversation
             inboxItem.addEventListener('click', () => {
                 currentChatUserId = otherUserId;
                 loadMessages();
                 displayChatHeader(otherUser);
+                inboxItem.style.fontWeight = 'normal'; // Mark as read when clicked
+                unreadMessages.delete(otherUserId); // Remove from unread messages
             });
-
+    
             inboxContainer.appendChild(inboxItem);
         }
     }
-}
+    
+    // Call loadInboxMessages when the chat modal is opened
+    document.querySelector('a[href="#chatModal"]').addEventListener('click', loadInboxMessages);
 
     function displayChatHeader(user) {
         document.getElementById('chatHeader').style.display = 'flex';
@@ -777,4 +778,3 @@ async function loadInboxMessages() {
     
     // Load inbox messages when the chat modal is opened
     document.querySelector('a[href="#chatModal"]').addEventListener('click', loadInboxMessages);
-    

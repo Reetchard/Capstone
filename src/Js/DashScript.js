@@ -306,9 +306,69 @@ function formatTime(time) {
             });
         });
     }
-    window.ViewProductInfo = async function (productId) {
+    async function checkMembershipStatus(userId, gymName) {
         try {
-            $('.modal').modal('hide'); // Hide any open modals
+            // Query the Transactions collection to find membership status
+            const membershipQuery = query(
+                collection(db, 'Transactions'),
+                where('userId', '==', userId),
+                where('gymName', '==', gymName)
+            );
+            const membershipSnapshot = await getDocs(membershipQuery);
+    
+            // Loop through each document to check if any status is 'Approved'
+            if (!membershipSnapshot.empty) {
+                for (const doc of membershipSnapshot.docs) {
+                    const Transactions = doc.data();
+                    if (Transactions.status && Transactions.status === 'Approved') {
+                        return true; // Return true if any document has 'Approved' status
+                    }
+                }
+            }
+    
+            // Return false if no document has 'Approved' status
+            return false;
+        } catch (error) {
+            console.error('Error checking membership status:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Verification Issue!',
+                text: '⚠️ Ooops! We encountered an issue while verifying your membership status. Please try again or reach out to support if this continues.',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#d33',
+                background: '#fff',
+            });
+            return false;
+        }
+    }
+    
+        window.ViewProductInfo = async function (productId) {
+        try {
+            // Fetch the current user ID for membership validation
+            const userId = await getCurrentUserId(); // Get userId from the Users collection
+            const gymName = document.getElementById('modalGymName').innerText; // Get gym name from GymProfile card
+    
+            // Check the membership status before proceeding to view product info
+            const membershipApproved = await checkMembershipStatus(userId, gymName);
+    
+            if (!membershipApproved) {
+                // Show a custom error message if membership is not approved
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Access Restricted!',
+                    text: 'Your membership status is still "Pending Owner Approval". Please wait until your membership is approved to view this product.',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#d33',
+                    background: '#fff',
+                    customClass: {
+                        popup: 'swal-wide'
+                    }
+                });
+                return; // Stop the function if membership is not approved
+            }
+    
+            // Hide any open modals before showing the product info
+            $('.modal').modal('hide');
     
             // Fetch product data by ID
             const productDocRef = doc(db, 'Products', productId);
@@ -383,6 +443,7 @@ function formatTime(time) {
             console.error('Error fetching product data:', error);
         }
     };
+    
      // Buy Now function with confirmation and success messages
      window.buyNow = async function () {
         try {
@@ -867,47 +928,79 @@ function formatTime(time) {
             console.error('Error fetching membership status and history:', error);
         }
     }
-    // Function to start the countdown timer
-    function startCountdown(membershipDays, status) {
-        const countdownElement = document.getElementById('countdown');
-        
-        // Check if the countdown element is present in the DOM
-        if (!countdownElement) {
-            console.error('Countdown element not found');
-            return;
-        }
-    
-        // Only start the countdown if the status is "Approved"
-        if (status === 'Pending Owner Approval') {
-            countdownElement.innerText = 'Pending Owner Approval'; // Show pending message instead of countdown
-            console.log('Countdown will not start, status is pending approval.');
-            return;
-        }
-    
-        // Calculate the expiration date based on the membershipDays
-        const now = new Date();
-        const expirationDate = new Date(now.getTime() + membershipDays * 24 * 60 * 60 * 1000); // Add membershipDays to current date
-    
-        const updateCountdown = () => {
-            const currentTime = new Date();
-            const timeRemaining = expirationDate - currentTime;
-    
-            if (timeRemaining <= 0) {
-                countdownElement.innerText = 'Expired';
+        // Global variable to store the interval ID
+        let countdownInterval;
+
+        function startCountdown(expirationDate, status) {
+            const countdownElement = document.getElementById('countdown');
+
+            // Debugging log to check values passed to the function
+            console.log(`Starting countdown with expirationDate: ${expirationDate}, status: ${status}`);
+
+            // Check if the countdown element is present in the DOM
+            if (!countdownElement) {
+                console.error('Countdown element not found');
                 return;
             }
-    
-            const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
-    
-            countdownElement.innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-        };
-    
-        // Update countdown every second
-        setInterval(updateCountdown, 1000);
-    }
+
+            // Only start the countdown if the status is "Approved"
+            if (status !== 'Approved') {
+                countdownElement.innerText = status === 'Pending Owner Approval' ? 'Pending Owner Approval' : 'Status not approved';
+                console.log('Countdown will not start, status is not approved.');
+                return;
+            }
+
+            // Clear any existing interval to prevent multiple intervals from running
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+
+            // Validate expirationDate to avoid NaN issues
+            expirationDate = new Date(expirationDate);
+            if (isNaN(expirationDate.getTime())) {
+                countdownElement.innerText = 'Invalid expiration date';
+                console.error('Invalid expirationDate value:', expirationDate);
+                return;
+            }
+
+            console.log(`Expiration date calculated as: ${expirationDate.toLocaleString()}`);
+
+            const updateCountdown = () => {
+                const currentTime = new Date();
+                const timeRemaining = expirationDate - currentTime;
+
+                // Stop countdown and display "Expired" when timeRemaining is zero or less
+                if (timeRemaining <= 0) {
+                    countdownElement.innerText = 'Expired';
+                    clearInterval(countdownInterval); // Clear the interval when expired
+                    return;
+                }
+
+                // Calculate days, hours, minutes, and seconds remaining
+                const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+                // Log the remaining time for debugging
+                console.log(`Time remaining: ${days}d ${hours}h ${minutes}m ${seconds}s`);
+
+                // Update countdown text
+                countdownElement.innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            };
+
+            // Start the countdown interval and assign it to countdownInterval
+            countdownInterval = setInterval(updateCountdown, 1000);
+
+            // Immediately call updateCountdown to display the initial time remaining without waiting 1 second
+            updateCountdown();
+        }
+
+        // DEBUGGING CHECK
+        // Call the startCountdown function directly with sample data to test if it's working
+        // Replace this with the actual expiration date from your data if testing in your setup
+        startCountdown(new Date('2024-11-29T13:48:46+08:00'), 'Approved'); // Test with a specific expiration date and Approved status
+
     
     async function fetchGymOwnerLocation(gymName) {
         try {
@@ -1093,140 +1186,434 @@ function formatTime(time) {
             }
         });
     });
+    window.ViewTrainerInfo = async function(trainerId) {
+        try {
+            $('#gymProfileModal').modal('hide');
+            
+            const trainerDocRef = doc(db, 'Users', trainerId);
+            const trainerDoc = await getDoc(trainerDocRef);
     
-        window.ViewTrainerInfo = async function(trainerId) {
-            try {
-                $('#gymProfileModal').modal('hide');
+            if (trainerDoc.exists()) {
+                const trainerData = trainerDoc.data();
+    
+                if (trainerData.status === "Under Review") {
+                    showToast("error", "This trainer is currently under review and cannot be booked.");
+                    return;
+                }
+    
+                // Set trainer information in the modal
+                document.getElementById('modalTrainerName').innerText = trainerData.TrainerName || 'N/A';
+                document.getElementById('modalTrainerPhoto').src = trainerData.TrainerPhoto || 'default-trainer-photo.jpg';
+                document.getElementById('modalTrainerExpertise').innerText = trainerData.Expertise || 'N/A';
+                document.getElementById('modalTrainerExperience').innerText = trainerData.Experience || 'N/A';
+                document.getElementById('modalTrainerDays').innerText = trainerData.Days || 'N/A';
+                document.getElementById('modalTrainerRate').innerText = `₱${trainerData.rate || 'N/A'}`;
+    
+                const trainerRatingContainer = document.getElementById('trainerRating');
+                if (!trainerRatingContainer) {
+                    console.error("Trainer rating container not found in the DOM.");
+                    return;
+                }
+    
+                // Display ratings
+                await displayTrainerRating(trainerId, trainerRatingContainer);
+    
+                // Set up the "Book Now" button
+                document.getElementById('bookNowButton').onclick = function() {
+                    $('#trainerProfileModal').modal('hide');
+                    showBookingConfirmation(trainerData, trainerId);
+                };
+    
+                // Store trainerId in a global variable or dataset for use later
+                document.getElementById("submitRatingButton").setAttribute("data-trainer-id", trainerId); // Store trainerId in the button's data attribute
+    
+                $('#trainerProfileModal').modal('show');
+            } else {
+                showToast("error", "Trainer not found.");
+            }
+        } catch (error) {
+            console.error("Error fetching trainer data:", error);
+            showToast("error", "An error occurred while fetching trainer data.");
+        }
+    };
+    window.updateStarCounts =function(container, starCounts) {
+        if (!container) {
+            console.error("Trainer rating container not found in the DOM.");
+            return;
+        }
+    
+        // Assuming each star count has a span with id format `star-[rating]-count`
+        for (let star = 5; star >= 1; star--) {
+            const starCountElement = container.querySelector(`#star-${star}-count`);
+            if (starCountElement) {
+                starCountElement.innerText = `(${starCounts[star]})`;
+            } else {
+                console.warn(`Star count element for ${star} stars not found in DOM.`);
+            }
+        }
+    }
+    
+    async function displayTrainerRating(trainerId, container) {
+        try {
+            const ratingQuery = query(
+                collection(db, "RatingAndFeedback"),
+                where("trainerName", "==", document.getElementById("modalTrainerName").innerText)
+            );
+    
+            const ratingSnapshot = await getDocs(ratingQuery);
+    
+            // Initialize counters for each star rating
+            let ratingCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+            let totalRating = 0;
+            let totalRatingsCount = 0;
+    
+            // Count ratings and calculate the total for average calculation
+            ratingSnapshot.forEach(doc => {
+                const data = doc.data();
+                const rating = data.rating;
+    
+                if (ratingCounts.hasOwnProperty(rating)) {
+                    ratingCounts[rating] += 1;
+                    totalRating += rating;
+                    totalRatingsCount += 1;
+                }
+            });
+    
+            // Calculate the average rating
+            const averageRating = totalRatingsCount > 0 ? (totalRating / totalRatingsCount).toFixed(1) : 0;
+    
+            // Update each star count in the collapsible section
+            for (let star = 5; star >= 1; star--) {
+                const starCountElement = document.getElementById(`star-${star}-count`);
+                if (starCountElement) {
+                    starCountElement.innerText = `(${ratingCounts[star]})`;
+                }
+            }
+    
+            // Update the Overall Rating section
+            const overallRatingElement = document.querySelector("#trainerRating .star-rating .star[data-value='average']");
+            const overallRatingCountElement = document.getElementById("average-rating-count");
+    
+            if (overallRatingElement) {
+                overallRatingElement.innerText = `Overall Rating: ${'★'.repeat(Math.floor(averageRating))}${'☆'.repeat(5 - Math.floor(averageRating))}`;
+            }
+            
+            if (overallRatingCountElement) {
+                overallRatingCountElement.innerText = `(${totalRatingsCount})`;
+            }
+    
+        } catch (error) {
+            console.error("Error fetching ratings:", error);
+        }
+    }
+    
+    // Toggle function to show/hide the collapsible star rating section
+    window.toggleRatings = function(event) {
+        event.preventDefault();
+        const collapsibleRatings = document.getElementById('collapsibleRatings');
+        const toggleLink = document.getElementById('toggleRatings');
         
-                const trainerDocRef = doc(db, 'Users', trainerId);
-                const trainerDoc = await getDoc(trainerDocRef);
+        if (collapsibleRatings.style.display === 'none') {
+            collapsibleRatings.style.display = 'block';
+            toggleLink.innerText = 'Show Less';
+        } else {
+            collapsibleRatings.style.display = 'none';
+            toggleLink.innerText = 'Show More';
+        }
+    };
+    function toggleRatings(event) {
+    event.preventDefault();
+    const collapsibleRatings = document.getElementById('collapsibleRatings');
+    const toggleLink = document.getElementById('toggleRatings');
+    
+    if (collapsibleRatings.style.display === 'none') {
+        collapsibleRatings.style.display = 'block';
+        toggleLink.innerText = 'Show Less';
+    } else {
+        collapsibleRatings.style.display = 'none';
+        toggleLink.innerText = 'Show More';
+    }
+}
+
+// Example call within ViewTrainerInfo to populate ratings and feedback
+displayTrainerRatingAndFeedback(document.getElementById("modalTrainerName").innerText);
+                
+        function setTrainerRating(container, rating, ratingCount) {
+            // Check if container exists
+            if (!container) {
+                console.error("Trainer rating container not found in the DOM.");
+                return;
+            }
+            
+            const stars = container.querySelectorAll('.star'); // Assuming stars are in the #trainerRating container
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('filled');
+                } else {
+                    star.classList.remove('filled');
+                }
+            });
+    
+        }
         
-                if (trainerDoc.exists()) {
-                    const trainerData = trainerDoc.data();
+        document.addEventListener("DOMContentLoaded", function() {
+            const auth = getAuth(); // Initialize Firebase Auth
+            const rateTrainerButton = document.getElementById("rateTrainerButton");
+            const rateStars = document.querySelectorAll("#rateStars .rate-star");
+            let selectedRating = 0;
         
-                    if (trainerData.status === "Under Review") {
-                        showToast("error", "This trainer is currently under review and cannot be booked.");
+            // Open the Rating Modal when "Rate Trainer" button is clicked
+            rateTrainerButton.addEventListener("click", function() {
+                $('#rateTrainerModal').modal('show');
+            });
+        
+            // Set up star rating selection in the modal
+            rateStars.forEach(star => {
+                star.addEventListener("click", function() {
+                    selectedRating = parseInt(this.getAttribute("data-value"));
+                    updateStarSelection(selectedRating);
+                });
+            });
+        
+            // Function to highlight stars based on selection
+            function updateStarSelection(rating) {
+                rateStars.forEach((star, index) => {
+                    star.classList.toggle("selected", index < rating);
+                });
+            }
+        
+            // Submit rating and update Firestore
+            document.getElementById("submitRatingButton").addEventListener("click", async function() {
+                const feedbackText = document.getElementById("feedbackText").value;
+                const authUser = auth.currentUser;
+            
+                // Ensure user is logged in
+                if (!authUser) {
+                    showToast("error", "Please log in to submit a rating.");
+                    return;
+                }
+            
+                // Get trainerId from the button's data attribute
+                const trainerId = this.getAttribute("data-trainer-id");
+                if (!trainerId) {
+                    console.error("trainerId is not set. Cannot proceed with rating submission.");
+                    showToast("error", "Trainer information is missing. Please try again.");
+                    return;
+                }
+            
+                try {
+                    // Get gymName from the Gym Profile card on the page
+                    const gymNameElement = document.getElementById("modalGymName");
+                    const gymName = gymNameElement ? gymNameElement.innerText : null;
+            
+                    if (!gymName) {
+                        showToast("error", "Gym name not found in the profile. Please check the gym profile card.");
                         return;
                     }
-        
-                    const modalTrainerName = document.getElementById('modalTrainerName');
-                    const modalTrainerPhoto = document.getElementById('modalTrainerPhoto');
-                    const modalTrainerExpertise = document.getElementById('modalTrainerExpertise');
-                    const modalTrainerExperience = document.getElementById('modalTrainerExperience');
-                    const modalTrainerDays = document.getElementById('modalTrainerDays');
-                    const modalTrainerRate = document.getElementById('modalTrainerRate');
-                    const bookNowButton = document.getElementById('bookNowButton');
-        
-                    if (modalTrainerName) modalTrainerName.innerText = trainerData.TrainerName || 'N/A';
-                    if (modalTrainerPhoto) modalTrainerPhoto.src = trainerData.TrainerPhoto || 'default-trainer-photo.jpg';
-                    if (modalTrainerExpertise) modalTrainerExpertise.innerText = trainerData.Expertise || 'N/A';
-                    if (modalTrainerExperience) modalTrainerExperience.innerText = trainerData.Experience || 'N/A';
-                    if (modalTrainerDays) modalTrainerDays.innerText = trainerData.Days || 'N/A';
-                    if (modalTrainerRate) modalTrainerRate.innerText = `₱${trainerData.rate || 'N/A'}`;
-        
-                    if (bookNowButton) {
-                        bookNowButton.onclick = function() {
-                            $('#trainerProfileModal').modal('hide');
-                            showBookingConfirmation(trainerData, trainerId);
-                        };
+            
+                    // Retrieve the user document from Firestore
+                    const userDocRef = doc(db, "Users", authUser.uid);
+                    const userDoc = await getDoc(userDocRef);
+            
+                    if (!userDoc.exists()) {
+                        showToast("error", "User data not found.");
+                        return;
                     }
-        
-                    $('#trainerProfileModal').modal('show');
-                } else {
-                    showToast("error", "Trainer not found.");
+            
+                    const userData = userDoc.data();
+                    const userId = userData.userId;
+            
+                    // Ensure a rating is selected
+                    if (selectedRating > 0) {
+                        $('#rateTrainerModal').modal('hide');
+            
+                        // Save the rating and feedback to Firestore
+                        const trainerName = document.getElementById("modalTrainerName").innerText;
+                        await addDoc(collection(db, "RatingAndFeedback"), {
+                            userId: userId,
+                            trainerName: trainerName,
+                            gymName: gymName,
+                            rating: selectedRating,
+                            feedback: feedbackText,
+                            timestamp: new Date().toISOString()
+                        });
+            
+                        showToast("success", `You rated ${trainerName} ${selectedRating} stars!`);
+            
+                        // Update the displayed rating in the main view
+                        const trainerRatingContainer = document.getElementById("trainerRating");
+                        await displayTrainerRating(trainerId, trainerRatingContainer); // Refresh ratings display
+            
+                        // Reset selected rating and feedback field for next use
+                        selectedRating = 0;
+                        updateStarSelection(selectedRating);
+                        document.getElementById("feedbackText").value = "";
+            
+                    } else {
+                        alert("Please select a rating before submitting.");
+                    }
+                } catch (error) {
+                    console.error("Error saving rating and feedback:", error);
+                    showToast("error", "Failed to submit rating. Please try again.");
                 }
-            } catch (error) {
-                console.error("Error fetching trainer data:", error);
-                showToast("error", "An error occurred while fetching trainer data.");
-            }
-        };
-        
-        // Function to display the booking confirmation modal
-        window.showBookingConfirmation=function(trainerData, trainerId) {
-            const confirmTrainerName = document.getElementById('confirmTrainerName');
-            const confirmTrainerRate = document.getElementById('confirmTrainerRate');
-            const confirmBookingButton = document.getElementById('confirmBookingButton');
-
-            // Check if elements exist before setting innerText
-            if (confirmTrainerName) {
-                confirmTrainerName.innerText = trainerData.TrainerName || "the trainer";
-            } else {
-                console.warn("Element 'confirmTrainerName' not found in DOM.");
-            }
-
-            if (confirmTrainerRate) {
-                confirmTrainerRate.innerText = `₱${trainerData.rate || 'N/A'}`;
-            } else {
-                console.warn("Element 'confirmTrainerRate' not found in DOM.");
-            }
-
-            // Set up booking confirmation button
-            if (confirmBookingButton) {
-                confirmBookingButton.onclick = async function() {
-                    try {
-                        // Your booking logic goes here
-                        // For now, just show success toast
-                        $('#bookingConfirmationModal').modal('hide');
-                        showToast("success", `Successfully booked a session with ${trainerData.TrainerName}!`);
-                    } catch (error) {
-                        console.error("Error booking trainer:", error);
-                        showToast("error", "Failed to book the trainer. Please try again.");
-                    }
-                };
-            } else {
-                console.warn("Element 'confirmBookingButton' not found in DOM.");
-            }
-
-            $('#bookingConfirmationModal').modal('show');
-        }
-        // Function to show toast notifications
-        function showToast(type, message) {
-            const toastContainer = document.getElementById('toastContainer');
-
-            if (!toastContainer) {
-                console.error("Toast container element 'toastContainer' not found in the DOM.");
-                return; // Exit the function if toastContainer is not found
-            }
-
-            const toast = document.createElement('div');
-            toast.className = `toast align-items-center text-bg-${type === "success" ? "success" : "danger"} border-0`;
-            toast.setAttribute("role", "alert");
-            toast.setAttribute("aria-live", "assertive");
-            toast.setAttribute("aria-atomic", "true");
-
-            toast.innerHTML = `
-                <div class="d-flex">
-                    <div class="toast-body">
-                        ${message}
-                    </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-            `;
-
-            // Append the toast to the toast container
-            toastContainer.appendChild(toast);
-
-            // Initialize Bootstrap toast
-            const bsToast = new bootstrap.Toast(toast, { delay: 3000 });
-            bsToast.show();
-
-            // Remove the toast from DOM after it's hidden
-            toast.addEventListener('hidden.bs.toast', () => {
-                toastContainer.removeChild(toast);
             });
+        });
+        async function displayTrainerRatingAndFeedback(trainerName) {
+            try {
+                const feedbackQuery = query(
+                    collection(db, "RatingAndFeedback"),
+                    where("trainerName", "==", trainerName)
+                );
+                
+                const feedbackSnapshot = await getDocs(feedbackQuery);
+        
+                // Initialize counters and feedback array
+                let ratingCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+                const feedbackData = [];
+                let totalRatingsCount = 0;
+        
+                feedbackSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    const rating = data.rating;
+                    const feedback = data.feedback || "No comment provided.";
+                    
+                    // Count each rating level
+                    if (ratingCounts.hasOwnProperty(rating)) {
+                        ratingCounts[rating] += 1;
+                        totalRatingsCount += 1;
+                    }
+                    // Collect feedback data
+                    feedbackData.push({ rating, feedback });
+                });
+        
+                // Update star rating counts
+                for (let star = 5; star >= 1; star--) {
+                    document.getElementById(`star-${star}-count`).innerText = `(${ratingCounts[star]})`;
+                }
+        
+                // Display average rating in the Overall Rating section
+                const overallRatingElement = document.querySelector("#trainerRating .star-rating .star[data-value='average']");
+                const overallRatingCountElement = document.getElementById("average-rating-count");
+                const averageRating = totalRatingsCount > 0 ? 
+                                      (Object.keys(ratingCounts).reduce((acc, key) => acc + ratingCounts[key] * key, 0) / totalRatingsCount).toFixed(1) 
+                                      : 0;
+        
+                if (overallRatingElement) {
+                    overallRatingElement.innerText = `Overall Rating: ${'★'.repeat(Math.floor(averageRating))}${'☆'.repeat(5 - Math.floor(averageRating))}`;
+                }
+                if (overallRatingCountElement) {
+                    overallRatingCountElement.innerText = `(${totalRatingsCount})`;
+                }
+        
+                // Populate feedback table with all feedback entries
+                const feedbackTableBody = document.getElementById("feedbackTableBody");
+                feedbackTableBody.innerHTML = ""; // Clear existing rows
+                feedbackData.forEach(({ rating, feedback }) => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${"★".repeat(rating)}</td>
+                        <td>${feedback}</td>
+                    `;
+                    feedbackTableBody.appendChild(row);
+                });
+        
+                // Show feedback table if there are entries
+                document.getElementById("feedbackTableContainer").style.display = feedbackData.length > 0 ? "block" : "none";
+        
+            } catch (error) {
+                console.error("Error fetching ratings and feedback:", error);
+            }
+        }
+        
+        // Call this function within ViewTrainerInfo, with trainer name as an argument
+        displayTrainerRatingAndFeedback(document.getElementById("modalTrainerName").innerText);
+                
+            // Function to display the booking confirmation modal
+            window.showBookingConfirmation=function(trainerData, trainerId) {
+                const confirmTrainerName = document.getElementById('confirmTrainerName');
+                const confirmTrainerRate = document.getElementById('confirmTrainerRate');
+                const confirmBookingButton = document.getElementById('confirmBookingButton');
+
+                // Check if elements exist before setting innerText
+                if (confirmTrainerName) {
+                    confirmTrainerName.innerText = trainerData.TrainerName || "the trainer";
+                } else {
+                    console.warn("Element 'confirmTrainerName' not found in DOM.");
+                }
+
+                if (confirmTrainerRate) {
+                    confirmTrainerRate.innerText = `₱${trainerData.rate || 'N/A'}`;
+                } else {
+                    console.warn("Element 'confirmTrainerRate' not found in DOM.");
+                }
+
+                // Set up booking confirmation button
+                if (confirmBookingButton) {
+                    confirmBookingButton.onclick = async function() {
+                        try {
+                            // Your booking logic goes here
+                            // For now, just show success toast
+                            $('#bookingConfirmationModal').modal('hide');
+                            showToast("success", `Successfully booked a session with ${trainerData.TrainerName}!`);
+                        } catch (error) {
+                            console.error("Error booking trainer:", error);
+                            showToast("error", "Failed to book the trainer. Please try again.");
+                        }
+                    };
+                } else {
+                    console.warn("Element 'confirmBookingButton' not found in DOM.");
+                }
+
+                $('#bookingConfirmationModal').modal('show');
+            }
+            // Function to show toast notifications
+            function showToast(type, message) {
+                const toastContainer = document.getElementById('toastContainer');
+
+                if (!toastContainer) {
+                    console.error("Toast container element 'toastContainer' not found in the DOM.");
+                    return; // Exit the function if toastContainer is not found
+                }
+
+                const toast = document.createElement('div');
+                toast.className = `toast align-items-center text-bg-${type === "success" ? "success" : "danger"} border-0`;
+                toast.setAttribute("role", "alert");
+                toast.setAttribute("aria-live", "assertive");
+                toast.setAttribute("aria-atomic", "true");
+
+                toast.innerHTML = `
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            ${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                `;
+
+                // Append the toast to the toast container
+                toastContainer.appendChild(toast);
+
+                // Initialize Bootstrap toast
+                const bsToast = new bootstrap.Toast(toast, { delay: 3000 });
+                bsToast.show();
+
+                // Remove the toast from DOM after it's hidden
+                toast.addEventListener('hidden.bs.toast', () => {
+                    toastContainer.removeChild(toast);
+                });
+            }
+
+            
+
+        // Optionally, you can have other modal functions like closeModal()
+        window.closeModal=function() {
+            $('#gymProfileModal').modal('hide');
         }
 
-        
-
-    // Optionally, you can have other modal functions like closeModal()
-    window.closeModal=function() {
-        $('#gymProfileModal').modal('hide');
-    }
-
-    // Function to close the modal
-    window.closeModal = function() {
-        $('#gymProfileModal').modal('hide'); // Use Bootstrap's modal hide method
-    }
+        // Function to close the modal
+        window.closeModal = function() {
+            $('#gymProfileModal').modal('hide'); // Use Bootstrap's modal hide method
+        }
 
 
               // Fetch notifications from Firestore and sync with localStorage
@@ -1788,38 +2175,53 @@ function formatTime(time) {
         
         
         async function getUserDetails(userId) {
+            // Return cached data if available
             if (userCache[userId]) {
                 return userCache[userId];
             }
+        
             try {
-                const userRef = doc(db, 'Users', userId); 
+                const userRef = doc(db, 'Users', userId);
                 const userSnap = await getDoc(userRef);
+        
                 if (userSnap.exists()) {
                     const userData = userSnap.data();
         
-                    // Define potential photo paths with .jpg and .png
-                    const photoPathJpg = `profilePictures/${userId}.jpg`;
-                    const photoPathPng = `profilePictures/${userId}.png`;
-        
-                    try {
-                        // First, try to get the .jpg photo URL from Firebase Storage
-                        const photoURL = await getDownloadURL(storageRef(storage, photoPathJpg));
-                        userData.photoURL = photoURL; // Add photoURL to userData
-                    } catch (error) {
-                        console.warn(`No .jpg photo found for user: ${userId}, trying .png...`);
+                    // Check if photoURL exists directly in Firestore
+                    if (userData.photoURL) {
+                        console.log(`Found photoURL in Firestore for user: ${userId}`);
+                        userCache[userId] = userData; // Cache user data with Firestore photoURL
+                        return userData; // Return data directly if photoURL exists
+                    } else {
+                        // Fallback to fetching the photo from Firebase Storage
+                        const photoPaths = [
+                            `profilePictures/${userId}.jpg`,
+                            `profilePictures/${userId}.png`
+                        ];
                         
-                        try {
-                            // If .jpg is not found, try fetching the .png photo URL
-                            const photoURL = await getDownloadURL(storageRef(storage, photoPathPng));
-                            userData.photoURL = photoURL; // Add photoURL to userData
-                        } catch (error) {
-                            console.warn(`No .png photo found in storage for user: ${userId}`);
-                            userData.photoURL = null; // Set to null if no photo found
-                        }
-                    }
+                        let photoURL = null;
         
-                    userCache[userId] = userData; // Cache the user data
-                    return userData;
+                        for (let path of photoPaths) {
+                            try {
+                                // Try retrieving the photo URL from Firebase Storage
+                                photoURL = await getDownloadURL(storageRef(storage, path));
+                                userData.photoURL = photoURL;
+                                break; // Stop if photo is found
+                            } catch (error) {
+                                console.warn(`No photo found at path: ${path}`);
+                            }
+                        }
+        
+                        // Log if no photo was found in Storage
+                        if (!photoURL) {
+                            console.warn(`No photo (jpg or png) found in storage for user: ${userId}`);
+                            userData.photoURL = null; // Explicitly set to null if no photo was found
+                        }
+        
+                        // Cache and return user data
+                        userCache[userId] = userData;
+                        return userData;
+                    }
                 } else {
                     console.warn("No user found for ID:", userId);
                     return null;
@@ -1829,6 +2231,8 @@ function formatTime(time) {
                 return null;
             }
         }
+        
+        
         
         let unsubscribeSentMessages = null;
         let unsubscribeReceivedMessages = null;

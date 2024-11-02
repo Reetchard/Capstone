@@ -85,26 +85,6 @@ async function getNextUserId(role) {
     return newId;
 }
 
-
-
-function redirectUser(role) {
-    switch (role.toLowerCase()) {
-        case 'admin':
-            window.location.href = 'Accounts.html';
-            break;
-        case 'gymowner':
-            window.location.href = 'GymForm.html';
-            break;
-        case 'trainer':
-            window.location.href = 'Login.html';
-            break;
-        default:
-            window.location.href = 'Login.html'; // Default for regular users/customers
-            break;
-    }
-}
-
-// Sign up function
 async function signUpWithEmail(username, email, password, role, errorMessageElement, successMessageElement) {
     clearMessages(errorMessageElement, successMessageElement);
 
@@ -131,7 +111,7 @@ async function signUpWithEmail(username, email, password, role, errorMessageElem
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
         await setDoc(doc(db, 'Users', userCredential.user.uid), {
-            userId,
+            userId ,
             username,
             email,
             password,
@@ -163,6 +143,26 @@ async function signUpWithEmail(username, email, password, role, errorMessageElem
         showMessage(errorMessageElement, errorMsg, true);
     }
 }
+
+
+function redirectUser(role) {
+    switch (role.toLowerCase()) {
+        case 'admin':
+            window.location.href = 'Accounts.html';
+            break;
+        case 'gymowner':
+            window.location.href = 'GymForm.html';
+            break;
+        case 'trainer':
+            window.location.href = 'Login.html';
+            break;
+        default:
+            window.location.href = 'Login.html'; // Default for regular users/customers
+            break;
+    }
+}
+
+// Sign up function
 
 // Function to notify the user, gym owner, or trainer
 function notifyUser(username, role) {
@@ -199,12 +199,6 @@ function notifyUser(username, role) {
         console.warn('Notification container not found!');
     }
 }
-
-
-
-
-
-
 
 // Clear form fields
 function clearSignUpFields() {

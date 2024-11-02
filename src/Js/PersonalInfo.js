@@ -39,18 +39,15 @@ onAuthStateChanged(auth, (user) => {
     if (user) {
         const userId = user.uid;
         const userDocRef = doc(firestore, 'Users', userId);
-        const profilePicRef = storageRef(storage, 'profilePictures/' + userId + '/profile.jpg');
 
         getDoc(userDocRef).then((snapshot) => {
             if (snapshot.exists()) {
                 const userData = snapshot.data();
-
-                // Debugging: Log the data to check if it's fetched correctly
                 console.log("Fetched user data:", userData);
 
                 // Assign data to input fields
                 usernameInput.value = userData.username || '';
-                emailInput.value = user.email || ''; // Use Firebase Auth email
+                emailInput.value = user.email || '';
                 phoneInput.value = userData.phone || '';
                 addressInput.value = userData.address || '';
                 weightInput.value = userData.weight || '';
@@ -58,15 +55,8 @@ onAuthStateChanged(auth, (user) => {
                 medicationInput.value = userData.medication || '';
                 allergiesInput.value = userData.allergies || '';
 
-                // Fetch and display the profile picture
-                getDownloadURL(profilePicRef)
-                    .then((url) => {
-                        profilePicture.src = url; // Set the profile picture
-                    })
-                    .catch((error) => {
-                        console.error("Error loading profile picture:", error);
-                        profilePicture.src = 'default-profile.png'; // Default picture if not available
-                    });
+                // Display profile picture if URL is stored in Firestore, else show default
+                profilePicture.src = userData.photoURL || 'default-profile.png';
             } else {
                 statusMessage.textContent = "No user data found!";
             }
@@ -75,13 +65,13 @@ onAuthStateChanged(auth, (user) => {
             statusMessage.textContent = "Error loading data.";
         });
     } else {
-        window.location.href = 'login.html'; // Redirect to login if user is not authenticated
+        window.location.href = 'login.html';
     }
 });
 
 // Handle profile picture upload and cropping
 profilePicture.addEventListener('click', () => {
-    profilePictureInput.click(); // Open file selector when clicking on the image
+    profilePictureInput.click();
 });
 
 profilePictureInput.addEventListener('change', (e) => {
@@ -106,23 +96,23 @@ personalInfoForm.addEventListener('submit', async (e) => {
 
     if (user) {
         const userId = user.uid;
-        const userDocRef = doc(firestore, 'Users', userId); // Use 'Users' collection
+        const userDocRef = doc(firestore, 'Users', userId);
 
-        // Update user profile in Firestore
         try {
             await setDoc(userDocRef, {
-                username: username,
-                phone: phone,
-                address: address,
-                weight: weight,
-                height: height,
-                medication: medication,
-                allergies: allergies
-            }, { merge: true }); // Use merge to avoid overwriting the entire document
+                username,
+                phone,
+                address,
+                weight,
+                height,
+                medication,
+                allergies
+            }, { merge: true });
+            
             statusMessage.textContent = "Profile updated successfully!";
             statusMessage.style.color = 'green';
             setTimeout(() => {
-                window.location.href = 'dashboard.html'; // Redirect to dashboard after 3 seconds
+                window.location.href = 'dashboard.html';
             }, 3000);
         } catch (error) {
             console.error("Error updating profile:", error);
@@ -132,11 +122,11 @@ personalInfoForm.addEventListener('submit', async (e) => {
     }
 });
 
-function uploadProfilePicture(file) {
+async function uploadProfilePicture(file) {
     const userId = auth.currentUser.uid;
-    const profilePicRef = storageRef(storage, 'profilePictures/' + userId + '/profile.jpg');
-
+    const profilePicRef = storageRef(storage, `profilePictures/${userId}/profile.jpg`);
     const uploadTask = uploadBytesResumable(profilePicRef, file);
+
     uploadTask.on('state_changed', 
         (snapshot) => {
             // Optional: Track upload progress
@@ -144,11 +134,19 @@ function uploadProfilePicture(file) {
         (error) => {
             console.error('Error uploading profile picture:', error);
         }, 
-        () => {
+        async () => {
             // Upload completed successfully
-            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                profilePicture.src = downloadURL; // Update the displayed profile picture
-            });
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            profilePicture.src = downloadURL;
+
+            // Save the profile picture URL in Firestore
+            const userDocRef = doc(firestore, 'Users', userId);
+            try {
+                await setDoc(userDocRef, { photoURL: downloadURL }, { merge: true });
+                console.log("Profile picture URL saved to Firestore.");
+            } catch (error) {
+                console.error("Error saving profile picture URL to Firestore:", error);
+            }
         }
     );
 }
