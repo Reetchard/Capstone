@@ -1,10 +1,9 @@
-// Import necessary Firebase modules
+// Firebase configuration and initialization
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
 import { getAuth } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
 import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-storage.js';
 
-// Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyAPNGokBic6CFHzuuENDHdJrMEn6rSE92c",
     authDomain: "capstone40-project.firebaseapp.com",
@@ -24,19 +23,24 @@ const auth = getAuth(app);
 // Ensure the DOM is loaded before accessing elements
 document.addEventListener('DOMContentLoaded', () => {
     const reportForm = document.getElementById('reportForm');
-    const spinner = document.querySelector('.spinner');
-    const reportContainer = document.querySelector('.report-container');
-
-    // Function to show the spinner and blur effect
-    function showSpinner() {
-        spinner.style.display = 'block';
-        reportContainer.classList.add('blur');
+    const globalSpinner = document.getElementById('globalSpinner'); // Reference to globalSpinner
+    
+    // Check if globalSpinner exists
+    if (!globalSpinner) {
+        console.error('globalSpinner not found');
+        return;
     }
 
-    // Function to hide the spinner and blur effect
+    // Function to show the spinner
+    function showSpinner() {
+        console.log('Showing spinner'); // Debug log
+        globalSpinner.style.display = 'flex';
+    }
+
+    // Function to hide the spinner
     function hideSpinner() {
-        spinner.style.display = 'none';
-        reportContainer.classList.remove('blur');
+        console.log('Hiding spinner'); // Debug log
+        globalSpinner.style.display = 'none';
     }
 
     // Handle form submission
@@ -48,21 +52,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const reportType = document.getElementById('reportType').value;
         const reportUrgency = document.getElementById('reportUrgency').value;
         const reportFile = document.getElementById('reportFile').files[0];
-        const userId = auth.currentUser ? auth.currentUser.uid : null; // Get the logged-in user's ID
+        const userId = auth.currentUser ? auth.currentUser.uid : null;
 
         if (!userId) {
             Swal.fire({
                 icon: "warning",
                 title: "Login Required",
                 text: "You need to be logged in to submit a report.",
-                showConfirmButton: true,
                 confirmButtonText: "Log In",
                 confirmButtonColor: "#3085d6",
-                customClass: {
-                    popup: "swal-popup",
-                    title: "swal-title",
-                    confirmButton: "swal-confirm-button"
-                }
             });
             return;
         }
@@ -73,6 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
             type: reportType,
             urgency: reportUrgency,
             userId: userId,
+            status: 'Review',
             timestamp: serverTimestamp()
         };
 
@@ -80,7 +79,6 @@ document.addEventListener('DOMContentLoaded', () => {
         showSpinner();
 
         try {
-            // If there's a file attached, upload it to Firebase Storage
             if (reportFile) {
                 const storageRef = ref(storage, `reports/${userId}/${reportFile.name}`);
                 const fileSnapshot = await uploadBytes(storageRef, reportFile);
@@ -88,22 +86,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 reportData.fileURL = fileURL;
             }
 
-            // Save the report data to Firestore
+            // Save report data to Firestore
             await addDoc(collection(db, 'Reports'), reportData);
 
-            // Success message with SweetAlert
             Swal.fire({
                 icon: "success",
                 title: "Report Submitted!",
-                text: "Your report was submitted successfully. Thank you for your feedback!",
-                showConfirmButton: true,
+                text: "Your report was submitted successfully. Thank you!",
                 confirmButtonText: "OK",
                 confirmButtonColor: "#28a745",
-                customClass: {
-                    popup: "swal-popup-success",
-                    title: "swal-title-success",
-                    confirmButton: "swal-confirm-button-success"
-                }
             });
 
             // Clear the form
@@ -114,14 +105,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 icon: "error",
                 title: "Submission Failed",
                 text: "Failed to submit the report. Please try again.",
-                showConfirmButton: true,
                 confirmButtonText: "Retry",
                 confirmButtonColor: "#d33",
-                customClass: {
-                    popup: "swal-popup-error",
-                    title: "swal-title-error",
-                    confirmButton: "swal-confirm-button-error"
-                }
             });
         } finally {
             // Hide the spinner

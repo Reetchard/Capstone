@@ -33,6 +33,16 @@ const allergiesInput = document.getElementById('allergies');
 const statusMessage = document.getElementById('status-message');
 const profilePicture = document.getElementById('profile-picture');
 const profilePictureInput = document.getElementById('profile-picture-input');
+const globalSpinner = document.getElementById('globalSpinner');
+
+// Show and hide spinner functions
+function showSpinner() {
+    globalSpinner.style.display = 'flex';
+}
+
+function hideSpinner() {
+    globalSpinner.style.display = 'none';
+}
 
 // Fetch user data when authenticated
 onAuthStateChanged(auth, (user) => {
@@ -77,6 +87,7 @@ profilePicture.addEventListener('click', () => {
 profilePictureInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
+        showSpinner();
         uploadProfilePicture(file);
     }
 });
@@ -84,6 +95,9 @@ profilePictureInput.addEventListener('change', (e) => {
 // Update profile information
 personalInfoForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+
+    // Show spinner on submit
+    showSpinner();
 
     const username = usernameInput.value;
     const phone = phoneInput.value;
@@ -112,12 +126,14 @@ personalInfoForm.addEventListener('submit', async (e) => {
             statusMessage.textContent = "Profile updated successfully!";
             statusMessage.style.color = 'green';
             setTimeout(() => {
+                hideSpinner();
                 window.location.href = 'dashboard.html';
-            }, 3000);
+            }, 2000);
         } catch (error) {
             console.error("Error updating profile:", error);
             statusMessage.textContent = "Error updating profile.";
             statusMessage.style.color = 'red';
+            hideSpinner();
         }
     }
 });
@@ -133,6 +149,7 @@ async function uploadProfilePicture(file) {
         }, 
         (error) => {
             console.error('Error uploading profile picture:', error);
+            hideSpinner();
         }, 
         async () => {
             // Upload completed successfully
@@ -146,6 +163,8 @@ async function uploadProfilePicture(file) {
                 console.log("Profile picture URL saved to Firestore.");
             } catch (error) {
                 console.error("Error saving profile picture URL to Firestore:", error);
+            } finally {
+                hideSpinner();
             }
         }
     );
