@@ -1273,7 +1273,7 @@ function formatTime(time) {
     
     
     // Function to display trainer ratings with dynamic star count updates
-    async function displayTrainerRating(trainerId, container) {
+    async function displayTrainerRating() {
         try {
             const ratingQuery = query(
                 collection(db, "RatingAndFeedback"),
@@ -1466,55 +1466,87 @@ function formatTime(time) {
             });
         }
     });
-        window.showBookingConfirmation = async function(trainerData, trainerId) {
-            const confirmTrainerName = document.getElementById('confirmTrainerName');
-            const confirmTrainerRate = document.getElementById('confirmTrainerRate');
-            const confirmBookingButton = document.getElementById('confirmBookingButton');
-
-            // Get gym name and user ID
-            const gymName = document.getElementById('modalGymName').innerText;
-            const userId = await getCurrentUserId();
-            const price = trainerData.rate || 'N/A';
-
-            // Update confirmation modal content
-            if (confirmTrainerName) confirmTrainerName.innerText = trainerData.TrainerName || "the trainer";
-            if (confirmTrainerRate) confirmTrainerRate.innerText = `₱${trainerData.rate || 'N/A'}`;
-
-            // Booking confirmation action
-            if (confirmBookingButton) {
-                confirmBookingButton.onclick = async function() {
-                    try {
-                        $('#bookingConfirmationModal').modal('hide');
-                        showToast("success", `Successfully booked a session with ${trainerData.TrainerName}!`);
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Booking Confirmed',
-                            text: `You have successfully booked a session with ${trainerData.TrainerName}.`,
-                            confirmButtonText: 'OK',
-                            confirmButtonColor: '#3085d6',
-                        });
-
-                        // Save booking and notification
-                        await saveBookingToDatabase(trainerData.TrainerName, gymName, userId, price);
-                        await saveNotificationToDatabase(`Booked a session with ${trainerData.TrainerName}`, userId);
-
-                        // Fetch notifications to immediately update UI
-                        fetchNotifications(userId);
-
-                    } catch (error) {
-                        console.error("Error booking trainer:", error);
-                        showToast("error", "Failed to book the trainer. Please try again.");
-                    }
-                };
+    window.showBookingConfirmation = async function(trainerData, trainerId) {
+        const confirmTrainerName = document.getElementById('confirmTrainerName');
+        const confirmTrainerRate = document.getElementById('confirmTrainerRate');
+        const confirmBookingButton = document.getElementById('confirmBookingButton');
+    
+        // Get gym name and user ID
+        const gymName = document.getElementById('modalGymName').innerText;
+        const userId = await getCurrentUserId();
+        const price = trainerData.rate || 'N/A';
+    
+        // Update confirmation modal content
+        if (confirmTrainerName) confirmTrainerName.innerText = trainerData.TrainerName || "the trainer";
+        if (confirmTrainerRate) confirmTrainerRate.innerText = `₱${trainerData.rate || 'N/A'}`;
+    
+        // Function to show the notification dot
+        function showNotificationDot() {
+            document.getElementById('messagesNotification').style.display = 'inline-block';
+        }
+    
+        // Hide the notification dot when messages are viewed
+        document.getElementById('messages').addEventListener('click', function() {
+            document.getElementById('messagesNotification').style.display = 'none';
+        });
+    
+        // Booking confirmation action
+        if (confirmBookingButton) {
+            confirmBookingButton.onclick = async function() {
+                try {
+                    $('#bookingConfirmationModal').modal('hide');
+                    showToast("success", `Successfully booked a session with ${trainerData.TrainerName}!`);
+    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Booking Confirmed',
+                        text: `You have successfully booked a session with ${trainerData.TrainerName}.`,
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#3085d6',
+                    });
+    
+                    // Save booking and notification
+                    await saveBookingToDatabase(trainerData.TrainerName, gymName, userId, price);
+                    await saveNotificationToDatabase(`Booked a session with ${trainerData.TrainerName}`, userId);
+    
+                    // Show the red dot notification
+                    showNotificationDot();
+    
+                    // Fetch notifications to immediately update UI
+                    fetchNotifications(userId);
+    
+                } catch (error) {
+                    console.error("Error booking trainer:", error);
+                    showToast("error", "Failed to book the trainer. Please try again.");
+                }
+            };
+        }
+        $('#bookingConfirmationModal').modal('show');
+    };
+        // Global function to show the notification dot
+        window.showNotificationDot = function() {
+            const notificationDot = document.getElementById('messagesNotification');
+            if (notificationDot) {
+                notificationDot.style.display = 'inline-block';
+                console.log("Notification dot is now visible.");
+            } else {
+                console.error("Notification dot element not found in the DOM.");
             }
-            $('#bookingConfirmationModal').modal('show');
         };
-            
+
+        // Event listener to hide the notification dot when the messages are viewed
+        document.getElementById('messages').addEventListener('click', function() {
+            const notificationDot = document.getElementById('messagesNotification');
+            if (notificationDot) {
+                notificationDot.style.display = 'none';
+                console.log("Notification dot has been hidden.");
+            }
+        });
         // Save booking to Firestore Transactions collection
-        async function saveBookingToDatabase(trainerName, gymName, userId, price) {
+        async function saveBookingToDatabase(trainerName, gymName, userId, price, type) {
             try {
                 await addDoc(collection(db, "Transactions"), {
+                    type : 'Booking_trainer',
                     trainerName,
                     gymName,
                     userId,
@@ -2039,12 +2071,18 @@ function formatTime(time) {
         const unreadMessages = new Set(); // Track unread messages
         
         // Initialize the chat modal and clear previous chats
-        document.querySelector('a[href="#chatModal"]').addEventListener('click', function (event) {
+        document.querySelector('a[href="#chatModal"]').addEventListener('click', async function (event) {
             event.preventDefault();
             const chatModal = new bootstrap.Modal(document.getElementById('chatModal'));
             chatModal.show();
             document.querySelector('#usersContainer').innerHTML = '';
             document.querySelector('#inboxContainer').innerHTML = '';
+            
+            // Load inbox messages
+            await loadInboxMessages();
+        
+            // Check for booked trainers in the Transactions collection and display them
+            await displayBookedTrainersInInbox();
         });
         
         // Fetch all users for searching
@@ -2089,11 +2127,6 @@ function formatTime(time) {
             // Show search results only if there are users found
             searchResultsContainer.style.display = users.length > 0 ? 'block' : 'none';
         }
-        
-        
-        
-        
-        // Update searchUsers function to pass isSearch = true when displaying results
         async function searchUsers(searchTerm) {
             const inboxContainer = document.getElementById('inboxContainer');
             const searchResultsContainer = document.getElementById('searchResultsContainer');
@@ -2115,11 +2148,7 @@ function formatTime(time) {
             );
         
             displayUsers(filteredUsers, true);  // Display results in searchResultsContainer
-        }
-        
-        
-        
-        
+        }  
         // Start a chat with a selected user
         function startChat(userId, username) {
             currentChatUserId = userId;
@@ -2141,8 +2170,7 @@ function formatTime(time) {
         
             loadMessages(); // Load messages for the chat
         }
-        
-        
+
         async function getUserDetails(userId) {
             // Return cached data if available
             if (userCache[userId]) {
@@ -2316,70 +2344,87 @@ function formatTime(time) {
         }
 
         async function loadInboxMessages() {
-            const userId = auth.currentUser.uid;
+            const userId = auth.currentUser.uid; // Ang ID sa user nga naka-log in karon
             const inboxContainer = document.getElementById('inboxContainer');
-            inboxContainer.innerHTML = ''; // Clear previous inbox content
-        
-            // Query to get the messages where the current user is either the sender or receiver
-            const inboxQuery = query(
+            inboxContainer.innerHTML = ''; // Limpyohi ang sulod sa inbox
+
+            // Query para kuhaon ang messages diin ang current user either sender o receiver
+            const messagesQuery = query(
                 collection(db, 'Messages'),
-                where('from', '==', userId),
+                where('from', '==', userId), // Messages nga gipadala sa user
                 orderBy('timestamp', 'desc')
             );
-        
-            const querySnapshot = await getDocs(inboxQuery);
-        
-            // Map to store the most recent message for each unique user
-            const recentMessages = new Map();
-        
-            // Iterate through each message
-            querySnapshot.forEach((doc) => {
-                const messageData = doc.data();
-                const otherUserId = messageData.to === userId ? messageData.from : messageData.to;
-        
-                // Check if this message is the most recent for the other user
-                if (!recentMessages.has(otherUserId) || recentMessages.get(otherUserId).timestamp < messageData.timestamp) {
-                    recentMessages.set(otherUserId, { ...messageData, docId: doc.id });
-                    unreadMessages.add(otherUserId); // Mark as unread when adding new messages
-                }
-            });
-        
-            // Check if there are no messages
-            if (recentMessages.size === 0) {
-                const noConversationMessage = document.createElement('div');
-                noConversationMessage.className = 'no-conversation-message';
-                noConversationMessage.textContent = 'No Conversation Available';
-                inboxContainer.appendChild(noConversationMessage);
-                return; // Exit if no messages found
-            }
-        
-            // Display each recent message in the inbox
-            for (const [otherUserId, messageData] of recentMessages.entries()) {
-                const otherUser = await getUserDetails(otherUserId);
-                const inboxItem = document.createElement('div');
-                inboxItem.className = 'inbox-item';
-                inboxItem.textContent = `${otherUser.username || otherUser.email}: ${messageData.message}`;
-        
-                // Style the inbox item based on whether it is unread
-                if (unreadMessages.has(otherUserId)) {
-                    inboxItem.style.fontWeight = 'bold'; // Set font weight to bold for unread messages
-                } else {
-                    inboxItem.style.fontWeight = 'normal'; // Normal weight for read messages
-                }
-        
-                // Add event listener to load messages for this conversation
-                inboxItem.addEventListener('click', () => {
-                    currentChatUserId = otherUserId;
-                    loadMessages();
-                    displayChatHeader(otherUser);
-                    inboxItem.style.fontWeight = 'normal'; // Mark as read when clicked
-                    unreadMessages.delete(otherUserId); // Remove from unread messages
+            
+            const receivedMessagesQuery = query(
+                collection(db, 'Messages'),
+                where('to', '==', userId), // Messages nga gidawat sa user
+                orderBy('timestamp', 'desc')
+            );
+
+            try {
+                // Kuhaa ang mga gipadala ug nadawat nga mensahe
+                const sentMessagesSnapshot = await getDocs(messagesQuery);
+                const receivedMessagesSnapshot = await getDocs(receivedMessagesQuery);
+
+                // Map para i-store ang latest nga message gikan sa matag unique nga user
+                const recentMessages = new Map();
+
+                // I-process ang gipadala nga mga mensahe
+                sentMessagesSnapshot.forEach((doc) => {
+                    const messageData = doc.data();
+                    const otherUserId = messageData.to;
+
+                    // Update ang recentMessages map kung bag-o nga message o mas bag-o ang timestamp
+                    if (!recentMessages.has(otherUserId) || recentMessages.get(otherUserId).timestamp < messageData.timestamp) {
+                        recentMessages.set(otherUserId, { ...messageData, docId: doc.id });
+                    }
                 });
-        
-                inboxContainer.appendChild(inboxItem);
+
+                // I-process ang nadawat nga mga mensahe
+                receivedMessagesSnapshot.forEach((doc) => {
+                    const messageData = doc.data();
+                    const otherUserId = messageData.from;
+
+                    // Update ang recentMessages map kung bag-o nga message o mas bag-o ang timestamp
+                    if (!recentMessages.has(otherUserId) || recentMessages.get(otherUserId).timestamp < messageData.timestamp) {
+                        recentMessages.set(otherUserId, { ...messageData, docId: doc.id });
+                    }
+                });
+
+                // Kung walay nakuha nga message, ipakita nga walay conversation available
+                if (recentMessages.size === 0) {
+                    const noConversationMessage = document.createElement('div');
+                    noConversationMessage.className = 'no-conversation-message';
+                    noConversationMessage.textContent = 'Walay Conversation Available';
+                    inboxContainer.appendChild(noConversationMessage);
+                    return; // Mogawas dayon kung walay messages
+                }
+
+                // Ipakita ang matag recent message sa inbox
+                for (const [otherUserId, messageData] of recentMessages.entries()) {
+                    const otherUser = await getUserDetails(otherUserId); // Kuhaa ang detalye sa user
+                    const inboxItem = document.createElement('div');
+                    inboxItem.className = 'inbox-item';
+                    inboxItem.textContent = `${otherUser.username || otherUser.email}: ${messageData.message}`;
+
+                    // I-display ang unread messages in bold
+                    inboxItem.style.fontWeight = 'bold';
+
+                    // Event listener para mo-load ang messages para niining conversation
+                    inboxItem.addEventListener('click', () => {
+                        startChat(otherUserId, otherUser.username || otherUser.email);
+                        inboxItem.style.fontWeight = 'normal'; // Mark as read kung gi-click
+                      displayChatHeader(otherUser);
+                       
+                    });
+
+                    inboxContainer.appendChild(inboxItem);
+                }
+            } catch (error) {
+                console.error("Error fetching inbox messages:", error);
             }
         }
-        
+
         // Call loadInboxMessages when the chat modal is opened
         document.querySelector('a[href="#chatModal"]').addEventListener('click', loadInboxMessages);
 

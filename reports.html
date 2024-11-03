@@ -45,23 +45,37 @@
 </nav>
     <!-- Navigation Bar Ends-->
 
-    <!-- Complaints Section -->
     <div class="container mt-4">
         <h3 class="text-center mb-4">Recent Complaints</h3>
         <div id="manageReportsContainer">
-            <!-- Complaints will be displayed here -->
+            <!-- Table for displaying complaints -->
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Type</th>
+                        <th>Urgency</th>
+                        <th>User ID</th>
+                        <th>File</th>
+                        <th>Timestamp</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="reportsTableBody">
+                    <!-- Rows will be populated here dynamically -->
+                </tbody>
+            </table>
         </div>
     </div>
+    
 
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.2.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.2.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.2.0/firebase-database-compat.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
-    <script src="script.js"></script>
+    <script type="module" src="src/Js/complaints.js"></script>
 </body>
 </html>

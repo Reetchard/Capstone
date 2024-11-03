@@ -1096,8 +1096,8 @@ strong:hover .custom-tooltip {
 #membershipNotificationDot {
     display: none; /* Hidden by default */
     position: absolute;
-    top: 1px;
-    right: 10px;
+    top: -1px;
+    right: 30px;
     color: red;
     font-size: 20px; /* Adjust the size as needed */
 }
@@ -1960,3 +1960,15 @@ strong:hover .custom-tooltip {
 .toggle-ratings.active::after {
     transform: rotate(180deg);
 }
+.message-dot {
+    display: none; /* initially hidden */
+    position: absolute;
+    top: 10px; /* slightly above the "Messages" text */
+    right: 50px; /* positioned right beside the last letter of "Messages" */
+    width: 8px;
+    height: 8px;
+    background-color: red;
+    border-radius: 50%;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+}
+
