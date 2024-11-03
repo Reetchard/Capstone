@@ -306,7 +306,14 @@ function formatTime(time) {
             });
         });
     }
+    // Function to check if the user's membership is approved
     async function checkMembershipStatus(userId, gymName) {
+        // Check for undefined values
+        if (!userId || !gymName) {
+            console.error("Error: userId or gymName is undefined.");
+            return false; // Exit early if values are invalid
+        }
+
         try {
             // Query the Transactions collection to find membership status
             const membershipQuery = query(
@@ -315,29 +322,36 @@ function formatTime(time) {
                 where('gymName', '==', gymName)
             );
             const membershipSnapshot = await getDocs(membershipQuery);
-    
-            // Loop through each document to check if any status is 'Approved'
+
+            // Check each document for 'Approved' status
             if (!membershipSnapshot.empty) {
                 for (const doc of membershipSnapshot.docs) {
-                    const Transactions = doc.data();
-                    if (Transactions.status && Transactions.status === 'Approved') {
+                    const transaction = doc.data();
+                    if (transaction.status === 'Approved') {
                         return true; // Return true if any document has 'Approved' status
                     }
                 }
             }
-    
+
             // Return false if no document has 'Approved' status
             return false;
         } catch (error) {
-            console.error('Error checking membership status:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Verification Issue!',
-                text: '⚠️ Ooops! We encountered an issue while verifying your membership status. Please try again or reach out to support if this continues.',
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#d33',
-                background: '#fff',
-            });
+            console.error("Error checking membership status:", error);
+
+            // Display SweetAlert message if an error occurs
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Approval Needed',
+                    text: "⚠️ Ooops! Your membership needs Gym Owner's approval. Please contact support or complete any pending steps to proceed.",
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#d33',
+                    background: '#fff',
+                });
+            } else {
+                console.error("SweetAlert (Swal) is not defined.");
+            }
+
             return false;
         }
     }
@@ -355,8 +369,8 @@ function formatTime(time) {
                 // Show a custom error message if membership is not approved
                 Swal.fire({
                     icon: 'error',
-                    title: 'Access Restricted!',
-                    text: 'Your membership status is still "Pending Owner Approval". Please wait until your membership is approved to view this product.',
+                    title: 'Buy Product Restricted!',
+                    text: "⚠️ You cannot Buy a Product until you apply for our plan and get it approved.",
                     confirmButtonText: 'OK',
                     confirmButtonColor: '#d33',
                     background: '#fff',
@@ -364,6 +378,7 @@ function formatTime(time) {
                         popup: 'swal-wide'
                     }
                 });
+                
                 return; // Stop the function if membership is not approved
             }
     
@@ -1187,11 +1202,28 @@ function formatTime(time) {
         });
     });
     
-    // Function to initialize trainer information and ratings in the modal
+    // Function to view trainer information, with membership validation
     window.ViewTrainerInfo = async function(trainerId) {
         try {
+            const userId = await getCurrentUserId(); // Get userId from the Users collection
+            const gymName = document.getElementById('modalGymName').innerText; // Get gym name from GymProfile card
+            const membershipApproved = await checkMembershipStatus(userId, gymName);
+            console.log("Membership status approved:", membershipApproved); // Debug log
+    
+            if (!membershipApproved) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Booking Not Allowed',
+                    text: "⚠️ You cannot book a trainer until you apply for our plan and get it approved.",
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#d33',
+                    background: '#fff',
+                });
+                return;
+            }
+    
             $('#gymProfileModal').modal('hide');
-            
+    
             const trainerDocRef = doc(db, 'Users', trainerId);
             const trainerDoc = await getDoc(trainerDocRef);
     
@@ -1203,7 +1235,6 @@ function formatTime(time) {
                     return;
                 }
     
-                // Set trainer information in the modal
                 document.getElementById('modalTrainerName').innerText = trainerData.TrainerName || 'N/A';
                 document.getElementById('modalTrainerPhoto').src = trainerData.TrainerPhoto || 'default-trainer-photo.jpg';
                 document.getElementById('modalTrainerExpertise').innerText = trainerData.Expertise || 'N/A';
@@ -1217,19 +1248,16 @@ function formatTime(time) {
                     return;
                 }
     
-                // Display ratings
                 await displayTrainerRating(trainerId, trainerRatingContainer);
     
-                // Set `trainerId` as a data attribute on the submit rating button
                 const submitRatingButton = document.getElementById("submitRatingButton");
                 if (submitRatingButton) {
                     submitRatingButton.setAttribute("data-trainer-id", trainerId);
                 }
     
-                // Set up the "Book Now" button
                 document.getElementById('bookNowButton').onclick = function() {
                     $('#trainerProfileModal').modal('hide');
-                    showBookingConfirmation(trainerData, trainerId);
+                    showBookingConfirmation(trainerData, trainerId, userId, gymName);
                 };
     
                 $('#trainerProfileModal').modal('show');
@@ -1243,7 +1271,7 @@ function formatTime(time) {
     };
     
     
-        
+    
     // Function to display trainer ratings with dynamic star count updates
     async function displayTrainerRating(trainerId, container) {
         try {
@@ -1438,86 +1466,113 @@ function formatTime(time) {
             });
         }
     });
-    
-    
-    
-        
-        
-        // Function to display the booking confirmation modal
-        window.showBookingConfirmation=function(trainerData, trainerId) {
+        window.showBookingConfirmation = async function(trainerData, trainerId) {
             const confirmTrainerName = document.getElementById('confirmTrainerName');
             const confirmTrainerRate = document.getElementById('confirmTrainerRate');
             const confirmBookingButton = document.getElementById('confirmBookingButton');
 
-                // Check if elements exist before setting innerText
-                if (confirmTrainerName) {
-                    confirmTrainerName.innerText = trainerData.TrainerName || "the trainer";
-                } else {
-                    console.warn("Element 'confirmTrainerName' not found in DOM.");
-                }
+            // Get gym name and user ID
+            const gymName = document.getElementById('modalGymName').innerText;
+            const userId = await getCurrentUserId();
+            const price = trainerData.rate || 'N/A';
 
-                if (confirmTrainerRate) {
-                    confirmTrainerRate.innerText = `₱${trainerData.rate || 'N/A'}`;
-                } else {
-                    console.warn("Element 'confirmTrainerRate' not found in DOM.");
-                }
+            // Update confirmation modal content
+            if (confirmTrainerName) confirmTrainerName.innerText = trainerData.TrainerName || "the trainer";
+            if (confirmTrainerRate) confirmTrainerRate.innerText = `₱${trainerData.rate || 'N/A'}`;
 
-                // Set up booking confirmation button
-                if (confirmBookingButton) {
-                    confirmBookingButton.onclick = async function() {
-                        try {
-                            // Your booking logic goes here
-                            // For now, just show success toast
-                            $('#bookingConfirmationModal').modal('hide');
-                            showToast("success", `Successfully booked a session with ${trainerData.TrainerName}!`);
-                        } catch (error) {
-                            console.error("Error booking trainer:", error);
-                            showToast("error", "Failed to book the trainer. Please try again.");
-                        }
-                    };
-                } else {
-                    console.warn("Element 'confirmBookingButton' not found in DOM.");
-                }
+            // Booking confirmation action
+            if (confirmBookingButton) {
+                confirmBookingButton.onclick = async function() {
+                    try {
+                        $('#bookingConfirmationModal').modal('hide');
+                        showToast("success", `Successfully booked a session with ${trainerData.TrainerName}!`);
 
-                $('#bookingConfirmationModal').modal('show');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Booking Confirmed',
+                            text: `You have successfully booked a session with ${trainerData.TrainerName}.`,
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#3085d6',
+                        });
+
+                        // Save booking and notification
+                        await saveBookingToDatabase(trainerData.TrainerName, gymName, userId, price);
+                        await saveNotificationToDatabase(`Booked a session with ${trainerData.TrainerName}`, userId);
+
+                        // Fetch notifications to immediately update UI
+                        fetchNotifications(userId);
+
+                    } catch (error) {
+                        console.error("Error booking trainer:", error);
+                        showToast("error", "Failed to book the trainer. Please try again.");
+                    }
+                };
             }
-            // Function to show toast notifications
-            function showToast(type, message) {
-                const toastContainer = document.getElementById('toastContainer');
-
-                if (!toastContainer) {
-                    console.error("Toast container element 'toastContainer' not found in the DOM.");
-                    return; // Exit the function if toastContainer is not found
-                }
-
-                const toast = document.createElement('div');
-                toast.className = `toast align-items-center text-bg-${type === "success" ? "success" : "danger"} border-0`;
-                toast.setAttribute("role", "alert");
-                toast.setAttribute("aria-live", "assertive");
-                toast.setAttribute("aria-atomic", "true");
-
-                toast.innerHTML = `
-                    <div class="d-flex">
-                        <div class="toast-body">
-                            ${message}
-                        </div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                `;
-
-                // Append the toast to the toast container
-                toastContainer.appendChild(toast);
-
-                // Initialize Bootstrap toast
-                const bsToast = new bootstrap.Toast(toast, { delay: 3000 });
-                bsToast.show();
-
-                // Remove the toast from DOM after it's hidden
-                toast.addEventListener('hidden.bs.toast', () => {
-                    toastContainer.removeChild(toast);
+            $('#bookingConfirmationModal').modal('show');
+        };
+            
+        // Save booking to Firestore Transactions collection
+        async function saveBookingToDatabase(trainerName, gymName, userId, price) {
+            try {
+                await addDoc(collection(db, "Transactions"), {
+                    trainerName,
+                    gymName,
+                    userId,
+                    price,
+                    status: "Pending Approval",
+                    timestamp: new Date()
                 });
+            } catch (error) {
+                console.error("Error saving booking to Transactions collection:", error);
             }
+        }
 
+        // Save notification to Firestore Notifications collection
+        async function saveNotificationToDatabase(message, userId) {
+            try {
+                await addDoc(collection(db, "Notifications"), {
+                    message,
+                    userId,
+                    timestamp: new Date()
+                });
+            } catch (error) {
+                console.error("Error saving notification to Notifications collection:", error);
+            }
+        }
+
+        
+    function showToast(type, message) {
+        const toastContainer = document.getElementById('toastContainer');
+        if (!toastContainer) {
+            console.error("Toast container element 'toastContainer' not found in the DOM.");
+            return; // Exit the function if toastContainer is not found
+        }
+    
+        const toast = document.createElement('div');
+        toast.className = `toast align-items-center text-bg-${type === "success" ? "success" : "danger"} border-0`;
+        toast.setAttribute("role", "alert");
+        toast.setAttribute("aria-live", "assertive");
+        toast.setAttribute("aria-atomic", "true");
+    
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        `;
+    
+        toastContainer.appendChild(toast);
+        const bsToast = new bootstrap.Toast(toast, { delay: 3000 });
+        bsToast.show();
+    
+        toast.addEventListener('hidden.bs.toast', () => {
+            toastContainer.removeChild(toast);
+        });
+    }
+
+        
             
 
         // Optionally, you can have other modal functions like closeModal()
@@ -1835,31 +1890,30 @@ function formatTime(time) {
                     
                     const notificationModal = `
                   <div class="modal fade" id="notificationDetailsModal" tabindex="-1" role="dialog" aria-labelledby="notificationDetailsLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="notificationDetailsLabel">Purchase Receipt</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body" id="notificationDetailsContent">
-                <p class="gym-name">${notification.gymName}</p>
-                <p class="ref-number"><strong>Ref. No:</strong> ${notification.notificationId}</p>
-                <div class="product-info">
-                    <p><strong>Product:</strong> ${notification.productName}</p>
-                    <p><strong>Quantity:</strong> ${notification.quantity}</p>
-                    <p><strong>Total Price:</strong> ${notification.totalPrice}</p>
-                </div>
-                <hr>
-                <p class="footer-info">
-                    Show this receipt to the Gym owner upon collection.
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
-
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="notificationDetailsLabel">Purchase Receipt</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body" id="notificationDetailsContent">
+                                    <p class="gym-name">${notification.gymName}</p>
+                                    <p class="ref-number"><strong>Ref. No:</strong> ${notification.notificationId}</p>
+                                    <div class="product-info">
+                                        <p><strong>Product:</strong> ${notification.productName}</p>
+                                        <p><strong>Quantity:</strong> ${notification.quantity}</p>
+                                        <p><strong>Total Price:</strong> ${notification.totalPrice}</p>
+                                    </div>
+                                    <hr>
+                                    <p class="footer-info">
+                                        Show this receipt to the Gym owner upon collection.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     `;
                     

@@ -49,8 +49,9 @@
             </li>
             
             <li class="nav-item">
-                <a class="nav-link" data-toggle="modal" href="#chatModal">
+                <a id="messages" class="nav-link" data-toggle="modal" href="#chatModal">
                     <i class="fas fa-comments"></i> Messages
+                    <span id="messagesNotification" class="notification-dot" style="display: none;"></span>
                 </a>
             </li>         
         </ul>
@@ -663,6 +664,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="module" src="src/Js/DashScript.js"></script>
 </body>
 </html>
