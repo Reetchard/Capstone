@@ -228,3 +228,170 @@ h1 {
     background-color: #dc3545;
     color: #fff;
 }
+/* Compact Modal Styling */
+.modal-content {
+    background-color: #333; /* Dark background */
+    color: #fff;            /* Light text color */
+    border-radius: 8px;
+    padding: 10px; /* Minimal padding for compact look */
+    width: auto; /* Adjust width to fit content */
+    max-width: 95%; /* Limit width for smaller screens */
+}
+
+.modal-dialog {
+    max-width: none; /* Remove default width constraint */
+    margin: auto; /* Center the modal */
+}
+
+/* Table Styling */
+.table-striped {
+    width: 100%; /* Full width to align with modal */
+    border-collapse: collapse;
+}
+
+.table-striped thead th {
+    background-color: #444;
+    color: #eee;
+    padding: 8px;
+    text-align: center;
+    border-bottom: 2px solid #555;
+    font-weight: bold;
+}
+
+.table-striped tbody tr {
+    border-bottom: 1px solid #555;
+}
+
+.table-striped tbody tr:last-child {
+    border-bottom: none;
+}
+
+.table-striped td, .table-striped th {
+    padding: 8px; /* Reduced padding for a tighter fit */
+    text-align: center; /* Center align text for compact look */
+    font-size: 0.9em; /* Slightly smaller font for compactness */
+}
+
+.table-striped tbody tr:nth-child(even) {
+    background-color: #3b3b3b; /* Slightly darker for even rows */
+}
+
+.table-striped tbody tr:hover {
+    background-color: #555; /* Row hover effect */
+}
+
+/* Action Buttons Styling */
+.action-button {
+    padding: 5px 8px;
+    font-size: 0.8em; /* Smaller font size for compact fit */
+    margin: 2px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #fff;
+    border: none;
+}
+
+.action-button.approve {
+    background-color: #28a745; /* Green for Approve */
+}
+
+.action-button.idle {
+    background-color: #ffc107; /* Yellow for Idle */
+    color: #333;
+}
+
+.action-button.blocked {
+    background-color: #dc3545; /* Red for Blocked */
+}
+/* Full-screen overlay styling with blue background */
+.spinner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(189, 193, 197, 0.226); /* Solid blue background */
+    backdrop-filter: blur(8px); /* Apply blur effect */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+/* Spinner styling */
+.loader {
+    transform: rotateZ(45deg);
+    perspective: 1000px;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    color: #fff;
+    position: relative;
+}
+
+.loader:before,
+.loader:after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: inherit;
+    height: inherit;
+    border-radius: 50%;
+    transform: rotateX(70deg);
+    animation: spin 1s linear infinite;
+}
+
+.loader:after {
+    color: #FF3D00;
+    transform: rotateY(70deg);
+    animation-delay: 0.4s;
+}
+
+/* Keyframes for animations */
+@keyframes rotate {
+    0% {
+        transform: translate(-50%, -50%) rotateZ(0deg);
+    }
+    100% {
+        transform: translate(-50%, -50%) rotateZ(360deg);
+    }
+}
+
+@keyframes rotateccw {
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    100% {
+        transform: translate(-50%, -50%) rotate(-360deg);
+    }
+}
+
+@keyframes spin {
+    0%,
+    100% {
+        box-shadow: 0.2em 0px 0 0px currentcolor;
+    }
+    12% {
+        box-shadow: 0.2em 0.2em 0 0 currentcolor;
+    }
+    25% {
+        box-shadow: 0 0.2em 0 0px currentcolor;
+    }
+    37% {
+        box-shadow: -0.2em 0.2em 0 0 currentcolor;
+    }
+    50% {
+        box-shadow: -0.2em 0 0 0 currentcolor;
+    }
+    62% {
+        box-shadow: -0.2em -0.2em 0 0 currentcolor;
+    }
+    75% {
+        box-shadow: 0px -0.2em 0 0 currentcolor;
+    }
+    87% {
+        box-shadow: 0.2em -0.2em 0 0 currentcolor;
+    }
+}

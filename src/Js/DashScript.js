@@ -507,10 +507,12 @@ function formatTime(time) {
     
                     // Save transaction to 'Transactions' collection
                     const newTransaction = {
+                        type : 'product',
                         userId: userId, // Storing userId of the customer/user
                         productName: productName,
                         quantity: quantityPurchased,
                         totalPrice: totalPrice,
+                        status: 'Pending',
                         gymName: gymName, // Storing gymName from GymProfile card
                         timestamp: new Date().toISOString() // Timestamp of the transaction
                     };
@@ -579,6 +581,7 @@ function formatTime(time) {
     
             // Save transaction to 'Transactions' collection
             const newTransaction = {
+                type: 'product',
                 userId: userId, // Storing userId of the customer/user
                 productName: productName,
                 quantity: quantityPurchased,
@@ -767,6 +770,7 @@ function formatTime(time) {
         try {
             console.log('Attempting to save transaction:', { planId, planType, planPrice, membershipDays, userId, gymName });
             const newTransaction = {
+                type : 'membership',
                 userId: userId,
                 planId: planId,
                 planType: planType,

@@ -50,12 +50,11 @@
         <h1>All Transactions</h1>
 
         <div id="transactionTabs">
-            <button class="btn btn-primary" data-type="planId" data-toggle="modal" data-target="#membershipsModal">Memberships</button>
-            <button class="btn btn-primary" data-type="trainerId" data-toggle="modal" data-target="#trainersModal">Trainers</button>
-            <button class="btn btn-primary" data-type="productId" data-toggle="modal" data-target="#productsModal">Products</button>
-        </div>        
+            <button class="btn btn-primary" data-type="membership" data-toggle="modal" data-target="#membershipsModal">Memberships</button>
+            <button class="btn btn-primary" data-type="Booking_trainer" data-toggle="modal" data-target="#trainersModal">Trainers</button>
+            <button class="btn btn-primary" data-type="product" data-toggle="modal" data-target="#productsModal">Products</button>
+        </div>  
     </div>
-
     <div class="modal fade" id="membershipsModal" tabindex="-1" role="dialog" aria-labelledby="membershipsModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
@@ -66,13 +65,17 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <table id="membershipsTable" class="table table-striped">
+                    <table id="membershipTable" class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Member Name</th>
-                                <th>Date Joined</th>
-                                <th>Price</th>
+                                <th>User ID</th>
+                                <th>Gym Name</th>
+                                <th>Membership Days</th>
+                                <th>Plan Price</th>
+                                <th>Plan Type</th>
+                                <th>Purchase Date</th>
                                 <th>Status</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -87,7 +90,7 @@
         </div>
     </div>
     
-    <!-- Trainers Modal -->
+
     <div class="modal fade" id="trainersModal" tabindex="-1" role="dialog" aria-labelledby="trainersModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
@@ -98,13 +101,16 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <table id="trainersTable" class="table table-striped">
+                    <table id="Booking_trainerTable" class="table table-striped">
                         <thead>
                             <tr>
+                                <th>User ID</th>
+                                <th>Gym Name</th>
                                 <th>Trainer Name</th>
-                                <th>Session Date</th>
-                                <th>Fee</th>
+                                <th>Timestamp</th>
+                                <th>Price</th>
                                 <th>Status</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -119,7 +125,7 @@
         </div>
     </div>
     
-    <!-- Products Modal -->
+
     <div class="modal fade" id="productsModal" tabindex="-1" role="dialog" aria-labelledby="productsModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
@@ -130,13 +136,17 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <table id="productsTable" class="table table-striped">
+                    <table id="productTable" class="table table-striped">
                         <thead>
                             <tr>
+                                <th>User ID</th>
+                                <th>Gym Name</th>
                                 <th>Product Name</th>
-                                <th>Date Purchased</th>
-                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Timestamp</th>
+                                <th>Total Price</th>
                                 <th>Status</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -149,8 +159,13 @@
                 </div>
             </div>
         </div>
-    </div>  
-
+    </div>
+    
+    <div id="globalSpinner" class="spinner-overlay" style="display: none;">
+        <div class="spinner-container">
+            <span class="loader"></span>
+        </div>
+    </div>
     
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
