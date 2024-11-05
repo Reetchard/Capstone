@@ -525,12 +525,14 @@ function formatTime(time) {
     
                     // Ensure that success modal elements exist before setting innerText
                     const successProductName = document.getElementById('successProductName');
+                    const successGymName = document.getElementById('successGymName');
                     const successQuantity = document.getElementById('successQuantity');
                     const successTotalPrice = document.getElementById('successTotalPrice');
     
-                    if (successProductName && successQuantity && successTotalPrice) {
+                    if (successProductName && successQuantity && successTotalPrice && successGymName) {
                         // Show success modal with details if elements exist
                         successProductName.innerText = productName;
+                        successGymName.innerText = gymName;
                         successQuantity.innerText = quantityPurchased;
                         successTotalPrice.innerText = totalPrice;
                         $('#successModal').modal('show');
@@ -598,6 +600,7 @@ function formatTime(time) {
     
             // Show success modal
             document.getElementById('successProductName').innerText = productName;
+            document.getElementById('successGymName').innerText = gymName;
             document.getElementById('successQuantity').innerText = quantityPurchased;
             document.getElementById('successTotalPrice').innerText = totalPrice;
             $('#successModal').modal('show');
@@ -627,7 +630,7 @@ function formatTime(time) {
             
             // Define an array of colors for the membership cards
             const cardColors = [
-                'linear-gradient(to right, #5B247A, #1BCEDF)',  
+                'linear-gradient(to right, #FFA31A, #1b1b1b, #FFA31A)',  
                 'linear-gradient(to right, #184E68, #57CA85)', 
                 'linear-gradient(to right, #F02FC2, #6094EA)'
             ];
@@ -902,20 +905,20 @@ function formatTime(time) {
                 } else {
                     // If not expired, show as the current membership with countdown
                     currentMembershipHtml = `
-                        <div style="padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; background: linear-gradient(135deg, #f9f9f9 0%, #f0f0f0 100%);
-                            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: transform 0.3s;">
-                            <h4 style="font-size: 1.7em; font-weight: bold; color: #5B247A; margin-bottom: 10px;">
-                                <i class="fas fa-dumbbell" style="color: #1BCEDF;"></i> 
+                        <div class="membership-card">
+                            <h4 class="gym-name">
                                 ${membership.gymName || 'Unnamed Gym'}
                             </h4>
-                            <p style="margin: 10px 0;"><strong>Plan:</strong> ${membership.planType || 'N/A'}</p>
-                            <p style="margin: 10px 0;"><strong>Price:</strong> <span style="color: #28a745;">₱${membership.planPrice || 'N/A'}</span></p>
-                            <p style="margin: 10px 0;"><strong>Purchased on:</strong> ${purchaseDate.toLocaleDateString()}</p>
-                            <p style="margin: 10px 0;"><strong>Expires on:</strong> ${expirationDate.toLocaleDateString()}</p>
-                            <p style="margin: 10px 0; font-weight: bold;"><strong>Time Remaining:</strong> <span id="countdown" style="color: #1BCEDF;"></span></p>
-                            <p style="margin: 10px 0;"><strong>Status:</strong> 
-                                <span style="color: ${membership.status === 'Approved' ? '#28a745' : '#FF5722'};">${membership.status || 'N/A'}</span>
-                            </p>
+                            <div class="membership-info">
+                                <p><strong>Plan:</strong> ${membership.planType || 'N/A'}</p>
+                                <p><strong>Price:</strong> <span class="price">₱${membership.planPrice || 'N/A'}</span></p>
+                                <p><strong>Purchased on:</strong> ${purchaseDate.toLocaleDateString()}</p>
+                                <p><strong>Expires on:</strong> ${expirationDate.toLocaleDateString()}</p>
+                                <p><strong>Time Remaining:</strong> <span id="countdown" class="countdown"></span></p>
+                                    <p style="margin: 10px 0;"><strong>Status:</strong> 
+                                    <span style="color: ${membership.status === 'Approved' ? '#28a745' : '#FF5722'};">${membership.status || 'N/A'}</span>
+                                </p>
+                            </div>
                         </div>
                     `;
     
@@ -939,8 +942,8 @@ function formatTime(time) {
     
             // Render HTML for the membership history
             membershipHistoryDiv.innerHTML = `
-                <div style="padding: 20px; background-color: #f9f9f9; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-                    <h4 style="color: #5B247A; font-weight: bold;">Membership History</h4>
+                <div style="padding: 20px; background: linear-gradient(135deg, #1b1b1b 0%, #4d4d4d 100%); border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                    <h4 style="color: #ffffff; font-weight: bold;">Membership History</h4>
                     ${historyHtml}
                 </div>`;
         } catch (error) {

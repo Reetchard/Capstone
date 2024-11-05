@@ -82,9 +82,6 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                    Close
-                </button> -->
             </div>
         </div>
     </div>
@@ -264,42 +261,18 @@
                             </div>
                         </div>
                        <!-- Trainer Rating Section -->
-                        <div class="col-md-12 trainer-rating-section">
+                        <div class="row">
+                        <div class="col-md-6">
                             <strong>Trainer Rating:</strong>
                             <div id="trainerRatingContainer" class="rating-container">
                                 <!-- Overall Rating with animation and larger icon -->
                                 <div class="star-rating overall-rating">
-                                    <span class="star" data-value="average">Overall Rating: ★★★★☆</span>
+                                    <span class="star" data-value="average">★★★★☆</span>
                                     <span class="star-count" id="average-rating-count">0</span>
                                 </div>
-
-                                <!-- Collapsible section for individual star ratings -->
-                                <div id="collapsibleRatings" class="individual-ratings">
-                                    <div class="star-rating">
-                                        <span class="star" data-value="5">★★★★★</span>
-                                        <span class="star-count" id="star-5-count">0</span>
-                                    </div>
-                                    <div class="star-rating">
-                                        <span class="star" data-value="4">★★★★</span>
-                                        <span class="star-count" id="star-4-count">0</span>
-                                    </div>
-                                    <div class="star-rating">
-                                        <span class="star" data-value="3">★★★</span>
-                                        <span class="star-count" id="star-3-count">0</span>
-                                    </div>
-                                    <div class="star-rating">
-                                        <span class="star" data-value="2">★★</span>
-                                        <span class="star-count" id="star-2-count">0</span>
-                                    </div>
-                                    <div class="star-rating">
-                                        <span class="star" data-value="1">★</span>
-                                        <span class="star-count" id="star-1-count">0</span>
-                                    </div>
-                                </div>
-                               <a href="#" id="toggleRatings" class="toggle-ratings" onclick="toggleRatings(event)">Show More</a>
                             </div>
                         </div>
-
+                    </div>
                     </div>
                 </div>
             </div>
@@ -495,22 +468,23 @@
 <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content" style="border-radius: 10px; overflow: hidden; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);">
-            <div class="modal-header" style="background-color: #5B247A; color: white; border-bottom: 2px solid #1BCEDF;">
+            <div class="modal-header" style="background-color: transparent; color: white; border-bottom: 2px solid #ffa31a;">
                 <h5 class="modal-title" id="successModalLabel" style="font-size: 1.25rem; font-weight: bold;">🎉 Purchase Successful!</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: white;">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body" style="background-color: #f9f9f9; color: #333;">
-                <div style="text-align: center; margin-bottom: 15px;">
-                    <i class="fas fa-check-circle" style="color: #28a745; font-size: 2.5rem;"></i>
+            <div class="modal-body" style="background-color: transparent; color: #fff; text-align: justify;">
+                <div style="text-align: center; margin-bottom: 15px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-check-circle" style="color: #28a745; font-size: 1.5rem; margin-right: 8px;"></i>
+                    <p style="font-size: 1rem; margin: 0;">Quantity: <strong><span id="successQuantity"></span></strong></p>
                 </div>
+                
                 <p style="font-size: 1.1rem;">You have successfully purchased <strong><span id="successProductName"></span></strong> for <strong><span id="successTotalPrice"></span></strong>.</p>
                 <p style="font-size: 1rem;">Please visit <strong><span id="successGymName"></span></strong> to claim your product and present your receipt to the cashier, go to the Notification for the reciept.</p>
-                <p style="font-size: 1rem;">Quantity: <strong><span id="successQuantity"></span></strong></p>
             </div>
-            <div class="modal-footer" style="background-color: #f1f1f1;">
-                <button type="button" class="btn btn-primary" data-dismiss="modal" style="background-color: #1BCEDF; border: none;">OK</button>
+            <div class="modal-footer" style="background-color: transparent; border-top: 2px solid #ffa31a;">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" style="background-color: #28a745; border: none;">OK</button>
             </div>
         </div>
     </div>
@@ -618,16 +592,16 @@
     </div>
 </div>
 <div id="rateTrainerModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="rateTrainerModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="rateTrainerModalLabel">Rate Trainer</h5>
+                <h5 class="modal-title" id="rateTrainerModalLabel">Rate your experience</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body text-center">
-                <p>Select your rating:</p>
+                <p>We highly value your feedback! Kindly take a moment to rate your experience and provide us with you valuable feedback.</p>
                 <div id="rateStars">
                     <span class="rate-star" data-value="1">★</span>
                     <span class="rate-star" data-value="2">★</span>
@@ -635,12 +609,10 @@
                     <span class="rate-star" data-value="4">★</span>
                     <span class="rate-star" data-value="5">★</span>
                 </div>
-                <p class="mt-3">Leave your feedback:</p>
-                <textarea id="feedbackText" class="form-control" rows="3" placeholder="Write your feedback here..."></textarea>
+                <textarea id="feedbackText" class="form-control" rows="3" placeholder="Tell us about your experience!"></textarea>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="submitRatingButton">Submit Rating</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="submitRatingButton">Send</button>
             </div>
         </div>
     </div>
