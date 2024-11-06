@@ -491,6 +491,7 @@ function formatTime(time) {
                     // Create a new notification with detailed information
                     const newNotification = {
                         message: `You purchased ${quantityPurchased} of ${productName} for ${totalPrice}.`,
+                        type : 'Products',
                         productName: productName,
                         quantity: quantityPurchased,
                         totalPrice: totalPrice,
@@ -1472,38 +1473,95 @@ function formatTime(time) {
                 }
             });
         }
-    });
-    window.showBookingConfirmation = async function(trainerData, trainerId) {
+    });window.showBookingConfirmation = async function(trainerData, trainerId) {
         const confirmTrainerName = document.getElementById('confirmTrainerName');
         const confirmTrainerRate = document.getElementById('confirmTrainerRate');
         const confirmBookingButton = document.getElementById('confirmBookingButton');
+        const bookNowTrainerButton = document.getElementById('BookNowTrainer');
     
         // Get gym name and user ID
-        const gymName = document.getElementById('modalGymName').innerText;
+        const gymName = document.getElementById('modalGymName') ? document.getElementById('modalGymName').innerText : "Default Gym";
         const userId = await getCurrentUserId();
         const price = trainerData.rate || 'N/A';
     
         // Update confirmation modal content
-        if (confirmTrainerName) confirmTrainerName.innerText = trainerData.TrainerName || "the trainer";
-        if (confirmTrainerRate) confirmTrainerRate.innerText = `₱${trainerData.rate || 'N/A'}`;
+        confirmTrainerName.innerText = trainerData.TrainerName || "the trainer";
+        confirmTrainerRate.innerText = `₱${price}`;
     
-        // Function to show the notification dot
-        function showNotificationDot() {
-            document.getElementById('messagesNotification').style.display = 'inline-block';
+        // Booking confirmation action for the first modal
+        if (confirmBookingButton) {
+            confirmBookingButton.onclick = function() {
+                $('#bookingConfirmationModal').modal('hide');
+                $('#bookingTrainerModal').modal('show'); // Show the booking form modal
+            };
         }
     
-        // Hide the notification dot when messages are viewed
-        document.getElementById('messages').addEventListener('click', function() {
-            document.getElementById('messagesNotification').style.display = 'none';
-        });
-    
-        // Booking confirmation action
-        if (confirmBookingButton) {
-            confirmBookingButton.onclick = async function() {
+        // Handle final booking submission to Reservations collection
+        if (bookNowTrainerButton) {
+            bookNowTrainerButton.onclick = async function() {
                 try {
-                    $('#bookingConfirmationModal').modal('hide');
-                    showToast("success", `Successfully booked a session with ${trainerData.TrainerName}!`);
+                    // Get booking form data
+                    const firstName = document.getElementById('firstName').value;
+                    const lastName = document.getElementById('lastName').value;
+                    const bookingDate = document.getElementById('date').value;
+                    const email = document.getElementById('email').value;
+                    const message = document.getElementById('message').value;
     
+                    // Check that required fields are filled
+                    if (!firstName || !lastName || !bookingDate || !email) {
+                        showToast("error", "Please fill out all required fields.");
+                        return;
+                    }
+    
+                    // Hide the modal
+                    $('#bookingTrainerModal').modal('hide');
+    
+                    // Prepare data for saving to the Reservations collection
+                    const reservationData = {
+                        trainerName: trainerData.TrainerName,
+                        trainerId: trainerId,
+                        gymName: gymName,
+                        userId: userId,
+                        rate: price,
+                        firstName: firstName,
+                        lastName: lastName,
+                        bookingDate: bookingDate,
+                        email: email,
+                        message: message,
+                        timestamp: new Date().toISOString()
+                    };
+    
+                    // Save reservation to the Reservations collection
+                    await saveToReservationCollection(reservationData);
+    
+                    // Save booking to the Transactions collection
+                    await saveBookingToDatabase(
+                        trainerData.TrainerName,
+                        gymName,
+                        userId,
+                        price,
+                        "Booking_trainer"
+                    );
+    
+                    // Save notification to the Notifications collection
+                    const notificationMessage = `Booked a session with ${trainerData.TrainerName}`;
+                    const notificationData = {
+                        notificationId: Date.now().toString(), // Generate a unique ID or use your own method
+                        trainerName: trainerData.TrainerName,
+                        gymName: gymName,
+                        price: price || "N/A", // Set default if price is undefined
+                        bookingDate: bookingDate,
+                        firstName: firstName,
+                        lastName: lastName,
+                        email: email
+                    };
+                    
+                    await saveNotificationToDatabase(notificationMessage, userId, "Booking_trainer", notificationData);
+                    
+                    
+    
+                    // Show success message
+                    showToast("success", `Successfully booked a session with ${trainerData.TrainerName}!`);
                     Swal.fire({
                         icon: 'success',
                         title: 'Booking Confirmed',
@@ -1512,14 +1570,10 @@ function formatTime(time) {
                         confirmButtonColor: '#3085d6',
                     });
     
-                    // Save booking and notification
-                    await saveBookingToDatabase(trainerData.TrainerName, gymName, userId, price);
-                    await saveNotificationToDatabase(`Booked a session with ${trainerData.TrainerName}`, userId);
-    
                     // Show the red dot notification
                     showNotificationDot();
     
-                    // Fetch notifications to immediately update UI
+                    // Optionally, update UI or fetch new notifications if needed
                     fetchNotifications(userId);
     
                 } catch (error) {
@@ -1528,8 +1582,23 @@ function formatTime(time) {
                 }
             };
         }
+    
+        // Show the initial booking confirmation modal
         $('#bookingConfirmationModal').modal('show');
     };
+    
+    
+      // Function to save data to the Reservations collection
+    async function saveToReservationCollection(data) {
+        try {
+            // Add data to the "Reservations" collection
+            await addDoc(collection(db, "Reservations"), data);
+            console.log("Reservation saved successfully:", data);
+        } catch (error) {
+            console.error("Error saving to Reservations collection:", error);
+            throw new Error("Could not save reservation. Please try again later.");
+        }
+    }
         // Global function to show the notification dot
         window.showNotificationDot = function() {
             const notificationDot = document.getElementById('messagesNotification');
@@ -1567,18 +1636,33 @@ function formatTime(time) {
         }
 
         // Save notification to Firestore Notifications collection
-        async function saveNotificationToDatabase(message, userId) {
+        async function saveNotificationToDatabase(message, userId, type, notificationData) {
             try {
-                await addDoc(collection(db, "Notifications"), {
+                const dataToSave = {
                     message,
                     userId,
-                    timestamp: new Date()
-                });
+                    type,
+                    timestamp: new Date().toISOString(),
+                    notificationId: notificationData.notificationId || Date.now().toString(), // Generate a reference ID if not provided
+                    price: notificationData.price || null, // Default to null if price is undefined
+                    ...notificationData // Spread additional data provided
+                };
+        
+                // Ensure there are no undefined values in dataToSave
+                for (let key in dataToSave) {
+                    if (dataToSave[key] === undefined) {
+                        dataToSave[key] = null; // Replace undefined with null
+                    }
+                }
+        
+                await addDoc(collection(db, "Notifications"), dataToSave);
+                console.log("Notification saved successfully:", dataToSave);
             } catch (error) {
                 console.error("Error saving notification to Notifications collection:", error);
             }
         }
-
+        
+        
         
     function showToast(type, message) {
         const toastContainer = document.getElementById('toastContainer');
@@ -1926,39 +2010,63 @@ function formatTime(time) {
                 // Show detailed notification information in a modal
                 function showNotificationDetails(notification) {
                     const timeAgo = getTimeAgo(notification.timestamp);
-                    
+                
+                    // Define the content based on notification type
+                    let notificationContent = '';
+                
+                    if (notification.type === "Booking_trainer") {
+                        // Content for booking trainer notifications
+                        notificationContent = `
+                            <p class="gym-name">${notification.gymName}</p>
+                            <p class="ref-number"><strong>Ref. No:</strong> ${notification.notificationId || 'N/A'}</p>
+                            <div class="booking-info">
+                                <p><strong>Trainer:</strong> ${notification.trainerName}</p>
+                                <p><strong>Booking Date:</strong> ${notification.bookingDate}</p>
+                                <p><strong>Rate:</strong> ${notification.price}</p>
+                            </div>
+                            <hr>
+                            <p class="footer-info">Show this receipt to the Gym owner upon arrival.</p>
+                        `;
+                    } else if (notification.type === "Products") {
+                        // Content for products notifications
+                        notificationContent = `
+                            <p class="gym-name">${notification.gymName}</p>
+                            <p class="ref-number"><strong>Ref. No:</strong> ${notification.notificationId || 'N/A'}</p>
+                            <div class="product-info">
+                                <p><strong>Product:</strong> ${notification.productName}</p>
+                                <p><strong>Quantity:</strong> ${notification.quantity}</p>
+                                <p><strong>Total Price:</strong> ${notification.totalPrice}</p>
+                            </div>
+                            <hr>
+                            <p class="footer-info">Show this receipt to the Gym owner upon collection.</p>
+                        `;
+                    } else {
+                        notificationContent = `<p>No details available for this notification type.</p>`;
+                    }
+                
                     const notificationModal = `
-                  <div class="modal fade" id="notificationDetailsModal" tabindex="-1" role="dialog" aria-labelledby="notificationDetailsLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="notificationDetailsLabel">Purchase Receipt</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body" id="notificationDetailsContent">
-                                    <p class="gym-name">${notification.gymName}</p>
-                                    <p class="ref-number"><strong>Ref. No:</strong> ${notification.notificationId}</p>
-                                    <div class="product-info">
-                                        <p><strong>Product:</strong> ${notification.productName}</p>
-                                        <p><strong>Quantity:</strong> ${notification.quantity}</p>
-                                        <p><strong>Total Price:</strong> ${notification.totalPrice}</p>
+                        <div class="modal fade" id="notificationDetailsModal" tabindex="-1" role="dialog" aria-labelledby="notificationDetailsLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="notificationDetailsLabel">${notification.type === "Booking_trainer" ? "Booking Confirmation" : "Purchase Receipt"}</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
                                     </div>
-                                    <hr>
-                                    <p class="footer-info">
-                                        Show this receipt to the Gym owner upon collection.
-                                    </p>
+                                    <div class="modal-body" id="notificationDetailsContent">
+                                        ${notificationContent}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-
                     `;
-                    
+                
+                    // Append the modal to the body and show it
                     document.body.insertAdjacentHTML('beforeend', notificationModal);
                     $('#notificationDetailsModal').modal('show');
                 
+                    // Remove modal from DOM after it is closed
                     $('#notificationDetailsModal').on('hidden.bs.modal', function () {
                         this.remove();
                     });
