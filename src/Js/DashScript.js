@@ -405,7 +405,12 @@ function formatTime(time) {
     
                 let availableStock = productData.quantity || 0;
                 let selectedQuantity = 1;
-                let productPrice = productData.price || 0;
+                let productPrice = parseFloat(productData.price) || 0; // Convert to float to handle decimal
+
+                // Ensure price is always displayed with two decimal places
+                function formatPrice(price) {
+                return '₱' + price.toFixed(2); // Always show two decimal places
+                }
     
                 // Display product data
                 modalProductName.innerText = productData.name || 'Unnamed Product';
@@ -418,7 +423,7 @@ function formatTime(time) {
                 // Function to update total price based on selected quantity
                 function updatePrice() {
                     const totalPrice = productPrice * selectedQuantity;
-                    modalProductPrice.innerText = `₱${totalPrice.toLocaleString()}`; // Format price with commas
+                    modalProductPrice.innerText = formatPrice(totalPrice); // Format the price with decimals
                 }
     
                 // Update the displayed stock and quantity
@@ -1244,13 +1249,18 @@ function formatTime(time) {
                     showToast("error", "This trainer is currently under review and cannot be booked.");
                     return;
                 }
+
+                // Format the trainer rate to two decimal places
+                function formatRate(rate) {
+                return '₱' + parseFloat(rate).toFixed(2); // Ensure two decimal places
+                }
     
                 document.getElementById('modalTrainerName').innerText = trainerData.TrainerName || 'N/A';
                 document.getElementById('modalTrainerPhoto').src = trainerData.TrainerPhoto || 'default-trainer-photo.jpg';
                 document.getElementById('modalTrainerExpertise').innerText = trainerData.Expertise || 'N/A';
                 document.getElementById('modalTrainerExperience').innerText = trainerData.Experience || 'N/A';
                 document.getElementById('modalTrainerDays').innerText = trainerData.Days || 'N/A';
-                document.getElementById('modalTrainerRate').innerText = `₱${trainerData.rate || 'N/A'}`;
+                document.getElementById('modalTrainerRate').innerText = formatRate(trainerData.rate || '0'); // Default to '0' if rate is not available
     
                 const trainerRatingContainer = document.getElementById('trainerRatingContainer');
                 if (!trainerRatingContainer) {
@@ -1484,11 +1494,16 @@ function formatTime(time) {
         // Get gym name and user ID
         const gymName = document.getElementById('modalGymName') ? document.getElementById('modalGymName').innerText : "Default Gym";
         const userId = await getCurrentUserId();
-        const price = trainerData.rate || 'N/A';
+        const price = trainerData.rate || '0';  // Default to '0' if rate is not available
+
+        // Format the trainer rate to two decimal places
+    function formatRate(rate) {
+        return '₱' + parseFloat(rate).toFixed(2); // Ensure two decimal places
+    }
     
         // Update confirmation modal content
         confirmTrainerName.innerText = trainerData.TrainerName || "the trainer";
-        confirmTrainerRate.innerText = `₱${price}`;
+        confirmTrainerRate.innerText = formatRate(price); // Use formatted rate
     
         // Booking confirmation action for the first modal
         if (confirmBookingButton) {
