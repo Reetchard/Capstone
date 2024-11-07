@@ -713,26 +713,28 @@ function formatTime(time) {
                     <div id="membershipSuccessModal" class="modal fade" tabindex="-1" role="dialog">
                         <div class="modal-dialog modal-dialog-centered" role="document">
                             <div class="modal-content">
-                                <div class="modal-header" style="background-color: #5B247A; color: white; border-top-left-radius: 8px; border-top-right-radius: 8px;">
-                                    <h5 class="modal-title">🎉 Membership Purchase Successful!</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="color: white;"></button>
+                                <div class="modal-header">
+                                    <h5 class="modal-title"> Membership Purchase Successful!</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
                                 </div>
-                                <div class="modal-body text-center" style="background-color: #f9f9f9;">
-                                    <div style="margin-bottom: 20px;">
-                                        <i class="fas fa-check-circle fa-3x" style="color: #28a745;"></i>
+                                <div class="modal-body text-center">
+                                    <div class="icon-container">
+                                        <i class="fas fa-check-circle fa-3x"></i>
                                     </div>
-                                    <p style="font-size: 1.1em; color: #333;">
-                                        Your membership purchase was successful! Thank you for choosing <strong id="gymNameSuccess" style="color: #5B247A;">${gymName}</strong>.
+                                    <p class="modal-text">
+                                        Your membership purchase was successful! Thank you for choosing <strong id="gymNameSuccess">${gymName}</strong>.
                                     </p>
                                     <p><strong>Plan:</strong> ${planType}</p>
                                     <p><strong>Price:</strong> ₱${planPrice}</p>
-                                    <p style="color: #555;">Please wait for the Gym owner's approval.</p>
-                                    <div style="padding: 15px 0; text-align: center;">
-                                        <i class="fas fa-clock"></i> <span style="color: #888;">Processing Time: Up to 24 hours</span>
+                                    <p class="processing-text">Please wait for the Gym owner's approval.</p>
+                                    <div class="processing-time">
+                                        <i class="fas fa-clock"></i> <span>Processing Time: Up to 24 hours</span>
                                     </div>
                                 </div>
-                                <div class="modal-footer" style="background-color: #f1f1f1; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
-                                    <button type="button" id="okButton" class="btn btn-success" style="background-color: #5B247A; border: none;">OK</button>
+                                <div class="modal-footer">
+                                    <button type="button" id="okButton" class="btn btn-success">OK</button>
                                 </div>
                             </div>
                         </div>

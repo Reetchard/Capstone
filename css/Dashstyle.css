@@ -2125,6 +2125,218 @@ strong:hover .custom-tooltip {
 #gymProfileModal{
     backdrop-filter: blur(5px); /* Add a blur effect to the background */
 }
+#trainerProfileModal{
+    backdrop-filter: blur(5px); /* Add a blur effect to the background */
+}
+#bookingConfirmationModal{
+    backdrop-filter: blur(5px); /* Add a blur effect to the background */
+}
+#productModal{
+    backdrop-filter: blur(5px); /* Add a blur effect to the background */ 
+}
+#successModal{
+    backdrop-filter: blur(5px); /* Add a blur effect to the background */ 
+}
+#membershipPlansModal{
+    backdrop-filter: blur(5px); /* Add a blur effect to the background */
+}
+#confirmPurchaseModal{
+    backdrop-filter: blur(5px); /* Add a blur effect to the background */
+}
+#membershipSuccessModal{
+    backdrop-filter: blur(5px); /* Add a blur effect to the background */
+}
+#notificationModal{
+    backdrop-filter: blur(5px); /* Add a blur effect to the background */
+}
+#chatModal{
+    backdrop-filter: blur(5px); /* Add a blur effect to the background */
+}
+#notificationDetailsModal{
+    backdrop-filter: blur(5px); /* Add a blur effect to the background */ 
+}
 #membershipPlansModal .modal-footer{
     border-top: 1px solid #ffa31a;
+}
+
+/* Modal Container */
+#bookingTrainerModal .modal-content {
+    border-radius: 10px;
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    background-color: #1b1b1b;
+}
+
+/* Modal Header */
+#bookingTrainerModal .modal-header {
+    border-bottom: 1px solid #ffa31a;
+    padding-bottom: 10px;
+}
+
+#bookingTrainerModal .modal-title {
+    font-size: 1.5em;
+    color: #fff;
+}
+
+#bookingTrainerModal .btn-close {
+    background-color: transparent;
+    border: none;
+}
+
+/* Form Fields */
+#bookingTrainerModal .form-group,
+#bookingTrainerModal .row {
+    margin-bottom: 5px;
+}
+
+
+#bookingTrainerModal input[type="text"],
+#bookingTrainerModal input[type="date"],
+#bookingTrainerModal input[type="email"],
+#bookingTrainerModal textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 2px;
+    border: none;
+    background-color: transparent;
+    border-bottom: 1px solid #ccc;
+    border-radius: 0;
+    font-size: 1em;
+    color: #fff;
+}
+/* Focus Style */
+#bookingTrainerModal input[type="text"]:focus,
+#bookingTrainerModal input[type="date"]:focus,
+#bookingTrainerModal input[type="email"]:focus,
+#bookingTrainerModal textarea:focus {
+    outline: none; /* Remove default focus outline */
+    border: none;
+    border-bottom: 2px solid #007bff; /* Add focus border color */
+
+}
+#bookingTrainerModal input[type="text"]::placeholder,
+#bookingTrainerModal input[type="date"]::placeholder,
+#bookingTrainerModal input[type="email"]::placeholder,
+#bookingTrainerModal textarea::placeholder {
+    color: #aaa;
+}
+#bookingTrainerModal input[type="date"] {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    background-color: transparent;
+    color: #fff; /* Set text color to white */
+    border: none;
+    border-bottom: 1px solid #ccc;
+    border-radius: 0;
+    font-size: 1em;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+/* Apply filter to make icon appear white */
+#bookingTrainerModal input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1) brightness(2); /* Invert and adjust brightness */
+    opacity: 0.7; /* Adjust icon visibility */
+}
+
+
+/* Responsive Columns */
+#bookingTrainerModal .row .col-md-6 {
+    padding-right: 10px;
+}
+
+
+/* Textarea */
+#bookingTrainerModal textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* Buttons */
+#bookingTrainerModal .modal-footer {
+    border-top: transparent;
+    padding-top: 15px;
+    display: flex;
+    justify-content: center;
+
+}
+
+
+#bookingTrainerModal .btn-primary {
+    background-color: transparent;
+    border: 2px solid #ffa31a;
+    color: white;
+    border-radius: 5px;
+    padding: 8px 15px;
+    transition: background-color 0.3s, border-color 0.3s; /* Smooth transition for background and border */
+    width: 70%;
+}
+
+/* Hover Effects for Buttons */
+
+#bookingTrainerModal .btn-primary:hover {
+    color: #ffa31a;
+    border-color: #ffa31a; /* Keep the border color the same on hover */
+}
+#bookingTrainerModal{
+    backdrop-filter: blur(5px); /* Add a blur effect to the background */
+}
+
+
+/* Modal Header */
+#membershipSuccessModal .modal-header {
+    background-color: transparent;
+    border-bottom: 1px solid #ffa31a; /* Apply border to the bottom */
+}
+#membershipSuccessModal .modal-title{
+    color: #fff;
+}
+
+/* Close Button */
+#membershipSuccessModal .btn-close {
+    color: white;
+}
+
+/* Modal Body */
+#membershipSuccessModal .modal-body {
+    background-color: transparent;
+}
+
+#membershipSuccessModal .icon-container {
+    margin-bottom: 20px;
+}
+#membershipSuccessModal .modal-body .fa-check-circle {
+    color: #28a745; /* Set the color of the check circle icon */
+}
+
+#membershipSuccessModal .modal-text {
+    font-size: 1.1em;
+    color: #fff;
+}
+
+#membershipSuccessModal #gymNameSuccess {
+    color: #ffa31a;
+}
+
+#membershipSuccessModal .processing-text {
+    color: #fff;
+}
+
+#membershipSuccessModal .processing-time {
+    padding: 15px 0;
+    text-align: center;
+    color: #888;
+}
+
+/* Modal Footer */
+#membershipSuccessModal .modal-footer {
+    background-color: transparent;
+    border-color: #ffa31a;
+}
+
+/* OK Button */
+#membershipSuccessModal #okButton {
+    background-color: #28a745;
+    border: none;
 }
