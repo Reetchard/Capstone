@@ -10,6 +10,7 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/5.11.3/main.min.css" rel="stylesheet">
 
     <link rel="stylesheet" href="css/Dashstyle.css">
 </head>
@@ -17,7 +18,7 @@
     <nav class="sidebar">
         <div class="profile-container text-center mb-4" style="position: relative;">
             <div class="dropdown">
-                <img id="profile-picture" src="img/Profile.png" alt="Profile Picture" class="img-fluid rounded-circle mb-2" style="width: 80px; cursor: pointer;">
+                <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" class="img-fluid rounded-circle mb-2" style="width: 80px; cursor: pointer;">
                 <h3 id="profile-username" class="mt-2"></h3> <!-- Username header added here -->
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <a class="dropdown-item" href="Pinfo.html">Personal Information</a>
@@ -322,7 +323,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">      
+            <div class="modal-body">
                 <!-- Booking Form -->
                 <form id="bookingForm">
                     <div class="form-group">
@@ -331,18 +332,24 @@
                         <input type="text" id="lastName" name="lastName" placeholder="Last Name" required>
                     </div>
                     <div class="row">
-                    <div class="col-md-6">
-                        <label for="date"><strong>Book Schedule:</strong></label>
-                        <input type="date" id="date" name="date" required>
+                        <div class="col-md-6">
+                            <label for="date"><strong>Book Schedule:</strong></label>
+                            <input type="date" id="date" name="date" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email"><strong>Email Address:</strong></label>
+                            <input type="email" id="email" name="email" placeholder="Email Address" required>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <label for="email"><strong>Email Address:</strong></label>
-                        <input type="email" id="email" name="email" placeholder="Email Address" required>
-                    </div>
-                </div>
                     <div class="form-group">
                         <label for="message"><strong>Message:</strong></label>
                         <textarea id="message" name="message" placeholder="Enter your message here..."></textarea>
+                    </div>
+                    <!-- New Check Reservation Date Button with Image -->
+                    <div class="form-group text-center">
+                        <button type="button" class="btn btn-secondary" id="checkReservationDate">
+                            <img src="images/reserve_me1.jpg" alt="Reserve Me" width="20" height="20"> Check Reservation Date
+                        </button>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" id="BookNowTrainer">Book Now</button>
@@ -352,6 +359,7 @@
         </div>
     </div>
 </div>
+
 
 <!-- Toast Notifications Container -->
 <div id="toastContainer" aria-live="polite" aria-atomic="true" style="position: fixed; top: 20px; right: 20px; z-index: 1050;">
@@ -635,34 +643,49 @@
         </div>
     </div>
 </div>
-<div id="rateTrainerModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="rateTrainerModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="rateTrainerModalLabel">Rate your experience</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body text-center">
-                <p>We highly value your feedback! Kindly take a moment to rate your experience and provide us with you valuable feedback.</p>
-                <div id="rateStars">
-                    <span class="rate-star" data-value="1">★</span>
-                    <span class="rate-star" data-value="2">★</span>
-                    <span class="rate-star" data-value="3">★</span>
-                    <span class="rate-star" data-value="4">★</span>
-                    <span class="rate-star" data-value="5">★</span>
+    <div id="rateTrainerModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="rateTrainerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rateTrainerModalLabel">Rate your experience</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
-                <textarea id="feedbackText" class="form-control" rows="3" placeholder="Tell us about your experience!"></textarea>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="submitRatingButton">Send</button>
+                <div class="modal-body text-center">
+                    <p>We highly value your feedback! Kindly take a moment to rate your experience and provide us with you valuable feedback.</p>
+                    <div id="rateStars">
+                        <span class="rate-star" data-value="1">★</span>
+                        <span class="rate-star" data-value="2">★</span>
+                        <span class="rate-star" data-value="3">★</span>
+                        <span class="rate-star" data-value="4">★</span>
+                        <span class="rate-star" data-value="5">★</span>
+                    </div>
+                    <textarea id="feedbackText" class="form-control" rows="3" placeholder="Tell us about your experience!"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="submitRatingButton">Send</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
+    <div id="bookingTrainerModal" class="modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Booking Calendar</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="bookingCalendar"></div> <!-- Ensure this ID is correct -->
+                </div>
+            </div>
+        </div>
+    </div>
     
+
+
     
     
 

@@ -358,30 +358,6 @@ function formatTime(time) {
     
         window.ViewProductInfo = async function (productId) {
         try {
-            // Fetch the current user ID for membership validation
-            const userId = await getCurrentUserId(); // Get userId from the Users collection
-            const gymName = document.getElementById('modalGymName').innerText; // Get gym name from GymProfile card
-    
-            // Check the membership status before proceeding to view product info
-            const membershipApproved = await checkMembershipStatus(userId, gymName);
-    
-            if (!membershipApproved) {
-                // Show a custom error message if membership is not approved
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Buy Product Restricted!',
-                    text: "⚠️ You cannot Buy a Product until you apply for our plan and get it approved.",
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#d33',
-                    background: '#fff',
-                    customClass: {
-                        popup: 'swal-wide'
-                    }
-                });
-                
-                return; // Stop the function if membership is not approved
-            }
-    
             // Hide any open modals before showing the product info
             $('.modal').modal('hide');
     
@@ -1485,7 +1461,9 @@ function formatTime(time) {
                 }
             });
         }
-    });window.showBookingConfirmation = async function(trainerData, trainerId) {
+    });
+    
+    window.showBookingConfirmation = async function(trainerData, trainerId) {
         const confirmTrainerName = document.getElementById('confirmTrainerName');
         const confirmTrainerRate = document.getElementById('confirmTrainerRate');
         const confirmBookingButton = document.getElementById('confirmBookingButton');
@@ -1599,11 +1577,70 @@ function formatTime(time) {
                 }
             };
         }
-    
-        // Show the initial booking confirmation modal
-        $('#bookingConfirmationModal').modal('show');
-    };
-    
+            
+            // Show the initial booking confirmation modal
+            $('#bookingConfirmationModal').modal('show');
+        };
+        window.initializeCalendar = function(bookedDates = []) {
+            const calendarEl = document.getElementById('bookingCalendar');
+        
+            if (!calendarEl) {
+                console.error("Calendar element not found!");
+                return;
+            }
+        
+            calendarEl.innerHTML = ''; // Clear any existing calendar instance
+        
+            console.log("Initializing calendar..."); // Debug log
+        
+            // Create the FullCalendar instance
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                selectable: true,
+                dateClick: function(info) {
+                    document.getElementById('date').value = info.dateStr; // Set date field when date is selected
+                    console.log("Date clicked:", info.dateStr); // Debug log
+                },
+                events: bookedDates // Array of events with booked dates
+            });
+        
+            calendar.render();
+            console.log("Calendar rendered"); // Debug log
+        };
+        
+        // Function to load reserved dates and initialize calendar
+        async function loadReservedDates() {
+            const reservedDates = await getReservedDates();
+            const bookedDates = reservedDates.map(date => ({
+                title: 'Booked',
+                start: date,
+                color: '#ff0000' // Red color for booked dates
+            }));
+        
+            console.log("Reserved dates loaded:", bookedDates); // Debug log
+        
+            // Call initializeCalendar with booked dates after loading
+            window.initializeCalendar(bookedDates);
+        }
+        
+        // Sample function to return reserved dates
+        async function getReservedDates() {
+            return ["2024-11-10", "2024-11-15", "2024-11-20"]; // Example reserved dates
+        }
+        
+        // Event listener to open the modal and initialize the calendar when shown
+        document.getElementById('checkReservationDate').addEventListener('click', function() {
+            $('#bookingTrainerModal').modal('show'); // Show the modal
+        });
+        
+        $('#bookingTrainerModal').on('shown.bs.modal', function() {
+            console.log("Modal shown, loading reserved dates..."); // Debug log
+            loadReservedDates(); // Fetch and display reserved dates
+        });
+        
+
+
+
     
       // Function to save data to the Reservations collection
     async function saveToReservationCollection(data) {
