@@ -395,3 +395,29 @@ h1 {
         box-shadow: 0.2em -0.2em 0 0 currentcolor;
     }
 }
+.modal-body {
+    max-height: 400px; /* You can adjust this to your desired height */
+    overflow-y: auto;  /* Enables vertical scrolling */
+}
+
+/* Customize scrollbar */
+.modal-body::-webkit-scrollbar {
+    width: 10px; /* Width of the scrollbar */
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background-color: #333; /* Dark background color for the track */
+    border-radius: 10px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background-color: #666; /* Light dark color for the thumb (scroll handle) */
+    border-radius: 10px;
+    border: 2px solid #333; /* Border around the thumb */
+}
+
+/* Optional: Hover effect for the scrollbar thumb */
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background-color: #888; /* Change thumb color on hover */
+}
+

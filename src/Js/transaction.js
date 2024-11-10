@@ -146,6 +146,11 @@ function populateTable(transactionType, transactions) {
     transactions.forEach(transaction => {
         const row = document.createElement('tr');
 
+        let formattedPurchaseDate = 'N/A';
+        if (transaction.purchaseDate) {
+            formattedPurchaseDate = formatTimestamp(transaction.purchaseDate); // Format purchaseDate
+        }
+
         if (transactionType === 'membership') {
             row.innerHTML = `
                 <td>${transaction.userId || 'N/A'}</td>            
@@ -153,7 +158,7 @@ function populateTable(transactionType, transactions) {
                 <td>${transaction.membershipDays || 'N/A'}</td>
                 <td>${transaction.planPrice || 'N/A'}</td>
                 <td>${transaction.planType || 'N/A'}</td>
-                <td>${transaction.purchaseDate || 'N/A'}</td>
+                <td>${formattedPurchaseDate}</td> <!-- Use formatted purchase date -->
                 <td class="status-cell">${transaction.status || 'N/A'}</td>
                 <td>
                     <button class="action-button approve" data-id="${transaction.id}">Approve</button>
@@ -226,5 +231,222 @@ document.querySelectorAll('button[data-type]').forEach(button => {
                 console.error("User is not authenticated.");
             }
         });
+    });
+});
+
+async function fetchTrainerTransactions(userId, gymName) {
+    try {
+        if (!userId || !gymName) {
+            console.error("Invalid parameters for fetchTrainerTransactions:", { userId, gymName });
+            return [];
+        }
+
+        const transactionsQuery = query(
+            collection(db, "Transactions"),
+            where("type", "==", "Booking_trainer"),
+            where("gymName", "==", gymName)
+        );
+
+        const transactionsSnapshot = await getDocs(transactionsQuery);
+
+        if (transactionsSnapshot.empty) {
+            console.warn(`No trainer transactions found for gym "${gymName}".`);
+        } else {
+            console.log(`Trainer transactions found for gym "${gymName}":`, transactionsSnapshot.docs.map(doc => doc.data()));
+        }
+
+        return transactionsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+        console.error("Error fetching trainer transactions:", error);
+        return [];
+    }
+}
+
+function populateTrainerTable(transactions) {
+    const tableBody = document.querySelector("#Booking_trainerTable tbody");
+
+    if (!tableBody) {
+        console.error(`Table for trainer transactions not found.`);
+        return;
+    }
+
+    tableBody.innerHTML = ''; // Clear existing rows
+
+    if (transactions.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="7">No transactions found.</td></tr>';
+        return;
+    }
+
+    transactions.forEach(transaction => {
+        const row = document.createElement('tr');
+
+           // Use the formatTimestamp function to convert the raw timestamp
+           const formattedTimestamp = formatTimestamp(transaction.timestamp);
+
+        row.innerHTML = `
+            <td>${transaction.userId || 'N/A'}</td>
+            <td>${transaction.gymName || 'N/A'}</td>
+            <td>${transaction.trainerName || 'N/A'}</td>
+            <td>${formattedTimestamp}</td> <!-- Display formatted timestamp here -->
+            <td>${transaction.price || 'N/A'}</td>
+            <td class="status-cell">${transaction.status || 'N/A'}</td>
+            <td>
+                <button class="action-button approve" data-id="${transaction.id}">Approve</button>
+                <button class="action-button idle" data-id="${transaction.id}">Idle</button>
+                <button class="action-button blocked" data-id="${transaction.id}">Blocked</button>
+            </td>
+        `;
+
+        const statusCell = row.querySelector('.status-cell');
+        row.querySelector('.approve').addEventListener('click', (event) => {
+            updateTransactionStatus(transaction.id, 'Approved', statusCell, event.target);
+        });
+        row.querySelector('.idle').addEventListener('click', (event) => {
+            updateTransactionStatus(transaction.id, 'Idle', statusCell, event.target);
+        });
+        row.querySelector('.blocked').addEventListener('click', (event) => {
+            updateTransactionStatus(transaction.id, 'Blocked', statusCell, event.target);
+        });
+
+        tableBody.appendChild(row);
+    });
+}
+
+async function loadTrainerTransactions(userId, gymName) {
+    const transactions = await fetchTrainerTransactions(userId, gymName);
+
+    populateTrainerTable(transactions);
+
+    $('#trainersModal').modal('show'); // Show the modal
+}
+
+document.querySelector('button[data-type="Booking_trainer"]').addEventListener('click', async () => {
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            const gymName = await getGymOwnerName(user.uid);
+            if (gymName) {
+                loadTrainerTransactions(user.uid, gymName);
+            }
+        } else {
+            console.error("User is not authenticated.");
+        }
+    });
+});
+function formatTimestamp(timestamp) {
+    if (timestamp) {
+        // If timestamp is a Firestore Timestamp object
+        if (timestamp.seconds) {
+            const date = new Date(timestamp.seconds * 1000); // Convert seconds to milliseconds
+            return isNaN(date.getTime()) ? 'Invalid Date' : date.toLocaleString(); // Check for invalid date
+        }
+        // If timestamp is an ISO 8601 string (like '2024-11-05T13:17:02.381Z')
+        else if (typeof timestamp === 'string') {
+            const date = new Date(timestamp);
+            return isNaN(date.getTime()) ? 'Invalid Date' : date.toLocaleString(); // Check for invalid date
+        }
+    }
+    return 'N/A'; // If no valid timestamp, return 'N/A'
+}
+
+
+
+async function fetchProductTransactions(userId, gymName) {
+    try {
+        if (!userId || !gymName) {
+            console.error("Invalid parameters for fetchProductTransactions:", { userId, gymName });
+            return [];
+        }
+
+        const transactionsQuery = query(
+            collection(db, "Transactions"),
+            where("type", "==", "product"),
+            where("gymName", "==", gymName)
+        );
+
+        const transactionsSnapshot = await getDocs(transactionsQuery);
+
+        if (transactionsSnapshot.empty) {
+            console.warn(`No product transactions found for gym "${gymName}".`);
+        } else {
+            console.log(`Product transactions found for gym "${gymName}":`, transactionsSnapshot.docs.map(doc => doc.data()));
+        }
+
+        return transactionsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+        console.error("Error fetching product transactions:", error);
+        return [];
+    }
+}
+
+function populateProductTable(transactions) {
+    const tableBody = document.querySelector("#productTable tbody");
+
+    if (!tableBody) {
+        console.error(`Table for product transactions not found.`);
+        return;
+    }
+
+    tableBody.innerHTML = ''; // Clear existing rows
+
+    if (transactions.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="8">No transactions found.</td></tr>';
+        return;
+    }
+
+    transactions.forEach(transaction => {
+        const row = document.createElement('tr');
+
+        // Use the updated formatTimestamp function to convert the raw timestamp string
+        const formattedTimestamp = formatTimestamp(transaction.timestamp);
+
+        row.innerHTML = `
+            <td>${transaction.userId || 'N/A'}</td>
+            <td>${transaction.gymName || 'N/A'}</td>
+            <td>${transaction.productName || 'N/A'}</td>
+            <td>${transaction.quantity || 'N/A'}</td>
+            <td>${formattedTimestamp}</td> <!-- Display formatted timestamp here -->
+            <td>${transaction.totalPrice || 'N/A'}</td>
+            <td class="status-cell">${transaction.status || 'N/A'}</td>
+            <td>
+                <button class="action-button approve" data-id="${transaction.id}">Approve</button>
+                <button class="action-button idle" data-id="${transaction.id}">Idle</button>
+                <button class="action-button blocked" data-id="${transaction.id}">Blocked</button>
+            </td>
+        `;
+
+        const statusCell = row.querySelector('.status-cell');
+        row.querySelector('.approve').addEventListener('click', (event) => {
+            updateTransactionStatus(transaction.id, 'Approved', statusCell, event.target);
+        });
+        row.querySelector('.idle').addEventListener('click', (event) => {
+            updateTransactionStatus(transaction.id, 'Idle', statusCell, event.target);
+        });
+        row.querySelector('.blocked').addEventListener('click', (event) => {
+            updateTransactionStatus(transaction.id, 'Blocked', statusCell, event.target);
+        });
+
+        tableBody.appendChild(row);
+    });
+}
+
+
+async function loadProductTransactions(userId, gymName) {
+    const transactions = await fetchProductTransactions(userId, gymName);
+
+    populateProductTable(transactions);
+
+    $('#productsModal').modal('show'); // Show the modal
+}
+
+document.querySelector('button[data-type="product"]').addEventListener('click', async () => {
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            const gymName = await getGymOwnerName(user.uid);
+            if (gymName) {
+                loadProductTransactions(user.uid, gymName);
+            }
+        } else {
+            console.error("User is not authenticated.");
+        }
     });
 });
