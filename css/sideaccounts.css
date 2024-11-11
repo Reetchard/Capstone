@@ -861,3 +861,45 @@ strong:hover .custom-tooltip {
     padding: 1rem;
 }
 
+.manage-account-container {
+    display: flex;
+    justify-content: center; /* Centers horizontally */
+    align-items: center;     /* Centers vertically */
+    min-height: 100vh;       /* Ensures it takes full height of the viewport */
+    padding-left: 450px;     /* Adjust based on sidebar width */
+    padding-right: 20px;     /* Optional: if you want some padding on the right */
+}
+.manage-gym-container {
+    display: flex;
+    justify-content: center;  /* Centers horizontally */
+    align-items: center;      /* Centers vertically */
+    min-height: 100vh;        /* Ensures it takes full height of the viewport */
+    padding-left: 300px;      /* Adjust based on sidebar width */
+    padding-right: 20px;      /* Optional: if you want some padding on the right */
+    box-sizing: border-box;   /* Ensures padding is included in the total width/height */
+    width: 100%;              /* Ensures the container takes full width of its parent */
+    overflow: hidden;         /* Prevents unwanted horizontal scrolling */
+}
+.manage-report-container {
+    display: flex;
+    flex-direction: column;  /* Stack the content vertically */
+    justify-content: flex-start;  /* Align items to the top */
+    align-items: center;          /* Center the content horizontally */
+    min-height: 100vh;            /* Ensures it takes full height of the viewport */
+    padding-left: 300px;          /* Adjust based on sidebar width */
+    width: 100%;                  /* Ensure the container takes up full width */
+}
+
+.manage-report-container h3 {
+    text-align: center;   /* Centers the title */
+    margin: 0;             /* Remove default margins */
+    width: 100%;           /* Ensure the title takes up full width */
+    padding-bottom: 15px;  /* Space below the title */
+    background-color: transparent;
+    color: #1b1b1b;
+}
+
+#manageReportsContainer {
+    width: 100%;           /* Ensure the table container uses full width */
+    overflow-x: auto;      /* Allow horizontal scrolling if needed */
+}
