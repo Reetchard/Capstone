@@ -13,7 +13,7 @@
     <style>
         /* General Styles */
         body {
-            font-family: 'Georgia', serif;
+            font-family: "Helvetica Neue", Arial, sans-serif; /* Set the font */
             background-color: #1a1a1a; /* Dark background */
             color: #e0e0e0; /* Light gray text */
             display: flex;
@@ -56,31 +56,6 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
         }
 
-        /* Search Bar Styles */
-        .search-container {
-            margin: 20px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .search-container input,
-        .search-container select {
-            padding: 10px;
-            margin-right: 10px;
-            border: 1px solid #444; /* Dark gray border */
-            border-radius: 5px;
-            background-color: #333; /* Darker input background */
-            color: #e0e0e0; /* Light gray text */
-            width: 100%;
-        }
-
-        .search-container input:focus,
-        .search-container select:focus {
-            border-color: #007bff;
-            outline: none;
-        }
-
         /* Profile Card Styles */
         .gym-profile, .trainers-content {
             display: flex;
@@ -108,7 +83,7 @@
             width: 100%;
             height: 150px;
             object-fit: cover;
-            border-bottom: 2px solid #e0e0e0; /* Light gray border */
+            border-bottom: 2px solid #ffa31a; /* Light gray border */
             transition: filter 0.3s;
         }
 
@@ -187,23 +162,23 @@
 <body>
     <nav class="sidebar">
         <div class="profile-container text-center mb-4">
-            <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" class="img-fluid rounded-circle mb-2" style="width: 80px;">
-            <h3 id="profile-username" class="mt-2"></h3> <!-- Username header added here -->
             <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Menu
-                </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture"
+                     class="img-fluid rounded-circle mb-2 dropdown-toggle"
+                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <h3 id="profile-username" class="mt-2"></h3>
+                <div class="dropdown-menu dropdown-menu-right">
                     <a class="dropdown-item" href="PinfoTrainer.html">Personal Information</a>
                     <a class="dropdown-item" href="report.html">Submit a Complaint</a>
                     <a class="dropdown-item" href="login.html">Log Out</a>
                 </div>
             </div>
         </div>
+        
         <ul class="nav flex-column">
             <li class="nav-item">
                 <a class="nav-link" href="#profiling">
-                    <i class="fas fa-gym"></i> Gym Profile
+                    <i class="fas fa-dumbbell"></i> Gym Profile
                 </a>
             </li>
             <li class="nav-item">
@@ -231,10 +206,12 @@
     </div>   
     <div class="content">
         <section id="profiling-section">
-            <h2 class="mb-4">Find the Best Gym Profile</h2>
+            <h2 class="mb-4 text-center">Gym <span class="profile-text">Profile</span></h2>
             <div class="search-container">
                 <input type="text" placeholder="Search gym..." id="gymSearch">
-                <button class="btn btn-secondary" onclick="SearchGym()">Search</button>
+                <span class="search-icon" onclick="filterGyms()">
+                    <i class="fas fa-search">Search</i>
+                </span>
             </div>
             <div class="gym-profile" id="gym-profiles">
 
@@ -287,27 +264,52 @@
         </div>
         <!-- Gym Info Modal -->
         <div id="gymProfileModal" class="modal fade" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
+            <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                     <span class="modal-close" onclick="closeModal()">&times;</span>
                     <div class="modal-header">
                         <h3 id="modalGymName">Gym Name</h3>
                     </div>
-                    <img id="modalGymPhoto" src="" alt="" class="gym-photo img-fluid">
-                    <div class="modal-body text-center"> <!-- Added text-center class -->
-                        <p><strong>Location:</strong> <span id="modalGymLocation">Location</span></p>
-                        <p><strong>Equipment:</strong> <span id="modalGymEquipment">Equipment</span></p>
-                        <p><strong>Programs:</strong> <span id="modalGymPrograms">Programs</span></p>
-                        <p><strong>Contact:</strong> <span id="modalGymContact">Contact</span></p>
-                        <p><strong>Price Rate:</strong> <span id="modalpriceRate">Price Rate</span></p>
-                        <p><strong>Opening Time:</strong> <span id="modalGymOpeningTime">Opening Time</span></p>
-                        <p><strong>Closing Time:</strong> <span id="modalGymClosingTime">Closing Time</span></p>
+                    <img id="modalGymPhoto" src="" alt="" class="gym-modal-photo">
+                    <div class="container mt-4"> <!-- Added text-center class -->
+                        <div class="row">
+                            <div class="col-md-4">
+                                <p><i id="locationIcon" class="fas fa-map-marker-alt red-icon"></i> <!-- Location icon -->
+                                    <strong>Location: <span class="custom-tooltip">Click the icon</span></strong>
+                                </p>
+                                <p id="modalGymLocation" style="text-align: justify;"></p>
+                            </div>
+                            <div class="col-md-4">
+                                <p><strong>Equipment:</strong></p>
+                                <p id="modalGymEquipment" style="text-align: justify;"></p>
+                            </div>
+                            <div class="col-md-4">
+                                <p><strong>Programs:</strong></p>
+                                <p id="modalGymPrograms" text-align: justify;></p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <p><strong>Email:</strong></p>
+                                <p id="modalGymEmail"></p>
+                            </div>
+                            <div class="col-md-4">
+                                <p><strong>Opening Time:</strong></p>
+                                <p id="modalGymOpeningTime"></p>
+                            </div>
+                            <div class="col-md-4">
+                                <p><strong>Closing Time:</strong></p>
+                                <p id="modalGymClosingTime"></p>
+                            </div>
+                        </div>
         
-                        <!-- Apply as Trainer Button centered -->
-                        <button class="btn btn-success my-4" onclick="openConfirmationModal()">Apply as Trainer</button> <!-- Ensure correct function call -->
+                        
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+                        <!-- Apply as Trainer Button centered -->
+        <button class="btn btn-success my-4" onclick="openConfirmationModal()">
+            <i class="fas fa-user-plus"></i> Apply as Trainer
+        </button>
                     </div>
                 </div>
             </div>
