@@ -2365,3 +2365,115 @@ strong:hover .custom-tooltip {
     transform: scale(0.95); /* Slightly reduce the size when clicked */
 }
 
+/* FullCalendar container */
+#calendarModal #calendar {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Darker shadow */
+}
+
+/* Header Style for FullCalendar */
+#calendarModal .fc-header-toolbar {
+    color: #fff; /* White text for the header */
+    padding: 10px;
+    border-radius: 8px; /* Rounded corners */
+}
+
+/* Day names and date format in FullCalendar */
+#calendarModal .fc .fc-col-header-cell-cushion {
+    color: #ffa31a; /* Orange color for the day names */
+    font-weight: bold;
+}
+
+/* Weekday and weekend styling */
+#calendarModal .fc-day {
+    background-color: #1b1b1b; /* Dark background for days */
+    color: #fff; /* White text */
+    border: 1px solid #666; /* Lighter border for days */
+}
+
+/* Highlight the current day */
+#calendarModal .fc-day-today {
+    background-color: #ffa31a; /* Blue background for today */
+    color: white;
+}
+
+/* Styling the date numbers */
+#calendarModal .fc-day-number {
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff; /* White text for date numbers */
+}
+
+/* Event styling (if any events are present) */
+#calendarModal .fc-event {
+    background-color: #28a745; /* Green background for events */
+    color: white;
+    border-radius: 4px;
+}
+
+/* Hover effect for days */
+#calendarModal .fc-day:hover {
+    background-color: #555; /* Darker hover effect */
+    cursor: pointer;
+}
+
+/* Specific modal dialog adjustments */
+#calendarModal .modal-dialog {
+    max-width: 80%; /* Adjust to 80% width for better spacing */
+    width: auto;
+    height: auto;
+}
+
+/* Modal body adjustments */
+#calendarModal .modal-body {
+    padding: 0; /* Remove padding to ensure the calendar fits */
+    background-color: #333; /* Dark background for the modal */
+    overflow: hidden; /* Ensure content fits within the modal */
+}
+
+/* Change color of the previous button */
+#calendarModal .fc-prev-button {
+    color: #ffa31a; /* Orange color for the previous button */
+    background-color: #222; /* Darker background for buttons */
+}
+
+/* Change color of the next button */
+#calendarModal .fc-next-button {
+    color: #ffa31a; /* Orange color for the next button */
+    background-color: #222; /* Darker background for buttons */
+}
+
+/* Change color of the today button */
+#calendarModal .fc-today-button {
+    color: #ffa31a; /* Orange color for the today button */
+    background-color: #292929; /* Dark background for the today button */
+    cursor: pointer;
+}
+
+/* Optional: Hover effect for the buttons */
+#calendarModal .fc-prev-button:hover,
+#calendarModal .fc-next-button:hover,
+#calendarModal .fc-today-button:hover {
+    background-color: #444; /* Darker background on hover */
+}
+
+/* If Font Awesome icons are used, change their color */
+#calendarModal .fc-prev-button .fa,
+#calendarModal .fc-next-button .fa,
+#calendarModal .fc-today-button .fa {
+    color: inherit; /* Inherit the button's text color */
+}
+#checkReservationDate {
+    background-color: transparent; /* Makes the button transparent */
+    border: none; /* Removes the border around the button */
+    padding: 0; /* Removes extra padding */
+    outline: none; /* Removes the outline when the button is focused */
+    box-shadow: none; /* Removes the shadow effect */
+}
+
+#checkReservationDate .fa-calendar-check {
+    color: #ffa31a; /* Set icon color to #ffa31a */
+}
