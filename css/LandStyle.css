@@ -137,7 +137,7 @@ nav:hover {
 
 .hero-content {
     position: absolute;
-    top: 50%;
+    top: 60%;
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 2; /* Ensure it's above the image */
@@ -834,12 +834,6 @@ p1 {
     background: rgba(0, 0, 0, 0.7); /* Darken overlay on hover */
 }
 
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-    .features {
-        flex-direction: column;
-    }
-}
 /* Confirmation Message Styles */
 .confirmation-message {
     display: none;
@@ -938,13 +932,220 @@ p1 {
     background: rgba(0, 0, 0, 0.7); /* Darken overlay on hover */
 }
 
-@media (max-width: 768px) {
-    .services {
-        flex-direction: column;
-    }
-}
-
 .services .service h3 {
     color: #ffa31a;
     margin-bottom: 20px;
+}
+
+/* Mobile responsiveness */
+
+/* For screens smaller than 768px (tablets, mobile phones) */
+@media screen and (max-width: 768px) {
+
+    /* Navigation */
+    nav .container {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px 0;
+    }
+    
+    nav h1.logo {
+        font-size: 1.5rem; /* Adjust font size for smaller screens */
+    }
+
+    nav ul {
+        display: flex; /* Use flexbox */
+        flex-wrap: wrap; /* Allow items to wrap onto the next line */
+        justify-content: flex-start; /* Align items at the start */
+        padding: 0 20px; /* Add padding for better spacing between items */
+        margin: 0;
+        list-style: none;
+    }
+    
+    nav ul li {
+        margin: 10px 0; /* Margin between the items */
+        flex: 1 0 auto; /* Allow items to grow and fill space equally */
+        text-align: center; /* Center the text */
+    }
+
+    nav ul li a{
+        font-size: 1rem; /* Adjust font size for smaller screens */
+    }
+
+    /* Hero Section */
+    .hero h1 {
+        font-size: 2rem; /* Adjust font size as needed */
+        line-height: 1.2;
+        padding: 0 10px;
+        white-space: nowrap; /* Prevent automatic line breaks */
+    }
+    
+
+    .hero p {
+        font-size: 0.9rem; /* Slightly smaller font for paragraph */
+    }
+
+    /* Membership Section */
+    .membership-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center; /* Center items */
+        gap: 20px; /* Space between membership cards */
+    }
+
+    .membership-plan {
+        width: 100%; /* Make membership cards take up full width on small screens */
+        max-width: 300px; /* Optional: limit the width of each membership card */
+        margin: 10px 0; /* Margin between the cards */
+    }
+
+    .trainers-content {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* Trainer Card */
+    .trainers-content {
+        display: flex; /* Use flexbox for horizontal alignment */
+        flex-wrap: wrap; /* Allow items to wrap onto the next line if necessary */
+        justify-content: center; /* Center items horizontally */
+        gap: 20px; /* Space between trainer cards */
+    }
+
+    .trainer-card {
+        width: 100%; /* Trainer card takes full width */
+        max-width: 300px; /* Optional: limit the width of each card */
+        margin: 10px 0; /* Margin between the cards */
+    }
+
+    #trainers h2 {
+        font-size: 1.5rem; /* Smaller header */
+    }
+
+    .trainer-card h3 {
+        font-size: 1.2rem; /* Smaller text */
+    }
+
+    .trainer-card p {
+        font-size: 1rem; /* Smaller text */
+    }
+
+    .gym-profile {
+        display: flex;          /* Set flex layout */
+        flex-wrap: nowrap;      /* Prevent wrapping */
+        justify-content: flex-start; /* Align items to the left (can use 'center' if you want) */
+        gap: 20px;              /* Space between gym profile cards */
+        overflow-x: auto;       /* Enable horizontal scrolling */
+        padding: 10px;          /* Optional: padding for spacing */
+    }
+
+    .gym-profile-card {
+        width: 100%;            /* Make cards take full width */
+        max-width: 300px;       /* Optional: limit card width */
+        margin: 10px 0;         /* Space between cards */
+    }
+
+    .gym-profile-card h3 {
+        font-size: 1.2rem; /* Smaller text */
+    }
+
+    .gym-profile-card p {
+        font-size: 1rem; /* Smaller text */
+    }
+
+    .features {
+        flex-direction: column; /* Stack feature cards vertically */
+        align-items: center; /* Center items horizontally */
+        gap: 20px; /* Add space between feature cards */
+        width: 100%; /* Ensure full-width for mobile */
+        padding: 0 20px; /* Optional: Add padding to ensure the content doesn’t touch the edges */
+    }
+
+    .feature {
+        width: 100%; /* Ensure feature cards take full width */
+        max-width: 320px; /* Optional: limit the max width to avoid stretching too wide */
+        margin: 10px 0; /* Space between feature cards */
+        background-size: cover; /* Ensure the background image covers the entire card */
+        background-position: center center; /* Center the background image */
+        height: auto; /* Allow height to adjust based on image aspect ratio */
+        min-height: 250px; /* Optional: set a minimum height to maintain consistency */
+        border-radius: 8px; /* Optional: rounded corners for the cards */
+    }
+
+    .feature h3 {
+        font-size: 1.4rem; /* Adjust the font size of the title */
+        margin: 0; /* Remove any margins to keep it neat */
+    }
+
+    .feature p {
+        font-size: 1rem; /* Adjust the font size for the description */
+        text-align: justify; /* Ensure text is readable on small screens */
+        padding: 10px; /* Padding inside the text for better spacing */
+    }
+    
+
+     /* Ensure the services container is visible and takes full width */
+     #services-promotions {
+        display: block;
+        width: 100%;
+    }
+
+    .services {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center; /* Center items horizontally */
+        align-items: center; /* Center items vertically */
+        gap: 20px; /* Space between services */
+        padding: 10px; /* Padding for spacing */
+        height: auto; /* Ensure it adjusts to the content */
+    }
+
+    .service {
+        display: flex;
+        justify-content: center; /* Center the content inside each service */
+        align-items: center;
+        width: 100%; /* Full width for mobile */
+        max-width: 300px; /* Optional: limit max width of the service card */
+        margin: 10px 0; /* Space between service cards */
+        background-size: cover; /* Ensure the background image covers the area */
+        background-position: center center; /* Center the background image */
+        height: 200px; /* Adjust as needed for mobile view */
+        border-radius: 8px; /* Optional: rounded corners */
+    }
+
+    .overlay {
+        background: rgba(0, 0, 0, 0.5); /* Darken background for text visibility */
+        color: white;
+        text-align: center;
+        padding: 10px;
+        border-radius: 8px; /* Optional: rounded corners */
+        width: 100%; /* Ensure overlay takes full width */
+    }
+
+    .service h3 {
+        font-size: 1.2rem; /* Adjust font size */
+    }
+
+    .service p {
+        font-size: 1rem; /* Adjust font size */
+        text-align: justify; /* Align text for readability */
+    }
+
+    /* Optional: Adjust heading for the Services and Promotions section */
+    #services-promotions h2 {
+        font-size: 1.5rem;           /* Adjust size of the heading */
+        text-align: center;         /* Center-align the heading */
+        margin-bottom: 20px;        /* Space below the heading */
+    }
+    
+    /* Footer */
+    footer {
+        text-align: center;
+        padding: 20px 0;
+    }
+
+    footer p {
+        font-size: 1rem; /* Adjust the font size as needed */
+    }
+
 }
