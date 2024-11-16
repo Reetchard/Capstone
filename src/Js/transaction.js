@@ -65,12 +65,19 @@ async function updateTransactionStatus(transactionId, newStatus, statusCell, but
         showButtonSpinner(button); // Show spinner on button
 
         const transactionRef = doc(db, "Transactions", transactionId);
-        await updateDoc(transactionRef, { status: newStatus });
-        console.log(`Transaction ${transactionId} status updated to ${newStatus}`);
+        const transactionDoc = await getDoc(transactionRef);
         
-        // Update the status cell in the table after a successful Firestore update
-        if (statusCell) {
-            statusCell.textContent = newStatus;
+        if (transactionDoc.exists()) {
+            await updateDoc(transactionRef, { status: newStatus });
+            console.log(`Transaction ${transactionId} status updated to ${newStatus}`);
+            
+            // Update the status cell in the table after a successful Firestore update
+            if (statusCell) {
+                statusCell.textContent = newStatus;
+            }
+        } else {
+            console.warn(`Transaction ID ${transactionId} not found in Notifications collection.`);
+            alert("Transaction not found."); // Inform the user if the document does not exist
         }
 
     } catch (error) {
@@ -80,6 +87,7 @@ async function updateTransactionStatus(transactionId, newStatus, statusCell, but
         hideButtonSpinner(button, originalButtonText); // Restore button text and state
     }
 }
+
 
 // Fetch transactions based on type and filter by gym name and user
 async function fetchTransactionsByTypeAndGymName(userId, type, gymName) {
@@ -444,6 +452,73 @@ document.querySelector('button[data-type="product"]').addEventListener('click', 
             const gymName = await getGymOwnerName(user.uid);
             if (gymName) {
                 loadProductTransactions(user.uid, gymName);
+            }
+        } else {
+            console.error("User is not authenticated.");
+        }
+    });
+});
+// Function to search for a transaction by ID
+async function searchTransactionById(transactionId, userId, gymName) {
+    if (!transactionId) {
+        console.error("Transaction ID is required for search.");
+        return;
+    }
+
+    console.log("Searching for Transaction ID:", transactionId, "Gym Name:", gymName); // Log search parameters
+
+    try {
+        showSpinner(); // Show spinner during search
+        const transactionRef = doc(db, "Transactions", transactionId);
+        const transactionDoc = await getDoc(transactionRef);
+
+        if (transactionDoc.exists()) {
+            const data = transactionDoc.data();
+            if (data.gymName === gymName) {
+                console.log("Transaction found:", data);
+                
+                const transactionData = { id: transactionDoc.id, ...data };
+                const type = transactionData.type;
+
+                // Populate the appropriate table based on transaction type
+                if (type === 'membership') {
+                    populateTable('membership', [transactionData]);
+                    $('#membershipsModal').modal('show');
+                } else if (type === 'Booking_trainer') {
+                    populateTrainerTable([transactionData]);
+                    $('#trainersModal').modal('show');
+                } else if (type === 'product') {
+                    populateProductTable([transactionData]);
+                    $('#productsModal').modal('show');
+                } else {
+                    console.error("Invalid transaction type.");
+                }
+            } else {
+                console.warn(`Transaction found but does not belong to gym: ${gymName}`);
+                alert("Transaction does not match the current gym.");
+            }
+        } else {
+            console.warn(`No transaction found with ID: ${transactionId} for gym: ${gymName}`);
+            alert("No transaction found with the entered ID.");
+        }
+    } catch (error) {
+        console.error("Error fetching transaction by ID:", error);
+    } finally {
+        hideSpinner(); // Hide spinner after search
+    }
+}
+
+
+// Event listener for search button
+document.getElementById("searchTransactionButton").addEventListener("click", async () => {
+    const transactionId = document.getElementById("searchTransactionId").value.trim();
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            const gymName = await getGymOwnerName(user.uid);
+            if (gymName) {
+                searchTransactionById(transactionId, user.uid, gymName);
+            } else {
+                console.error("Gym name not found for the logged-in user.");
             }
         } else {
             console.error("User is not authenticated.");

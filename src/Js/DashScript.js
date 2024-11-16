@@ -471,11 +471,11 @@ function formatTime(time) {
     
                     // Create a new notification with detailed information
                     const newNotification = {
-                        message: `You purchased ${quantityPurchased} of ${productName} for ${totalPrice}.`,
+                        message: `You purchased ${quantityPurchased} of ${productName} for ${price}.`,
                         type : 'Products',
                         productName: productName,
                         quantity: quantityPurchased,
-                        totalPrice: totalPrice,
+                        price: price,
                         status: 'Pending Owner Approval',
                         read: false, // Unread notification
                         userId: userId, // Use the current user's userId from the document
@@ -493,7 +493,7 @@ function formatTime(time) {
                         userId: userId, // Storing userId of the customer/user
                         productName: productName,
                         quantity: quantityPurchased,
-                        totalPrice: totalPrice,
+                        price: price,
                         status: 'Pending',
                         gymName: gymName, // Storing gymName from GymProfile card
                         timestamp: new Date().toISOString() // Timestamp of the transaction
@@ -658,11 +658,11 @@ function formatTime(time) {
         }
     };  
     
-    window.confirmPlanPurchase = function(planType, planPrice, membershipDays, planId) {
-        console.log('confirmPlanPurchase triggered for:', planType, planPrice, planId, membershipDays);
+    window.confirmPlanPurchase = function(planType, price, membershipDays, planId) {
+        console.log('confirmPlanPurchase triggered for:', planType, price, planId, membershipDays);
         // Set the selected plan details in the confirmation modal
         document.getElementById('selectedPlanType').innerText = planType;
-        document.getElementById('selectedPlanPrice').innerText = planPrice;
+        document.getElementById('selectedPlanPrice').innerText = price;
     
         // Show the confirmation modal using Bootstrap 5's JavaScript API with focus disabled
         const confirmPurchaseModal = new bootstrap.Modal(document.getElementById('confirmPurchaseModal'), {
@@ -682,10 +682,10 @@ function formatTime(time) {
                 const gymName = document.getElementById('modalGymName').innerText;
                 if (!gymName) throw new Error('Gym name not available.');
     
-                console.log('Proceeding with purchase for:', planType, planPrice, membershipDays, planId, userId, gymName);
+                console.log('Proceeding with purchase for:', planType, price, membershipDays, planId, userId, gymName);
     
                 // Call the purchasePlan function to save the transaction
-                await purchasePlan(planId, planType, planPrice, membershipDays, userId, gymName);
+                await purchasePlan(planId, planType, price, membershipDays, userId, gymName);
                 await displayMembershipNotificationDot();
                 confirmPurchaseModal.hide();
     
@@ -697,8 +697,8 @@ function formatTime(time) {
                                 <div class="modal-header">
                                     <h5 class="modal-title"> Membership Purchase Successful!</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                                      <span aria-hidden="true">&times;</span>
+                                </button>
                                 </div>
                                 <div class="modal-body text-center">
                                     <div class="icon-container">
@@ -708,7 +708,7 @@ function formatTime(time) {
                                         Your membership purchase was successful! Thank you for choosing <strong id="gymNameSuccess">${gymName}</strong>.
                                     </p>
                                     <p><strong>Plan:</strong> ${planType}</p>
-                                    <p><strong>Price:</strong> ₱${planPrice}</p>
+                                    <p><strong>Price:</strong> ₱${price}</p>
                                     <p class="processing-text">Please wait for the Gym owner's approval.</p>
                                     <div class="processing-time">
                                         <i class="fas fa-clock"></i> <span>Processing Time: Up to 24 hours</span>
@@ -753,15 +753,15 @@ function formatTime(time) {
     };
     
 
-    async function purchasePlan(planId, planType, planPrice, membershipDays, userId, gymName) {
+    async function purchasePlan(planId, planType, price, membershipDays, userId, gymName) {
         try {
-            console.log('Attempting to save transaction:', { planId, planType, planPrice, membershipDays, userId, gymName });
+            console.log('Attempting to save transaction:', { planId, planType, price, membershipDays, userId, gymName });
             const newTransaction = {
                 type : 'membership',
                 userId: userId,
                 planId: planId,
                 planType: planType,
-                planPrice: planPrice,
+                price: price,
                 membershipDays: membershipDays, // Save the membership duration
                 gymName: gymName,
                 purchaseDate: new Date().toISOString(), // Save the current date and time
@@ -872,7 +872,7 @@ function formatTime(time) {
                                 ${membership.gymName || 'Unnamed Gym'}
                             </h4>
                             <p style="margin: 8px 0;"><strong>Plan:</strong> ${membership.planType || 'N/A'}</p>
-                            <p style="margin: 8px 0;"><strong>Price:</strong> <span style="color: #28a745;">₱${membership.planPrice || 'N/A'}</span></p>
+                            <p style="margin: 8px 0;"><strong>Price:</strong> <span style="color: #28a745;">₱${membership.price || 'N/A'}</span></p>
                             <p style="margin: 8px 0;"><strong>Purchased on:</strong> ${purchaseDate.toLocaleDateString()}</p>
                             <p style="margin: 8px 0;"><strong>Expires on:</strong> ${expirationDate.toLocaleDateString()}</p>
                             <p style="margin: 8px 0;"><strong>Status:</strong> 
@@ -895,7 +895,7 @@ function formatTime(time) {
                             </h4>
                             <div class="membership-info">
                                 <p><strong>Plan:</strong> ${membership.planType || 'N/A'}</p>
-                                <p><strong>Price:</strong> <span class="price">₱${membership.planPrice || 'N/A'}</span></p>
+                                <p><strong>Price:</strong> <span class="price">₱${membership.price || 'N/A'}</span></p>
                                 <p><strong>Purchased on:</strong> ${purchaseDate.toLocaleDateString()}</p>
                                 <p><strong>Expires on:</strong> ${expirationDate.toLocaleDateString()}</p>
                                 <p><strong>Time Remaining:</strong> <span id="countdown" class="countdown"></span></p>
@@ -1581,63 +1581,134 @@ function formatTime(time) {
             // Show the initial booking confirmation modal
             $('#bookingConfirmationModal').modal('show');
         };
-        window.initializeCalendar = function(bookedDates = []) {
-            const calendarEl = document.getElementById('bookingCalendar');
-        
+
+        // Function to fetch reserved dates for a specific trainer from Firestore
+        async function getTrainerBookedDates(trainerName) {
+            const bookedDates = [];
+            try {
+                const transactionsQuery = query(
+                    collection(db, "Reservations"),
+                    where("trainerName", "==", trainerName)
+                );
+                const querySnapshot = await getDocs(transactionsQuery);
+
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.bookingDate && data.trainerName === trainerName) {
+                        const date = data.bookingDate.toDate 
+                            ? data.bookingDate.toDate().toISOString().split('T')[0] 
+                            : data.bookingDate;
+
+                        bookedDates.push({
+                            title: 'Booked',
+                            start: date,
+                            color: '#FFD700',
+                            textColor: '#000000'
+                        });
+                    }
+                });
+
+                console.log("Fetched booked dates:", bookedDates); // Debug log
+            } catch (error) {
+                console.error("Error fetching booked dates:", error);
+            }
+
+            return bookedDates;
+        }
+
+        // Initialize FullCalendar with booked dates when the modal opens
+        $('#calendarModal').on('shown.bs.modal', async function () {
+            const trainerName = document.getElementById('modalTrainerName').innerText.trim();
+            const bookedDates = await getTrainerBookedDates(trainerName);
+
+            const calendarEl = document.getElementById('calendar');
             if (!calendarEl) {
                 console.error("Calendar element not found!");
                 return;
             }
-        
-            calendarEl.innerHTML = ''; // Clear any existing calendar instance
-        
-            console.log("Initializing calendar..."); // Debug log
-        
-            // Create the FullCalendar instance
+            calendarEl.innerHTML = '';
+
             const calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
                 selectable: true,
+                events: bookedDates,
                 dateClick: function(info) {
-                    document.getElementById('date').value = info.dateStr; // Set date field when date is selected
-                    console.log("Date clicked:", info.dateStr); // Debug log
+                    const isBooked = bookedDates.some(event => event.start === info.dateStr);
+                    if (isBooked) {
+                        alert("This date is already booked. Please choose another date.");
+                    } else {
+                        $('#reservationDate').val(info.dateStr); // Set the selected date
+                        $('#calendarModal').modal('hide'); // Close the modal after selecting a date
+                    }
                 },
-                events: bookedDates // Array of events with booked dates
+                displayEventTime: false,
+                eventContent: function(arg) {
+                    let customEl = document.createElement('div');
+                    customEl.style.color = '#FFD700';
+                    customEl.style.fontWeight = 'bold';
+                    customEl.style.textAlign = 'center';
+                    customEl.textContent = arg.event.title;
+                    return { domNodes: [customEl] };
+                }
             });
-        
+
             calendar.render();
-            console.log("Calendar rendered"); // Debug log
-        };
-        
-        // Function to load reserved dates and initialize calendar
-        async function loadReservedDates() {
-            const reservedDates = await getReservedDates();
-            const bookedDates = reservedDates.map(date => ({
-                title: 'Booked',
-                start: date,
-                color: '#ff0000' // Red color for booked dates
-            }));
-        
-            console.log("Reserved dates loaded:", bookedDates); // Debug log
-        
-            // Call initializeCalendar with booked dates after loading
-            window.initializeCalendar(bookedDates);
-        }
-        
-        // Sample function to return reserved dates
-        async function getReservedDates() {
-            return ["2024-11-10", "2024-11-15", "2024-11-20"]; // Example reserved dates
-        }
-        
-        // Event listener to open the modal and initialize the calendar when shown
-        document.getElementById('checkReservationDate').addEventListener('click', function() {
-            $('#bookingTrainerModal').modal('show'); // Show the modal
+            console.log("Calendar rendered with booked dates:", bookedDates); // Debug log
         });
-        
-        $('#bookingTrainerModal').on('shown.bs.modal', function() {
-            console.log("Modal shown, loading reserved dates..."); // Debug log
-            loadReservedDates(); // Fetch and display reserved dates
+
+        // Clear all fields when the modal is closed
+        $('#calendarModal').on('hidden.bs.modal', function () {
+            $('#calendar').html(''); // Clear calendar content to destroy the instance
+            $('#reservationDate').val(''); // Clear the reservation date field
+            $('#modalTrainerName').val(''); // Clear the trainer name field
         });
+
         
+
+        // Function to fetch reservations and initialize the calendar for a specific trainer
+            window. fetchAndDisplayReservations= async function (trainerName) {
+            try {
+                // Query Firestore for reservations where trainerName matches
+                const reservationsQuery = query(
+                    collection(db, 'Reservations'),
+                    where("trainerName", "==", trainerName)
+                );
+                const querySnapshot = await getDocs(reservationsQuery); // Await Firestore response
+
+                // Prepare booked dates array based on matching reservations
+                const bookedDates = [];
+                querySnapshot.forEach((doc) => {
+                    const reservationData = doc.data();
+
+                    // Validate that the reservation's trainerName matches the modal's trainer name
+                    if (reservationData.trainerName === trainerName) {
+                        // Check if bookingDate is a Firestore Timestamp
+                        let date;
+                        if (reservationData.bookingDate.toDate) {
+                            // Firestore Timestamp format - convert to date string
+                            date = reservationData.bookingDate.toDate().toISOString().split('T')[0];
+                        } else {
+                            // Assume bookingDate is already in "YYYY-MM-DD" string format
+                            date = reservationData.bookingDate;
+                        }
+
+                        bookedDates.push({
+                            title: 'Booked',
+                            start: date,
+                            color: '#ff0000' // Red color for booked dates
+                        });
+                    }
+                });
+
+                console.log("Booked dates for trainer:", bookedDates); // Debug log
+
+                // Initialize the calendar with booked dates for the specific trainer
+                initializeTrainerCalendar(bookedDates);
+            } catch (error) {
+                console.error("Error fetching reservations data:", error);
+            }
+        }
+
 
 
 

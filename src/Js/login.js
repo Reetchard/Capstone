@@ -293,8 +293,6 @@ async function signInWithEmail(email, password, errorMessageElement, successMess
             case 'auth/too-many-requests':
                 errorMsg = '⏳ Whoa, slow down! Too many attempts. Take a break and try later.';
                 break;
-            default:
-                errorMsg = `⚠️ Oops! Something went wrong: ${error.message}. Please try again or contact support.`;
         }
         showMessage(errorMessageElement, errorMsg, true);
     }
@@ -340,7 +338,7 @@ function isValidEmail(email) {
 
                 // Check for password validity
                 if (!validatePassword(password)) {
-                    showMessage(errorMessage, '🔒 Hmm, your password needs a little boost! It must be at least 6 characters long. Give it another shot!', true);
+                    showMessage(errorMessage, '🔐 Incorrect password. Let’s give it another shot!', true);
                     return;
                 }
 
