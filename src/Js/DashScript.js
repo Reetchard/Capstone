@@ -1602,7 +1602,7 @@ function formatTime(time) {
                         bookedDates.push({
                             title: 'Booked',
                             start: date,
-                            color: '#FFD700',
+                            color: '#ffa31a',
                             textColor: '#000000'
                         });
                     }
@@ -1644,7 +1644,6 @@ function formatTime(time) {
                 displayEventTime: false,
                 eventContent: function(arg) {
                     let customEl = document.createElement('div');
-                    customEl.style.color = '#FFD700';
                     customEl.style.fontWeight = 'bold';
                     customEl.style.textAlign = 'center';
                     customEl.textContent = arg.event.title;

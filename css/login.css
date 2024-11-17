@@ -387,42 +387,6 @@ h2 {
     text-align: center; /* Center the text for consistency */
 }
 
-/* Media Query for Tablets (min-width: 600px) */
-@media (max-width: 1024px) {
-    form {
-        padding: 15px;
-        width: 90%; /* Adjust width for tablets */
-    }
-}
-
-/* Media Query for Mobile Phones (max-width: 600px) */
-@media (max-width: 600px) {
-    form {
-        padding: 10px;
-        width: 95%; /* Adjust width for mobile phones */
-    }
-
-    .form-group {
-        width: 100%; /* Full width for form groups */
-    }
-
-    input, select {
-        width: 100%; /* Full width inputs and selects */
-    }
-}
-
-/* Media Query for Small Devices (max-width: 400px) */
-@media (max-width: 400px) {
-    form {
-        padding: 5px;
-        width: 100%; /* Full width for very small screens */
-    }
-
-    input, select {
-        font-size: 12px; /* Smaller font size for inputs and selects */
-    }
-}
-
 .membership-info {
     margin-bottom: 3px; /* Reduced space above the message */
     padding: 10px; /* Reduced padding inside the message box */
@@ -494,4 +458,56 @@ h2 {
 
 .signup-button:hover {
     background-color: #e53935; /* Darker red on hover */
+}
+
+@media screen and (max-width: 768px){
+    body {
+        flex-direction: column;
+        margin: 0;
+        padding: 0;
+        height: auto; /* Allow body height to adjust for smaller screens */
+    }
+
+    h1 {
+        font-size: 24px; /* Reduce font size */
+    }
+
+    h2 {
+        font-size: 2rem; /* Adjust size for smaller screens */
+        padding: 10px 20px; /* Reduce padding */
+    }
+
+    p {
+        font-size: 12px; /* Reduce font size */
+        line-height: 18px; /* Adjust line height */
+    }
+
+    .container {
+        width: 100%; /* Full width */
+        max-width: 95%; /* Ensure it doesn't exceed 95% of the viewport */
+        padding: 15px; /* Comfortable inner padding */
+        box-sizing: border-box; /* Include padding in total width */
+    }
+    
+
+    button {
+        padding: 10px 20px; /* Reduce button padding */
+        font-size: 12px; /* Adjust font size */
+        margin-top: 15px; /* Reduce spacing */
+    }
+
+    .overlay-container {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width: 70%;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    footer {
+        font-size: 12px; /* Reduce font size */
+        padding: 5px; /* Reduce padding */
+    }
+    
 }
