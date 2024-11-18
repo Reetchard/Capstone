@@ -1421,10 +1421,19 @@ strong:hover .custom-tooltip {
     width: 35px; /* Set a fixed width */
     height: 35px; /* Set a fixed height */
     border-radius: 50%; /* Make it a circle */
-    border: 2px solid #007bff; /* Add border to make avatar stand out */
+    border: 2px solid #ffa31a; /* Add border to make avatar stand out */
     object-fit: cover; /* Ensure the image covers the area without stretching */
     object-position: center; /* Center the image within the container */
 }
+
+.inbox-user-photo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%; /* Circular photo */
+    margin-right: 10px;
+    border: 2px solid #ffa31a; /* Green border color (you can change this to any color you prefer) */
+}
+
 
 
 /* Messages Container */
@@ -1575,7 +1584,6 @@ strong:hover .custom-tooltip {
 .inbox-list-container {
     height: 350px; /* Set desired height */
     width: 100%;
-    overflow-y: auto;
     background-color: #333;
     padding: 10px;
     border-right: 1px solid #2c2c2c; /* Border for right side */
@@ -2153,6 +2161,9 @@ strong:hover .custom-tooltip {
     backdrop-filter: blur(5px); /* Add a blur effect to the background */
 }
 #notificationDetailsModal{
+    backdrop-filter: blur(5px); /* Add a blur effect to the background */ 
+}
+#mapModal{
     backdrop-filter: blur(5px); /* Add a blur effect to the background */ 
 }
 #membershipPlansModal .modal-footer{

@@ -62,16 +62,19 @@ window.addEventListener('load', () => {
         return await getDownloadURL(snapshot.ref);
     }
 
-    // Function to check if the authenticated user's email matches the gymEmail
     async function isUserEmailValid(gymEmail) {
-        const user = auth.currentUser; // Get the current authenticated user
-        if (user) {
-            const userEmail = user.email;
-            return userEmail === gymEmail; // Email matches
+        const gymowner = auth.currentUser; // Get the current authenticated user
+        if (gymowner) {
+            const userEmail = gymowner.email.trim().toLowerCase(); // Normalize authenticated user's email
+            const enteredEmail = gymEmail.trim().toLowerCase(); // Normalize entered email
+            console.log("Authenticated user's email:", userEmail); // Debugging output
+            console.log("Entered gym email:", enteredEmail); // Debugging output
+            return userEmail === enteredEmail; // Compare normalized emails
         } else {
+            console.log("No authenticated user.");
             return false; // Not authenticated
         }
-    }
+    }    
 
     // Show the spinner modal
     function showSpinner() {
@@ -83,20 +86,18 @@ window.addEventListener('load', () => {
         spinnerModal.style.display = 'none';
     }
 
-    // Listen for form submit
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
-
+    
         try {
-            // Show spinner when form is being submitted
             showSpinner();
-
+    
             const gymEmail = gymEmailInput.value;
-
+    
             // Validate the user's email
             const isValidEmail = await isUserEmailValid(gymEmail);
             if (!isValidEmail) {
-                errorMessage.innerHTML = "Error: User email does not match the GymForm email.";
+                errorMessage.innerHTML = "Error: The email you entered does not match your registered account. Please check and try again.";
                 hideSpinner(); // Hide spinner if error occurs
                 return;
             }
@@ -104,6 +105,14 @@ window.addEventListener('load', () => {
             // Custom validation for the file input
             if (gymPhotoInput.files.length === 0) {
                 errorMessage.innerHTML = "Please upload a gym photo.";
+                hideSpinner(); // Hide spinner if error occurs
+                return;
+            }
+
+            // Validate price rate as a decimal
+            const priceRateValue = parseFloat(gymPriceRate.value);
+            if (isNaN(priceRateValue) || priceRateValue < 0) {
+                errorMessage.innerHTML = "Please enter a valid price rate as a positive decimal number.";
                 hideSpinner(); // Hide spinner if error occurs
                 return;
             }
@@ -117,7 +126,7 @@ window.addEventListener('load', () => {
             const userId = user.uid; // User's unique ID
 
             // Create or update the user's document with gym information
-            const userDocRef = doc(firestore, 'Users', userId);
+            const userDocRef = doc(firestore, 'GymOwner', userId);
             await setDoc(userDocRef, {
                 gymName: gymName.value,
                 gymPhoto: gymPhotoURL,
@@ -128,14 +137,14 @@ window.addEventListener('load', () => {
                 gymOpeningTime: gymOpeningTime.value,
                 gymClosingTime: gymClosingTime.value,
                 gymLocation: gymLocation.value,
-                gymPriceRate: gymPriceRate.value,
+                gymPriceRate: priceRateValue, // Save price rate as a decimal
                 status: "Under review"
             }, { merge: true });
 
             // Success message logic
             successMessage.innerHTML = "Gym information submitted successfully! Please wait for admin's approval.";
             errorMessage.innerHTML = "";
-            
+
             // After a brief delay, redirect to login.html
             setTimeout(() => {
                 hideSpinner();
@@ -151,4 +160,5 @@ window.addEventListener('load', () => {
             setTimeout(() => { errorMessage.innerHTML = ""; }, 3000);
         }
     });
+
 });

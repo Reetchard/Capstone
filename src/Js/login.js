@@ -42,261 +42,282 @@ function clearMessages(errorElement, successElement) {
         successElement.style.display = 'none';
     }
 }
-
 async function getNextUserId(role) {
     console.log('Received role in getNextUserId:', role); // Log received role
 
+    // Reference to the RoleId document
     const counterRef = doc(db, 'RoleId', 'Users');
-    const counterSnapshot = await getDoc(counterRef);
-
     let newId;
-    if (counterSnapshot.exists()) {
-        const currentData = counterSnapshot.data();
-        if (role === 'gymowner') { // Adjusted for lowercase comparison
-            newId = currentData.gymOwnerId + 1;
-            await setDoc(counterRef, { gymOwnerId: newId, trainerId: currentData.trainerId, userId: currentData.userId }, { merge: true });
-        } else if (role === 'trainer') {
-            newId = currentData.trainerId + 1;
-            await setDoc(counterRef, { trainerId: newId, gymOwnerId: currentData.gymOwnerId, userId: currentData.userId }, { merge: true });
-        } else if (role === 'user') { // New case for user role
-            newId = currentData.userId + 1;
-            await setDoc(counterRef, { userId: newId, gymOwnerId: currentData.gymOwnerId, trainerId: currentData.trainerId }, { merge: true });
-        } else {
-            console.error('Invalid role specified:', role); // Log invalid role for debugging
-            throw new Error('Invalid role specified.');
-        }
-    } else {
-        // Initialize the counter if it doesn't exist
-        if (role === 'gymowner') {
-            newId = 1;
-            await setDoc(counterRef, { gymOwnerId: newId, trainerId: 0, userId: 0 });
-        } else if (role === 'trainer') {
-            newId = 1;
-            await setDoc(counterRef, { gymOwnerId: 0, trainerId: newId, userId: 0 });
-        } else if (role === 'user') {
-            newId = 1;
-            await setDoc(counterRef, { gymOwnerId: 0, trainerId: 0, userId: newId });
-        } else {
-            console.error('Invalid role specified during initialization:', role); // Log invalid role for debugging
-            throw new Error('Invalid role specified.');
-        }
-    }
-
-    return newId;
-}
-
-async function signUpWithEmail(username, email, password, role, errorMessageElement, successMessageElement) {
-    clearMessages(errorMessageElement, successMessageElement);
-
-    // Define valid roles
-    const validRoles = ['gymowner', 'trainer', 'user']; 
-    
-    if (!validRoles.includes(role.toLowerCase())) {
-        showMessage(errorMessageElement, '🚫 Uh-oh! That role doesn’t exist in our system. Please select "Gym Owner," "Trainer," or "User" and try again.', true);
-        return;
-    }
-
-    if (!isValidEmail(email)) {
-        showMessage(errorMessageElement, '📧 Hold on! That email doesn’t seem right. Double-check it and give it another go!', true);
-        return;
-    }
-
-    if (password.length < 6) {
-        showMessage(errorMessageElement, '🔑 Password’s too short! You need at least 6 characters for a strong start. Let’s fix that and try again!', true);
-        return;
-    }
 
     try {
-        const userId = await getNextUserId(role); // Use the new function
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        // Fetch the current document
+        const counterSnapshot = await getDoc(counterRef);
 
-        await setDoc(doc(db, 'Users', userCredential.user.uid), {
-            userId ,
-            username,
-            email,
-            password,
-            role,
-            status: 'Under review' // Initial status is 'Under review'
-        });
+        if (counterSnapshot.exists()) {
+            // Extract current data
+            const currentData = counterSnapshot.data();
+            console.log('Current RoleId Data:', currentData); // Debugging log
 
-        // Store the notification in localStorage
-        localStorage.setItem('signupNotification', `🎉 Welcome aboard, ${username}! Your account has been created successfully. Hold tight, it's under review and we'll notify you soon!`);
+            // Generate new ID based on role
+            if (role.toLowerCase() === 'gymowner') {
+                newId = (currentData.gymOwnerId || 0) + 1;
+                await setDoc(counterRef, { gymOwnerId: newId }, { merge: true });
+            } else if (role.toLowerCase() === 'trainer') {
+                newId = (currentData.trainerId || 0) + 1;
+                await setDoc(counterRef, { trainerId: newId }, { merge: true });
+            } else if (role.toLowerCase() === 'user') {
+                newId = (currentData.userId || 0) + 1;
+                await setDoc(counterRef, { userId: newId }, { merge: true });
+            } else {
+                console.error('Invalid role specified:', role); // Log invalid role for debugging
+                throw new Error('Invalid role specified.');
+            }
+        } else {
+            // Document doesn't exist, initialize it
+            console.log('RoleId document does not exist. Initializing...');
+            if (role.toLowerCase() === 'gymowner') {
+                newId = 1;
+                await setDoc(counterRef, { gymOwnerId: newId, trainerId: 0, userId: 0 });
+            } else if (role.toLowerCase() === 'trainer') {
+                newId = 1;
+                await setDoc(counterRef, { gymOwnerId: 0, trainerId: newId, userId: 0 });
+            } else if (role.toLowerCase() === 'user') {
+                newId = 1;
+                await setDoc(counterRef, { gymOwnerId: 0, trainerId: 0, userId: newId });
+            } else {
+                console.error('Invalid role specified during initialization:', role); // Log invalid role for debugging
+                throw new Error('Invalid role specified.');
+            }
+        }
 
-        showMessage(successMessageElement, `🎉 Welcome aboard, ${username}! Your account has been created successfully. Hold tight, it's under review and we'll notify you soon!`);
-        
-        // Notify the user, gym owner, or trainer
-        notifyUser(username, role);
-
-        clearSignUpFields(); // Clear form fields
-        redirectUser(role); // Redirect based on the role
-
+        console.log('Generated new ID for role:', role, newId); // Log new ID for debugging
+        return newId;
     } catch (error) {
-        console.error('Error during signup:', error);
+        console.error('Error in getNextUserId:', error);
+        throw new Error('Failed to generate new ID.');
+    }
+    }
+    async function signUpWithEmail(username, email, password, role, errorMessageElement, successMessageElement) {
+        clearMessages(errorMessageElement, successMessageElement);
 
-        let errorMsg;
-        if (error.code === 'auth/email-already-in-use') {
-            errorMsg = '🚫 Uh-oh! This email is already taken. How about using another one to continue your journey?';
+        // Normalize username to lowercase for validation
+        const normalizedUsername = username.toLowerCase();
+
+        let collectionName;
+
+        if (normalizedUsername === 'admin') {
+            // Automatically assign to Admin collection if username is 'admin'
+            collectionName = 'Admin';
+            role = 'admin'; // Force role to 'admin' for consistency
         } else {
-            errorMsg = `⚠️ Yikes! Something went wrong: ${error.message}. Don’t worry, we’ll help you fix it!`;
+            // Define valid roles
+            const validRoles = ['gymowner', 'trainer', 'user'];
+
+            if (!validRoles.includes(role.toLowerCase())) {
+                showMessage(errorMessageElement, '🚫 Uh-oh! That role doesn’t exist in our system. Please select "Gym Owner," "Trainer," or "User" and try again.', true);
+                return;
+            }
+
+            collectionName = role.toLowerCase() === 'gymowner'
+                ? 'GymOwner'
+                : role.toLowerCase() === 'trainer'
+                ? 'Trainer'
+                : 'Users';
         }
 
-        showMessage(errorMessageElement, errorMsg, true);
-    }
-}
-
-
-function redirectUser(role) {
-    switch (role.toLowerCase()) {
-        case 'admin':
-            window.location.href = 'Accounts.html';
-            break;
-        case 'gymowner':
-            window.location.href = 'GymForm.html';
-            break;
-        case 'trainer':
-            window.location.href = 'Login.html';
-            break;
-        default:
-            window.location.href = 'Login.html'; // Default for regular users/customers
-            break;
-    }
-}
-
-// Sign up function
-
-// Function to notify the user, gym owner, or trainer
-function notifyUser(username, role) {
-    let notificationMessage;
-
-    // Customize messages based on role
-    switch (role.toLowerCase()) {
-        case 'gymowner':
-            notificationMessage = `🏋️‍♂️ Welcome, ${username}! As a Gym Owner, your gym setup is in progress. You’ll receive approval updates soon.`;
-            break;
-        case 'trainer':
-            notificationMessage = `🤸‍♀️ Hello, ${username}! As a Trainer, your profile is currently being reviewed. Once approved, you'll be able to connect with gym members!`;
-            break;
-        case 'user':
-            notificationMessage = `🎉 Hi, ${username}! Your account is under review. You will soon be able to access all the facilities and book sessions with trainers!`;
-            break;
-        default:
-            notificationMessage = `🎉 Hi, ${username}! We’re reviewing your account. Stay tuned for updates and get ready for your fitness journey!`;
-    }
-
-    // Check if the notification container exists
-    const notificationContainer = document.getElementById('notification-list');
-
-    if (notificationContainer) {
-        // Create a new list item for the notification
-        const notificationElement = document.createElement('li');
-        notificationElement.className = 'list-group-item'; // Bootstrap class for list styling
-        notificationElement.textContent = notificationMessage;
-
-        // Append the notification message to the container
-        notificationContainer.appendChild(notificationElement);
-    } else {
-        // Handle the case when the container doesn't exist
-        console.warn('Notification container not found!');
-    }
-}
-
-// Clear form fields
-function clearSignUpFields() {
-    document.getElementById('signupUsername').value = '';
-    document.getElementById('signupEmail').value = '';
-    document.getElementById('signupPassword').value = '';
-    document.getElementById('confirmPassword').value = '';
-    document.getElementById('role').value = '';
-}
-
-
-async function signInWithEmail(email, password, errorMessageElement, successMessageElement) {
-    // Validate email and password
-    if (!email || !password) {
-        showMessage(errorMessageElement, '⚠️ Oops! Both email and password are required to proceed. Double-check and try again!', true);
-        return;
-    }
-
-    if (!isValidEmail(email)) {
-        showMessage(errorMessageElement, '📧 Hmm, that doesn’t look like a valid email. Let’s make sure we’ve got it right!', true);
-        return;
-    }
-
-    try {
-        await setPersistence(auth, browserSessionPersistence);
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-
-        const userRef = doc(db, 'Users', userCredential.user.uid);
-        const userSnapshot = await getDoc(userRef);
-
-        if (!userSnapshot.exists()) {
-            showMessage(errorMessageElement, `🚨 User profile not found! Looks like we couldn’t retrieve your data. Please contact support with UID: ${userCredential.user.uid}.`, true);
+        if (!isValidEmail(email)) {
+            showMessage(errorMessageElement, '📧 Hold on! That email doesn’t seem right. Double-check it and give it another go!', true);
             return;
         }
 
-        const userData = userSnapshot.data();
-        const role = userData.role;
-        const status = userData.status;
-
-        if (status === 'Under review') {
-            showMessage(errorMessageElement, `🚧 Hold on! Your account is currently under review. We’ll notify you as soon as it’s ready.`, true);
+        if (password.length < 6) {
+            showMessage(errorMessageElement, '🔑 Password’s too short! You need at least 6 characters for a strong start. Let’s fix that and try again!', true);
             return;
         }
 
-        showMessage(successMessageElement, `🎉 Welcome back, ${userData.username}! We're thrilled to see you again!`);
+        try {
+            let userId;
+            if (normalizedUsername !== 'admin') {
+                // Only generate a user ID for non-admin accounts
+                userId = await getNextUserId(role);
+            }
 
-        // Redirect based on user role
-        switch (role) {
-            case 'gymowner':
-                showMessage(successMessageElement, '🏋️‍♂️ Redirecting you to manage your gym profile. Get ready to flex those managerial muscles!');
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+            await setDoc(doc(db, collectionName, userCredential.user.uid), {
+                userId: normalizedUsername === 'admin' ? 'N/A' : userId, // No ID generation for admin
+                username,
+                email,
+                password,
+                role,
+                status: role === 'admin' ? 'Active' : 'Under review' // Admin accounts are immediately active
+            });
+
+            // Show success message after account creation
+            showMessage(successMessageElement, `🎉 Account created successfully for ${username}! You will be redirected shortly.`, false);
+
+            clearSignUpFields();
+
+            // Redirect user after a delay
+            setTimeout(() => {
+                redirectUser(role);
+            }, 3000);
+
+        } catch (error) {
+            console.error('Error during signup:', error);
+
+            let errorMsg;
+            switch (error.code) {
+                case 'auth/email-already-in-use':
+                    errorMsg = `🚫 Uh-oh! The email you entered is already in use. <a href="login.html">Log in instead?</a>`;
+                    break;
+                default:
+                    errorMsg = `⚠️ Yikes! Something went wrong: ${error.message}. Don’t worry, we’ll help you fix it!`;
+                    break;
+            }
+
+            showMessage(errorMessageElement, errorMsg, true);
+        }
+    }
+
+
+
+    function redirectUser(role) {
+        switch (role.toLowerCase()) {
+            case 'admin':
                 setTimeout(() => {
-                    window.location.href = 'trainer-info.html';
-                }, 3000);
+                    window.location.href = 'accounts.html';
+                }, 3000); // Delay to show the spinner (3 second)
+                break;
+            case 'gymowner':
+                setTimeout(() => {
+                    window.location.href = 'GymForm.html';
+                }, 3000); // Delay to show the spinner (3 second)
                 break;
             case 'trainer':
-                showMessage(successMessageElement, '💪 Trainer dashboard loading. Time to help others crush their fitness goals!');
-                setTimeout(() => {
-                    window.location.href = 'trainer.html';
-                }, 3000);
-                break;
-            case 'admin':
-                showMessage(successMessageElement, '🛠 Admin panel is just a moment away. Let’s get managing!');
-                setTimeout(() => {
-                    window.location.href = 'Accounts.html';
-                }, 3000);
-                break;
             case 'user':
-                showMessage(successMessageElement, '🏠 Taking you to your dashboard. Let’s dive into your fitness journey!');
                 setTimeout(() => {
-                    window.location.href = 'Dashboard.html';
-                }, 3000);
+                    window.location.href = 'Login.html';
+                }, 3000); // Delay to show the spinner (3 second)
                 break;
             default:
-                console.warn('Unrecognized role:', role);
-                showMessage(errorMessageElement, `🤔 Role not recognized. Please contact support if you believe this is an error.`, true);
+                setTimeout(() => {
+                    window.location.href = 'Login.html';
+                }, 1000);
                 break;
         }
-
-    } catch (error) {
-        console.error("Sign-in error:", error); // Log full error for debugging
-        let errorMsg;
-        switch (error.code) {
-            case 'auth/user-not-found':
-                errorMsg = '❌ We couldn’t find an account with that email. Try again or sign up for a new account!';
-                break;
-            case 'auth/wrong-password':
-                errorMsg = '🔐 Incorrect password. Let’s give it another shot!';
-                break;
-            case 'auth/invalid-email':
-                errorMsg = '📧 That email doesn’t seem right. Can you check it again?';
-                break;
-            case 'auth/too-many-requests':
-                errorMsg = '⏳ Whoa, slow down! Too many attempts. Take a break and try later.';
-                break;
-        }
-        showMessage(errorMessageElement, errorMsg, true);
     }
-}
+
+
+    // Clear form fields
+    function clearSignUpFields() {
+        document.getElementById('signupUsername').value = '';
+        document.getElementById('signupEmail').value = '';
+        document.getElementById('signupPassword').value = '';
+        document.getElementById('confirmPassword').value = '';
+        document.getElementById('role').value = '';
+    }
+    async function signInWithEmail(email, password, errorMessageElement, successMessageElement) {
+        if (!email || !password) {
+            showMessage(errorMessageElement, '⚠️ Oops! Both email and password are required to proceed. Double-check and try again!', true);
+            return;
+        }
+    
+        if (!isValidEmail(email)) {
+            showMessage(errorMessageElement, '📧 Hmm, that doesn’t look like a valid email. Let’s make sure we’ve got it right!', true);
+            return;
+        }
+    
+        try {
+            await setPersistence(auth, browserSessionPersistence); // Set session persistence
+            const userCredential = await signInWithEmailAndPassword(auth, email, password); // Sign in user
+    
+            const userId = userCredential.user.uid; // Get the authenticated user's UID
+            const collections = ['Admin', 'GymOwner', 'Trainer', 'Users']; // Collections to check
+    
+            let userData = null; // Placeholder for user data
+            let role = null; // Placeholder for user role
+    
+            // Search for the user in all collections
+            for (const collectionName of collections) {
+                const userRef = doc(db, collectionName, userId); // Reference to user document in the current collection
+                const userSnapshot = await getDoc(userRef);
+    
+                if (userSnapshot.exists()) {
+                    userData = userSnapshot.data(); // Retrieve user data
+                    role = userData.role || collectionName.toLowerCase(); // Set role (fallback to collection name)
+                    break; // Stop searching once user is found
+                }
+            }
+    
+            if (!userData) {
+                // User not found in any collection
+                showMessage(errorMessageElement, `🚨 User profile not found! Please contact support with UID: ${userId}.`, true);
+                return;
+            }
+    
+            const status = userData.status;
+    
+            if (status === 'Under review') {
+                // Account is under review
+                showMessage(errorMessageElement, `🚧 Hold on! Your account is currently under review. We’ll notify you as soon as it’s ready.`, true);
+                return;
+            }
+    
+            // Successfully signed in
+            showMessage(successMessageElement, `🎉 Welcome back, ${userData.username}! Redirecting to your dashboard.`, false);
+    
+            // Redirect based on role after a delay
+            setTimeout(() => {
+                switch (role) {
+                    case 'admin':
+                        window.location.href = 'Accounts.html';
+                        break;
+                    case 'gymowner':
+                        window.location.href = 'trainer-info.html';
+                        break;
+                    case 'trainer':
+                        window.location.href = 'trainer.html';
+                        break;
+                    case 'user':
+                        window.location.href = 'Dashboard.html';
+                        break;
+                    default:
+                        showMessage(errorMessageElement, `🤔 Role not recognized. Please contact support if you believe this is an error.`, true);
+                        break;
+                }
+            }, 3000);
+        } catch (error) {
+            // Handle sign-in errors
+            console.error("Sign-in error:", error);
+    
+            let errorMsg;
+            switch (error.code) {
+                case 'auth/user-not-found':
+                    errorMsg = '❌ We couldn’t find an account with that email. Try again or sign up for a new account!';
+                    break;
+                case 'auth/wrong-password':
+                    errorMsg = '🔐 Incorrect password. Let’s give it another shot!';
+                    break;
+                case 'auth/invalid-email':
+                    errorMsg = '📧 That email doesn’t seem right. Can you check it again?';
+                    break;
+                case 'auth/too-many-requests':
+                    errorMsg = '⏳ Whoa, slow down! Too many attempts. Take a break and try later.';
+                    break;
+                case 'auth/invalid-login-credentials':
+                    errorMsg = '⚠️ Invalid login credentials. Please double-check your email and password.';
+                    break;
+                default:
+                    errorMsg = `⚠️ An error occurred: ${error.message}`;
+            }
+            showMessage(errorMessageElement, errorMsg, true);
+        }
+    }
+    
+    
+
+
 
 
 

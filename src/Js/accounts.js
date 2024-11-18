@@ -15,7 +15,6 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const accountRef = collection(db, 'Users');
   // Toggle dropdown on profile picture click
   
   document.getElementById('profile-picture').addEventListener('click', function(event) {
@@ -40,19 +39,28 @@ const accountRef = collection(db, 'Users');
     }
 });
 
-// Close dropdown when clicking outside
 window.addEventListener('click', function(event) {
     const dropdownMenu = document.querySelector('.dropdown-menu');
+    if (!dropdownMenu) {
+        console.error("Dropdown menu not found in DOM.");
+        return;
+    }
+
     if (!event.target.closest('.dropdown')) {
         dropdownMenu.classList.add('hide'); // Add hide class for smooth closing
         setTimeout(() => {
             dropdownMenu.classList.remove('show', 'hide'); // Remove show and hide after transition
-        }, 300); // Match the duration with the CSS transition time
-        
-        // Optionally remove active class from profile picture
-        document.getElementById('profile-picture').classList.remove('active'); // Optional for additional effect
+        }, 300);
+    }
+
+    const profilePicture = document.getElementById('profile-picture');
+    if (profilePicture) {
+        profilePicture.classList.remove('active');
+    } else {
+        console.error("Profile picture element not found.");
     }
 });
+
 document.addEventListener('DOMContentLoaded', () => {
     onAuthStateChanged(auth, async (user) => {
         if (user) {
@@ -83,39 +91,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-// Function to display user profile picture
 function displayProfilePicture(user, username) {
     const userId = user.uid;
     const profilePicRef = ref(storage, `profilePictures/${userId}/profile.jpg`);
-  
-    getDownloadURL(profilePicRef).then((url) => {
-        // Update profile picture in both header and sidebar
-        document.getElementById('profile-picture').src = url;        
-        // Also update the username in the header
-        document.getElementById('profile-username').textContent = username;
-    }).catch((error) => {
-        if (error.code === 'storage/object-not-found') {
-            // Fallback to default image if no profile picture is found
-            document.getElementById('profile-picture').src = 'framework/img/Profile.png';
 
-            // Still set the username
-            document.getElementById('profile-username').textContent = username;
-        } else {
-            console.error('Unexpected error loading profile picture:', error.message);
-        }
-    });
+    getDownloadURL(profilePicRef)
+        .then((url) => {
+            const profilePicture = document.getElementById('profile-picture');
+            const profileUsername = document.getElementById('profile-username');
+
+            if (profilePicture) {
+                profilePicture.src = url;
+            } else {
+                console.error("'profile-picture' element not found.");
+            }
+
+            if (profileUsername) {
+                profileUsername.textContent = username;
+            } else {
+                console.error("'profile-username' element not found.");
+            }
+        })
+        .catch((error) => {
+            const profilePicture = document.getElementById('profile-picture');
+            const profileUsername = document.getElementById('profile-username');
+
+            if (error.code === 'storage/object-not-found') {
+                if (profilePicture) {
+                    profilePicture.src = 'framework/img/Profile.png';
+                } else {
+                    console.error("'profile-picture' element not found for fallback.");
+                }
+
+                if (profileUsername) {
+                    profileUsername.textContent = username;
+                } else {
+                    console.error("'profile-username' element not found for fallback.");
+                }
+            } else {
+                console.error('Unexpected error loading profile picture:', error.message);
+            }
+        });
 }
 
-
-// Show spinner
-function showSpinner() {
-    document.getElementById('spinnerOverlay').classList.remove('d-none');
-}
-
-// Hide spinner
-function hideSpinner() {
-    document.getElementById('spinnerOverlay').classList.add('d-none');
-}
 
 // Show modal with a message
 function showModal(title, message) {
@@ -127,35 +145,49 @@ function showModal(title, message) {
 
 // Function to display accounts
 async function displayAccountInfo(searchQuery = '') {
-    const snapshot = await getDocs(accountRef);
+    const collections = ['Users', 'GymOwner', 'Trainer']; // Collections to fetch from
     const accountInfoBody = document.getElementById('accountInfoBody');
     accountInfoBody.innerHTML = ''; // Clear previous results
 
-    snapshot.forEach(doc => {
-        const account = doc.data();
-        console.log('Account Data:', account); // Log each account's data
+    try {
+        for (const collectionName of collections) {
+            const querySnapshot = await getDocs(collection(db, collectionName));
 
-        // Ensure userId exists and filter based on the search query
-        if (searchQuery && account.userId && !account.userId.toString().includes(searchQuery)) {
-            return; // Skip if the userId doesn't match
+            querySnapshot.forEach((doc) => {
+                const account = doc.data();
+
+                // Ensure userId exists and filter based on the search query
+                if (searchQuery && account.userId && !account.userId.toString().includes(searchQuery)) {
+                    return; // Skip if the userId doesn't match
+                }
+
+                // Create the row for matched accounts
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><input type="checkbox" class="selectAccount" value="${doc.id}" data-collection="${collectionName}"></td>
+                    <td>${account.userId || 'N/A'}</td>
+                    <td><a href="#" onclick="viewAccountDetails('${doc.id}', '${collectionName}'); return false;">${account.username || 'N/A'}</a></td>
+                    <td>${account.status || collectionName}</td>
+                    <td>
+                        <button class="btn btn-info btn-sm" onclick="setStatus('${doc.id}', '${collectionName}', 'Under review')">Review</button>
+                        <button class="btn btn-success btn-sm" onclick="setStatus('${doc.id}', '${collectionName}', 'Approved')">Approve</button>
+                        <button class="btn btn-danger btn-sm" onclick="blockAccount('${doc.id}', '${collectionName}')">Block</button>
+                    </td>
+                `;
+                accountInfoBody.appendChild(row);
+            });
         }
-
-        // Create the row for matched accounts
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td><input type="checkbox" class="selectAccount" value="${doc.id}"></td>
-            <td>${account.userId || 'N/A'}</td>
-            <td><a href="#" onclick="viewAccountDetails('${doc.id}'); return false;">${account.username || 'N/A'}</a></td>
-            <td>${account.status || 'N/A'}</td>
-            <td>
-                <button class="btn btn-info btn-sm" onclick="setStatus('${doc.id}', 'Under review')">Review</button>
-                <button class="btn btn-success btn-sm" onclick="setStatus('${doc.id}', 'Approved')">Approve</button>
-                <button class="btn btn-danger btn-sm" onclick="blockAccount('${doc.id}')">Block</button>
-            </td>
-        `;
-        accountInfoBody.appendChild(row);
-    });
+    } catch (error) {
+        console.error('Error fetching accounts:', error);
+        Swal.fire({
+            title: 'Error!',
+            text: 'Error fetching accounts. Please try again later.',
+            icon: 'error',
+            confirmButtonText: 'Okay'
+        });
+    }
 }
+
 
 // Handle button click with spinner and delay
 function handleButtonClick(action) {
@@ -191,51 +223,64 @@ window.handleSearch = function() {
     displayAccountInfo(searchQuery);
 };
 
-// Function to set the status of an account with spinner and delay
-window.setStatus = async function(key, status) {
-    const approveButton = document.querySelector(`button[onclick="setStatus('${key}', '${status}')"]`);
-    const originalContent = approveButton.innerHTML; // Store the original button content
+// Show spinner and blur
+function showGlobalSpinner() {
+    const spinner = document.getElementById("globalSpinner");
+    const blurOverlay = document.getElementById("blurOverlay");
 
+    if (spinner) spinner.style.display = "flex";
+    if (blurOverlay) blurOverlay.style.display = "block";
+}
+
+// Hide spinner and blur
+function hideGlobalSpinner() {
+    const spinner = document.getElementById("globalSpinner");
+    const blurOverlay = document.getElementById("blurOverlay");
+
+    if (spinner) spinner.style.display = "none";
+    if (blurOverlay) blurOverlay.style.display = "none";
+}
+
+// Example action function with spinner
+window.setStatus = async function (key, collectionName, status) {
     try {
-        // Show spinner and disable the button
-        approveButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...`;
-        approveButton.disabled = true;
+        showGlobalSpinner(); // Show spinner and blur
 
-        // Simulate the delay
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        // Simulate network delay
+        await new Promise((resolve) => setTimeout(resolve, 3000));
 
-        // Perform the status update
-        await updateDoc(doc(db, 'Users', key), { status: status });
+        // Perform the update
+        await updateDoc(doc(db, collectionName, key), { status: status });
 
-        // Refresh the displayed accounts
-        displayAccountInfo();
-
-        // Show SweetAlert based on the status
+        // Show success message
         Swal.fire({
-            title: 'Success!',
-            text: `${status} successfully.`,
-            icon: 'success',
-            confirmButtonText: 'Okay'
+            title: "Success!",
+            text: `Status updated to ${status}.`,
+            icon: "success",
+            confirmButtonText: "OK",
         });
+
+        // Reload the accounts display
+        displayAccountInfo();
     } catch (error) {
-        console.error('Error updating account status:', error);
+        console.error("Error updating status:", error);
+
+        // Show error message
         Swal.fire({
-            title: 'Error!',
-            text: 'There was an issue updating the account status. Please try again.',
-            icon: 'error',
-            confirmButtonText: 'Okay'
+            title: "Error",
+            text: "Failed to update status. Please try again.",
+            icon: "error",
+            confirmButtonText: "OK",
         });
     } finally {
-        // Restore the button content and enable it
-        approveButton.innerHTML = originalContent;
-        approveButton.disabled = false;
+        hideGlobalSpinner(); // Hide spinner and blur
     }
 };
 
-// Function to delete selected accounts with a delay
-window.deleteSelected = async function() {
+
+window.deleteSelected = async function () {
     const selectedCheckboxes = document.querySelectorAll('.selectAccount:checked');
-    
+
     if (selectedCheckboxes.length === 0) {
         Swal.fire({
             title: 'Warning!',
@@ -246,45 +291,50 @@ window.deleteSelected = async function() {
         return;
     }
 
-    // Show the custom confirmation modal
-    const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
-    confirmationModal.show();
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'This action cannot be undone!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Delete',
+        cancelButtonText: 'Cancel'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            showGlobalSpinner(); // Show spinner and blur
+            try {
+                for (const checkbox of selectedCheckboxes) {
+                    const key = checkbox.value;
+                    const collectionName = checkbox.getAttribute('data-collection');
+                    await deleteDoc(doc(db, collectionName, key));
+                }
 
-    // Wait for the user to confirm deletion
-    document.getElementById('confirmDeleteBtn').onclick = async function() {
-        try {
-            for (const checkbox of selectedCheckboxes) {
-                const key = checkbox.value;
-                await deleteDoc(doc(db, 'Users', key));
-            }
-
-            // Add 3-second delay before showing results
-            setTimeout(() => {
                 displayAccountInfo();
+
                 Swal.fire({
-                    title: 'Success!',
-                    text: '✅ The selected accounts have been deleted successfully.',
+                    title: 'Deleted!',
+                    text: 'The selected accounts have been deleted successfully.',
                     icon: 'success',
                     confirmButtonText: 'Okay'
                 });
-                confirmationModal.hide(); // Hide the modal after deletion
-            }, 3000); // 3-second delay
-        } catch (error) {
-            console.error('Error deleting accounts:', error);
-            Swal.fire({
-                title: 'Error!',
-                text: '❌ We were unable to delete the selected accounts. Please try again later.',
-                icon: 'error',
-                confirmButtonText: 'Okay'
-            });
+            } catch (error) {
+                console.error('Error deleting accounts:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'We were unable to delete the selected accounts. Please try again later.',
+                    icon: 'error',
+                    confirmButtonText: 'Okay'
+                });
+            } finally {
+                setTimeout(hideGlobalSpinner, 3000); // Ensure spinner is hidden after 3 seconds
+            }
         }
-    };
+    });
 };
 
-// Function to view detailed account information
-window.viewAccountDetails = async function(key) {
+
+window.viewAccountDetails = async function(key, collectionName) {
     try {
-        const docSnap = await getDoc(doc(db, 'Users', key));
+        const docSnap = await getDoc(doc(db, collectionName, key));
         const account = docSnap.data();
 
         if (account) {
@@ -297,7 +347,7 @@ window.viewAccountDetails = async function(key) {
             if (usernameField) usernameField.value = account.username || 'N/A';
             if (emailField) emailField.value = account.email || 'N/A';
             if (statusField) statusField.value = account.status || 'N/A';
-            if (roleField) roleField.value = account.role || 'N/A';
+            if (roleField) roleField.value = account.role || collectionName;
             if (userIdField) userIdField.value = key;
 
             // Show the modal using Bootstrap's JS
@@ -323,16 +373,25 @@ window.viewAccountDetails = async function(key) {
     }
 };
 
-// Function to handle select all functionality
-document.getElementById('selectAll').addEventListener('change', function(e) {
-    const checkboxes = document.querySelectorAll('.selectAccount');
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = e.target.checked;
-    });
+document.addEventListener('DOMContentLoaded', () => {
+    const selectAllCheckbox = document.getElementById('selectAll');
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function(e) {
+            const checkboxes = document.querySelectorAll('.selectAccount');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = e.target.checked;
+            });
+        });
+    } else {
+        console.error("Element with ID 'selectAll' not found.");
+    }
 });
 
-// Call to display accounts on page load
-displayAccountInfo();
+
+document.addEventListener('DOMContentLoaded', () => {
+    displayAccountInfo();
+});
+
 
 // Function to toggle select all checkboxes
 window.toggleSelectAll = function(selectAllCheckbox) {
@@ -341,3 +400,66 @@ window.toggleSelectAll = function(selectAllCheckbox) {
         checkbox.checked = selectAllCheckbox.checked;
     });
 };
+const selectAllCheckbox = document.getElementById('selectAll');
+if (selectAllCheckbox) {
+    selectAllCheckbox.addEventListener('change', function(e) {
+        const checkboxes = document.querySelectorAll('.selectAccount');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = e.target.checked;
+        });
+    });
+} else {
+    console.error("Element with ID 'selectAll' not found.");
+}window.blockAccount = async function (key, collectionName) {
+    try {
+        // Show the spinner and blur overlay
+        showGlobalSpinner();
+
+        // Simulate a slight delay for the spinner to be visible
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        // Update the status of the account to 'Blocked'
+        await updateDoc(doc(db, collectionName, key), { status: 'Blocked' });
+
+        // Refresh the displayed accounts
+        await displayAccountInfo();
+
+        // Show success message
+        await Swal.fire({
+            title: 'Success!',
+            text: 'The account has been blocked successfully.',
+            icon: 'success',
+            confirmButtonText: 'Okay',
+        });
+    } catch (error) {
+        console.error('Error blocking account:', error);
+
+        // Show error message
+        await Swal.fire({
+            title: 'Error!',
+            text: 'An error occurred while blocking the account. Please try again.',
+            icon: 'error',
+            confirmButtonText: 'Okay',
+        });
+    } finally {
+        // Hide the spinner and blur overlay
+        hideGlobalSpinner();
+    }
+};
+document.addEventListener('DOMContentLoaded', () => {
+    const hamburger = document.getElementById('hamburger');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+
+    // Toggle sidebar visibility
+    hamburger.addEventListener('click', () => {
+        sidebar.classList.toggle('visible');
+        overlay.classList.toggle('visible');
+    });
+
+    // Hide sidebar when clicking on the overlay
+    overlay.addEventListener('click', () => {
+        sidebar.classList.remove('visible');
+        overlay.classList.remove('visible');
+    });
+});

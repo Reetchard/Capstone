@@ -136,7 +136,7 @@ window.closeMembershipPlansModal = function() {
 
 // Fetch Gym Profiles and Display
     async function fetchGymProfiles() {
-        const gymsCollection = collection(db, 'Users');
+        const gymsCollection = collection(db, 'GymOwner');
         
         // Query to get only gym owners
         const gymOwnerQuery = query(gymsCollection, where('role', '==', 'gymowner'));
@@ -181,7 +181,7 @@ function formatTime(time) {
     window.viewMore = async function (gymId) {
         try {
             // Fetch the gym document from Firestore using gymId
-            const gymDocRef = doc(db, 'Users', gymId);
+            const gymDocRef = doc(db, 'GymOwner', gymId);
             const gymDoc = await getDoc(gymDocRef);
     
             if (gymDoc.exists()) {
@@ -1644,7 +1644,7 @@ function formatTime(time) {
                 displayEventTime: false,
                 eventContent: function(arg) {
                     let customEl = document.createElement('div');
-                    customEl.style.color = '#FFD700';
+                    customEl.style.color = '#000000';
                     customEl.style.fontWeight = 'bold';
                     customEl.style.textAlign = 'center';
                     customEl.textContent = arg.event.title;
@@ -2407,6 +2407,13 @@ function formatTime(time) {
             document.getElementById('chatHeader').style.display = 'block';
             document.getElementById('messagesContainer').style.display = 'block';
             document.getElementById('messageInputContainer').style.display = 'block';
+
+            // Mark all messages in this conversation as read
+    unreadMessages.forEach(messageId => {
+        if (messageId.startsWith(currentChatUserId)) { // Message from this user
+            unreadMessages.delete(messageId); // Remove from unread set
+        }
+    });
         
             loadMessages(); // Load messages for the chat
         }
@@ -2576,94 +2583,106 @@ function formatTime(time) {
                 snapshot.docChanges().forEach((change) => {
                     if (change.type === "added") {
                         messages.push({ id: change.doc.id, ...change.doc.data() });
+                        // Add the received message to the unreadMessages set
+                        unreadMessages.add(change.doc.id);
                     }
                 });
                 messages.sort((a, b) => a.timestamp - b.timestamp);
                 renderMessages(messages);
             });
+            
         }
 
         async function loadInboxMessages() {
-            const userId = auth.currentUser.uid; // Ang ID sa user nga naka-log in karon
+            const userId = auth.currentUser.uid; // Get the ID of the currently logged-in user
             const inboxContainer = document.getElementById('inboxContainer');
-            inboxContainer.innerHTML = ''; // Limpyohi ang sulod sa inbox
-
-            // Query para kuhaon ang messages diin ang current user either sender o receiver
+            inboxContainer.innerHTML = ''; // Clear the inbox
+        
+            // Query to get messages where the current user is either the sender or receiver
             const messagesQuery = query(
                 collection(db, 'Messages'),
-                where('from', '==', userId), // Messages nga gipadala sa user
+                where('from', '==', userId), // Messages sent by the user
                 orderBy('timestamp', 'desc')
             );
-            
+        
             const receivedMessagesQuery = query(
                 collection(db, 'Messages'),
-                where('to', '==', userId), // Messages nga gidawat sa user
+                where('to', '==', userId), // Messages received by the user
                 orderBy('timestamp', 'desc')
             );
-
+        
             try {
-                // Kuhaa ang mga gipadala ug nadawat nga mensahe
+                // Fetch the sent and received messages
                 const sentMessagesSnapshot = await getDocs(messagesQuery);
                 const receivedMessagesSnapshot = await getDocs(receivedMessagesQuery);
-
-                // Map para i-store ang latest nga message gikan sa matag unique nga user
+        
+                // Map to store the latest message for each unique user
                 const recentMessages = new Map();
-
-                // I-process ang gipadala nga mga mensahe
+        
+                // Process the sent messages
                 sentMessagesSnapshot.forEach((doc) => {
                     const messageData = doc.data();
                     const otherUserId = messageData.to;
-
-                    // Update ang recentMessages map kung bag-o nga message o mas bag-o ang timestamp
+        
+                    // Update the recentMessages map if it's a new message or has a more recent timestamp
                     if (!recentMessages.has(otherUserId) || recentMessages.get(otherUserId).timestamp < messageData.timestamp) {
                         recentMessages.set(otherUserId, { ...messageData, docId: doc.id });
                     }
                 });
-
-                // I-process ang nadawat nga mga mensahe
+        
+                // Process the received messages
                 receivedMessagesSnapshot.forEach((doc) => {
                     const messageData = doc.data();
                     const otherUserId = messageData.from;
-
-                    // Update ang recentMessages map kung bag-o nga message o mas bag-o ang timestamp
+        
+                    // Update the recentMessages map if it's a new message or has a more recent timestamp
                     if (!recentMessages.has(otherUserId) || recentMessages.get(otherUserId).timestamp < messageData.timestamp) {
                         recentMessages.set(otherUserId, { ...messageData, docId: doc.id });
                     }
                 });
-
-                // Kung walay nakuha nga message, ipakita nga walay conversation available
+        
+                // If no messages were found, display a 'no conversation' message
                 if (recentMessages.size === 0) {
                     const noConversationMessage = document.createElement('div');
                     noConversationMessage.className = 'no-conversation-message';
-                    noConversationMessage.textContent = 'Walay Conversation Available';
+                    noConversationMessage.textContent = 'No Conversations Available';
                     inboxContainer.appendChild(noConversationMessage);
-                    return; // Mogawas dayon kung walay messages
+                    return; // Exit if no messages are available
                 }
-
-                // Ipakita ang matag recent message sa inbox
+        
+                // Display each recent message in the inbox
                 for (const [otherUserId, messageData] of recentMessages.entries()) {
-                    const otherUser = await getUserDetails(otherUserId); // Kuhaa ang detalye sa user
+                    const otherUser = await getUserDetails(otherUserId); // Get user details
+        
+                    // Create a new inbox item
                     const inboxItem = document.createElement('div');
                     inboxItem.className = 'inbox-item';
-                    inboxItem.textContent = `${otherUser.username || otherUser.email}: ${messageData.message}`;
-
-                    // I-display ang unread messages in bold
-                    inboxItem.style.fontWeight = 'bold';
-
-                    // Event listener para mo-load ang messages para niining conversation
+        
+                    inboxItem.innerHTML = `
+                        <img src="${otherUser.photoURL || 'default-photo-url'}" alt="User Photo" class="inbox-user-photo">
+                            <span>${otherUser.username || otherUser.email}: ${messageData.message}</span>
+                        `;
+                    
+                    // If the message is unread, make it bold or add an indicator
+                    if (unreadMessages.has(messageData.docId)) {
+                        inboxItem.style.fontWeight = 'bold'; // Unread message will be bold
+                    }
+        
+                    // Event listener to start a chat with the user when clicking the inbox item
                     inboxItem.addEventListener('click', () => {
                         startChat(otherUserId, otherUser.username || otherUser.email);
-                        inboxItem.style.fontWeight = 'normal'; // Mark as read kung gi-click
-                      displayChatHeader(otherUser);
-                       
+                        inboxItem.style.fontWeight = 'normal'; // Mark as read when clicked
+                        displayChatHeader(otherUser);
                     });
-
+        
+                    // Append the inbox item to the container
                     inboxContainer.appendChild(inboxItem);
                 }
             } catch (error) {
                 console.error("Error fetching inbox messages:", error);
             }
         }
+        
 
         // Call loadInboxMessages when the chat modal is opened
         document.querySelector('a[href="#chatModal"]').addEventListener('click', loadInboxMessages);
@@ -2709,4 +2728,3 @@ function formatTime(time) {
         
         // Load inbox messages when the chat modal is opened
         document.querySelector('a[href="#chatModal"]').addEventListener('click', loadInboxMessages);
-        

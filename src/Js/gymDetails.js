@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             const userId = user.uid;
-            const userDocRef = doc(db, 'Users', userId); // Fetch user doc from Firestore
+            const userDocRef = doc(db, 'GymOwner', userId); // Fetch user doc from Firestore
 
             try {
                 const userDoc = await getDoc(userDocRef);
@@ -81,45 +81,54 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function loadGymProfiles() {
-    const gymListBody = document.getElementById('gymList');
-    const usersRef = collection(db, 'Users');
+    const gymListBody = document.getElementById('gymList'); // Table body for displaying gym profiles
+    const gymOwnerRef = collection(db, 'GymOwner'); // Reference to GymOwner collection
 
-    // Fetch gym owners from Users collection
-    const usersSnapshot = await getDocs(usersRef);
-    gymListBody.innerHTML = ''; // Clear previous data
+    try {
+        // Fetch all documents from the GymOwner collection
+        const gymOwnersSnapshot = await getDocs(gymOwnerRef);
+        gymListBody.innerHTML = ''; // Clear previous data
 
-    // Loop through the Users documents
-    for (const userDoc of usersSnapshot.docs) {
-        const userData = userDoc.data();
+        // Loop through the documents in GymOwner collection
+        for (const gymDoc of gymOwnersSnapshot.docs) {
+            const gymData = gymDoc.data();
 
-        // Only process users with the 'gymowner' role
-        if (userData.role === 'gymowner') {
-            const gymId = userData.userId || 'N/A'; // Assuming you have a gymId in user data
+            const gymId = gymData.userId || 'N/A'; // Fallback if gymId is missing
+            const gymName = gymData.gymName || 'Unknown Gym'; // Fallback for missing gymName
 
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td><input type="checkbox" class="select-gym" data-key="${userDoc.id}" data-gym-name="${userData.gymName}"></td>
+                <td><input type="checkbox" class="select-gym" data-key="${gymDoc.id}" data-gym-name="${gymName}"></td>
                 <td>${gymId}</td>
-                <td>${userData.gymName}</td>
-                <td><a href="#" onclick="openModal('${userData.gymPhoto}')"><img src="${userData.gymPhoto}" alt="Gym Photo" style="max-width: 100px;"></a></td>
-                <td><a href="#" onclick="openModal('${userData.gymCertifications}')"><img src="${userData.gymCertifications}" alt="Certification Image" style="max-width: 100px;"></a></td>
-                <td>${userData.gymEquipment}</td>
-                <td>${userData.gymContact}</td>
-                <td>${userData.gymPrograms}</td>
-                <td>${userData.gymOpeningTime}</td>
-                <td>${userData.gymClosingTime}</td>
-                <td>${userData.gymLocation}</td>
-                <td>${userData.status}</td>
+                <td>${gymName}</td>
+                <td><a href="#" onclick="openModal('${gymData.gymPhoto || ''}')"><img src="${gymData.gymPhoto || 'placeholder.jpg'}" alt="Gym Photo" style="max-width: 100px;"></a></td>
+                <td><a href="#" onclick="openModal('${gymData.gymCertifications || ''}')"><img src="${gymData.gymCertifications || 'placeholder.jpg'}" alt="Certification Image" style="max-width: 100px;"></a></td>
+                <td>${gymData.gymEquipment || 'N/A'}</td>
+                <td>${gymData.gymContact || 'N/A'}</td>
+                <td>${gymData.gymPrograms || 'N/A'}</td>
+                <td>${gymData.gymOpeningTime || 'N/A'}</td>
+                <td>${gymData.gymClosingTime || 'N/A'}</td>
+                <td>${gymData.gymLocation || 'N/A'}</td>
+                <td>${gymData.status || 'N/A'}</td>
                 <td>
-                    <button class="btn btn-success btn-sm mx-1" onclick="updateStatus('approved', '${userDoc.id}')">Approve</button>
-                    <button class="btn btn-secondary btn-sm mx-1" onclick="updateStatus('idle', '${userDoc.id}')">Idle</button>
-                    <button class="btn btn-warning btn-sm mx-1" onclick="updateStatus('blocked', '${userDoc.id}')">Block</button>
+                    <button class="btn btn-success btn-sm mx-1" onclick="updateStatus('approved', '${gymDoc.id}')">Approve</button>
+                    <button class="btn btn-secondary btn-sm mx-1" onclick="updateStatus('idle', '${gymDoc.id}')">Idle</button>
+                    <button class="btn btn-warning btn-sm mx-1" onclick="updateStatus('blocked', '${gymDoc.id}')">Block</button>
                 </td>
             `;
             gymListBody.appendChild(row);
         }
+    } catch (error) {
+        console.error('Error loading gym profiles:', error);
+        Swal.fire({
+            title: 'Error!',
+            text: 'Failed to load gym profiles. Please try again later.',
+            icon: 'error',
+            confirmButtonText: 'Okay'
+        });
     }
 }
+
 // Load gym profiles when the page loads
 window.onload = loadGymProfiles;
 
@@ -155,7 +164,7 @@ window.deleteSelected = async function() {
         for (const checkbox of selectedCheckboxes) {
             const key = checkbox.getAttribute('data-key');
             const gymName = checkbox.getAttribute('data-gym-name'); // Fetch gym name
-            const gymRef = doc(db, 'Users', key);
+            const gymRef = doc(db, 'GymOwner', key);
             await deleteDoc(gymRef)
                 .then(() => {
                     displayMessages(`Profile for ${gymName} has been deleted.`, 'success'); // Display gym name
@@ -209,7 +218,7 @@ window.openModal = function(imageSrc) {
 
 // Function to update status of a gym
 window.updateStatus = async function(status, key) {
-    const userRef = doc(db, 'Users', key);
+    const userRef = doc(db, 'GymOwner', key);
     const checkbox = document.querySelector(`.select-gym[data-key="${key}"]`);
     const gymName = checkbox ? checkbox.getAttribute('data-gym-name') : 'Unknown Gym'; // Fetch gym name
 
