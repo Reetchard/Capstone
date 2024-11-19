@@ -1,7 +1,7 @@
 // Firebase configuration and initialization
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
-import { getAuth } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
-import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
+import { getFirestore, collection, addDoc, doc, getDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-storage.js';
 
 const firebaseConfig = {
@@ -20,27 +20,33 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 const auth = getAuth(app);
 
-// Ensure the DOM is loaded before accessing elements
 document.addEventListener('DOMContentLoaded', () => {
     const reportForm = document.getElementById('reportForm');
     const globalSpinner = document.getElementById('globalSpinner'); // Reference to globalSpinner
-    
-    // Check if globalSpinner exists
-    if (!globalSpinner) {
-        console.error('globalSpinner not found');
-        return;
-    }
 
-    // Function to show the spinner
+    // Spinner functions
     function showSpinner() {
-        console.log('Showing spinner'); // Debug log
         globalSpinner.style.display = 'flex';
     }
 
-    // Function to hide the spinner
     function hideSpinner() {
-        console.log('Hiding spinner'); // Debug log
         globalSpinner.style.display = 'none';
+    }
+
+    // Function to get the next report ID
+    async function getNextReportId() {
+        const reportCounterRef = doc(db, 'ReportCounters', 'counter');
+        const reportCounterSnap = await getDoc(reportCounterRef);
+
+        if (reportCounterSnap.exists()) {
+            const currentId = reportCounterSnap.data().currentId;
+            await setDoc(reportCounterRef, { currentId: currentId + 1 }, { merge: true });
+            return currentId + 1;
+        } else {
+            // Initialize counter if it doesn't exist
+            await setDoc(reportCounterRef, { currentId: 1 });
+            return 1;
+        }
     }
 
     // Handle form submission
@@ -52,9 +58,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const reportType = document.getElementById('reportType').value;
         const reportUrgency = document.getElementById('reportUrgency').value;
         const reportFile = document.getElementById('reportFile').files[0];
-        const userId = auth.currentUser ? auth.currentUser.uid : null;
 
-        if (!userId) {
+        // Get the logged-in user
+        const user = auth.currentUser;
+
+        if (!user) {
             Swal.fire({
                 icon: "warning",
                 title: "Login Required",
@@ -65,20 +73,27 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        const userId = user.uid; // Get the user ID from the logged-in user
+
+        // Prepare the report data
         let reportData = {
+            userId: userId,
             title: reportTitle,
             description: reportDescription,
             type: reportType,
             urgency: reportUrgency,
-            userId: userId,
             status: 'Review',
             timestamp: serverTimestamp()
         };
 
-        // Show the spinner before submitting
         showSpinner();
 
         try {
+            // Fetch the next report ID
+            const reportId = await getNextReportId();
+            reportData.reportId = reportId; // Add the generated report ID to the report data
+
+            // Upload the file if provided
             if (reportFile) {
                 const storageRef = ref(storage, `reports/${userId}/${reportFile.name}`);
                 const fileSnapshot = await uploadBytes(storageRef, reportFile);
@@ -92,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
             Swal.fire({
                 icon: "success",
                 title: "Report Submitted!",
-                text: "Your report was submitted successfully. Thank you!",
+                text: `Your report (ID: ${reportId}) was submitted successfully. Thank you!`,
                 confirmButtonText: "OK",
                 confirmButtonColor: "#28a745",
             });
@@ -109,7 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 confirmButtonColor: "#d33",
             });
         } finally {
-            // Hide the spinner
             hideSpinner();
         }
     });

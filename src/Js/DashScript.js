@@ -440,24 +440,24 @@ function formatTime(time) {
         }
     };
     
-     // Buy Now function with confirmation and success messages
-     window.buyNow = async function () {
+    window.buyNow = async function () {
         try {
             // Ensure user ID is available before proceeding
             const userId = await getCurrentUserId(); // Get userId from the Users collection
     
             // Get product details
             const productName = document.getElementById('modalProductName').innerText;
-            const quantityPurchased = document.getElementById('modalProductQuantityInput').value;
-            const totalPrice = document.getElementById('modalProductPrice').innerText;
-    
-            // Assuming gymName is available in the GymProfile card
+            const quantityPurchased = parseInt(document.getElementById('modalProductQuantityInput').value, 10);
+            const totalPriceText = document.getElementById('modalProductPrice').innerText;
             const gymName = document.getElementById('modalGymName').innerText; // Get gym name from GymProfile card
+    
+            // Parse the totalPriceText to extract the numerical price value
+            const price = parseFloat(totalPriceText.replace(/[₱,]/g, ''));
     
             // Set product details in confirmation modal
             document.getElementById('confirmProductName').innerText = productName;
             document.getElementById('confirmQuantity').innerText = quantityPurchased;
-            document.getElementById('confirmTotalPrice').innerText = totalPrice;
+            document.getElementById('confirmTotalPrice').innerText = `₱${(price * quantityPurchased).toFixed(2)}`;
     
             // Show the confirmation modal
             $('#confirmationModal').modal('show');
@@ -465,23 +465,23 @@ function formatTime(time) {
             // Handle confirmation action
             document.getElementById('confirmPurchaseBtn').onclick = async function () {
                 try {
-                    // Simulate purchase logic (e.g., update stock, etc.)
+                    // Increment notification count
                     notificationCount++;
                     document.getElementById('notification-count').innerText = notificationCount;
     
                     // Create a new notification with detailed information
                     const newNotification = {
-                        message: `You purchased ${quantityPurchased} of ${productName} for ${price}.`,
-                        type : 'Products',
+                        message: `You purchased ${quantityPurchased} of ${productName} for ₱${(price * quantityPurchased).toFixed(2)}.`,
+                        type: 'Products',
                         productName: productName,
                         quantity: quantityPurchased,
-                        price: price,
+                        price: price * quantityPurchased, // Total price
                         status: 'Pending Owner Approval',
                         read: false, // Unread notification
                         userId: userId, // Use the current user's userId from the document
                         gymName: gymName, // Storing gymName from GymProfile card
                         notificationId: Date.now().toString(), // Unique ID based on timestamp
-                        timestamp: new Date().toISOString() // Add timestamp for ordering or filtering if needed
+                        timestamp: new Date().toISOString(), // Add timestamp for ordering or filtering if needed
                     };
     
                     // Save the notification to Firestore under a 'Notifications' collection
@@ -489,14 +489,14 @@ function formatTime(time) {
     
                     // Save transaction to 'Transactions' collection
                     const newTransaction = {
-                        type : 'product',
+                        type: 'product',
                         userId: userId, // Storing userId of the customer/user
                         productName: productName,
                         quantity: quantityPurchased,
-                        price: price,
+                        price: price * quantityPurchased, // Total price
                         status: 'Pending',
                         gymName: gymName, // Storing gymName from GymProfile card
-                        timestamp: new Date().toISOString() // Timestamp of the transaction
+                        timestamp: new Date().toISOString(), // Timestamp of the transaction
                     };
     
                     // Save the transaction to Firestore under a 'Transactions' collection
@@ -505,22 +505,12 @@ function formatTime(time) {
                     // Close the confirmation modal
                     $('#confirmationModal').modal('hide');
     
-                    // Ensure that success modal elements exist before setting innerText
-                    const successProductName = document.getElementById('successProductName');
-                    const successGymName = document.getElementById('successGymName');
-                    const successQuantity = document.getElementById('successQuantity');
-                    const successTotalPrice = document.getElementById('successTotalPrice');
-    
-                    if (successProductName && successQuantity && successTotalPrice && successGymName) {
-                        // Show success modal with details if elements exist
-                        successProductName.innerText = productName;
-                        successGymName.innerText = gymName;
-                        successQuantity.innerText = quantityPurchased;
-                        successTotalPrice.innerText = totalPrice;
-                        $('#successModal').modal('show');
-                    } else {
-                        console.error('Success modal elements not found.');
-                    }
+                    // Show success modal with details
+                    document.getElementById('successProductName').innerText = productName;
+                    document.getElementById('successGymName').innerText = gymName;
+                    document.getElementById('successQuantity').innerText = quantityPurchased;
+                    document.getElementById('successTotalPrice').innerText = `₱${(price * quantityPurchased).toFixed(2)}`;
+                    $('#successModal').modal('show');
     
                     // Update the notification list
                     await fetchNotifications(userId);
@@ -1011,7 +1001,7 @@ function formatTime(time) {
     async function fetchGymOwnerLocation(gymName) {
         try {
             const gymQuery = query(
-                collection(db, 'Users'), 
+                collection(db, 'GymOwner'), 
                 where('gymName', '==', gymName), 
                 where('role', '==', 'gymowner') 
             );
@@ -2327,7 +2317,7 @@ function formatTime(time) {
         
         // Fetch all users for searching
         async function fetchUsers() {
-            const userQuery = query(collection(db, 'Users'));
+            const userQuery = query(collection(db, 'Trainer'));
             try {
                 const querySnapshot = await getDocs(userQuery);
                 return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -2425,56 +2415,36 @@ function formatTime(time) {
             }
         
             try {
-                const userRef = doc(db, 'Users', userId);
-                const userSnap = await getDoc(userRef);
+                const trainerRef = doc(db, 'Trainer', userId); // Reference to Trainer collection
+                const trainerSnap = await getDoc(trainerRef);
         
-                if (userSnap.exists()) {
-                    const userData = userSnap.data();
+                if (trainerSnap.exists()) {
+                    const trainerData = trainerSnap.data();
         
-                    // Check if photoURL exists directly in Firestore
-                    if (userData.photoURL) {
-                        console.log(`Found photoURL in Firestore for user: ${userId}`);
-                        userCache[userId] = userData; // Cache user data with Firestore photoURL
-                        return userData; // Return data directly if photoURL exists
+                    // Check if TrainerPhoto exists directly in Firestore
+                    if (trainerData.TrainerPhoto) {
+                        console.log(`Found TrainerPhoto in Firestore for user: ${userId}`);
+                        userCache[userId] = trainerData; // Cache trainer data with Firestore TrainerPhoto
+                        return trainerData; // Return data directly if TrainerPhoto exists
                     } else {
-                        // Fallback to fetching the photo from Firebase Storage
-                        const photoPaths = [
-                            `profilePictures/${userId}.jpg`,
-                            `profilePictures/${userId}.png`
-                        ];
-                        
-                        let photoURL = null;
-        
-                        for (let path of photoPaths) {
-                            try {
-                                // Try retrieving the photo URL from Firebase Storage
-                                photoURL = await getDownloadURL(storageRef(storage, path));
-                                userData.photoURL = photoURL;
-                                break; // Stop if photo is found
-                            } catch (error) {
-                                console.warn(`No photo found at path: ${path}`);
-                            }
-                        }
-        
-                        // Log if no photo was found in Storage
-                        if (!photoURL) {
-                            console.warn(`No photo (jpg or png) found in storage for user: ${userId}`);
-                            userData.photoURL = null; // Explicitly set to null if no photo was found
-                        }
-        
-                        // Cache and return user data
-                        userCache[userId] = userData;
-                        return userData;
+                        // Log warning if no TrainerPhoto found
+                        console.warn(`No TrainerPhoto found for user: ${userId}`);
+                        trainerData.TrainerPhoto = null; // Explicitly set to null if no photo is found
                     }
+        
+                    // Cache and return trainer data
+                    userCache[userId] = trainerData;
+                    return trainerData;
                 } else {
-                    console.warn("No user found for ID:", userId);
+                    console.warn("No trainer found for ID:", userId);
                     return null;
                 }
             } catch (error) {
-                console.error("Error fetching user details:", error);
+                console.error("Error fetching trainer details:", error);
                 return null;
             }
         }
+        
         
         
         
@@ -2521,17 +2491,17 @@ function formatTime(time) {
                     const avatarElement = document.createElement('div');
                     avatarElement.className = 'avatar';
         
-                    if (fromUser && fromUser.photoURL) {
+                    if (fromUser && fromUser.TrainerPhoto) {
                         // If a photo URL is available, display the image
                         const avatarImage = document.createElement('img');
-                        avatarImage.src = fromUser.photoURL;
+                        avatarImage.src = fromUser.TrainerPhoto;
                         avatarImage.alt = `${fromUser.username}'s avatar`;
                         avatarImage.style.width = '30px';
                         avatarImage.style.height = '30px';
                         avatarImage.style.borderRadius = '50%';
                         avatarElement.appendChild(avatarImage);
                     } else {
-                        // Display initials as fallback if photoURL is missing
+                        // Display initials as fallback if TrainerPhoto is missing
                         avatarElement.textContent = isSelf ? 'You' : (fromUser ? fromUser.username[0].toUpperCase() : '?');
                     }
         
@@ -2659,7 +2629,7 @@ function formatTime(time) {
                     inboxItem.className = 'inbox-item';
         
                     inboxItem.innerHTML = `
-                        <img src="${otherUser.photoURL || 'default-photo-url'}" alt="User Photo" class="inbox-user-photo">
+                        <img src="${otherUser.TrainerPhoto || 'default-photo-url'}" alt="User Photo" class="inbox-user-photo">
                             <span>${otherUser.username || otherUser.email}: ${messageData.message}</span>
                         `;
                     
@@ -2690,7 +2660,7 @@ function formatTime(time) {
         function displayChatHeader(user) {
             document.getElementById('chatHeader').style.display = 'flex';
             document.getElementById('chatWith').textContent = user.username || user.email;
-            document.getElementById('chatUserPhoto').src = user.photoURL || 'default-profile.png'; // Display user photo or a default if unavailable
+            document.getElementById('chatUserPhoto').src = user.TrainerPhoto || 'default-profile.png'; // Display user photo or a default if unavailable
             document.getElementById('messagesContainer').style.display = 'block';
             document.getElementById('messageInputContainer').style.display = 'block';
         }

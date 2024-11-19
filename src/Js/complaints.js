@@ -1,6 +1,5 @@
-// Import necessary Firebase modules
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
-import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
+import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, getDoc } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
 
 // Firebase configuration
 const firebaseConfig = {
@@ -28,6 +27,17 @@ function hideGlobalSpinner() {
     if (spinner) spinner.style.display = "none";
 }
 
+// Function to fetch user data from the Users collection
+async function getUserById(userId) {
+    try {
+        const userDoc = await getDoc(doc(db, "Users", userId));
+        return userDoc.exists() ? userDoc.data() : null;
+    } catch (error) {
+        console.error(`Error fetching user with ID ${userId}:`, error);
+        return null;
+    }
+}
+
 // Function to load reports from Firestore and populate the table
 async function loadReports() {
     const reportsContainer = document.getElementById("reportsTableBody");
@@ -36,12 +46,19 @@ async function loadReports() {
 
     try {
         const reportsSnapshot = await getDocs(collection(db, "Reports"));
-        reportsSnapshot.forEach((reportDoc) => {
+
+        for (const reportDoc of reportsSnapshot.docs) {
             const reportData = reportDoc.data();
+
+            // Fetch user information from the Users collection
+            const userData = await getUserById(reportData.reportId);
 
             // Create a row for each report
             const row = document.createElement("tr");
-
+            // User ID or Username
+            const userIdCell = document.createElement("td");
+            userIdCell.textContent = userData?.username || reportData.reportId || "N/A"; // Show username if available
+            row.appendChild(userIdCell);
             // Title
             const titleCell = document.createElement("td");
             titleCell.textContent = reportData.title || "N/A";
@@ -51,6 +68,9 @@ async function loadReports() {
             const descCell = document.createElement("td");
             descCell.textContent = reportData.description || "N/A";
             row.appendChild(descCell);
+            
+
+
 
             // Type
             const typeCell = document.createElement("td");
@@ -62,10 +82,6 @@ async function loadReports() {
             urgencyCell.textContent = reportData.urgency || "N/A";
             row.appendChild(urgencyCell);
 
-            // User ID
-            const userIdCell = document.createElement("td");
-            userIdCell.textContent = reportData.userId || "N/A";
-            row.appendChild(userIdCell);
 
             // File Link
             const fileCell = document.createElement("td");
@@ -116,7 +132,7 @@ async function loadReports() {
 
             row.appendChild(actionCell);
             reportsContainer.appendChild(row);
-        });
+        }
     } catch (error) {
         console.error("Error loading reports:", error);
         Swal.fire({

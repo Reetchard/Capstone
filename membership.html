@@ -9,7 +9,6 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/sideaccounts.css">
-
 </head>
 
 <body>
@@ -23,37 +22,73 @@
                 </div>
             </div>
         </div>
-    
-        <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link" href="member.html">Manage Members</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="trainer-info.html">Manage Trainer Profile</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="Products.html">Manage Products</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="membership.html">Manage Memberships</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="Transactions.html">Manage Transactions</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="reservation.html">Conflict Manageent</a>
-                    </li>
-                </ul>
-                </div>
-    </nav>
-    <!--end-->
-        <div class="container mt-5 content">
-            <h1 class="text-center mb-4">Manage Membership Plans</h1>
 
-            <!-- Membership Edit Section -->
-            <div class="card">
-                <div class="card-header bg-primary text-white text-center">Edit Membership Plan</div>
-                <div class="card-body">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="member.html">Manage Members</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="trainer-info.html">Manage Trainer Profile</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="Products.html">Manage Products</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="membership.html">Manage Memberships</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="Transactions.html">Manage Transactions</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="reservation.html">Conflict Management</a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-5 content">
+        <h1 class="text-center mb-4">Manage Membership Plans</h1>
+
+        <!-- Add New Membership Plan Button -->
+        <div class="d-flex justify-content-end mb-3">
+            <button class="btn btn-primary" data-toggle="modal" data-target="#membershipModal">
+                Add New Membership Plan
+            </button>
+        </div>
+
+        <!-- Table to Display Current Plans -->
+        <h2 class="mt-5 text-center">Current Plans</h2>
+        <table class="table table-bordered table-striped mt-3">
+            <thead>
+                <tr>
+                    <th>Plan Type</th>
+                    <th>Price</th>
+                    <th>Description</th>
+                    <th>Access Level</th>
+                    <th>Allowed Classes</th>
+                    <th>Guest Passes</th>
+                    <th>Referral Code</th>
+                    <th>Membership Days</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="plansTableBody">
+                <!-- Populated dynamically with JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Membership Plan Modal -->
+    <div class="modal fade" id="membershipModal" tabindex="-1" aria-labelledby="membershipModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="membershipModalLabel">Add / Edit Membership Plan</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
                     <form id="editPlanForm">
                         <input type="hidden" id="editPlanId">
                         <div class="form-group">
@@ -97,111 +132,14 @@
                     </form>
                 </div>
             </div>
-
-            <!-- Table to Display Current Plans -->
-            <h2 class="mt-5 text-center">Current Plans</h2>
-            <table class="table table-bordered table-striped mt-3">
-                <thead>
-                    <tr>
-                        <th>Plan Type</th>
-                        <th>Price</th>
-                        <th>Description</th>
-                        <th>Access Level</th>
-                        <th>Allowed Classes</th>
-                        <th>Guest Passes</th>
-                        <th>Referral Code</th>
-                        <th>Membership Days</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="plansTableBody">
-                    <!-- Populated dynamically with JavaScript -->
-                </tbody>
-            </table>
         </div>
-
-        <!-- Success and Error Modals (optional) -->
-        <!-- Success Modal -->
-        <div id="successModal" class="modal fade" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header bg-success text-white">
-                        <h5 class="modal-title">Success</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <p id="successMessage"></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Error Modal -->
-        <div id="errorModal" class="modal fade" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header bg-danger text-white">
-                        <h5 class="modal-title">Error</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <p id="errorMessage"></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Custom Confirmation Modal -->
-        <div id="confirmationModal" class="modal" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Confirm Your Action</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <p id="confirmationMessage">Are you sure you want to perform this action?</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
-                        <button type="button" id="confirmYes" class="btn btn-primary">Yes</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-        <!-- Spinner Modal -->
-        <div id="spinnerModal" class="modal" tabindex="-1" role="dialog" style="display: none;">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content text-center" style="background-color: transparent; border: none;">
-                    <div class="modal-body">
-                        <!-- Glowing Spinner -->
-                        <div class="spinner-border glowing-spinner" role="status">
-                            <span class="sr-only"></span>
-                        </div>
-                        <p class="processing-text mt-3">Processing...</p> <!-- Dynamic message -->
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Message container for success or error notifications -->
-        <div id="messageContainer" style="display: none;" class="alert">This is a centered message</div>
-        
-
-        <!-- Scripts -->
-        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-        <script src="https://cdn.tiny.cloud/1/iku9q3yr6f4yw9tjsxrkkufhwzdxdskma2hatd6t2quztkwb/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
-        <script type="module" src="src/Js/membership.js"></script>
     </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.tiny.cloud/1/iku9q3yr6f4yw9tjsxrkkufhwzdxdskma2hatd6t2quztkwb/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+    <script type="module" src="src/Js/membership.js"></script>
 </body>
 
 </html>

@@ -181,6 +181,99 @@ async function getNextUserId(role) {
     }
 
 
+    async function signInWithEmail(email, password, errorMessageElement, successMessageElement) {
+        if (!email || !password) {
+            showMessage(errorMessageElement, '⚠️ Both email and password are required to proceed.', true);
+            return;
+        }
+    
+        try {
+            console.log("Attempting to sign in with email:", email);
+    
+            // Sign in the user using Firebase Authentication
+            await setPersistence(auth, browserSessionPersistence);
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const userId = userCredential.user.uid;
+    
+            console.log("Sign-in successful for UID:", userId);
+    
+            // Collections to check
+            const collections = ['Admin', 'GymOwner', 'Trainer', 'Users'];
+            let userData = null;
+            let role = null;
+    
+            // Check the user's ID in each collection
+            for (const collectionName of collections) {
+                const userRef = doc(db, collectionName, userId);
+                const userSnapshot = await getDoc(userRef);
+    
+                if (userSnapshot.exists()) {
+                    userData = userSnapshot.data();
+                    role = collectionName.toLowerCase(); // Set role based on collection name
+                    console.log(`User found in collection: ${collectionName}`);
+                    break; // Exit loop once user is found
+                }
+            }
+    
+            if (!userData) {
+                // User not found in any collection
+                showMessage(errorMessageElement, `🚨 User profile not found! Contact support. UID: ${userId}`, true);
+                return;
+            }
+    
+            if (userData.status === 'Under review') {
+                // Account is under review
+                showMessage(errorMessageElement, '🚧 Your account is under review. Please wait for approval.', true);
+                return;
+            }
+    
+            // Successfully signed in
+            showMessage(successMessageElement, `🎉 Welcome back, ${userData.username || 'User'}! Redirecting to your dashboard.`, false);
+    
+            // Redirect based on role
+            setTimeout(() => {
+                switch (role) {
+                    case 'admin':
+                        window.location.href = 'Accounts.html';
+                        break;
+                    case 'gymowner':
+                        window.location.href = 'trainer-info.html';
+                        break;
+                    case 'trainer':
+                        window.location.href = 'trainer.html';
+                        break;
+                    case 'users': // For general users
+                        window.location.href = 'Dashboard.html';
+                        break;
+                    default:
+                        showMessage(errorMessageElement, `🤔 Unknown role. Contact support.`, true);
+                        break;
+                }
+            }, 3000);
+        } catch (error) {
+            console.error("Sign-in error:", error);
+    
+            // Handle Firebase Authentication errors
+            let errorMsg;
+            switch (error.code) {
+                case 'auth/user-not-found':
+                    errorMsg = '❌ No account found with that email.';
+                    break;
+                case 'auth/wrong-password':
+                    errorMsg = '🔐 Incorrect password. Please try again.';
+                    break;
+                case 'auth/invalid-email':
+                    errorMsg = '📧 Invalid email format.';
+                    break;
+                case 'auth/too-many-requests':
+                    errorMsg = '⏳ Too many login attempts. Please try later.';
+                    break;
+                default:
+                    errorMsg = `⚠️ Error: ${error.message}`;
+            }
+            showMessage(errorMessageElement, errorMsg, true);
+        }
+    }
 
     function redirectUser(role) {
         switch (role.toLowerCase()) {
@@ -217,108 +310,6 @@ async function getNextUserId(role) {
         document.getElementById('confirmPassword').value = '';
         document.getElementById('role').value = '';
     }
-    async function signInWithEmail(email, password, errorMessageElement, successMessageElement) {
-        if (!email || !password) {
-            showMessage(errorMessageElement, '⚠️ Oops! Both email and password are required to proceed. Double-check and try again!', true);
-            return;
-        }
-    
-        if (!isValidEmail(email)) {
-            showMessage(errorMessageElement, '📧 Hmm, that doesn’t look like a valid email. Let’s make sure we’ve got it right!', true);
-            return;
-        }
-    
-        try {
-            await setPersistence(auth, browserSessionPersistence); // Set session persistence
-            const userCredential = await signInWithEmailAndPassword(auth, email, password); // Sign in user
-    
-            const userId = userCredential.user.uid; // Get the authenticated user's UID
-            const collections = ['Admin', 'GymOwner', 'Trainer', 'Users']; // Collections to check
-    
-            let userData = null; // Placeholder for user data
-            let role = null; // Placeholder for user role
-    
-            // Search for the user in all collections
-            for (const collectionName of collections) {
-                const userRef = doc(db, collectionName, userId); // Reference to user document in the current collection
-                const userSnapshot = await getDoc(userRef);
-    
-                if (userSnapshot.exists()) {
-                    userData = userSnapshot.data(); // Retrieve user data
-                    role = userData.role || collectionName.toLowerCase(); // Set role (fallback to collection name)
-                    break; // Stop searching once user is found
-                }
-            }
-    
-            if (!userData) {
-                // User not found in any collection
-                showMessage(errorMessageElement, `🚨 User profile not found! Please contact support with UID: ${userId}.`, true);
-                return;
-            }
-    
-            const status = userData.status;
-    
-            if (status === 'Under review') {
-                // Account is under review
-                showMessage(errorMessageElement, `🚧 Hold on! Your account is currently under review. We’ll notify you as soon as it’s ready.`, true);
-                return;
-            }
-    
-            // Successfully signed in
-            showMessage(successMessageElement, `🎉 Welcome back, ${userData.username}! Redirecting to your dashboard.`, false);
-    
-            // Redirect based on role after a delay
-            setTimeout(() => {
-                switch (role) {
-                    case 'admin':
-                        window.location.href = 'Accounts.html';
-                        break;
-                    case 'gymowner':
-                        window.location.href = 'trainer-info.html';
-                        break;
-                    case 'trainer':
-                        window.location.href = 'trainer.html';
-                        break;
-                    case 'user':
-                        window.location.href = 'Dashboard.html';
-                        break;
-                    default:
-                        showMessage(errorMessageElement, `🤔 Role not recognized. Please contact support if you believe this is an error.`, true);
-                        break;
-                }
-            }, 3000);
-        } catch (error) {
-            // Handle sign-in errors
-            console.error("Sign-in error:", error);
-    
-            let errorMsg;
-            switch (error.code) {
-                case 'auth/user-not-found':
-                    errorMsg = '❌ We couldn’t find an account with that email. Try again or sign up for a new account!';
-                    break;
-                case 'auth/wrong-password':
-                    errorMsg = '🔐 Incorrect password. Let’s give it another shot!';
-                    break;
-                case 'auth/invalid-email':
-                    errorMsg = '📧 That email doesn’t seem right. Can you check it again?';
-                    break;
-                case 'auth/too-many-requests':
-                    errorMsg = '⏳ Whoa, slow down! Too many attempts. Take a break and try later.';
-                    break;
-                case 'auth/invalid-login-credentials':
-                    errorMsg = '⚠️ Invalid login credentials. Please double-check your email and password.';
-                    break;
-                default:
-                    errorMsg = `⚠️ An error occurred: ${error.message}`;
-            }
-            showMessage(errorMessageElement, errorMsg, true);
-        }
-    }
-    
-    
-
-
-
 
 
 // Email validation function

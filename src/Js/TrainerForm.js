@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const gymSelect = document.getElementById('GymName');
 
     // Fetch gym owners from Firestore and populate dropdown
-    const usersRef = collection(db, 'Users'); // Use Firestore modular syntax
+    const usersRef = collection(db, 'Trainer'); // Use Firestore modular syntax
     const q = query(usersRef, where('role', '==', 'gymowner'));
 
     getDocs(q).then((querySnapshot) => {
@@ -45,7 +45,6 @@ window.addEventListener('load', () => {
     const form = document.getElementById("TrainerForm");
 
     const TrainerName = document.getElementById("TrainerName");
-    const GymName = document.getElementById("GymName");
     const TrainerEmail = document.getElementById("TrainerEmail");
     const TrainerPhotoInput = document.getElementById("TrainerPhoto");
     const TrainerApplicationInput = document.getElementById("TrainerApplication"); 
@@ -83,7 +82,7 @@ window.addEventListener('load', () => {
 
     // Check if email exists in Users collection
     async function getUserDocByEmail(email) {
-        const userQuery = query(collection(db, 'Users'), where('email', '==', email));
+        const userQuery = query(collection(db, 'Trainer'), where('email', '==', email));
         const querySnapshot = await getDocs(userQuery);
         if (!querySnapshot.empty) {
             return querySnapshot.docs[0];
@@ -94,7 +93,7 @@ window.addEventListener('load', () => {
 
     // Check for duplicate trainers
     async function isDuplicateTrainer() {
-        const q = query(collection(db, 'Users'), where('TrainerEmail', '==', TrainerEmail.value));
+        const q = query(collection(db, 'Trainer'), where('TrainerEmail', '==', TrainerEmail.value));
         const querySnapshot = await getDocs(q);
         return !querySnapshot.empty;
     }
@@ -130,10 +129,9 @@ window.addEventListener('load', () => {
             const TrainerApplicationURL = TrainerApplicationInput.files[0] ? await uploadFile(TrainerApplicationInput.files[0], `Trainer_applications/${TrainerName.value}`) : "";
             const ResumeURL = ResumeInput.files[0] ? await uploadFile(ResumeInput.files[0], `Trainer_resumes/${TrainerName.value}`) : "";
 
-            const userRef = doc(db, 'Users', userDoc.id);
+            const userRef = doc(db, 'Trainer', userDoc.id);
             await updateDoc(userRef, {
                 TrainerName: TrainerName.value,
-                GymName: GymName.value,
                 TrainerPhoto: TrainerPhotoURL,
                 TrainerApplication: TrainerApplicationURL,
                 Resume: ResumeURL,

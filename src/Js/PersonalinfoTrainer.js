@@ -77,7 +77,7 @@ onAuthStateChanged(auth, (user) => {
 });
 
 async function fetchUserData(userId) {
-    const userDocRef = doc(firestore, 'Users', userId);
+    const userDocRef = doc(firestore, 'Trainer', userId);
     const profilePicRef = storageRef(storage, 'profilePictures/' + userId + '/profile.jpg');
 
     try {
@@ -145,7 +145,7 @@ if (personalInfoForm) {
 
         if (user) {
             const userId = user.uid;
-            const userDocRef = doc(firestore, 'Users', userId);
+            const userDocRef = doc(firestore, 'Trainer', userId);
 
             try {
                 await setDoc(userDocRef, {

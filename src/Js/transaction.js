@@ -44,7 +44,7 @@ function hideButtonSpinner(button, originalText) {
 // Function to fetch the current gym owner's gymName
 async function getGymOwnerName(userId) {
     try {
-        const userDoc = await getDoc(doc(db, 'Users', userId));
+        const userDoc = await getDoc(doc(db, 'GymOwner', userId));
         if (userDoc.exists()) {
             console.log("Gym Owner Found:", userDoc.data().gymName);
             return userDoc.data().gymName;

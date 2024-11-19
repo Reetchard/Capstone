@@ -60,37 +60,6 @@ window.addEventListener('click', function(event) {
         console.error("Profile picture element not found.");
     }
 });
-
-document.addEventListener('DOMContentLoaded', () => {
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            const userId = user.uid;
-            const userDocRef = doc(db, 'Users', userId); // Fetch user doc from Firestore
-
-            try {
-                const userDoc = await getDoc(userDocRef);
-                if (userDoc.exists()) {
-                    const userData = userDoc.data(); // Get user data
-                    const username = userData.username || 'User'; // Username with fallback
-
-                    // Display profile picture and username
-                    displayProfilePicture(user, username); // Pass the user object and username
-
-                } else {
-                    console.error("User document does not exist.");
-                    window.location.href = 'login.html'; // Redirect to login if no user document found
-                }
-            } catch (error) {
-                console.error("Error fetching user data:", error); // Error handling
-            }
-        } else {
-            window.location.href = 'login.html'; // Redirect if user is not authenticated
-        }
-    });
-});
-
-
-
 function displayProfilePicture(user, username) {
     const userId = user.uid;
     const profilePicRef = ref(storage, `profilePictures/${userId}/profile.jpg`);
@@ -143,40 +112,58 @@ function showModal(title, message) {
     messageModal.show();
 }
 
-// Function to display accounts
 async function displayAccountInfo(searchQuery = '') {
     const collections = ['Users', 'GymOwner', 'Trainer']; // Collections to fetch from
     const accountInfoBody = document.getElementById('accountInfoBody');
     accountInfoBody.innerHTML = ''; // Clear previous results
 
     try {
+        const allAccounts = []; // Array to store all accounts
+
         for (const collectionName of collections) {
             const querySnapshot = await getDocs(collection(db, collectionName));
 
             querySnapshot.forEach((doc) => {
                 const account = doc.data();
+                account.id = doc.id; // Include the document ID
+                account.collectionName = collectionName; // Include collection name
 
                 // Ensure userId exists and filter based on the search query
                 if (searchQuery && account.userId && !account.userId.toString().includes(searchQuery)) {
                     return; // Skip if the userId doesn't match
                 }
 
-                // Create the row for matched accounts
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td><input type="checkbox" class="selectAccount" value="${doc.id}" data-collection="${collectionName}"></td>
-                    <td>${account.userId || 'N/A'}</td>
-                    <td><a href="#" onclick="viewAccountDetails('${doc.id}', '${collectionName}'); return false;">${account.username || 'N/A'}</a></td>
-                    <td>${account.status || collectionName}</td>
-                    <td>
-                        <button class="btn btn-info btn-sm" onclick="setStatus('${doc.id}', '${collectionName}', 'Under review')">Review</button>
-                        <button class="btn btn-success btn-sm" onclick="setStatus('${doc.id}', '${collectionName}', 'Approved')">Approve</button>
-                        <button class="btn btn-danger btn-sm" onclick="blockAccount('${doc.id}', '${collectionName}')">Block</button>
-                    </td>
-                `;
-                accountInfoBody.appendChild(row);
+                allAccounts.push(account); // Add account to the list
             });
         }
+
+        // Sort accounts: "Under review" first, then by other statuses
+        allAccounts.sort((a, b) => {
+            if (a.status === 'Under review' && b.status !== 'Under review') {
+                return -1; // a comes before b
+            } else if (a.status !== 'Under review' && b.status === 'Under review') {
+                return 1; // b comes before a
+            }
+            return 0; // Preserve order for accounts with the same status
+        });
+
+        // Append sorted accounts to the table
+        allAccounts.forEach((account) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><input type="checkbox" class="selectAccount" value="${account.id}" data-collection="${account.collectionName}"></td>
+                <td>${account.userId || 'N/A'}</td>
+                <td><a href="#" onclick="viewAccountDetails('${account.id}', '${account.collectionName}'); return false;">${account.username || 'N/A'}</a></td>
+                <td>${account.status || account.collectionName}</td>
+                <td>
+                    <button class="btn btn-info btn-sm" onclick="setStatus('${account.id}', '${account.collectionName}', 'Under review')">Review</button>
+                    <button class="btn btn-success btn-sm" onclick="setStatus('${account.id}', '${account.collectionName}', 'Approved')">Approve</button>
+                    <button class="btn btn-danger btn-sm" onclick="blockAccount('${account.id}', '${account.collectionName}')">Block</button>
+                </td>
+            `;
+            accountInfoBody.appendChild(row);
+        });
+
     } catch (error) {
         console.error('Error fetching accounts:', error);
         Swal.fire({
@@ -187,6 +174,7 @@ async function displayAccountInfo(searchQuery = '') {
         });
     }
 }
+
 
 
 // Handle button click with spinner and delay
@@ -331,28 +319,32 @@ window.deleteSelected = async function () {
     });
 };
 
-
 window.viewAccountDetails = async function(key, collectionName) {
     try {
+        // Fetch the account document from Firestore
         const docSnap = await getDoc(doc(db, collectionName, key));
         const account = docSnap.data();
 
         if (account) {
+            // Ensure modal elements exist before setting their values
             const usernameField = document.getElementById('username');
             const emailField = document.getElementById('email');
             const statusField = document.getElementById('status');
             const roleField = document.getElementById('role');
-            const userIdField = document.getElementById('userId');
 
-            if (usernameField) usernameField.value = account.username || 'N/A';
-            if (emailField) emailField.value = account.email || 'N/A';
-            if (statusField) statusField.value = account.status || 'N/A';
-            if (roleField) roleField.value = account.role || collectionName;
-            if (userIdField) userIdField.value = key;
+            if (!usernameField || !emailField || !statusField || !roleField) {
+                throw new Error('Modal input fields are missing from the DOM.');
+            }
 
-            // Show the modal using Bootstrap's JS
-            const modal = document.getElementById('accountModal');
-            const bootstrapModal = new bootstrap.Modal(modal);
+            // Populate modal fields with account data
+            usernameField.value = account.username || 'N/A';
+            emailField.value = account.email || 'N/A';
+            statusField.value = account.status || 'N/A';
+            roleField.value = account.role || collectionName;
+
+            // Initialize and show the modal
+            const modalElement = document.getElementById('accountModal');
+            const bootstrapModal = new bootstrap.Modal(modalElement); // Bootstrap 5 modal initialization
             bootstrapModal.show();
         } else {
             Swal.fire({
@@ -373,19 +365,17 @@ window.viewAccountDetails = async function(key, collectionName) {
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-    const selectAllCheckbox = document.getElementById('selectAll');
-    if (selectAllCheckbox) {
-        selectAllCheckbox.addEventListener('change', function(e) {
-            const checkboxes = document.querySelectorAll('.selectAccount');
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = e.target.checked;
-            });
-        });
-    } else {
-        console.error("Element with ID 'selectAll' not found.");
-    }
-});
+
+
+window. selectAllProfiles = function(checkbox) {
+    // Get all checkboxes with the class 'selectAccount'
+    const checkboxes = document.querySelectorAll('.selectAccount');
+    // Toggle their checked state based on the main checkbox
+    checkboxes.forEach((cb) => {
+        cb.checked = checkbox.checked;
+    });
+}
+
 
 
 document.addEventListener('DOMContentLoaded', () => {

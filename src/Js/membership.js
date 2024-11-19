@@ -102,7 +102,7 @@ $(document).ready(function () {
                 }
 
                 // Fetch gym owner's details to get the gymName from the Users collection
-                const userDocRef = doc(db, 'Users', userId);
+                const userDocRef = doc(db, 'GymOwner', userId);
                 const userDoc = await getDoc(userDocRef);
 
                 if (userDoc.exists()) {
@@ -222,7 +222,7 @@ $('#editPlanForm').on('submit', async function (e) {
     try {
         toggleSpinner(true, 'Saving membership plan...');
 
-        const userDocRef = doc(db, 'Users', userId);
+        const userDocRef = doc(db, 'GymOwner', userId);
         const userDoc = await getDoc(userDocRef);
 
         if (!userDoc.exists()) {
