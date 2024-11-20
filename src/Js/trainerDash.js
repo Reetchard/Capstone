@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             const userId = user.uid;
-            const userDocRef = doc(db, 'Users', userId);
+            const userDocRef = doc(db, 'Trainer', userId);
 
             try {
                 const userDoc = await getDoc(userDocRef);
@@ -421,7 +421,7 @@ async function fetchNotifications(currentUserId) {
     
     // Fetch all users for searching
     async function fetchUsers() {
-        const userQuery = query(collection(db, 'Trainer'));
+        const userQuery = query(collection(db, 'Users'));
         try {
             const querySnapshot = await getDocs(userQuery);
             return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));

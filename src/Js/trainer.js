@@ -58,33 +58,40 @@ window.addEventListener('click', function(event) {
 // Function to fetch Gym Owner's username (or GymName) from Firestore
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        // User is signed in, fetch the Gym Owner's GymName
-        const gymOwnerGymName = await fetchGymOwnerGymName();
-        
-        if (gymOwnerGymName) {
-            // If gym owner GymName is fetched, load the trainer data
-            await fetchTrainerData(gymOwnerGymName);
-        } else {
-            console.error("Error fetching Gym Owner's GymName.");
+        try {
+            const gymOwnerGymName = await fetchGymOwnerGymName(); // Fetch gymName from GymOwner
+            if (gymOwnerGymName) {
+                await fetchTrainerData(gymOwnerGymName); // Fetch trainers with this gymName
+            } else {
+                console.error("Gym Owner's GymName not found. Please ensure your account is set up correctly.");
+                document.getElementById('trainerInfoBody').innerHTML = 
+                    '<tr><td colspan="10">Gym Owner information not found. Please contact support.</td></tr>';
+            }
+        } catch (error) {
+            console.error('Error fetching data:', error);
         }
     } else {
-        // No user is signed in
-        console.error("No authenticated user found. Please sign in.");
+        console.error('No authenticated user. Please sign in.');
     }
 });
+
+
 async function fetchGymOwnerGymName() {
     const user = auth.currentUser;
 
     if (user) {
-        const userId = user.uid;
-        const userDocRef = doc(db, 'Users', userId);
-        const userDocSnap = await getDoc(userDocRef);
+        const userId = user.uid; // Get the authenticated user's UID
+        console.log(`Fetching Gym Owner document for UID: ${userId}`); // Debug log
 
-        if (userDocSnap.exists()) {
-            const userData = userDocSnap.data();
-            return userData.gymName || userData.GymName; // Ensure this is the correct field for the GymName
+        const gymOwnerDocRef = doc(db, 'GymOwner', userId); // Reference to GymOwner collection
+        const gymOwnerDocSnap = await getDoc(gymOwnerDocRef);
+
+        if (gymOwnerDocSnap.exists()) {
+            const gymOwnerData = gymOwnerDocSnap.data();
+            console.log('Gym Owner document found:', gymOwnerData); // Debug log
+            return gymOwnerData.gymName || gymOwnerData.GymName; // Return the gymName field
         } else {
-            console.error('Gym Owner document not found');
+            console.error(`Gym Owner document not found for UID: ${userId}`);
             return null;
         }
     } else {
@@ -92,12 +99,14 @@ async function fetchGymOwnerGymName() {
         return null;
     }
 }
+
+
 async function fetchTrainerData(gymOwnerGymName) {
     try {
         console.log("Gym Owner's GymName:", gymOwnerGymName); // Debug: Log the gym owner's GymName
 
         // Reference to the 'Users' collection in Firestore
-        const usersRef = collection(db, 'Users');
+        const usersRef = collection(db, 'Trainer');
         const q = query(usersRef, where('role', '==', 'trainer')); // Query only users with role 'trainer'
 
         // Fetch trainers from Firestore
@@ -250,7 +259,7 @@ window.deleteSelected = function() {
 
 // Function to update trainer status
 window.updateTrainerStatus = async function(key, status) {
-    const trainerRef = doc(db, 'Users', key); // Updated to Users collection
+    const trainerRef = doc(db, 'Trainer', key); // Updated to Users collection
     const spinner = document.getElementById('spinner'); // Get spinner element
 
     try {
