@@ -356,7 +356,7 @@ function formatTime(time) {
         }
     }
     
-        window.ViewProductInfo = async function (productId) {
+    window.ViewProductInfo = async function (productId) {
         try {
             // Hide any open modals before showing the product info
             $('.modal').modal('hide');
@@ -381,16 +381,19 @@ function formatTime(time) {
     
                 let availableStock = productData.quantity || 0;
                 let selectedQuantity = 1;
-                let productPrice = parseFloat(productData.price) || 0; // Convert to float to handle decimal
-
+                let productPrice = parseFloat(productData.price) || 0; // Convert to float to handle decimals
+    
                 // Ensure price is always displayed with two decimal places
                 function formatPrice(price) {
-                return '₱' + price.toFixed(2); // Always show two decimal places
+                    return '₱' + price.toFixed(2); // Always show two decimal places
                 }
+    
+                // Store the original product price in a dataset for consistent access
+                modalProductPrice.dataset.originalPrice = productPrice;
     
                 // Display product data
                 modalProductName.innerText = productData.name || 'Unnamed Product';
-                modalProductPrice.innerText = `₱${productData.price || 'N/A'}`;
+                modalProductPrice.innerText = formatPrice(productPrice);
                 modalProductDescription.innerText = productData.description || 'No description available.';
                 modalProductPhoto.src = productData.photoURL || 'default-product.jpg';
                 modalProductCategory.innerText = productData.category || 'N/A';
@@ -399,7 +402,7 @@ function formatTime(time) {
                 // Function to update total price based on selected quantity
                 function updatePrice() {
                     const totalPrice = productPrice * selectedQuantity;
-                    modalProductPrice.innerText = formatPrice(totalPrice); // Format the price with decimals
+                    modalProductPrice.innerText = formatPrice(totalPrice); // Update the total price display
                 }
     
                 // Update the displayed stock and quantity
@@ -431,7 +434,6 @@ function formatTime(time) {
     
                 // Show the Product Info modal
                 $('#productModal').modal('show');
-    
             } else {
                 console.error('Product not found!');
             }
@@ -442,77 +444,82 @@ function formatTime(time) {
     
     window.buyNow = async function () {
         try {
-            // Ensure user ID is available before proceeding
-            const userId = await getCurrentUserId(); // Get userId from the Users collection
+            const userId = await getCurrentUserId();
     
             // Get product details
             const productName = document.getElementById('modalProductName').innerText;
-            const quantityPurchased = parseInt(document.getElementById('modalProductQuantityInput').value, 10);
-            const totalPriceText = document.getElementById('modalProductPrice').innerText;
-            const gymName = document.getElementById('modalGymName').innerText; // Get gym name from GymProfile card
+            const quantityPurchased = parseInt(document.getElementById('modalProductQuantityInput').value, 10) || 0;
+            const productPrice = parseFloat(document.getElementById('modalProductPrice').dataset.originalPrice) || 0;
+            const gymName = document.getElementById('modalGymName').innerText;
     
-            // Parse the totalPriceText to extract the numerical price value
-            const price = parseFloat(totalPriceText.replace(/[₱,]/g, ''));
+            if (!quantityPurchased || !productPrice) {
+                console.error('Invalid input:', { quantityPurchased, productPrice });
+                return; // Prevent further execution
+            }
     
-            // Set product details in confirmation modal
+            // Calculate total price
+            const totalPrice = (productPrice * quantityPurchased).toFixed(2);
+    
+            console.log('Total Price:', totalPrice); // Log calculated price
+    
+            // Update confirmation modal
             document.getElementById('confirmProductName').innerText = productName;
             document.getElementById('confirmQuantity').innerText = quantityPurchased;
-            document.getElementById('confirmTotalPrice').innerText = `₱${(price * quantityPurchased).toFixed(2)}`;
+            document.getElementById('confirmTotalPrice').innerText = `₱${totalPrice}`;
     
-            // Show the confirmation modal
             $('#confirmationModal').modal('show');
     
-            // Handle confirmation action
+            // Handle confirmation
             document.getElementById('confirmPurchaseBtn').onclick = async function () {
                 try {
                     // Increment notification count
                     notificationCount++;
                     document.getElementById('notification-count').innerText = notificationCount;
     
-                    // Create a new notification with detailed information
                     const newNotification = {
-                        message: `You purchased ${quantityPurchased} of ${productName} for ₱${(price * quantityPurchased).toFixed(2)}.`,
+                        message: `You purchased ${quantityPurchased} of ${productName} for ₱${totalPrice}.`,
                         type: 'Products',
-                        productName: productName,
+                        productName,
                         quantity: quantityPurchased,
-                        price: price * quantityPurchased, // Total price
+                        totalPrice: parseFloat(totalPrice),
                         status: 'Pending Owner Approval',
-                        read: false, // Unread notification
-                        userId: userId, // Use the current user's userId from the document
-                        gymName: gymName, // Storing gymName from GymProfile card
-                        notificationId: Date.now().toString(), // Unique ID based on timestamp
-                        timestamp: new Date().toISOString(), // Add timestamp for ordering or filtering if needed
+                        userId,
+                        gymName,
+                        notificationId: Date.now().toString(),
+                        timestamp: new Date().toISOString(),
                     };
+    
+                    console.log('Notification:', newNotification);
     
                     // Save the notification to Firestore under a 'Notifications' collection
                     await addDoc(collection(db, 'Notifications'), newNotification);
     
-                    // Save transaction to 'Transactions' collection
                     const newTransaction = {
                         type: 'product',
-                        userId: userId, // Storing userId of the customer/user
-                        productName: productName,
+                        userId,
+                        productName,
                         quantity: quantityPurchased,
-                        price: price * quantityPurchased, // Total price
-                        status: 'Pending',
-                        gymName: gymName, // Storing gymName from GymProfile card
-                        timestamp: new Date().toISOString(), // Timestamp of the transaction
+                        totalPrice: parseFloat(totalPrice),
+                        gymName,
+                        timestamp: new Date().toISOString(),
                     };
+    
+                    console.log('Transaction:', newTransaction);
     
                     // Save the transaction to Firestore under a 'Transactions' collection
                     await addDoc(collection(db, 'Transactions'), newTransaction);
     
                     // Close the confirmation modal
                     $('#confirmationModal').modal('hide');
-    
+        
                     // Show success modal with details
                     document.getElementById('successProductName').innerText = productName;
                     document.getElementById('successGymName').innerText = gymName;
                     document.getElementById('successQuantity').innerText = quantityPurchased;
-                    document.getElementById('successTotalPrice').innerText = `₱${(price * quantityPurchased).toFixed(2)}`;
+                    document.getElementById('successTotalPrice').innerText = `₱${totalPrice}`;
                     $('#successModal').modal('show');
     
-                    // Update the notification list
+                    // Update the notification list (assuming fetchNotifications function exists)
                     await fetchNotifications(userId);
     
                     // Close the product modal after the purchase
@@ -522,9 +529,10 @@ function formatTime(time) {
                 }
             };
         } catch (error) {
-            console.error('Error fetching current user ID:', error);
+            console.error('Error in buyNow:', error);
         }
     };
+    
     
 
     let notificationCount = 0; // Initialize notificationCount to 0
@@ -2143,6 +2151,10 @@ function formatTime(time) {
                             <p class="footer-info">Show this receipt to the Gym owner upon arrival.</p>
                         `;
                     } else if (notification.type === "Products") {
+
+                        // Format the totalPrice to always have two decimal places
+                        const formattedTotalPrice = parseFloat(notification.totalPrice).toFixed(2);
+                        
                         // Content for products notifications
                         notificationContent = `
                             <p class="gym-name">${notification.gymName}</p>
@@ -2150,7 +2162,7 @@ function formatTime(time) {
                             <div class="product-info">
                                 <p><strong>Product:</strong> ${notification.productName}</p>
                                 <p><strong>Quantity:</strong> ${notification.quantity}</p>
-                                <p><strong>Total Price:</strong> ${notification.totalPrice}</p>
+                                <p><strong>Total Price:</strong> ₱${formattedTotalPrice || 'N/A'}</p> <!-- Use formatted price -->
                             </div>
                             <hr>
                             <p class="footer-info">Show this receipt to the Gym owner upon collection.</p>
