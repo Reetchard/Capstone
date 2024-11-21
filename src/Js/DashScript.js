@@ -2309,6 +2309,7 @@ function formatTime(time) {
 
 
         let currentChatUserId = null;
+        let messagesCache = []; // Cache for messages
         const userCache = {}; // Cache for user details to reduce database calls
         const unreadMessages = new Set(); // Track unread messages
         
@@ -2393,31 +2394,27 @@ function formatTime(time) {
         }  
         // Start a chat with a selected user
         function startChat(userId, username) {
+            if (currentChatUserId === userId) return; // Prevent reloading the same chat
             currentChatUserId = userId;
+        
             document.getElementById('chatWith').textContent = `${username}`;
             document.querySelector('#searchInput').value = username;
         
-            // Ensure the target container exists before modifying it
-            const usersContainer = document.querySelector('#inboxContainer'); // Use #inboxContainer if #usersContainer doesn't exist
-            if (usersContainer) {
-                usersContainer.innerHTML = ''; // Clear the container if it exists
-            } else {
-                console.error("Element with ID 'inboxContainer' not found in the DOM.");
-            }
+            const messagesContainer = document.querySelector('#messagesContainer');
+            messagesContainer.innerHTML = ''; // Clear previous chat messages
         
-            // Display chat elements
             document.getElementById('chatHeader').style.display = 'block';
             document.getElementById('messagesContainer').style.display = 'block';
             document.getElementById('messageInputContainer').style.display = 'block';
-
-            // Mark all messages in this conversation as read
-    unreadMessages.forEach(messageId => {
-        if (messageId.startsWith(currentChatUserId)) { // Message from this user
-            unreadMessages.delete(messageId); // Remove from unread set
-        }
-    });
         
-            loadMessages(); // Load messages for the chat
+            // Mark messages from this user as read
+            unreadMessages.forEach(messageId => {
+                if (messageId.startsWith(currentChatUserId)) {
+                    unreadMessages.delete(messageId);
+                }
+            });
+        
+            loadMessages(); // Load messages for the selected chat
         }
 
         async function getUserDetails(userId) {
@@ -2466,13 +2463,12 @@ function formatTime(time) {
         async function loadMessages() {
             const userId = auth.currentUser.uid;
             const messagesContainer = document.querySelector('#messagesContainer');
-            messagesContainer.innerHTML = '';
         
-            // Clear any previous listeners if they exist
+            // Clear previous listeners if they exist
             if (unsubscribeSentMessages) unsubscribeSentMessages();
             if (unsubscribeReceivedMessages) unsubscribeReceivedMessages();
         
-            // Real-time listener for messages sent by the user
+            // Real-time listener for sent messages
             const sentMessagesQuery = query(
                 collection(db, 'Messages'),
                 where('from', '==', userId),
@@ -2480,7 +2476,7 @@ function formatTime(time) {
                 orderBy('timestamp')
             );
         
-            // Real-time listener for messages received by the user
+            // Real-time listener for received messages
             const receivedMessagesQuery = query(
                 collection(db, 'Messages'),
                 where('from', '==', currentChatUserId),
@@ -2488,91 +2484,72 @@ function formatTime(time) {
                 orderBy('timestamp')
             );
         
-            // Function to render messages
-            const renderMessages = async (messages) => {
-                messagesContainer.innerHTML = ''; // Clear previous messages
-                for (const messageData of messages) {
-                    const fromUser = await getUserDetails(messageData.from);
-                    const isSelf = messageData.from === auth.currentUser.uid;
+            // Clear message cache and container
+            messagesCache = [];
+            messagesContainer.innerHTML = '';
         
-                    // Message wrapper
-                    const messageElement = document.createElement('div');
-                    messageElement.className = 'message ' + (isSelf ? 'self' : 'other');
+            // Render messages in real-time
+            const renderMessages = (messages) => {
+                messages.forEach(async (messageData) => {
+                    if (!messagesCache.some(msg => msg.id === messageData.id)) {
+                        messagesCache.push(messageData); // Cache message to avoid duplicates
+                        const fromUser = await getUserDetails(messageData.from);
+                        const isSelf = messageData.from === userId;
         
-                    // Avatar
-                    const avatarElement = document.createElement('div');
-                    avatarElement.className = 'avatar';
+                        const messageElement = document.createElement('div');
+                        messageElement.className = 'message ' + (isSelf ? 'self' : 'other');
         
-                    if (fromUser && fromUser.TrainerPhoto) {
-                        // If a photo URL is available, display the image
-                        const avatarImage = document.createElement('img');
-                        avatarImage.src = fromUser.TrainerPhoto;
-                        avatarImage.alt = `${fromUser.username}'s avatar`;
-                        avatarImage.style.width = '30px';
-                        avatarImage.style.height = '30px';
-                        avatarImage.style.borderRadius = '50%';
-                        avatarElement.appendChild(avatarImage);
-                    } else {
-                        // Display initials as fallback if TrainerPhoto is missing
-                        avatarElement.textContent = isSelf ? 'You' : (fromUser ? fromUser.username[0].toUpperCase() : '?');
-                    }
+                        const avatarElement = document.createElement('div');
+                        avatarElement.className = 'avatar';
         
-                    // Message content
-                    const messageContent = document.createElement('div');
-                    messageContent.className = 'message-content ' + (isSelf ? 'self' : 'other');
-                    messageContent.textContent = messageData.message;
+                        if (fromUser?.TrainerPhoto) {
+                            const avatarImage = document.createElement('img');
+                            avatarImage.src = fromUser.TrainerPhoto;
+                            avatarImage.alt = `${fromUser.username}'s avatar`;
+                            avatarImage.style.width = '30px';
+                            avatarImage.style.height = '30px';
+                            avatarImage.style.borderRadius = '50%';
+                            avatarElement.appendChild(avatarImage);
+                        } else {
+                            avatarElement.textContent = isSelf ? 'You' : (fromUser ? fromUser.username[0].toUpperCase() : '?');
+                        }
         
-                    // Timestamp
-                    const timestamp = document.createElement('span');
-                    timestamp.className = 'timestamp';
+                        const messageContent = document.createElement('div');
+                        messageContent.className = 'message-content ' + (isSelf ? 'self' : 'other');
+                        messageContent.textContent = messageData.message;
         
-                    // Ensure timestamp is valid and properly formatted
-                    if (messageData.timestamp && messageData.timestamp.toDate) {
+                        const timestamp = document.createElement('span');
+                        timestamp.className = 'timestamp';
                         timestamp.textContent = messageData.timestamp.toDate().toLocaleTimeString();
-                    } else {
-                        timestamp.textContent = "Invalid Date"; // Placeholder for testing
-                    }
         
-                    messageContent.appendChild(timestamp);
+                        messageContent.appendChild(timestamp);
         
-                    // Append elements based on message sender
-                    if (isSelf) {
-                        messageElement.appendChild(messageContent);
-                        messageElement.appendChild(avatarElement);
-                    } else {
-                        messageElement.appendChild(avatarElement);
-                        messageElement.appendChild(messageContent);
-                    }
+                        if (isSelf) {
+                            messageElement.appendChild(messageContent);
+                            messageElement.appendChild(avatarElement);
+                        } else {
+                            messageElement.appendChild(avatarElement);
+                            messageElement.appendChild(messageContent);
+                        }
         
-                    messagesContainer.appendChild(messageElement);
-                }
-                messagesContainer.scrollTop = messagesContainer.scrollHeight; // Auto-scroll to the latest message
-            };
-        
-            // Combine and render messages in real-time
-            const messages = [];
-            unsubscribeSentMessages = onSnapshot(sentMessagesQuery, (snapshot) => {
-                snapshot.docChanges().forEach((change) => {
-                    if (change.type === "added") {
-                        messages.push({ id: change.doc.id, ...change.doc.data() });
+                        messagesContainer.appendChild(messageElement);
                     }
                 });
-                messages.sort((a, b) => a.timestamp - b.timestamp);
-                renderMessages(messages);
+        
+                // Auto-scroll to the latest message
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            };
+        
+            // Add listeners
+            unsubscribeSentMessages = onSnapshot(sentMessagesQuery, (snapshot) => {
+                const sentMessages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderMessages(sentMessages);
             });
         
             unsubscribeReceivedMessages = onSnapshot(receivedMessagesQuery, (snapshot) => {
-                snapshot.docChanges().forEach((change) => {
-                    if (change.type === "added") {
-                        messages.push({ id: change.doc.id, ...change.doc.data() });
-                        // Add the received message to the unreadMessages set
-                        unreadMessages.add(change.doc.id);
-                    }
-                });
-                messages.sort((a, b) => a.timestamp - b.timestamp);
-                renderMessages(messages);
+                const receivedMessages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderMessages(receivedMessages);
             });
-            
         }
 
         async function loadInboxMessages() {
@@ -2635,28 +2612,31 @@ function formatTime(time) {
                 // Display each recent message in the inbox
                 for (const [otherUserId, messageData] of recentMessages.entries()) {
                     const otherUser = await getUserDetails(otherUserId); // Get user details
-        
+                
                     // Create a new inbox item
                     const inboxItem = document.createElement('div');
                     inboxItem.className = 'inbox-item';
-        
+                
                     inboxItem.innerHTML = `
                         <img src="${otherUser.TrainerPhoto || 'default-photo-url'}" alt="User Photo" class="inbox-user-photo">
-                            <span>${otherUser.username || otherUser.email}: ${messageData.message}</span>
-                        `;
+                        <div class="inbox-user-details">
+                            <span class="user-name">${otherUser.username || otherUser.email}</span>
+                            <span class="user-message">${messageData.message}</span>
+                        </div>
+                    `;
                     
                     // If the message is unread, make it bold or add an indicator
                     if (unreadMessages.has(messageData.docId)) {
-                        inboxItem.style.fontWeight = 'bold'; // Unread message will be bold
+                        inboxItem.classList.add('bold'); // Add bold class for unread messages
                     }
-        
+                
                     // Event listener to start a chat with the user when clicking the inbox item
                     inboxItem.addEventListener('click', () => {
                         startChat(otherUserId, otherUser.username || otherUser.email);
-                        inboxItem.style.fontWeight = 'normal'; // Mark as read when clicked
+                        inboxItem.classList.remove('bold'); // Mark as read when clicked
                         displayChatHeader(otherUser);
                     });
-        
+                
                     // Append the inbox item to the container
                     inboxContainer.appendChild(inboxItem);
                 }
@@ -2688,15 +2668,15 @@ function formatTime(time) {
                         from: userId,
                         to: currentChatUserId,
                         message: messageText,
-                        timestamp: new Date() // Firebase.Timestamp can also be used for consistency
+                        timestamp: new Date() // Firebase.Timestamp can also be used
                     });
-                    messageInput.value = ''; // Clear input after sending
-                    loadMessages();
+                    messageInput.value = ''; // Clear input
                 } catch (error) {
-                    console.error("Error sending message: ", error); // Log any errors
+                    console.error("Error sending message: ", error);
                 }
             }
         }
+        
         
         
         // Event listener for the search input
