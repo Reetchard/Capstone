@@ -307,9 +307,10 @@
                     </div>
                     <div class="modal-footer">
                         <!-- Apply as Trainer Button centered -->
-        <button class="btn btn-success my-4" onclick="openConfirmationModal()">
-            <i class="fas fa-user-plus"></i> Apply as Trainer
-        </button>
+                    <!-- Apply as Trainer Button -->
+                    <button class="btn btn-success my-4" onclick="openConfirmationModal(document.getElementById('modalGymName').textContent.trim())">
+                        <i class="fas fa-user-plus"></i> Apply as Trainer
+                    </button>
                     </div>
                 </div>
             </div>
@@ -374,18 +375,10 @@
             </div>
         </div>
     </div>
-    <!-- Spinner Modal -->
-    <div id="spinnerModal" class="modal" tabindex="-1" role="dialog" style="display: none;">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content text-center" style="background-color: transparent; border: none;">
-                <div class="modal-body">
-                    <!-- Glowing Spinner -->
-                    <div class="spinner-border text-primary glowing-spinner" role="status">
-                        <span class="sr-only">Loading...</span>
-                    </div>
-                    <p class="processing-text mt-3">Processing...</p>
-                </div>
-            </div>
+     <!-- Global Spinner Loader -->
+     <div id="globalSpinner" class="spinner-overlay" style="display: none;">
+        <div class="spinner-container">
+            <span class="loader"></span>
         </div>
     </div>
     <div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
@@ -508,6 +501,34 @@
                 </div>
 
             </div>
+        </div>
+    </div>
+</div>
+<!-- Toast Container -->
+<div aria-live="polite" aria-atomic="true" style="position: fixed; top: 20px; right: 20px; z-index: 1050;">
+    <!-- Success Toast -->
+    <div id="successToast" class="toast bg-success text-white" role="alert" aria-live="assertive" aria-atomic="true" data-delay="3000">
+        <div class="toast-header">
+            <strong class="mr-auto">Success</strong>
+            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="toast-body" id="successToastMessage">
+            Application successfully submitted!
+        </div>
+    </div>
+
+    <!-- Error Toast -->
+    <div id="errorToast" class="toast bg-danger text-white" role="alert" aria-live="assertive" aria-atomic="true" data-delay="3000">
+        <div class="toast-header">
+            <strong class="mr-auto">Error</strong>
+            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="toast-body" id="errorToastMessage">
+            Something went wrong. Please try again.
         </div>
     </div>
 </div>

@@ -223,9 +223,9 @@ function formatTime(time) {
     
                 // Fetch trainers for this gym
                 const trainersQuery = query(
-                    collection(db, 'Users'),
+                    collection(db, 'Trainer'),
                     where('role', '==', 'trainer'),
-                    where('GymName', '==', gymProfileName)
+                    where('gymName', '==', gymProfileName)
                 );
                 const trainersSnapshot = await getDocs(trainersQuery);
     
@@ -1191,12 +1191,12 @@ function formatTime(time) {
         });
     });
     
-    // Function to view trainer information, with membership validation
     window.ViewTrainerInfo = async function(trainerId) {
         try {
             const userId = await getCurrentUserId(); // Get userId from the Users collection
             const gymName = document.getElementById('modalGymName').innerText; // Get gym name from GymProfile card
             const membershipApproved = await checkMembershipStatus(userId, gymName);
+    
             console.log("Membership status approved:", membershipApproved); // Debug log
     
             if (!membershipApproved) {
@@ -1213,7 +1213,7 @@ function formatTime(time) {
     
             $('#gymProfileModal').modal('hide');
     
-            const trainerDocRef = doc(db, 'Users', trainerId);
+            const trainerDocRef = doc(db, 'Trainer', trainerId);
             const trainerDoc = await getDoc(trainerDocRef);
     
             if (trainerDoc.exists()) {
@@ -1223,12 +1223,13 @@ function formatTime(time) {
                     showToast("error", "This trainer is currently under review and cannot be booked.");
                     return;
                 }
-
+    
                 // Format the trainer rate to two decimal places
                 function formatRate(rate) {
-                return '₱' + parseFloat(rate).toFixed(2); // Ensure two decimal places
+                    return '₱' + parseFloat(rate).toFixed(2); // Ensure two decimal places
                 }
     
+                // Populate the trainer modal with fetched data
                 document.getElementById('modalTrainerName').innerText = trainerData.TrainerName || 'N/A';
                 document.getElementById('modalTrainerPhoto').src = trainerData.TrainerPhoto || 'default-trainer-photo.jpg';
                 document.getElementById('modalTrainerExpertise').innerText = trainerData.Expertise || 'N/A';
@@ -1236,6 +1237,7 @@ function formatTime(time) {
                 document.getElementById('modalTrainerDays').innerText = trainerData.Days || 'N/A';
                 document.getElementById('modalTrainerRate').innerText = formatRate(trainerData.rate || '0'); // Default to '0' if rate is not available
     
+                // Trainer rating section
                 const trainerRatingContainer = document.getElementById('trainerRatingContainer');
                 if (!trainerRatingContainer) {
                     console.error("Trainer rating container not found in the DOM.");
@@ -1244,16 +1246,19 @@ function formatTime(time) {
     
                 await displayTrainerRating(trainerId, trainerRatingContainer);
     
+                // Attach trainer ID to the submit rating button
                 const submitRatingButton = document.getElementById("submitRatingButton");
                 if (submitRatingButton) {
                     submitRatingButton.setAttribute("data-trainer-id", trainerId);
                 }
     
+                // Book Now button logic
                 document.getElementById('bookNowButton').onclick = function() {
                     $('#trainerProfileModal').modal('hide');
                     showBookingConfirmation(trainerData, trainerId, userId, gymName);
                 };
     
+                // Show the trainer profile modal
                 $('#trainerProfileModal').modal('show');
             } else {
                 showToast("error", "Trainer not found.");
@@ -1263,6 +1268,7 @@ function formatTime(time) {
             showToast("error", "An error occurred while fetching trainer data.");
         }
     };
+    
     
     
     
