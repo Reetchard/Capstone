@@ -413,11 +413,11 @@ async function fetchNotifications(currentUserId) {
         document.getElementById('messageInputContainer').style.display = 'block';
 
         // Mark all messages in this conversation as read
-unreadMessages.forEach(messageId => {
-    if (messageId.startsWith(currentChatUserId)) { // Message from this user
-        unreadMessages.delete(messageId); // Remove from unread set
-    }
-});
+        unreadMessages.forEach(messageId => {
+            if (messageId.startsWith(currentChatUserId)) { // Message from this user
+                unreadMessages.delete(messageId); // Remove from unread set
+            }
+        });
     
         loadMessages(); // Load messages for the chat
     }
@@ -478,10 +478,7 @@ unreadMessages.forEach(messageId => {
             console.error("Error fetching user details:", error);
             return null;
         }
-    }
-    
-    
-    
+    }    
     let unsubscribeSentMessages = null;
     let unsubscribeReceivedMessages = null;
     

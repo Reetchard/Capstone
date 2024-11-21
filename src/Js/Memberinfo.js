@@ -1,17 +1,4 @@
-// Import Firebase services
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-import {
-    getFirestore,
-    collection,
-    doc,
-    updateDoc,
-    getDoc,
-    query,
-    where,
-    getDocs,
-    deleteDoc,
-} from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+import { getFirestore, collection, getDocs, doc, addDoc,getDoc,query,where,updateDoc,onSnapshot,orderBy, limit} from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js'; 
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -25,11 +12,14 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 
 // Initialize Firestore and Authentication
-const db = getFirestore(app);
-const auth = getAuth(app);
+const db = firebase.firestore();
+const auth = firebase.auth();
+
 // Define Firestore collections
 const transactionsCollection = db.collection('Transactions');
 const usersCollection = db.collection('GymOwner');
@@ -47,10 +37,9 @@ async function displayMemberInfo() {
         }
 
         const userId = user.uid;
-        const userDocRef = doc(db, "GymOwner", userId);
-        const userDoc = await getDoc(userDocRef);
+        const userDoc = await usersCollection.doc(userId).get();
 
-        if (!userDoc.exists()) {
+        if (!userDoc.exists) {
             console.error(`No user document found for user ID: ${userId}`);
             alert("User information is missing. Please contact support.");
             return;
@@ -68,8 +57,9 @@ async function displayMemberInfo() {
         console.log("Gym name for the logged-in user:", gymOwnerGymName);
 
         // Fetch all membership transactions
-        const transactionsQuery = query(collection(db, "Transactions"), where("type", "==", "membership"));
-        const querySnapshot = await getDocs(transactionsQuery);
+        const querySnapshot = await transactionsCollection
+            .where('type', '==', 'membership')
+            .get();
 
         let hasResults = false;
         querySnapshot.forEach(doc => {
@@ -82,6 +72,7 @@ async function displayMemberInfo() {
             if (transaction.gymName === gymOwnerGymName) {
                 hasResults = true;
 
+                // Match Firestore field names
                 const membershipDays = transaction.membershipDays || 'N/A';
                 const planType = transaction.planType || 'N/A';
                 const price = transaction.price || 'N/A';
@@ -98,7 +89,7 @@ async function displayMemberInfo() {
                     <td>${new Date(purchaseDate).toLocaleString() || 'N/A'}</td>
                     <td>${status}</td>
                     <td>
-                        <button class="btn btn-success btn-sm" onclick="setStatus('${key}', 'Approved')">Approve</button>
+                         <button class="btn btn-success btn-sm" onclick="setStatus('${key}', 'Approved')">Approve</button>
                         <button class="btn btn-info btn-sm" onclick="viewMemberDetails('${key}')">View</button>
                         <button class="btn btn-danger btn-sm" onclick="removeMember('${key}')">Remove</button>
                     </td>
@@ -306,6 +297,15 @@ window.removeMember = function (key) {
 };
 
 
+// Listen for Authentication Changes
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        displayMemberInfo();
+    } else {
+        console.error("User not authenticated.");
+        window.location.href = 'login.html';
+    }
+});
 
 document.addEventListener('DOMContentLoaded', function () {
     const sidebar = document.querySelector('.sidebar');
@@ -323,27 +323,24 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
-// Set Member Status
-window.setStatus = async function (memberId, newStatus) {
+
+window. setStatus = async function(memberId, newStatus) {
     try {
-        const memberDocRef = doc(db, "Transactions", memberId);
+        // Reference the specific member's document in Firestore
+        const memberDocRef = doc(db, 'Transactions', memberId);
+
+        // Update the status field in Firestore
         await updateDoc(memberDocRef, {
             status: newStatus
         });
+
+        // Provide feedback to the user
         alert(`Member status updated to ${newStatus}.`);
-        displayMemberInfo();
+
+        // Optionally, refresh the table or UI
+        window.searchMember(); // Re-run the search to reflect the updated status
     } catch (error) {
         console.error('Error updating member status:', error);
         alert('Failed to update member status. Please try again.');
     }
-};
-
-// Listen for Authentication Changes
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        displayMemberInfo();
-    } else {
-        console.error("User not authenticated.");
-        window.location.href = 'login.html';
-    }
-});
+}

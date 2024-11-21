@@ -2477,37 +2477,49 @@ function formatTime(time) {
             }
         }
         
-        // Display users in the search result
-        function displayUsers(users) {
+        async function fetchTrainers() {
+            const trainerQuery = query(collection(db, 'Trainer')); // Query the Trainer collection
+            try {
+                const querySnapshot = await getDocs(trainerQuery);
+                return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); // Return the Trainer data
+            } catch (error) {
+                console.error("Error fetching trainers: ", error);
+                return [];
+            }
+        }
+        
+        // Display trainers in the search result
+        function displayTrainers(trainers) {
             const inboxContainer = document.querySelector('#inboxContainer');
             const searchResultsContainer = document.querySelector('#searchResultsContainer');
         
             searchResultsContainer.innerHTML = ''; // Clear previous search results
         
-            // Limit to a certain number of users displayed
+            // Limit to a certain number of trainers displayed
             const maxDisplayCount = 5; // Set the maximum number of results to display
         
-            // Display only the first maxDisplayCount users
-            users.slice(0, maxDisplayCount).forEach(user => {
-                const userElement = document.createElement('div');
-                userElement.className = 'user-email';
-                userElement.textContent = `${user.username} (${user.email})`;
+            // Display only the first maxDisplayCount trainers
+            trainers.slice(0, maxDisplayCount).forEach(trainer => {
+                const trainerElement = document.createElement('div');
+                trainerElement.className = 'trainer-email';
+                trainerElement.textContent = `${trainer.TrainerName} (${trainer.TrainerEmail})`;
         
-                userElement.addEventListener('click', async () => {
-                    startChat(user.id, user.username);
+                trainerElement.addEventListener('click', async () => {
+                    startChat(trainer.id, trainer.TrainerName);
                     searchResultsContainer.innerHTML = ''; // Clear the search results
                     searchResultsContainer.style.display = 'none'; // Hide the search results
                     inboxContainer.style.display = 'block'; // Show the inbox
                     await loadInboxMessages(); // Reload inbox messages
                 });
         
-                searchResultsContainer.appendChild(userElement); // Append to search results
+                searchResultsContainer.appendChild(trainerElement); // Append to search results
             });
         
-            // Show search results only if there are users found
-            searchResultsContainer.style.display = users.length > 0 ? 'block' : 'none';
+            // Show search results only if there are trainers found
+            searchResultsContainer.style.display = trainers.length > 0 ? 'block' : 'none';
         }
-        async function searchUsers(searchTerm) {
+        
+        async function searchTrainers(searchTerm) {
             const inboxContainer = document.getElementById('inboxContainer');
             const searchResultsContainer = document.getElementById('searchResultsContainer');
         
@@ -2522,20 +2534,23 @@ function formatTime(time) {
             }
         
             // If there's a search term, perform the search and display results
-            const users = await fetchUsers();
-            const filteredUsers = users.filter(user =>
-                user.email.toLowerCase().includes(searchTerm.toLowerCase())
-            );
+            const trainers = await fetchTrainers();
+            const filteredTrainers = trainers.filter(trainer => {
+                const email = trainer.TrainerEmail || ''; // Default to an empty string if TrainerEmail is undefined
+                const term = searchTerm || ''; // Default to an empty string if searchTerm is undefined
+                return email.toLowerCase().includes(term.toLowerCase());
+            });
         
-            displayUsers(filteredUsers, true);  // Display results in searchResultsContainer
-        }  
-        // Start a chat with a selected user
-        function startChat(userId, username) {
-            if (currentChatUserId === userId) return; // Prevent reloading the same chat
-            currentChatUserId = userId;
+            displayTrainers(filteredTrainers);  // Display results in searchResultsContainer
+        }
         
-            document.getElementById('chatWith').textContent = `${username}`;
-            document.querySelector('#searchInput').value = username;
+        // Start a chat with a selected trainer
+        function startChat(trainerId, trainerName) {
+            if (currentChatUserId === trainerId) return; // Prevent reloading the same chat
+            currentChatUserId = trainerId;
+        
+            document.getElementById('chatWith').textContent = `${trainerName}`;
+            document.querySelector('#searchInput').value = trainerName;
         
             const messagesContainer = document.querySelector('#messagesContainer');
             messagesContainer.innerHTML = ''; // Clear previous chat messages
@@ -2544,7 +2559,7 @@ function formatTime(time) {
             document.getElementById('messagesContainer').style.display = 'block';
             document.getElementById('messageInputContainer').style.display = 'block';
         
-            // Mark messages from this user as read
+            // Mark messages from this trainer as read
             unreadMessages.forEach(messageId => {
                 if (messageId.startsWith(currentChatUserId)) {
                     unreadMessages.delete(messageId);
@@ -2553,7 +2568,7 @@ function formatTime(time) {
         
             loadMessages(); // Load messages for the selected chat
         }
-
+        
         async function getUserDetails(userId) {
             // Return cached data if available
             if (userCache[userId]) {

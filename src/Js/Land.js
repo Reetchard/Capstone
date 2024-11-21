@@ -17,8 +17,8 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 document.addEventListener("DOMContentLoaded", function() {
-    const trainersRef = collection(db, 'Users');
-    const GymProfileref = collection(db, 'Users'); // Update with the correct collection name
+    const trainersRef = collection(db, 'Trainer');
+    const GymProfileref = collection(db, 'GymOwner'); // Update with the correct collection name
 
     // Function to redirect to login
     window.redirectToLogin = function() {
