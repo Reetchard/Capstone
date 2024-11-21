@@ -103,34 +103,50 @@ async function fetchGymOwnerGymName() {
 
 async function fetchTrainerData(gymOwnerGymName) {
     try {
-        console.log("Gym Owner's GymName:", gymOwnerGymName); // Debug: Log the gym owner's GymName
+        console.log("Gym Owner's GymName:", gymOwnerGymName); // Log the gym owner's GymName
 
-        // Reference to the 'Users' collection in Firestore
+        // Reference the 'Trainer' collection in Firestore
         const usersRef = collection(db, 'Trainer');
-        const q = query(usersRef, where('role', '==', 'trainer')); // Query only users with role 'trainer'
+        const q = query(usersRef, where('role', '==', 'trainer')); // Query for 'trainer' role
 
         // Fetch trainers from Firestore
         const snapshot = await getDocs(q);
         const trainerInfoBody = document.getElementById('trainerInfoBody');
+
+        // Ensure trainerInfoBody exists
+        if (!trainerInfoBody) {
+            console.error("trainerInfoBody element not found in the DOM.");
+            return;
+        }
+
         trainerInfoBody.innerHTML = ''; // Clear existing content
 
         if (!snapshot.empty) {
-            snapshot.forEach(doc => {
-                const user = doc.data();
-                const trainerGymName = user.GymName || user.gymName || 'N/A'; // Ensure correct field for gym name
+            let trainerFound = false;
 
-                // Debugging: Log the trainer data being evaluated
-                console.log(`Evaluating Trainer: ${user.TrainerName || 'N/A'} (GymName: ${trainerGymName})`);
+            snapshot.forEach((doc) => {
+                const user = doc.data();
+                console.log("Trainer data:", user); // Log each trainer's data
+
+                const trainerGymName = user.GymName || user.gymName || 'N/A'; // Ensure correct field for GymName
+
+                // Debugging: Check if the trainer's GymName matches the Gym Owner's
+                console.log(
+                    `Evaluating Trainer: ${user.TrainerName || 'N/A'} (Trainer GymName: ${trainerGymName})`
+                );
 
                 // Check if the GymName of the trainer matches the gym owner's GymName
                 if (trainerGymName === gymOwnerGymName) {
-                    console.log(`Trainer ${user.TrainerName} matches Gym Owner's GymName: ${gymOwnerGymName}`); // Debugging
+                    trainerFound = true; // At least one trainer found
+                    console.log(
+                        `Trainer ${user.TrainerName} matches Gym Owner's GymName: ${gymOwnerGymName}`
+                    );
 
-                    const TrainerID = user.userId || 'N/A'; // Access TrainerID from user data
-                    const TrainerPhoto = user.TrainerPhoto || 'default-image.jpg'; // Get trainer photo or fallback
+                    const TrainerID = user.userId || 'N/A'; // Access TrainerID
+                    const TrainerPhoto = user.TrainerPhoto || 'default-image.jpg'; // Fallback photo
 
                     // Create table row for the trainer
-                    let row = `
+                    const row = `
                         <tr>
                             <td><input type="checkbox" class="rowCheckbox" data-id="${doc.id}"></td>
                             <td>${TrainerID}</td>
@@ -166,24 +182,20 @@ async function fetchTrainerData(gymOwnerGymName) {
                 }
             });
 
-            // Add select all functionality for checkboxes
-            const selectAllCheckbox = document.getElementById('selectAllHeader');
-            if (selectAllCheckbox) {
-                selectAllCheckbox.addEventListener('change', function() {
-                    const checkboxes = document.querySelectorAll('input.rowCheckbox');
-                    checkboxes.forEach(checkbox => {
-                        checkbox.checked = selectAllCheckbox.checked;
-                    });
-                });
+            if (!trainerFound) {
+                trainerInfoBody.innerHTML = '<tr><td colspan="10" class="text-center">No trainers match the Gym Owner\'s GymName</td></tr>';
             }
         } else {
             trainerInfoBody.innerHTML = '<tr><td colspan="10" class="text-center">No trainers found</td></tr>';
         }
     } catch (error) {
         console.error('Error fetching trainer data:', error);
+        const trainerInfoBody = document.getElementById('trainerInfoBody');
+        if (trainerInfoBody) {
+            trainerInfoBody.innerHTML = '<tr><td colspan="10" class="text-center">Error fetching trainer data</td></tr>';
+        }
     }
 }
-
 
 
 // Function to get the file type (image or pdf)
@@ -365,7 +377,7 @@ function confirmDelete(userId) {
 
 // Function to delete a trainer
 async function deleteTrainer(userId) {
-    const trainerRef = doc(db, 'Users', userId); // Updated to Users collection
+    const trainerRef = doc(db, 'Trainer', userId); // Updated to Users collection
 
     try {
         await deleteDoc(trainerRef);
@@ -401,7 +413,7 @@ window.searchTrainer = async function() {
         return;
     }
 
-    const usersRef = collection(db, 'Users'); // Update to Users collection
+    const usersRef = collection(db, 'Trainer'); // Update to Users collection
     const q = query(usersRef, where("TrainerID", "==", searchId)); // Query Firestore
 
     console.log(`Searching for TrainerId: ${searchId}`); // Log the search ID
@@ -465,3 +477,19 @@ async function displayTrainerData(trainerData, TrainerID) {
 
     trainerInfoBody.innerHTML = row;
 }
+document.addEventListener('DOMContentLoaded', function () {
+    const sidebar = document.querySelector('.sidebar');
+    const toggleSidebar = document.getElementById('toggleSidebar');
+
+    // Toggle Sidebar Visibility on Mobile
+    toggleSidebar.addEventListener('click', () => {
+        sidebar.classList.toggle('show');
+    });
+
+    // Close Sidebar When Clicking Outside on Mobile
+    document.addEventListener('click', (e) => {
+        if (!sidebar.contains(e.target) && !toggleSidebar.contains(e.target) && sidebar.classList.contains('show')) {
+            sidebar.classList.remove('show');
+        }
+    });
+});

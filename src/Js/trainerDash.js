@@ -309,13 +309,36 @@ async function fetchNotifications(currentUserId) {
             console.error("Error fetching messages:", error);
         }
     }
-    window.openConfirmationModal =function() {
-        $('#confirmationModal').modal('show');
-    }
+    let selectedGymName = ""; // Global variable to store the selected GymName
+
+// Function to open the confirmation modal
+function openConfirmationModal(gymName) {
+    selectedGymName = gymName; // Store the selected GymName
+    document.getElementById("modalGymName").textContent = gymName; // Update modal with GymName
+    $("#confirmationModal").modal("show"); // Show confirmation modal
+}
 
     // Function to close the confirmation modal
-    window.closeConfirmationModal=function() {
-        $('#confirmationModal').modal('hide');
+    function closeConfirmationModal() {
+        $("#confirmationModal").modal("hide");
+    }
+
+    // Function to show the application modal
+    function showApplicationModal() {
+        // Close the confirmation modal
+        closeConfirmationModal();
+
+        // Populate the GymName field in the TrainerForm
+        const GymNameField = document.getElementById("GymName");
+        GymNameField.value = selectedGymName;
+
+        // Show the application modal
+        $("#applicationModal").modal("show");
+    }
+
+    // Function to close the application modal
+    function closeApplicationModal() {
+        $("#applicationModal").modal("hide");
     }
 
     // Function to confirm application and send the application
@@ -344,22 +367,52 @@ async function fetchNotifications(currentUserId) {
         // Then, show the confirmation modal
         $('#confirmationModal').modal('show');
     }
-    // Function to close confirmation modal
-    function closeConfirmationModal() {
-        $('#confirmationModal').modal('hide');
-    }
 
-    // When the "Yes, Apply" button is clicked, show the spinner and redirect
-    function confirmApplication() {
-        showSpinner(); // Show the loading spinner when the application starts
 
-        // Simulate a delay before redirecting (e.g., to mimic processing time)
-        setTimeout(() => {
-            hideSpinner(); // Hide the spinner after a delay
-            
-            window.location.href = "TrainerForm.html"; // Redirect to TrainerForm.html
-        }, 2000); // Adjust the delay as needed (2 seconds in this example)
+    async function confirmApplication() {
+        try {
+            // Close the confirmation modal
+            closeConfirmationModal();
+    
+            // Show spinner to indicate processing
+            showSpinner();
+    
+            // Simulate a delay for processing
+            setTimeout(async () => {
+                hideSpinner(); // Hide the spinner
+    
+                // Get the Gym Name from the modal
+                const selectedGymName = document.getElementById('modalGymName').textContent.trim();
+    
+                // Fetch and validate Gym Name from Firestore
+                const gymOwnerRef = collection(db, "GymOwner");
+                const q = query(gymOwnerRef, where("gymName", "==", selectedGymName));
+                const querySnapshot = await getDocs(q);
+    
+                if (!querySnapshot.empty) {
+                    const gymOwnerDoc = querySnapshot.docs[0];
+                    const validatedGymName = gymOwnerDoc.data().gymName;
+    
+                    // Populate GymName field in the Trainer form
+                    const GymNameField = document.getElementById("GymName");
+                    GymNameField.value = validatedGymName;
+    
+                    // Open the Trainer Application Modal
+                    $("#applicationModal").modal("show");
+                } else {
+                    // GymName not found
+                    alert("Error: The selected gym does not exist.");
+                }
+            }, 1000); // Adjust delay as needed
+        } catch (error) {
+            // Handle errors
+            console.error("Error confirming application:", error);
+            alert("An error occurred while processing your application. Please try again.");
+        }
     }
+    
+    
+    
 
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('TrainerForm');
@@ -822,3 +875,100 @@ unreadMessages.forEach(messageId => {
     
     // Load inbox messages when the chat modal is opened
     document.querySelector('a[href="#chatModal"]').addEventListener('click', loadInboxMessages);
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const profilePic = document.getElementById("profilePic");
+        const TrainerPhotoInput = document.getElementById("TrainerPhoto");
+        const TrainerForm = document.getElementById("TrainerForm");
+        const errorMessage = document.getElementById("TrainerFormErrorMessage");
+        const successToast = document.getElementById("successToast");
+    
+        // Handle profile photo click and input change
+        profilePic.addEventListener("click", () => {
+            TrainerPhotoInput.click(); // Trigger the file input
+        });
+    
+        TrainerPhotoInput.addEventListener("change", (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    profilePic.src = e.target.result; // Update the displayed photo
+                };
+                reader.readAsDataURL(file);
+            } else {
+                profilePic.src = "framework/img/Profile.png"; // Reset to default if no file selected
+            }
+        });
+    
+        // Handle form submission
+        TrainerForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            errorMessage.textContent = "";
+    
+            try {
+                const trainerName = document.getElementById("TrainerName").value;
+    
+                // Query the Trainer collection to find a matching document
+                const trainersRef = collection(db, "Trainer");
+                const q = query(trainersRef, where("TrainerName", "==", trainerName));
+                const querySnapshot = await getDocs(q);
+    
+                if (querySnapshot.empty) {
+                    throw new Error("No matching trainer found in the database.");
+                }
+    
+                const trainerDoc = querySnapshot.docs[0]; // Get the first matching document
+                const trainerDocRef = trainerDoc.ref;
+    
+                // Upload files to Firebase Storage
+                const photoFile = TrainerPhotoInput.files[0];
+                const applicationFile = document.getElementById("TrainerApplication").files[0];
+                const resumeFile = document.getElementById("Resume").files[0];
+    
+                const photoURL = photoFile ? await uploadFile(photoFile, `Trainer_photos/${photoFile.name}`) : "";
+                const applicationURL = applicationFile ? await uploadFile(applicationFile, `Trainer_applications/${applicationFile.name}`) : "";
+                const resumeURL = resumeFile ? await uploadFile(resumeFile, `Trainer_resumes/${resumeFile.name}`) : "";
+    
+                // Prepare form data to update
+                const updatedData = {
+                    TrainerName: trainerName,
+                    TrainerEmail: document.getElementById("TrainerEmail").value,
+                    GymName: document.getElementById("GymName").value,
+                    Days: document.getElementById("Days").value,
+                    Contact: document.getElementById("Contact").value,
+                    Experience: document.getElementById("Experience").value,
+                    Expertise: document.getElementById("Expertise").value,
+                    rate: parseFloat(document.getElementById("rate").value),
+                    ...(photoURL && { TrainerPhoto: photoURL }),
+                    ...(applicationURL && { TrainerApplication: applicationURL }),
+                    ...(resumeURL && { Resume: resumeURL }),
+                    status: "Under Review" // Ensure status is updated
+                };
+    
+                // Update the existing trainer document
+                await updateDoc(trainerDocRef, updatedData);
+    
+                // Display success toast
+                successToast.style.display = "block";
+                setTimeout(() => {
+                    successToast.style.display = "none";
+                }, 3000); // Hide after 3 seconds
+    
+                TrainerForm.reset();
+                profilePic.src = "framework/img/Profile.png"; // Reset profile picture
+            } catch (error) {
+                console.error("Error submitting form:", error);
+                errorMessage.textContent = `Error: ${error.message}`;
+            }
+        });
+    
+        // Helper function to upload files to Firebase Storage
+        async function uploadFile(file, path) {
+            const storageReference = ref(storage, path); // Correct usage of ref
+            const snapshot = await uploadBytes(storageReference, file);
+            return await getDownloadURL(snapshot.ref);
+        }
+    });
+    
+    

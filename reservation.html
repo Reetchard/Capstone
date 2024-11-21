@@ -4,169 +4,98 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reservation Registration - Gym Management System</title>
+    <title>Reservation Management - Gym Management System</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link rel="stylesheet" href="css/sideaccounts.css">
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: url(../Capstone/img/BG.png);
-            background-size: cover;
-        }
-
-        .navbar {
-            margin-bottom: 20px;
-        }
-
-        .container {
-            display: flex;
-        }
-
-        .card {
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            transition: box-shadow 0.3s ease;
-            
-        }
-
-        .card:hover {
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-        }
-        .search-card {
-            flex: 1;
-            margin-left: 20px;
-        }
-
-        .table-responsive {
-            margin-top: 20px;
-        }
-    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/conflict.css">
 </head>
 <body>
-
-<!-- Navigation Bar -->
-<nav class="sidebar">
-    <div class="profile-container text-center mb-4" style="position: relative;">
-        <div class="dropdown">
-            <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" class="img-fluid rounded-circle mb-2" style="width: 80px; cursor: pointer;">
-            <h3 id="profile-username" class="mt-2"></h3> <!-- Username header added here -->
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <a class="dropdown-item" href="login.html">Log Out</a>
-            </div>
-        </div>
+<!-- Hamburger Button -->
+<div class="hamburger-container d-lg-none position-fixed" id="toggleSidebar" style="top: 20px; left: 20px; z-index: 1050;">
+    <div class="hamburger">
+        <span class="line"></span>
+        <span class="line"></span>
+        <span class="line"></span>
     </div>
+</div>
 
-    <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link" href="member.html">Manage Members</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="trainer-info.html">Manage Trainer Profile</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="Products.html">Manage Products</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="membership.html">Manage Memberships</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="Transactions.html">Manage Transactions</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="reservation.html">Conflict Manageent</a>
-                </li>
-            </ul>
-            </div>
+<!-- Sidebar -->
+<nav class="sidebar bg-light shadow-lg hidden">
+    <div class="profile-container text-center mb-4">
+        <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" class="img-fluid rounded-circle mb-2">
+        <h3 id="profile-username" class="mt-2">Gym Owner</h3>
+        <a href="login.html" class="btn btn-danger btn-sm mt-2">Log Out</a>
+    </div>
+    <ul class="nav flex-column sidebar-links">
+        <li class="nav-item">
+            <a class="nav-link" href="member.html"><i class="fas fa-users"></i> Manage Members</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="trainer-info.html"><i class="fas fa-dumbbell"></i> Manage Trainer Profile</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="Products.html"><i class="fas fa-box"></i> Manage Products</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="membership.html"><i class="fas fa-id-card"></i> Manage Memberships</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="Transactions.html"><i class="fas fa-credit-card"></i> Manage Transactions</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="reservation.html"><i class="fas fa-calendar-alt"></i> Conflict Management</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="salesandinventory.html"><i class="fas fa-clipboard-list"></i> Sales and Inventory</a>
+        </li>
+    </ul>
 </nav>
-<!-- Navigation Bar  Ends-->
-
-<!-- Receptionist Registration Form and Trainer Search -->
-<div class="container">
-    <div class="card">
-        <div class="card-header" >
-            Reservation Registration Form
-        </div>
-        <div class="card-body">
-            <form method="POST" action="receptionist.php" class="needs-validation" novalidate>
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label for="inputID">ID</label>
-                        <input type="text" name="id" class="form-control" id="inputID" placeholder="Enter ID" required>
-                        <div class="invalid-feedback">
-                            Please enter an ID.
-                        </div>
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label for="inputName">Name</label>
-                        <input type="text" name="name" class="form-control" id="inputName" placeholder="Enter Name" required>
-                        <div class="invalid-feedback">
-                            Please enter a name.
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="inputDOB">Date of Birth</label>
-                    <input type="text" name="date" class="form-control" id="inputDOB" placeholder="Enter Date of Birth" required>
-                    <div class="invalid-feedback">
-                        Please enter a valid date of birth.
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="inputAddress">Address</label>
-                    <input type="text" name="address" class="form-control" id="inputAddress" placeholder="Enter Address" required>
-                    <div class="invalid-feedback">
-                        Please enter an address.
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="inputPhone">Phone</label>
-                    <input type="text" name="phone" class="form-control" id="inputPhone" placeholder="Enter Phone Number" required>
-                    <div class="invalid-feedback">
-                        Please enter a valid phone number.
-                    </div>
-                </div>
-                <button type="submit" name="submit" class="btn btn-primary">Save</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Search Trainer Form -->
-    <div class="card search-card">
+<!-- Main Content -->
+<div class="container mt-4">
+    <h2 class="text-center">Reservation Management</h2>
+    <!-- Reservation List -->
+    <div class="card mt-4">
         <div class="card-header">
-            Search Trainer Availability
+            Current Reservations
         </div>
-        <div class="card-body">
-            <form method="POST" action="search-trainer.php">
-                <div class="form-group">
-                    <label for="searchName">Trainer Name</label>
-                    <input type="text" name="search_name" class="form-control" id="searchName" placeholder="Enter Trainer Name" required>
-                </div>
-                <button type="submit" name="search" class="btn btn-primary">Search</button>
-            </form>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-striped">
+        <div class="card-body table-responsive">
+            <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
-                        <th>Trainer ID</th>
-                        <th>Trainer Name</th>
-                        <th>Available Date</th>
-                        <th>Available Until</th>
+                        <th>Reservation ID</th>
+                        <th>User Name</th>
+                        <th>Trainer</th>
+                        <th>Date</th>
+                        <th>Time Slot</th>
+                        <th>Status</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Example data, replace with dynamic data from your search query -->
+                    <!-- Dynamic Reservations -->
                     <tr>
                         <td>1</td>
                         <td>John Doe</td>
-                        <td>10:00 AM</td>
-                        <td>12:00 PM</td>
+                        <td>Jane Smith</td>
+                        <td>2024-11-25</td>
+                        <td>10:00 AM - 11:00 AM</td>
+                        <td>Pending</td>
+                        <td>
+                            <button class="btn btn-success btn-sm">Confirm</button>
+                            <button class="btn btn-danger btn-sm">Cancel</button>
+                        </td>
                     </tr>
                     <tr>
                         <td>2</td>
-                        <td>Jane Smith</td>
-                        <td>1:00 PM</td>
-                        <td>3:00 PM</td>
+                        <td>Mary Jane</td>
+                        <td>John Doe</td>
+                        <td>2024-11-26</td>
+                        <td>1:00 PM - 2:00 PM</td>
+                        <td>Confirmed</td>
+                        <td>
+                            <button class="btn btn-secondary btn-sm" disabled>Confirm</button>
+                            <button class="btn btn-danger btn-sm">Cancel</button>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -174,32 +103,10 @@
     </div>
 </div>
 
-<!-- JavaScript and dependencies -->
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-
-<!-- Client-side form validation -->
-<script>
-    // Bootstrap's built-in validation
-    (function() {
-        'use strict';
-        window.addEventListener('load', function() {
-            // Fetch all the forms we want to apply custom Bootstrap validation styles to
-            var forms = document.getElementsByClassName('needs-validation');
-            // Loop over them and prevent submission
-            var validation = Array.prototype.filter.call(forms, function(form) {
-                form.addEventListener('submit', function(event) {
-                    if (form.checkValidity() === false) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                    }
-                    form.classList.add('was-validated');
-                }, false);
-            });
-        }, false);
-    })();
-</script>
-
+<!-- JavaScript -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
+<script src="src/Js/reservation.js"></script>
 </body>
 </html>

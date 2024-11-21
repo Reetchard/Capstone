@@ -13,7 +13,7 @@
     <div class="form-container">
         <form id="TrainerForm">
             <div class="profile-pic-container">
-                <img src="framework/img/Profile.png" alt="Trainer Photo" class="profile-pic" id="profilePic">         
+                <img src="framework/img/Profile.png" alt="Trainer Photo" class="profile-pic" id="profilePic">
                 <label for="TrainerPhoto" class="change-photo-button">Latest Identification</label>
                 <input type="file" id="TrainerPhoto" accept="image/*" style="display: none;" required>
             </div>
@@ -27,12 +27,17 @@
                 <label for="resume">Resume</label>
                 <input type="file" id="Resume" accept="application/pdf, image/*" required>
             </div>
-            
+
+
             <label for="TrainerName">Full Name</label>
             <input type="text" id="TrainerName" placeholder="Trainer's Full Name" required>
             
-            <label for="TrainerEmail">Email</label>
-            <input type="email" id="TrainerEmail" placeholder="Trainer's Email" required>
+            <label for="TrainerEmail">Trainer Email</label>
+            <input type="email" id="TrainerEmail" placeholder="Trainer Email" required>
+            
+            <label for="GymName">Gym Name</label>
+            <input type="text" id="GymName" placeholder="Gym Name" disabled required>
+            
             
             <label for="Days">Days Available</label>
             <input type="text" id="Days" placeholder="Days Available" required>
@@ -54,8 +59,8 @@
             <p id="TrainerFormErrorMessage" class="error-message"></p>
             <p id="TrainerFormSuccessMessage" class="success-message"></p>
         </form>
-        
     </div>
+    
         <!-- Spinner Modal -->
         <div id="spinnerModal" class="modal" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-dialog-centered" role="document">

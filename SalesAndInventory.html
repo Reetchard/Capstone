@@ -5,56 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sales and Inventory</title>
     <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/sales.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 <body>
-    <div class="container mt-5">
-        <h1 class="text-center">Sales and Inventory</h1>
-
-        <!-- Transactions Section -->
-        <div class="mt-4">
-            <h3>All Transactions</h3>
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Transaction ID</th>
-                        <th>Product Name</th>
-                        <th>Quantity</th>
-                        <th>Price</th>
-                        <th>Total</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody id="transactionsBody">
-                    <!-- Transactions will be dynamically populated here -->
-                </tbody>
-            </table>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="profile-container text-center mb-4">
+            <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" class="img-fluid mb-2">
+            <h3 id="profile-username" class="mt-2">Gym Owner</h3>
+            <a href="login.html" class="btn btn-danger btn-sm mt-2">Log Out</a>
         </div>
-
-        <!-- Total Sales Section -->
-        <div class="mt-4">
-            <h3>Total Sales</h3>
-            <p id="totalSales" class="h4">Loading...</p>
-        </div>
-
-        <!-- Products Section -->
-        <div class="mt-4">
-            <h3>Available Products</h3>
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Product ID</th>
-                        <th>Product Name</th>
-                        <th>Stock</th>
-                        <th>Price</th>
-                    </tr>
-                </thead>
-                <tbody id="productsBody">
-                    <!-- Products will be dynamically populated here -->
-                </tbody>
-            </table>
-        </div>
-    </div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="member.html"><i class="fas fa-users"></i> Manage Members</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="trainer-info.html"><i class="fas fa-dumbbell"></i> Manage Trainer Profile</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="Products.html"><i class="fas fa-box"></i> Manage Products</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="membership.html"><i class="fas fa-id-card"></i> Manage Memberships</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="Transactions.html"><i class="fas fa-credit-card"></i> Manage Transactions</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="reservation.html"><i class="fas fa-calendar-alt"></i> Conflict Management</a>
+            </li>
+        </ul>
+    </nav>
 
     <!-- Firebase Scripts -->
     <script type="module" src="src/Js/salesandinventory.js"></script>

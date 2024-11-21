@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const gymSelect = document.getElementById('GymName');
 
     // Fetch gym owners from Firestore and populate dropdown
-    const usersRef = collection(db, 'Trainer'); // Use Firestore modular syntax
+    const usersRef = collection(db, 'GymOwner'); // Use Firestore modular syntax
     const q = query(usersRef, where('role', '==', 'gymowner'));
 
     getDocs(q).then((querySnapshot) => {
@@ -41,13 +41,13 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
-window.addEventListener('load', () => {
+document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("TrainerForm");
 
     const TrainerName = document.getElementById("TrainerName");
     const TrainerEmail = document.getElementById("TrainerEmail");
     const TrainerPhotoInput = document.getElementById("TrainerPhoto");
-    const TrainerApplicationInput = document.getElementById("TrainerApplication"); 
+    const TrainerApplicationInput = document.getElementById("TrainerApplication");
     const ResumeInput = document.getElementById("Resume");
     const Days = document.getElementById("Days");
     const Experience = document.getElementById("Experience");
@@ -60,7 +60,7 @@ window.addEventListener('load', () => {
     const spinnerModal = document.getElementById("spinnerModal");
 
     // Preview profile picture
-    TrainerPhotoInput.addEventListener('change', (event) => {
+    TrainerPhotoInput.addEventListener("change", (event) => {
         const file = event.target.files[0];
         if (file) {
             const reader = new FileReader();
@@ -80,27 +80,33 @@ window.addEventListener('load', () => {
         return await getDownloadURL(snapshot.ref);
     }
 
-    // Check if email exists in Users collection
-    async function getUserDocByEmail(email) {
-        const userQuery = query(collection(db, 'Trainer'), where('email', '==', email));
-        const querySnapshot = await getDocs(userQuery);
-        if (!querySnapshot.empty) {
-            return querySnapshot.docs[0];
-        } else {
-            return null;
-        }
-    }
-
-    // Check for duplicate trainers
-    async function isDuplicateTrainer() {
-        const q = query(collection(db, 'Trainer'), where('TrainerEmail', '==', TrainerEmail.value));
+    // Fetch GymName dynamically from GymOwner collection
+    async function fetchGymNameByTrainerEmail(email) {
+        const trainersRef = collection(db, "Trainer");
+        const q = query(trainersRef, where("TrainerEmail", "==", email));
         const querySnapshot = await getDocs(q);
-        return !querySnapshot.empty;
+
+        if (!querySnapshot.empty) {
+            const trainerDoc = querySnapshot.docs[0];
+            const gymOwnerID = trainerDoc.data().GymOwnerID; // Ensure GymOwnerID is stored in Trainer
+            if (gymOwnerID) {
+                const gymOwnerRef = doc(db, "GymOwner", gymOwnerID);
+                const gymOwnerSnap = await getDoc(gymOwnerRef);
+                if (gymOwnerSnap.exists()) {
+                    return gymOwnerSnap.data().gymName || null;
+                }
+            }
+        }
+        return null;
     }
 
     // Show/hide spinner modal
-    function showSpinner() { spinnerModal.style.display = 'block'; }
-    function hideSpinner() { spinnerModal.style.display = 'none'; }
+    function showSpinner() {
+        spinnerModal.style.display = "block";
+    }
+    function hideSpinner() {
+        spinnerModal.style.display = "none";
+    }
 
     // Handle form submission
     form.addEventListener("submit", async (e) => {
@@ -108,30 +114,45 @@ window.addEventListener('load', () => {
 
         const trainerEmail = TrainerEmail.value;
 
-        const userDoc = await getUserDocByEmail(trainerEmail);
-        if (!userDoc) {
-            errorMessage.innerHTML = "Error: Trainer email does not match any user in the system.";
-            setTimeout(() => { errorMessage.innerHTML = ""; }, 3000);
-            return;
-        }
-
-        const duplicate = await isDuplicateTrainer();
-        if (duplicate) {
-            errorMessage.innerHTML = "Error: A trainer with the same email already exists.";
-            setTimeout(() => { errorMessage.innerHTML = ""; }, 3000);
-            return;
-        }
-
         try {
-            showSpinner(),1000;
+            showSpinner();
 
-            const TrainerPhotoURL = TrainerPhotoInput.files[0] ? await uploadFile(TrainerPhotoInput.files[0], `Trainer_photos/${TrainerName.value}`) : "";
-            const TrainerApplicationURL = TrainerApplicationInput.files[0] ? await uploadFile(TrainerApplicationInput.files[0], `Trainer_applications/${TrainerName.value}`) : "";
-            const ResumeURL = ResumeInput.files[0] ? await uploadFile(ResumeInput.files[0], `Trainer_resumes/${TrainerName.value}`) : "";
+            // Fetch GymName dynamically
+            const gymName = await fetchGymNameByTrainerEmail(trainerEmail);
 
-            const userRef = doc(db, 'Trainer', userDoc.id);
-            await updateDoc(userRef, {
+            if (!gymName) {
+                errorMessage.innerHTML =
+                    "Error: Gym Name could not be determined for the applied trainer.";
+                setTimeout(() => {
+                    hideSpinner();
+                    errorMessage.innerHTML = "";
+                }, 3000);
+                return;
+            }
+
+            const TrainerPhotoURL = TrainerPhotoInput.files[0]
+                ? await uploadFile(
+                      TrainerPhotoInput.files[0],
+                      `Trainer_photos/${TrainerName.value}`
+                  )
+                : "";
+            const TrainerApplicationURL = TrainerApplicationInput.files[0]
+                ? await uploadFile(
+                      TrainerApplicationInput.files[0],
+                      `Trainer_applications/${TrainerName.value}`
+                  )
+                : "";
+            const ResumeURL = ResumeInput.files[0]
+                ? await uploadFile(
+                      ResumeInput.files[0],
+                      `Trainer_resumes/${TrainerName.value}`
+                  )
+                : "";
+
+            // Add trainer data to Firestore
+            await addDoc(collection(db, "Trainer"), {
                 TrainerName: TrainerName.value,
+                TrainerEmail: trainerEmail,
                 TrainerPhoto: TrainerPhotoURL,
                 TrainerApplication: TrainerApplicationURL,
                 Resume: ResumeURL,
@@ -140,20 +161,74 @@ window.addEventListener('load', () => {
                 Expertise: Expertise.value,
                 Contact: Contact.value,
                 rate: rate.value,
+                gymName: gymName, // Automatically associate GymName
                 role: "trainer",
-                status: "Under Review"
+                status: "Under Review",
             });
 
-            successMessage.innerHTML = "Trainer information submitted successfully! Your information is under review.";
+            successMessage.innerHTML =
+                "Trainer information submitted successfully! Your information is under review.";
             setTimeout(() => {
                 hideSpinner();
                 window.location.href = "trainer.html";
             }, 2000);
-
         } catch (error) {
             hideSpinner();
-            errorMessage.innerHTML = "Error: Could not submit the form. " + error.message;
-            setTimeout(() => { errorMessage.innerHTML = ""; }, 3000);
+            errorMessage.innerHTML =
+                "Error: Could not submit the form. " + error.message;
+            setTimeout(() => {
+                errorMessage.innerHTML = "";
+            }, 3000);
+        }
+    });
+});
+document.addEventListener("DOMContentLoaded", async function () {
+    const TrainerEmailField = document.getElementById("TrainerEmail"); // Ensure this field exists
+    const GymNameField = document.getElementById("GymName");
+
+    // Fetch GymName dynamically based on TrainerEmail
+    async function fetchGymNameByTrainerEmail(email) {
+        try {
+            // Check if email is provided
+            if (!email) {
+                throw new Error("TrainerEmail is empty or undefined.");
+            }
+
+            // Fetch the trainer document by email
+            const trainersRef = collection(db, "Trainer");
+            const q = query(trainersRef, where("TrainerEmail", "==", email));
+            const querySnapshot = await getDocs(q);
+
+            if (!querySnapshot.empty) {
+                const trainerDoc = querySnapshot.docs[0];
+                const gymOwnerID = trainerDoc.data().GymOwnerID; // Ensure GymOwnerID is stored in Trainer
+
+                if (gymOwnerID) {
+                    // Fetch the GymOwner document to retrieve the GymName
+                    const gymOwnerRef = doc(db, "GymOwner", gymOwnerID);
+                    const gymOwnerSnap = await getDoc(gymOwnerRef);
+
+                    if (gymOwnerSnap.exists()) {
+                        return gymOwnerSnap.data().gymName || "Unknown Gym";
+                    }
+                }
+            }
+            return "Unknown Gym"; // Fallback if no data is found
+        } catch (error) {
+            console.error("Error fetching Gym Name:", error);
+            return "Error fetching Gym Name";
+        }
+    }
+
+    // Populate the GymName field when TrainerEmail loses focus
+    TrainerEmailField.addEventListener("blur", async () => {
+        const trainerEmail = TrainerEmailField.value.trim();
+        if (trainerEmail) {
+            GymNameField.value = "Loading..."; // Provide feedback while fetching
+            const gymName = await fetchGymNameByTrainerEmail(trainerEmail);
+            GymNameField.value = gymName; // Dynamically populate Gym Name
+        } else {
+            GymNameField.value = ""; // Clear field if email is empty
         }
     });
 });
