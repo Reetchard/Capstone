@@ -1,3 +1,18 @@
+// Import Firebase services
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+import {
+    getFirestore,
+    collection,
+    doc,
+    updateDoc,
+    getDoc,
+    query,
+    where,
+    getDocs,
+    deleteDoc,
+} from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+
 // Firebase Configuration
 const firebaseConfig = {
     apiKey: "AIzaSyAPNGokBic6CFHzuuENDHdJrMEn6rSE92c",
@@ -10,14 +25,11 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
+const app = initializeApp(firebaseConfig);
 
 // Initialize Firestore and Authentication
-const db = firebase.firestore();
-const auth = firebase.auth();
-
+const db = getFirestore(app);
+const auth = getAuth(app);
 // Define Firestore collections
 const transactionsCollection = db.collection('Transactions');
 const usersCollection = db.collection('GymOwner');
@@ -35,9 +47,10 @@ async function displayMemberInfo() {
         }
 
         const userId = user.uid;
-        const userDoc = await usersCollection.doc(userId).get();
+        const userDocRef = doc(db, "GymOwner", userId);
+        const userDoc = await getDoc(userDocRef);
 
-        if (!userDoc.exists) {
+        if (!userDoc.exists()) {
             console.error(`No user document found for user ID: ${userId}`);
             alert("User information is missing. Please contact support.");
             return;
@@ -55,9 +68,8 @@ async function displayMemberInfo() {
         console.log("Gym name for the logged-in user:", gymOwnerGymName);
 
         // Fetch all membership transactions
-        const querySnapshot = await transactionsCollection
-            .where('type', '==', 'membership')
-            .get();
+        const transactionsQuery = query(collection(db, "Transactions"), where("type", "==", "membership"));
+        const querySnapshot = await getDocs(transactionsQuery);
 
         let hasResults = false;
         querySnapshot.forEach(doc => {
@@ -70,7 +82,6 @@ async function displayMemberInfo() {
             if (transaction.gymName === gymOwnerGymName) {
                 hasResults = true;
 
-                // Match Firestore field names
                 const membershipDays = transaction.membershipDays || 'N/A';
                 const planType = transaction.planType || 'N/A';
                 const price = transaction.price || 'N/A';
@@ -87,6 +98,7 @@ async function displayMemberInfo() {
                     <td>${new Date(purchaseDate).toLocaleString() || 'N/A'}</td>
                     <td>${status}</td>
                     <td>
+                        <button class="btn btn-success btn-sm" onclick="setStatus('${key}', 'Approved')">Approve</button>
                         <button class="btn btn-info btn-sm" onclick="viewMemberDetails('${key}')">View</button>
                         <button class="btn btn-danger btn-sm" onclick="removeMember('${key}')">Remove</button>
                     </td>
@@ -141,8 +153,8 @@ window.searchMember = function() {
                 <td>${transaction.paymentMethod}</td>
                 <td>${transaction.status}</td>
                 <td>
-                    <button class="btn btn-info btn-sm" onclick="viewMemberDetails('${key}')">View</button>
                     <button class="btn btn-success btn-sm" onclick="setStatus('${key}', 'Approved')">Approve</button>
+                    <button class="btn btn-info btn-sm" onclick="viewMemberDetails('${key}')">View</button>
                     <button class="btn btn-danger btn-sm" onclick="blockMember('${key}')">Block</button>
                 </td>
             `;
@@ -294,15 +306,6 @@ window.removeMember = function (key) {
 };
 
 
-// Listen for Authentication Changes
-auth.onAuthStateChanged((user) => {
-    if (user) {
-        displayMemberInfo();
-    } else {
-        console.error("User not authenticated.");
-        window.location.href = 'login.html';
-    }
-});
 
 document.addEventListener('DOMContentLoaded', function () {
     const sidebar = document.querySelector('.sidebar');
@@ -319,4 +322,28 @@ document.addEventListener('DOMContentLoaded', function () {
             sidebar.classList.remove('show');
         }
     });
+});
+// Set Member Status
+window.setStatus = async function (memberId, newStatus) {
+    try {
+        const memberDocRef = doc(db, "Transactions", memberId);
+        await updateDoc(memberDocRef, {
+            status: newStatus
+        });
+        alert(`Member status updated to ${newStatus}.`);
+        displayMemberInfo();
+    } catch (error) {
+        console.error('Error updating member status:', error);
+        alert('Failed to update member status. Please try again.');
+    }
+};
+
+// Listen for Authentication Changes
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        displayMemberInfo();
+    } else {
+        console.error("User not authenticated.");
+        window.location.href = 'login.html';
+    }
 });

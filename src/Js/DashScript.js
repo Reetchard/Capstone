@@ -459,27 +459,25 @@ function formatTime(time) {
     
     window.buyNow = async function () {
         try {
-            // Fetch productId from the modal
             const modalProductPhoto = document.getElementById("modalProductPhoto");
             const productId = modalProductPhoto.dataset.productId;
+                        // Validate productId
+                        if (!productId) {
+                            console.error("Product ID is undefined.");
+                            Swal.fire({
+                                icon: "error",
+                                title: "Error",
+                                text: "Product ID is missing. Please try again.",
+                            });
+                            return;
+                        }
+            // Ensure user ID is available before proceeding
+            const userId = await getCurrentUserId(); // Get userId from the Users collection
     
-            // Validate productId
-            if (!productId) {
-                console.error("Product ID is undefined.");
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: "Product ID is missing. Please try again.",
-                });
-                return;
-            }
-    
-            // Fetch other product details
-            const productName = document.getElementById("modalProductName").innerText;
-            const quantityPurchased = parseInt(document.getElementById("modalProductQuantityInput").value, 10) || 0;
-            const productPrice = parseFloat(document.getElementById("modalProductPrice").dataset.originalPrice) || 0;
-    
-            // Validate other inputs
+            // Get product details
+            const productName = document.getElementById('modalProductName').innerText;
+            const quantityPurchased = document.getElementById('modalProductQuantityInput').value;
+            const totalPrice = document.getElementById('modalProductPrice').innerText;
             if (!quantityPurchased || !productPrice) {
                 console.error("Invalid inputs:", { productId, quantityPurchased, productPrice });
                 Swal.fire({
@@ -488,8 +486,7 @@ function formatTime(time) {
                     text: "Quantity or price is invalid. Please try again.",
                 });
                 return;
-            }
-    
+            }     
             // Continue with the purchase process...
             console.log("Processing purchase for:", { productId, productName, quantityPurchased, productPrice });
     
@@ -505,7 +502,6 @@ function formatTime(time) {
                 });
                 return;
             }
-    
             const productData = productDoc.data();
             const availableStock = productData.quantity || 0;
     
@@ -521,29 +517,87 @@ function formatTime(time) {
     
             // Update the product quantity in Firestore
             const updatedStock = availableStock - quantityPurchased;
-            await updateDoc(productDocRef, { quantity: updatedStock });
+            await updateDoc(productDocRef, { quantity: updatedStock });      
+            // Assuming gymName is available in the GymProfile card
+            const gymName = document.getElementById('modalGymName').innerText; // Get gym name from GymProfile card
     
-            // Add transaction and notification logic here...
-            console.log("Purchase successful. Remaining stock:", updatedStock);
+            // Set product details in confirmation modal
+            document.getElementById('confirmProductName').innerText = productName;
+            document.getElementById('confirmQuantity').innerText = quantityPurchased;
+            document.getElementById('confirmTotalPrice').innerText = totalPrice;
     
-            // Show success message
-            Swal.fire({
-                icon: "success",
-                title: "Purchase Successful",
-                text: `You purchased ${quantityPurchased} of ${productName} for ₱${(productPrice * quantityPurchased).toFixed(2)}.`,
-            });
+            // Show the confirmation modal
+            $('#confirmationModal').modal('show');
+            document.getElementById('notification-count').innerText = notificationCount;
+            // Handle confirmation action
+            document.getElementById('confirmPurchaseBtn').onclick = async function () {
+                try {
+                    // Simulate purchase logic (e.g., update stock, etc.)
+                    notificationCount++;
     
-            // Close the modal
-            $('#productModal').modal('hide');
+                    // Create a new notification with detailed information
+                    const newNotification = {
+                        message: `You purchased ${quantityPurchased} of ${productName} for ${totalPrice}.`,
+                        type : 'Products', 
+                        productName: productName,
+                        quantity: quantityPurchased,
+                        totalPrice: totalPrice,
+                        status: 'Pending Owner Approval',
+                        read: false, // Unread notification
+                        userId: userId, // Use the current user's userId from the document
+                        gymName: gymName, // Storing gymName from GymProfile card
+                        notificationId: Date.now().toString(), // Unique ID based on timestamp
+                        timestamp: new Date().toISOString() // Add timestamp for ordering or filtering if needed
+                    };
+    
+                    // Save the notification to Firestore under a 'Notifications' collection
+                    await addDoc(collection(db, 'Notifications'), newNotification);
+    
+                    // Save transaction to 'Transactions' collection
+                    const newTransaction = {
+                        userId: userId, // Storing userId of the customer/user
+                        productName: productName,
+                        quantity: quantityPurchased,
+                        totalPrice: totalPrice,
+                        gymName: gymName, // Storing gymName from GymProfile card
+                        timestamp: new Date().toISOString() // Timestamp of the transaction
+                    };
+    
+                    // Save the transaction to Firestore under a 'Transactions' collection
+                    await addDoc(collection(db, 'Transactions'), newTransaction);
+    
+                    // Close the confirmation modal
+                    $('#confirmationModal').modal('hide');
+    
+                    // Ensure that success modal elements exist before setting innerText
+                    const successProductName = document.getElementById('successProductName');
+                    const successQuantity = document.getElementById('successQuantity');
+                    const successTotalPrice = document.getElementById('successTotalPrice');
+    
+                    if (successProductName && successQuantity && successTotalPrice) {
+                        // Show success modal with details if elements exist
+                        successProductName.innerText = productName;
+                        successQuantity.innerText = quantityPurchased;
+                        successTotalPrice.innerText = totalPrice;
+                        $('#successModal').modal('show');
+                    } else {
+                        console.error('Success modal elements not found.');
+                    }
+    
+                    // Update the notification list
+                    await fetchNotifications(userId);
+    
+                    // Close the product modal after the purchase
+                    $('#productModal').modal('hide');
+                } catch (error) {
+                    console.error('Error saving notification or transaction:', error);
+                }
+            };
         } catch (error) {
-            console.error("Error during purchase process:", error);
-            Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: "An error occurred while processing your purchase. Please try again.",
-            });
+            console.error('Error fetching current user ID:', error);
         }
     };
+    
     
     
     
@@ -551,7 +605,10 @@ function formatTime(time) {
     let notificationCount = 0; // Initialize notificationCount to 0
     document.getElementById('confirmPurchaseBtn').onclick = async function () {
         try {
+            // Simulate purchase logic (e.g., update stock, etc.)
+            notificationCount++; // Increment the notification count
             // Ensure productId is set
+            document.getElementById('notification-count').innerText = notificationCount;
             const productId = document.getElementById('modalProductPhoto').dataset.productId;
             if (!productId) {
                 console.error('Product ID is undefined.');
@@ -607,17 +664,19 @@ function formatTime(time) {
             // Update the product quantity in Firestore
             const updatedStock = availableStock - quantityPurchased;
             await updateDoc(productDocRef, { quantity: updatedStock });
-    
+            document.getElementById('notification-count').innerText = notificationCount;
+
             // Add notification
             const newNotification = {
                 message: `You purchased ${quantityPurchased} of ${productName} for ₱${(productPrice * quantityPurchased).toFixed(2)}.`,
+                productName: productName,
                 type: 'Products',
-                productName,
                 quantity: quantityPurchased,
                 totalPrice: productPrice * quantityPurchased,
                 status: 'Pending Owner Approval',
-                userId,
-                gymName,
+                read: false, // Unread notification
+                userId: userId, // Use the current user's userId from the document
+                gymName: gymName, // Storing gymName from GymProfile card
                 notificationId: Date.now().toString(),
                 timestamp: new Date().toISOString(),
             };
@@ -627,35 +686,33 @@ function formatTime(time) {
             // Save the notification to Firestore
             await addDoc(collection(db, 'Notifications'), newNotification);
     
-            // Add transaction
-            const newTransaction = {
+             // Save transaction to 'Transactions' collection
+             const newTransaction = {
                 type: 'product',
-                userId,
-                productName,
+                userId: userId, // Storing userId of the customer/user
+                productName: productName,
                 quantity: quantityPurchased,
-                totalPrice: productPrice * quantityPurchased,
-                gymName,
-                timestamp: new Date().toISOString(),
+                totalPrice: totalPrice,
+                gymName: gymName, // Storing gymName from GymProfile card
+                timestamp: new Date().toISOString() // Timestamp of the transaction
             };
     
             console.log('Transaction:', newTransaction);
     
             // Save the transaction to Firestore
             await addDoc(collection(db, 'Transactions'), newTransaction);
-    
+            
             // Close the confirmation modal
             $('#confirmationModal').modal('hide');
     
-            // Show success modal with details
-            Swal.fire({
-                icon: 'success',
-                title: 'Purchase Successful',
-                html: `
-                    <p>You purchased ${quantityPurchased} of ${productName}.</p>
-                    <p>Total: ₱${(productPrice * quantityPurchased).toFixed(2)}</p>
-                `,
-            });
+            // Show success modal
+            document.getElementById('successProductName').innerText = productName;
+            document.getElementById('successQuantity').innerText = quantityPurchased;
+            document.getElementById('successTotalPrice').innerText = totalPrice;
+            $('#successModal').modal('show');
     
+            // Update the notification list (assuming this function exists)
+            await fetchNotifications(userId);
             // Update the UI or redirect
             $('#productModal').modal('hide');
         } catch (error) {
@@ -2216,7 +2273,7 @@ function formatTime(time) {
                 
                     // Define the content based on notification type
                     let notificationContent = '';
-                
+
                     if (notification.type === "Booking_trainer") {
                         // Content for booking trainer notifications
                         notificationContent = `
@@ -2225,7 +2282,7 @@ function formatTime(time) {
                             <div class="booking-info">
                                 <p><strong>Trainer:</strong> ${notification.trainerName}</p>
                                 <p><strong>Booking Date:</strong> ${notification.bookingDate}</p>
-                                <p><strong>Rate:</strong> ${notification.price}</p>
+                                <p><strong>Rate:</strong>₱${parseFloat(notification.price).toFixed(2)}</p>
                             </div>
                             <hr>
                             <p class="footer-info">Show this receipt to the Gym owner upon arrival.</p>
@@ -2242,7 +2299,7 @@ function formatTime(time) {
                             <div class="product-info">
                                 <p><strong>Product:</strong> ${notification.productName}</p>
                                 <p><strong>Quantity:</strong> ${notification.quantity}</p>
-                                <p><strong>Total Price:</strong> ₱${formattedTotalPrice || 'N/A'}</p> <!-- Use formatted price -->
+                                <p><strong>Total Price:</strong> ${notification.totalPrice || 'N/A'}</p> <!-- Use formatted price -->
                             </div>
                             <hr>
                             <p class="footer-info">Show this receipt to the Gym owner upon collection.</p>

@@ -142,3 +142,42 @@ body {
         display: none;
     }
 }
+.card {
+    border-radius: 10px;
+}
+
+.card-title {
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.card-text {
+    font-size: 1.25rem;
+}
+
+.text-warning {
+    color: #ffc107 !important;
+}
+
+.table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.table th,
+.table td {
+    text-align: center;
+    vertical-align: middle; /* Align content vertically */
+}
+
+.table th {
+    background-color: #343a40;
+    color: white;
+}
+
+.table-responsive {
+    max-height: 400px; /* Ensure table fits within a scrollable container */
+    overflow-y: auto;
+    margin-top: 20px;
+}
+

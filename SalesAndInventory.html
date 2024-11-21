@@ -3,45 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sales and Inventory</title>
+    <title>Sales and Inventory Dashboard</title>
     <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/sales.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 <body>
-    <!-- Sidebar -->
-    <nav class="sidebar">
-        <div class="profile-container text-center mb-4">
-            <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" class="img-fluid mb-2">
-            <h3 id="profile-username" class="mt-2">Gym Owner</h3>
-            <a href="login.html" class="btn btn-danger btn-sm mt-2">Log Out</a>
-        </div>
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link" href="member.html"><i class="fas fa-users"></i> Manage Members</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="trainer-info.html"><i class="fas fa-dumbbell"></i> Manage Trainer Profile</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="Products.html"><i class="fas fa-box"></i> Manage Products</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="membership.html"><i class="fas fa-id-card"></i> Manage Memberships</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="Transactions.html"><i class="fas fa-credit-card"></i> Manage Transactions</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="reservation.html"><i class="fas fa-calendar-alt"></i> Conflict Management</a>
-            </li>
-        </ul>
-    </nav>
+<!-- Hamburger Button -->
+<div class="hamburger-container d-lg-none position-fixed" id="toggleSidebar" style="top: 20px; left: 20px; z-index: 1050;">
+    <div class="hamburger">
+        <span class="line"></span>
+        <span class="line"></span>
+        <span class="line"></span>
+    </div>
+</div>
 
-    <!-- Firebase Scripts -->
-    <script type="module" src="src/Js/salesandinventory.js"></script>
-    <!-- Bootstrap JS -->
+<!-- Sidebar -->
+<nav class="sidebar bg-light shadow-lg hidden">
+    <div class="profile-container text-center mb-4">
+        <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" class="img-fluid rounded-circle mb-2">
+        <h3 id="profile-username" class="mt-2">Gym Owner</h3>
+        <a href="login.html" class="btn btn-danger btn-sm mt-2">Log Out</a>
+    </div>
+    <ul class="nav flex-column sidebar-links">
+        <li class="nav-item">
+            <a class="nav-link" href="member.html"><i class="fas fa-users"></i> Manage Members</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="trainer-info.html"><i class="fas fa-dumbbell"></i> Manage Trainer Profile</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="Products.html"><i class="fas fa-box"></i> Manage Products</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="membership.html"><i class="fas fa-id-card"></i> Manage Memberships</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="Transactions.html"><i class="fas fa-credit-card"></i> Manage Transactions</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="reservation.html"><i class="fas fa-calendar-alt"></i> Conflict Management</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="salesandinventory.html"><i class="fas fa-clipboard-list"></i> Sales and Inventory</a>
+        </li>
+    </ul>
+</nav>
+<div class="main-content p-4" style="margin-left: 260px;">
+    <h1 class="mb-4">Sales and Inventory Dashboard</h1>
+    <div class="row">
+        <!-- Sales Summary -->
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Total Sales</h5>
+                    <p class="card-text fs-4 fw-bold" id="totalSales">₱0.00</p>
+                    <canvas id="salesChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Sales -->
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Sales</h5>
+                    <p class="card-text fs-5 fw-bold text-warning" id="pendingSales">₱0.00</p>
+                    <canvas id="pendingSalesChart" height="200"></canvas>
+                    <small class="text-muted">Sales awaiting approval</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Summary -->
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Inventory Overview</h5>
+                    <p class="card-text fs-4 fw-bold" id="totalInventory">0 Items</p>
+                    <canvas id="inventoryChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="mt-4">
+        <h3>Recent Transactions</h3>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Product Name</th>
+                        <th>Quantity Sold</th>
+                        <th>Total Price</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="recentTransactions"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+    <!-- Firebase Script -->
+    <!-- <script type="module" src="src/Js/salesAndInventory.js"></script> -->
+    <!-- Bootstrap Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>
