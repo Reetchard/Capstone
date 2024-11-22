@@ -2519,7 +2519,7 @@ function formatTime(time) {
             searchResultsContainer.style.display = trainers.length > 0 ? 'block' : 'none';
         }
         
-        async function searchTrainers(searchTerm) {
+        window.searchTrainers= async function(searchTerm) {
             const inboxContainer = document.getElementById('inboxContainer');
             const searchResultsContainer = document.getElementById('searchResultsContainer');
         
@@ -2533,13 +2533,20 @@ function formatTime(time) {
                 return;
             }
         
-            // If there's a search term, perform the search and display results
-            const trainers = await fetchTrainers();
-            const filteredTrainers = trainers.filter(trainer => {
-                const email = trainer.TrainerEmail || ''; // Default to an empty string if TrainerEmail is undefined
-                const term = searchTerm || ''; // Default to an empty string if searchTerm is undefined
-                return email.toLowerCase().includes(term.toLowerCase());
-            });
+                // If there's a search term, perform the search and display results
+                const trainers = await fetchTrainers(); // Fetch trainers
+                const filteredTrainers = trainers.filter(trainer => {
+                    // Ensure email is a valid string (default to empty string if undefined or null)
+                    const email = trainer.TrainerEmail ? trainer.TrainerEmail : ''; 
+
+                    // Ensure searchTerm is a valid string (default to empty string if undefined or null)
+                    const term = searchTerm ? searchTerm : '';
+
+                    // Both email and term should be valid strings before calling toLowerCase
+                    return email.toLowerCase().includes(term.toLowerCase());
+                });
+
+            
         
             displayTrainers(filteredTrainers);  // Display results in searchResultsContainer
         }

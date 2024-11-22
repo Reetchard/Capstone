@@ -330,7 +330,7 @@ async function fetchNotifications(currentUserId) {
     });
     
     // Fetch all users for searching
-    async function fetchUsers() {
+    window.fetchUsers = async function() {
         const userQuery = query(collection(db, 'Users'));
         try {
             const querySnapshot = await getDocs(userQuery);
@@ -342,7 +342,7 @@ async function fetchNotifications(currentUserId) {
     }
     
     // Display users in the search result
-    function displayUsers(users) {
+    window. displayUsers = function(users) {
         const inboxContainer = document.querySelector('#inboxContainer');
         const searchResultsContainer = document.querySelector('#searchResultsContainer');
     
@@ -371,7 +371,7 @@ async function fetchNotifications(currentUserId) {
         // Show search results only if there are users found
         searchResultsContainer.style.display = users.length > 0 ? 'block' : 'none';
     }
-    async function searchUsers(searchTerm) {
+    window.searchUsers = async function(searchTerm) {
         const inboxContainer = document.getElementById('inboxContainer');
         const searchResultsContainer = document.getElementById('searchResultsContainer');
     
@@ -387,12 +387,15 @@ async function fetchNotifications(currentUserId) {
     
         // If there's a search term, perform the search and display results
         const users = await fetchUsers();
-        const filteredUsers = users.filter(user =>
-            user.email.toLowerCase().includes(searchTerm.toLowerCase())
-        );
+        const filteredUsers = users.filter(user => {
+            // Ensure email exists and is a valid string before calling toLowerCase
+            const email = user.email ? user.email : ''; // Default to empty string if email is undefined or null
+            return email.toLowerCase().includes(searchTerm.toLowerCase());
+        });
     
         displayUsers(filteredUsers, true);  // Display results in searchResultsContainer
-    }  
+    }
+    
     // Start a chat with a selected user
     function startChat(userId, username) {
         currentChatUserId = userId;
@@ -482,7 +485,7 @@ async function fetchNotifications(currentUserId) {
     let unsubscribeSentMessages = null;
     let unsubscribeReceivedMessages = null;
     
-    async function loadMessages() {
+    window. loadMessages = async function() {
         const userId = auth.currentUser.uid;
         const messagesContainer = document.querySelector('#messagesContainer');
         messagesContainer.innerHTML = '';
