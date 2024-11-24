@@ -542,7 +542,7 @@ function formatTime(time) {
                         productName: productName,
                         quantity: quantityPurchased,
                         totalPrice: totalPrice,
-                        status: 'Pending Owner Approval',
+                        status: 'Pending Status',
                         read: false, // Unread notification
                         userId: userId, // Use the current user's userId from the document
                         gymName: gymName, // Storing gymName from GymProfile card
@@ -673,7 +673,7 @@ function formatTime(time) {
                 type: 'Products',
                 quantity: quantityPurchased,
                 totalPrice: productPrice * quantityPurchased,
-                status: 'Pending Owner Approval',
+                status: 'Pending Status',
                 read: false, // Unread notification
                 userId: userId, // Use the current user's userId from the document
                 gymName: gymName, // Storing gymName from GymProfile card
@@ -2269,7 +2269,6 @@ function formatTime(time) {
 
                 // Show detailed notification information in a modal
                 function showNotificationDetails(notification) {
-                    const timeAgo = getTimeAgo(notification.timestamp);
                 
                     // Define the content based on notification type
                     let notificationContent = '';
@@ -2283,14 +2282,12 @@ function formatTime(time) {
                                 <p><strong>Trainer:</strong> ${notification.trainerName}</p>
                                 <p><strong>Booking Date:</strong> ${notification.bookingDate}</p>
                                 <p><strong>Rate:</strong>₱${parseFloat(notification.price).toFixed(2)}</p>
+                                <p><strong>Status:</strong> ${notification.status}</p>
                             </div>
                             <hr>
                             <p class="footer-info">Show this receipt to the Gym owner upon arrival.</p>
                         `;
                     } else if (notification.type === "Products") {
-
-                        // Format the totalPrice to always have two decimal places
-                        const formattedTotalPrice = parseFloat(notification.totalPrice).toFixed(2);
                         
                         // Content for products notifications
                         notificationContent = `
@@ -2300,6 +2297,7 @@ function formatTime(time) {
                                 <p><strong>Product:</strong> ${notification.productName}</p>
                                 <p><strong>Quantity:</strong> ${notification.quantity}</p>
                                 <p><strong>Total Price:</strong> ${notification.totalPrice || 'N/A'}</p> <!-- Use formatted price -->
+                                <p><strong>Status:</strong> ${notification.status}</p>
                             </div>
                             <hr>
                             <p class="footer-info">Show this receipt to the Gym owner upon collection.</p>
@@ -2313,7 +2311,7 @@ function formatTime(time) {
                             <div class="modal-dialog modal-dialog-centered" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="notificationDetailsLabel">${notification.type === "Booking_trainer" ? "Booking Confirmation" : "Purchase Receipt"}</h5>
+                                        <h5 class="modal-title" id="notificationDetailsLabel">${notification.type === "Booking_trainer" ? "Booking Confirmation" : "Order List"}</h5>
                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
                                         </button>

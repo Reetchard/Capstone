@@ -41,6 +41,8 @@ function hideButtonSpinner(button, originalText) {
     button.innerHTML = originalText; // Restore original button text
 }
 
+
+
 // Function to fetch the current gym owner's gymName
 async function getGymOwnerName(userId) {
     try {
@@ -136,7 +138,7 @@ async function fetchTransactionsByTypeAndGymName(userId, type, gymName) {
 }
 
 // Populate the table with action buttons and add event listeners for status updates
-function populateTable(transactionType, transactions) {
+async function populateTable(transactionType, transactions) {
     const tableBody = document.querySelector(`#${transactionType}Table tbody`);
 
     if (!tableBody) {
@@ -151,8 +153,11 @@ function populateTable(transactionType, transactions) {
         return;
     }
 
-    transactions.forEach(transaction => {
+    for (let transaction of transactions) {
         const row = document.createElement('tr');
+
+        // Fetch username based on userId
+        const username = await getUsernameFromUserId(transaction.userId);
 
         let formattedPurchaseDate = 'N/A';
         if (transaction.purchaseDate) {
@@ -161,10 +166,10 @@ function populateTable(transactionType, transactions) {
 
         if (transactionType === 'membership') {
             row.innerHTML = `
-                <td>${transaction.userId || 'N/A'}</td>            
+                <td>${username || 'N/A'}</td> <!-- Display username next to userId -->
                 <td>${transaction.gymName || 'N/A'}</td>
                 <td>${transaction.membershipDays || 'N/A'}</td>
-                <td>${transaction.planPrice || 'N/A'}</td>
+                <td>${transaction.price || 'N/A'}</td>
                 <td>${transaction.planType || 'N/A'}</td>
                 <td>${formattedPurchaseDate}</td> <!-- Use formatted purchase date -->
                 <td class="status-cell">${transaction.status || 'N/A'}</td>
@@ -189,8 +194,43 @@ function populateTable(transactionType, transactions) {
         });
 
         tableBody.appendChild(row);
-    });
+    }
 }
+
+// Function to fetch the username based on the userId
+async function getUsernameFromUserId(userId) {
+    try {
+        // Log userId for debugging
+        console.log("Fetching user for userId:", userId);
+
+        // Check if userId is the document ID
+        const userDoc = await getDoc(doc(db, 'Users', String(userId)));
+
+        if (userDoc.exists()) {
+            return userDoc.data().username || null;
+        }
+
+        // If userId is a field, query the collection
+        console.warn(`Document with ID ${userId} not found. Querying collection.`);
+        const q = query(
+            collection(db, 'Users'),
+            where('userId', '==', Number(userId)) // Match userId as a number
+        );
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+            const userDocFromQuery = querySnapshot.docs[0]; // Use the first matching document
+            return userDocFromQuery.data().username || null;
+        } else {
+            console.warn("No user document found for userId:", userId);
+            return null;
+        }
+    } catch (error) {
+        console.error("Error fetching username:", error);
+        return null;
+    }
+}
+
 
 // Load and display transactions in modal
 async function loadTransactions(userId, type, gymName) {
@@ -270,7 +310,7 @@ async function fetchTrainerTransactions(userId, gymName) {
     }
 }
 
-function populateTrainerTable(transactions) {
+async function populateTrainerTable(transactions) {
     const tableBody = document.querySelector("#Booking_trainerTable tbody");
 
     if (!tableBody) {
@@ -281,18 +321,23 @@ function populateTrainerTable(transactions) {
     tableBody.innerHTML = ''; // Clear existing rows
 
     if (transactions.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="7">No transactions found.</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="8">No transactions found.</td></tr>';
         return;
     }
 
-    transactions.forEach(transaction => {
+    for (let transaction of transactions) {
         const row = document.createElement('tr');
 
-           // Use the formatTimestamp function to convert the raw timestamp
-           const formattedTimestamp = formatTimestamp(transaction.timestamp);
+        // Fetch username based on userId
+        const username = await getUsernameFromUserId(transaction.userId);
+
+        // Use the formatTimestamp function to convert the raw timestamp
+        const formattedTimestamp = transaction.timestamp
+            ? formatTimestamp(transaction.timestamp)
+            : 'N/A';
 
         row.innerHTML = `
-            <td>${transaction.userId || 'N/A'}</td>
+            <td>${username || 'N/A'}</td> <!-- Display username next to userId -->
             <td>${transaction.gymName || 'N/A'}</td>
             <td>${transaction.trainerName || 'N/A'}</td>
             <td>${formattedTimestamp}</td> <!-- Display formatted timestamp here -->
@@ -317,8 +362,9 @@ function populateTrainerTable(transactions) {
         });
 
         tableBody.appendChild(row);
-    });
+    }
 }
+
 
 async function loadTrainerTransactions(userId, gymName) {
     const transactions = await fetchTrainerTransactions(userId, gymName);
@@ -365,20 +411,22 @@ async function fetchProductTransactions(userId, gymName) {
             return [];
         }
 
+        // Query the "Products" collection instead of "Transactions"
         const transactionsQuery = query(
-            collection(db, "Transactions"),
-            where("type", "==", "product"),
-            where("gymName", "==", gymName)
+            collection(db, "Products"), // Use "Products" here
+            where("gymName", "==", gymName),
+            where("userId", "==", userId) // Include userId if needed
         );
 
         const transactionsSnapshot = await getDocs(transactionsQuery);
 
         if (transactionsSnapshot.empty) {
-            console.warn(`No product transactions found for gym "${gymName}".`);
+            console.warn(`No product transactions found for gym "${gymName}" and user "${userId}".`);
         } else {
-            console.log(`Product transactions found for gym "${gymName}":`, transactionsSnapshot.docs.map(doc => doc.data()));
+            console.log(`Product transactions found:`, transactionsSnapshot.docs.map(doc => doc.data()));
         }
 
+        // Map Firestore documents to objects
         return transactionsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     } catch (error) {
         console.error("Error fetching product transactions:", error);
@@ -386,7 +434,9 @@ async function fetchProductTransactions(userId, gymName) {
     }
 }
 
-function populateProductTable(transactions) {
+
+
+async function populateProductTable(transactions) {
     const tableBody = document.querySelector("#productTable tbody");
 
     if (!tableBody) {
@@ -397,23 +447,31 @@ function populateProductTable(transactions) {
     tableBody.innerHTML = ''; // Clear existing rows
 
     if (transactions.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="8">No transactions found.</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="9">No transactions found.</td></tr>';
         return;
     }
 
-    transactions.forEach(transaction => {
+    // Log the transactions to debug
+    console.log(transactions);
+
+    for (let transaction of transactions) {
         const row = document.createElement('tr');
 
-        // Use the updated formatTimestamp function to convert the raw timestamp string
-        const formattedTimestamp = formatTimestamp(transaction.timestamp);
+        // Fetch username based on userId
+        const username = await getUsernameFromUserId(transaction.userId);
+
+        // Format the timestamp (use 'dateAdded' instead of 'timestamp')
+        const formattedTimestamp = transaction.dateAdded
+            ? formatTimestamp(transaction.dateAdded)
+            : 'N/A';
 
         row.innerHTML = `
-            <td>${transaction.userId || 'N/A'}</td>
+            <td>${username || 'N/A'}</td> <!-- Display username next to userId -->
             <td>${transaction.gymName || 'N/A'}</td>
-            <td>${transaction.productName || 'N/A'}</td>
+            <td>${transaction.name || 'N/A'}</td> <!-- Use 'name' for product name -->
             <td>${transaction.quantity || 'N/A'}</td>
-            <td>${formattedTimestamp}</td> <!-- Display formatted timestamp here -->
-            <td>${transaction.totalPrice || 'N/A'}</td>
+            <td>${formattedTimestamp}</td> <!-- Display formatted dateAdded -->
+            <td>${transaction.price || 'N/A'}</td> <!-- Use 'price' for totalPrice -->
             <td class="status-cell">${transaction.status || 'N/A'}</td>
             <td>
                 <button class="action-button approve" data-id="${transaction.id}">Approve</button>
@@ -434,8 +492,9 @@ function populateProductTable(transactions) {
         });
 
         tableBody.appendChild(row);
-    });
+    }
 }
+
 
 
 async function loadProductTransactions(userId, gymName) {
