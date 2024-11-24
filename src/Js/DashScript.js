@@ -2278,9 +2278,9 @@ function formatTime(time) {
                         notificationContent = `
                             <p class="gym-name">${notification.gymName}</p>
                             <p class="ref-number"><strong>Ref. No:</strong> ${notification.notificationId || 'N/A'}</p>
-                            <div class="booking-info">
+                            <div class="product-info">
                                 <p><strong>Trainer:</strong> ${notification.trainerName}</p>
-                                <p><strong>Booking Date:</strong> ${notification.bookingDate}</p>
+                                <p><strong>Date:</strong> ${notification.bookingDate}</p>
                                 <p><strong>Rate:</strong>₱${parseFloat(notification.price).toFixed(2)}</p>
                                 <p><strong>Status:</strong> ${notification.status}</p>
                             </div>
