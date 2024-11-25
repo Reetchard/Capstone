@@ -1,8 +1,50 @@
 /* General Styling */
 body {
+    background-color: #1b1b1b;
     overflow-x: hidden;
+    
+}
+nav ul {
+    display: flex;
+    list-style: none;
+    padding: 0;
 }
 
+nav ul li {
+    margin: 0 15px;
+    position: relative;
+}
+
+nav ul li a {
+    color: #FAF6F0; /* Text color */
+    text-decoration: none; /* Remove underline */
+    font-weight: bold; /* Bold text */
+    transition: color 0.3s ease, transform 0.3s ease; /* Transition effects */
+    letter-spacing: 0.5px; /* Letter spacing for a modern feel */
+}
+nav ul li a:hover {
+    color: #ffa31a; /* Text color on hover */
+    transform: scale(1.1); /* Subtle grow effect on hover */
+}
+nav ul li a::after {
+    content: ''; /* Create an empty element */
+    display: block; /* Display as block */
+    width: 0; /* Initial width for underline effect */
+    height: 2px; /* Height of the underline */
+    background-color: #ffa31a; /* Underline color */
+    transition: width 0.3s ease; /* Transition effect for underline */
+    position: absolute; /* Position it relative to the parent */
+    left: 0; /* Align to the left */
+    bottom: -5px; /* Position below the text */
+}
+
+nav ul li a:hover::after {
+    width: 100%; /* Full width on hover */
+}
+
+nav ul li a:hover {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Soft shadow on hover */
+}
 /* Sidebar */
 .sidebar {
     width: 250px;
@@ -10,7 +52,7 @@ body {
     position: fixed;
     top: 0;
     left: -250px; /* Hidden initially */
-    background-color: #f8f9fa;
+    background-color: #1b1b1b;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
     transition: transform 0.3s ease, left 0.3s ease;
@@ -88,7 +130,7 @@ body {
 
 /* Sidebar Links */
 .sidebar-links .nav-link {
-    color: #333;
+    color: #fffdfd;
     padding: 10px 15px;
     font-size: 16px;
     border-radius: 5px;
