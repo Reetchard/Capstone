@@ -180,7 +180,6 @@ async function loadInventoryDetails(gymName) {
 
 
 
-// Function to load pending sales and update modal
 const loadPendingSales = async () => {
     const pendingSalesTableBody = document.getElementById('pendingSalesTableBody');
     const pendingSalesElement = document.getElementById('pendingSales');
@@ -196,16 +195,22 @@ const loadPendingSales = async () => {
             const data = doc.data();
 
             // Filter for transactions with status "pending"
-            if (data.status === 'pending') {
-                // Calculate total sales for pending transactions
-                totalPendingSales += parseFloat(data.totalPrice.replace('₱', '').replace(',', ''));
+            if (data.status === 'Pending') {
+                // Safely parse and calculate total sales for pending transactions
+                const totalPriceString = typeof data.totalPrice === 'string' ? data.totalPrice : '₱0';
+                const sanitizedPrice = totalPriceString.replace(/[^\d.]/g, ''); // Remove non-numeric characters
+                const parsedPrice = parseFloat(sanitizedPrice);
+
+                // Ensure parsedPrice is valid
+                const validPrice = isNaN(parsedPrice) ? 0 : parsedPrice;
+                totalPendingSales += validPrice;
 
                 // Create a row for each pending transaction
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${data.productName || 'N/A'}</td>
                     <td>${data.quantity || 'N/A'}</td>
-                    <td>${formatCurrency(data.totalPrice)}</td>
+                    <td>${formatCurrency(validPrice)}</td>
                     <td>${formatTimestamp(data.timestamp)}</td>
                     <td>${data.status || 'N/A'}</td>
                 `;
@@ -220,6 +225,7 @@ const loadPendingSales = async () => {
         alert('Failed to load pending sales.');
     }
 };
+
 
 // Authenticate the user and load the pending sales
 onAuthStateChanged(auth, (user) => {
