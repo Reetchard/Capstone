@@ -398,6 +398,7 @@ h1 {
 
 .table-striped tbody tr {
     border-bottom: 1px solid #555;
+    background-color: #3b3b3b !important; /* Force unified background color for all rows */
 }
 
 .table-striped tbody tr:last-child {
@@ -408,10 +409,6 @@ h1 {
     padding: 8px; /* Reduced padding for a tighter fit */
     text-align: center; /* Center align text for compact look */
     font-size: 0.9em; /* Slightly smaller font for compactness */
-}
-
-.table-striped tbody tr:nth-child(even) {
-    background-color: #3b3b3b; /* Slightly darker for even rows */
 }
 
 .table-striped tbody tr:hover {

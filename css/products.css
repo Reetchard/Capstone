@@ -334,7 +334,7 @@ body {
 
 
 .card { margin-bottom: 20px; }
-        .remove-btn { color: red; cursor: pointer; }
+        .remove-btn { color: rgb(247, 247, 247); cursor: pointer; }
         .remove-btn:hover { text-decoration: underline; }
 
         /* Table styling */
@@ -405,8 +405,8 @@ body {
 }
 
 .btn-warning {
-    background-color: #dc3545;
-    border-color: #dc3545;
+    background-color: #0fcaeb;
+    border-color: #1470c5;
 }
 
 .btn-warning:hover {
