@@ -1404,56 +1404,66 @@ function formatTime(time) {
     
     
     // Function to display trainer ratings with dynamic star count updates
-    async function displayTrainerRating() {
-        try {
-            const ratingQuery = query(
-                collection(db, "RatingAndFeedback"),
-                where("trainerName", "==", document.getElementById("modalTrainerName").innerText)
-            );
+async function displayTrainerRating() {
+    try {
+        const ratingQuery = query(
+            collection(db, "RatingAndFeedback"),
+            where("trainerName", "==", document.getElementById("modalTrainerName").innerText)
+        );
 
-            const ratingSnapshot = await getDocs(ratingQuery);
+        const ratingSnapshot = await getDocs(ratingQuery);
 
-            let ratingCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-            let totalRating = 0;
-            let totalRatingsCount = 0;
+        let ratingCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+        let totalRating = 0;
+        let totalRatingsCount = 0;
 
-            // Count ratings and calculate the total for average calculation
-            ratingSnapshot.forEach(doc => {
-                const data = doc.data();
-                const rating = data.rating;
+        // Count ratings and calculate the total for average calculation
+        ratingSnapshot.forEach(doc => {
+            const data = doc.data();
+            const rating = data.rating;
 
-                if (ratingCounts.hasOwnProperty(rating)) {
-                    ratingCounts[rating] += 1;
-                    totalRating += rating;
-                    totalRatingsCount += 1;
-                }
-            });
-
-            const averageRating = totalRatingsCount > 0 ? (totalRating / totalRatingsCount).toFixed(1) : 0;
-
-            for (let star = 5; star >= 1; star--) {
-                const starCountElement = document.getElementById(`star-${star}-count`);
-                if (starCountElement) {
-                    starCountElement.innerText = `(${ratingCounts[star]})`;
-                }
+            if (ratingCounts.hasOwnProperty(rating)) {
+                ratingCounts[rating] += 1;
+                totalRating += rating;
+                totalRatingsCount += 1;
             }
+        });
 
-            const overallRatingElement = document.querySelector("#trainerRating .star-rating .star[data-value='average']");
-            const overallRatingCountElement = document.getElementById("average-rating-count");
+        // Calculate the average rating (scaled to 10.0)
+        const averageRating = totalRatingsCount > 0 ? ((totalRating / totalRatingsCount) * 2).toFixed(1) : 0;
 
-            if (overallRatingElement) {
-                overallRatingElement.innerText = `Overall Rating: ${'★'.repeat(Math.floor(averageRating))}${'☆'.repeat(5 - Math.floor(averageRating))}`;
+        // Update the star counts
+        for (let star = 5; star >= 1; star--) {
+            const starCountElement = document.getElementById(`star-${star}-count`);
+            if (starCountElement) {
+                starCountElement.innerText = `(${ratingCounts[star]})`;
             }
-
-            if (overallRatingCountElement) {
-                overallRatingCountElement.innerText = `(${totalRatingsCount})`;
-            }
-
-        } catch (error) {
-            console.error("Error fetching ratings:", error);
         }
+
+        // Update the overall rating (star rating in decimal format)
+        const overallRatingElement = document.querySelector("#trainerRatingContainer .star-rating .star[data-value='average']");
+        const overallRatingCountElement = document.getElementById("average-rating-count");
+
+        if (overallRatingElement) {
+            overallRatingElement.innerText = `★★★★★`;
+        }
+
+        if (overallRatingCountElement) {
+            overallRatingCountElement.innerText = `(${totalRatingsCount})`;
+        }
+
+        // Display the average rating (scaled to 10.0) in the UI next to the stars
+        const averageRatingElement = document.getElementById("average-rating-value");
+        if (averageRatingElement) {
+            averageRatingElement.innerText = `${averageRating}`; // Display as "9.8/10.0"
+        }
+
+    } catch (error) {
+        console.error("Error fetching ratings:", error);
     }
-            // Function to update star icons and rating count in a given container
+}
+
+    // Function to update star icons and rating count in a given container
     window. setTrainerRating = function(container, rating, ratingCount) {
         const stars = container.querySelectorAll('.star'); // Assuming stars are in the #trainerRating container
         stars.forEach((star, index) => {

@@ -1,6 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
-import { getFirestore, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
-import { getAuth } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
+import { getFirestore, collection, getDocs, query, where, doc, getDoc } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -18,91 +18,288 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
+// Function to fetch the current gym owner's gymName
+async function getGymOwnerName(userId) {
+    try {
+        const userDoc = await getDoc(doc(db, 'GymOwner', userId)); // Assuming 'GymOwner' is the collection
+        if (userDoc.exists()) {
+            return userDoc.data().gymName;
+        } else {
+            console.error("Gym owner document not found.");
+            return null;
+        }
+    } catch (error) {
+        console.error("Error fetching gym owner name:", error);
+        return null;
+    }
+}
+
 // Helper function to format currency
 const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
         style: 'currency',
-        currency: 'USD'
-    }).format(amount);
+        currency: 'PHP'
+    }).format(parseFloat(amount));
 };
 
-// Fetch and Display Data
-document.addEventListener('DOMContentLoaded', async () => {
-    const transactionsBody = document.getElementById('transactionsBody');
-    const productsBody = document.getElementById('productsBody');
-    const totalSalesElement = document.getElementById('totalSales');
+// Helper function to format timestamps
+const formatTimestamp = (timestamp) => {
+    if (timestamp) {
+        const date = new Date(timestamp);
+        return isNaN(date.getTime()) ? 'Invalid Date' : date.toLocaleString();
+    }
+    return 'N/A';
+};
 
-    // Authenticate the current user
-    const user = auth.currentUser;
-    if (!user) {
-        alert('You must be logged in to view this page.');
-        window.location.href = 'login.html';
+// Function to load and display products based on gymName
+const loadInventory = async (gymName) => {
+    const productsBody = document.getElementById('productsBody');
+    productsBody.innerHTML = ''; // Clear any existing rows
+
+    if (!gymName) {
+        alert('No gym name found for the logged-in user.');
         return;
     }
 
     try {
-        let totalSales = 0;
+        const productsQuery = query(
+            collection(db, 'Products'),
+            where('gymName', '==', gymName)
+        );
+        const productsSnapshot = await getDocs(productsQuery);
 
-        // Fetch all transactions created by the current user
-        const transactionsQuery = query(collection(db, 'Transactions'), where('userId', '==', user.uid));
-        const transactionsSnapshot = await getDocs(transactionsQuery);
+        if (productsSnapshot.empty) {
+            productsBody.innerHTML = '<tr><td colspan="7">No products available for this gym</td></tr>';
+            return;
+        }
 
-        transactionsSnapshot.forEach((doc) => {
-            const data = doc.data();
-            const total = data.quantity * data.price; // Calculate the total for this transaction
-
-            // Update total sales
-            totalSales += total;
-
-            // Add transaction to the table
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${doc.id}</td>
-                <td>${data.productName || 'N/A'}</td>
-                <td>${data.quantity || 0}</td>
-                <td>${formatCurrency(data.price || 0)}</td>
-                <td>${formatCurrency(total)}</td>
-                <td>${data.timestamp?.toDate().toLocaleString() || 'N/A'}</td>
-            `;
-            transactionsBody.appendChild(row);
-        });
-
-        // Display total sales
-        totalSalesElement.textContent = `Total Sales: ${formatCurrency(totalSales)}`;
-
-        // Fetch all products
-        const productsSnapshot = await getDocs(collection(db, 'Products'));
         productsSnapshot.forEach((doc) => {
             const data = doc.data();
 
-            // Add product to the table
+            // Create a row for each product
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${doc.id}</td>
-                <td>${data.productName || 'N/A'}</td>
-                <td>${data.stock || 0}</td>
-                <td>${formatCurrency(data.price || 0)}</td>
+                <td>${data.productId || 'N/A'}</td>
+                <td>${data.name || 'N/A'}</td>
+                <td>${data.category || 'N/A'}</td>
+                <td>${data.quantity || 0}</td>
+                <td>${formatCurrency(data.price || '0.00')}</td>
+                <td>${formatTimestamp(data.dateAdded)}</td>
             `;
             productsBody.appendChild(row);
         });
     } catch (error) {
-        console.error('Error fetching data:', error);
-        alert('Failed to load data. Please try again later.');
+        console.error('Error fetching products:', error);
+        alert('Failed to load products.');
+    }
+};
+
+// Authenticate the user and load the inventory
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        const gymName = await getGymOwnerName(user.uid);
+        if (gymName) {
+            // Check if total inventory is already stored in localStorage
+            const storedTotalInventory = localStorage.getItem('totalInventory');
+            if (storedTotalInventory) {
+                document.getElementById("totalInventory").textContent = `${storedTotalInventory} Items`;
+            } else {
+                // If no stored inventory count, fetch from Firestore
+                loadInventoryDetails(gymName);  // Fetch from Firestore if no stored value
+            }
+            
+            // Call loadInventory to load products on the page
+            loadInventory(gymName);
+        }
+    } else {
+        alert('You must be logged in to view this page.');
+        window.location.href = 'login.html';
     }
 });
-document.addEventListener('DOMContentLoaded', function () {
-    const sidebar = document.querySelector('.sidebar');
-    const toggleSidebar = document.getElementById('toggleSidebar');
 
-    // Toggle Sidebar Visibility on Mobile
-    toggleSidebar.addEventListener('click', () => {
-        sidebar.classList.toggle('show');
-    });
 
-    // Close Sidebar When Clicking Outside on Mobile
-    document.addEventListener('click', (e) => {
-        if (!sidebar.contains(e.target) && !toggleSidebar.contains(e.target) && sidebar.classList.contains('show')) {
-            sidebar.classList.remove('show');
+// Add Event Listener to the Inventory Card
+document.getElementById("inventoryOverviewCard").addEventListener("click", async () => {
+    const user = auth.currentUser;
+    if (user) {
+        const gymName = await getGymOwnerName(user.uid);
+        if (gymName) {
+            await loadInventoryDetails(gymName);
+            new bootstrap.Modal(document.getElementById("inventoryModal")).show();
         }
-    });
+    } else {
+        alert("You must be logged in to view this page.");
+        window.location.href = "login.html";
+    }
 });
+
+// Function to Load Inventory Details
+async function loadInventoryDetails(gymName) {
+    const inventoryTableBody = document.getElementById("inventoryTableBody");
+    const totalInventoryElement = document.getElementById("totalInventory");
+
+    inventoryTableBody.innerHTML = ""; // Clear existing rows
+
+    try {
+        const productsQuery = query(collection(db, "Products"), where("gymName", "==", gymName));
+        const productsSnapshot = await getDocs(productsQuery);
+
+        if (productsSnapshot.empty) {
+            inventoryTableBody.innerHTML = '<tr><td colspan="4">No products available</td></tr>';
+            totalInventoryElement.textContent = "0 Items";
+            localStorage.setItem('totalInventory', 0);  // Store total inventory as 0 in localStorage
+            return;
+        }
+
+        let totalProducts = 0;
+
+        productsSnapshot.forEach((doc) => {
+            const data = doc.data();
+            totalProducts++;
+
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td><img src="${data.photoURL || 'https://via.placeholder.com/100'}" alt="${data.name}" style="width: 100px; height: auto;"></td>
+                <td>${data.name || "N/A"}</td>
+                <td>${data.category || "N/A"}</td>
+                <td>${data.description || "N/A"}</td>
+            `;
+            inventoryTableBody.appendChild(row);
+        });
+
+        // Store the updated total inventory count in localStorage
+        localStorage.setItem('totalInventory', totalProducts);
+
+        // Update total inventory count in the UI
+        totalInventoryElement.textContent = `${totalProducts} Items`;
+    } catch (error) {
+        console.error("Error fetching inventory details:", error);
+        alert("Failed to load inventory details.");
+    }
+}
+
+
+
+// Function to load pending sales and update modal
+const loadPendingSales = async () => {
+    const pendingSalesTableBody = document.getElementById('pendingSalesTableBody');
+    const pendingSalesElement = document.getElementById('pendingSales');
+    let totalPendingSales = 0;
+
+    pendingSalesTableBody.innerHTML = ''; // Clear any existing rows
+
+    try {
+        // Fetch transactions from the 'Transactions' collection
+        const transactionsSnapshot = await getDocs(collection(db, 'Transactions'));
+
+        transactionsSnapshot.forEach((doc) => {
+            const data = doc.data();
+
+            // Filter for transactions with status "pending"
+            if (data.status === 'pending') {
+                // Calculate total sales for pending transactions
+                totalPendingSales += parseFloat(data.totalPrice.replace('₱', '').replace(',', ''));
+
+                // Create a row for each pending transaction
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${data.productName || 'N/A'}</td>
+                    <td>${data.quantity || 'N/A'}</td>
+                    <td>${formatCurrency(data.totalPrice)}</td>
+                    <td>${formatTimestamp(data.timestamp)}</td>
+                    <td>${data.status || 'N/A'}</td>
+                `;
+                pendingSalesTableBody.appendChild(row);
+            }
+        });
+
+        // Update the pending sales total value
+        pendingSalesElement.textContent = formatCurrency(totalPendingSales);
+    } catch (error) {
+        console.error('Error fetching pending sales:', error);
+        alert('Failed to load pending sales.');
+    }
+};
+
+// Authenticate the user and load the pending sales
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        // Optionally, load pending sales on initial load if needed
+        loadPendingSales();
+    } else {
+        alert('You must be logged in to view this page.');
+        window.location.href = 'login.html'; // Redirect if not logged in
+    }
+});
+
+// Add Event Listener to the Pending Sales Card (open the modal)
+document.getElementById("SalesOverviewCard").addEventListener("click", () => {
+    // Show the modal when clicking on the "Pending Sales" card
+    const modal = new bootstrap.Modal(document.getElementById("pendingSalesModal"));
+    modal.show();
+
+    // Load pending sales data when the modal is shown
+    loadPendingSales();
+});
+
+// Add Event Listener to the Total Sales Card
+document.getElementById("totalSalesCard").addEventListener("click", async () => {
+    const user = auth.currentUser;
+    if (user) {
+        const gymName = await getGymOwnerName(user.uid);
+        if (gymName) {
+            await loadSalesDetails(gymName);  // Load sales details when the modal is triggered
+            new bootstrap.Modal(document.getElementById("salesModal")).show();
+        }
+    } else {
+        alert("You must be logged in to view this page.");
+        window.location.href = "login.html";
+    }
+});
+
+// Function to Load Sales Details
+async function loadSalesDetails(gymName) {
+    const salesTableBody = document.getElementById("salesTableBody");
+    const totalSalesElement = document.getElementById("totalSales");
+
+    salesTableBody.innerHTML = "";  // Clear existing rows
+    let totalSalesAmount = 0;
+
+    try {
+        // Query the transactions for the gym
+        const transactionsQuery = query(
+            collection(db, 'Transactions'),
+            where('gymName', '==', gymName)
+        );
+        const transactionsSnapshot = await getDocs(transactionsQuery);
+
+        if (transactionsSnapshot.empty) {
+            salesTableBody.innerHTML = '<tr><td colspan="5">No sales found for this gym.</td></tr>';
+            totalSalesElement.textContent = '₱0.00';
+            return;
+        }
+
+        transactionsSnapshot.forEach((doc) => {
+            const data = doc.data();
+
+            // Calculate total sales amount
+            totalSalesAmount += parseFloat(data.totalPrice.replace('₱', '').replace(',', ''));
+
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${data.productName || 'N/A'}</td>
+                <td>${data.quantity || 'N/A'}</td>
+                <td>${formatCurrency(data.totalPrice)}</td>
+                <td>${formatTimestamp(data.timestamp)}</td>
+                <td>${data.status || 'N/A'}</td>
+            `;
+            salesTableBody.appendChild(row);
+        });
+
+        // Update total sales amount in the UI
+        totalSalesElement.textContent = formatCurrency(totalSalesAmount);
+    } catch (error) {
+        console.error("Error fetching sales details:", error);
+        alert("Failed to load sales details.");
+    }
+}

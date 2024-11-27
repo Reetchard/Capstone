@@ -270,6 +270,7 @@
                                 <!-- Overall Rating with animation and larger icon -->
                                 <div class="star-rating overall-rating">
                                     <span class="star" data-value="average">★★★★★</span>
+                                    <span id="average-rating-value"> 0 </span>
                                     <span class="star-count" id="average-rating-count">0</span>
                                 </div>
                             </div>
@@ -279,6 +280,10 @@
                 </div>
             </div>
             <div class="modal-footer">
+                <button type="button" class="btn btn-secondary mt-4" id="checkReservationDate" data-toggle="modal" data-target="#calendarModal">
+                    <i class="fas fa-calendar-check" style="font-size: 20px;"></i>
+                </button>
+
                 <button id="rateTrainerButton" class="btn btn-primary mt-4">
                     <i class="fas fa-star"></i> Rate Trainer
                 </button>
@@ -347,9 +352,6 @@
                         <textarea id="message" name="message" placeholder="Enter your message here..."></textarea>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" id="checkReservationDate" data-toggle="modal" data-target="#calendarModal">
-                            <i class="fas fa-calendar-check" style="font-size: 20px;"></i>
-                        </button>
                         <button type="button" class="btn btn-primary" id="BookNowTrainer">Book Now</button>
                     </div>
                 </form>

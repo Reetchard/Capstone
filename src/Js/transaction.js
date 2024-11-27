@@ -413,7 +413,7 @@ async function fetchProductTransactions(userId, gymName) {
 
         // Query the "Products" collection instead of "Transactions"
         const transactionsQuery = query(
-            collection(db, "Products"), // Use "Products" here
+            collection(db, "Transactions"), // Use "Products" here
             where("gymName", "==", gymName),
             where("userId", "==", userId) // Include userId if needed
         );
