@@ -189,13 +189,13 @@ const loadPendingSales = async () => {
 
     try {
         // Fetch transactions from the 'Transactions' collection
-        const transactionsSnapshot = await getDocs(collection(db, 'Transactions'));
+        const transactionsSnapshot = await getDocs(collection(db, 'Notifications'));
 
         transactionsSnapshot.forEach((doc) => {
             const data = doc.data();
 
             // Filter for transactions with status "pending"
-            if (data.status === 'Pending') {
+            if (data.status === 'Pending Owner Approval') {
                 // Safely parse and calculate total sales for pending transactions
                 const totalPriceString = typeof data.totalPrice === 'string' ? data.totalPrice : '₱0';
                 const sanitizedPrice = totalPriceString.replace(/[^\d.]/g, ''); // Remove non-numeric characters
@@ -274,7 +274,7 @@ async function loadSalesDetails(gymName) {
     try {
         // Query the transactions for the gym
         const transactionsQuery = query(
-            collection(db, 'Transactions'),
+            collection(db, 'Notifications'),
             where('gymName', '==', gymName)
         );
         const transactionsSnapshot = await getDocs(transactionsQuery);

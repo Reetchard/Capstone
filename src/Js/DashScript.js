@@ -542,7 +542,7 @@ function formatTime(time) {
                         productName: productName,
                         quantity: quantityPurchased,
                         totalPrice: totalPrice,
-                        status: 'Pending Status',
+                        status: 'Pending Owner Approval',
                         read: false, // Unread notification
                         userId: userId, // Use the current user's userId from the document
                         gymName: gymName, // Storing gymName from GymProfile card
@@ -673,7 +673,7 @@ function formatTime(time) {
                 type: 'Products',
                 quantity: quantityPurchased,
                 totalPrice: productPrice * quantityPurchased,
-                status: 'Pending Status',
+                status: 'Pending Owner Approval',
                 read: false, // Unread notification
                 userId: userId, // Use the current user's userId from the document
                 gymName: gymName, // Storing gymName from GymProfile card
