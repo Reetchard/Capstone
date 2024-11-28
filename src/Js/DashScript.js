@@ -2485,16 +2485,21 @@ async function displayTrainerRating() {
             }
         }
         
-        async function fetchTrainers() {
-            const trainerQuery = query(collection(db, 'Trainer')); // Query the Trainer collection
+        async function fetchTrainers(searchTerm = '') {
+            const trainerQuery = query(
+                collection(db, 'Trainer'),
+                where('TrainerEmail', '>=', searchTerm),
+                where('TrainerEmail', '<=', searchTerm + '\uf8ff')
+            );
             try {
                 const querySnapshot = await getDocs(trainerQuery);
-                return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); // Return the Trainer data
+                return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             } catch (error) {
-                console.error("Error fetching trainers: ", error);
+                console.error('Error fetching trainers: ', error);
                 return [];
             }
         }
+        
         
         // Display trainers in the search result
         function displayTrainers(trainers) {
@@ -2849,7 +2854,7 @@ async function displayTrainerRating() {
         // Event listener for the search input
         document.querySelector('#searchInput').addEventListener('input', (event) => {
             const searchTerm = event.target.value;
-            searchUsers(searchTerm);
+            searchTrainers(searchTerm);
         });
         
         // Event listener for the send message button
