@@ -411,30 +411,25 @@ async function fetchProductTransactions(userId, gymName) {
             return [];
         }
 
-        // Query the "Products" collection instead of "Transactions"
         const transactionsQuery = query(
-            collection(db, "Transactions"), // Use "Products" here
-            where("gymName", "==", gymName),
-            where("userId", "==", userId) // Include userId if needed
+            collection(db, "Transactions"), // Correct collection
+            where("type", "==", "Products"),
+            where("gymName", "==", gymName)
         );
 
         const transactionsSnapshot = await getDocs(transactionsQuery);
 
         if (transactionsSnapshot.empty) {
             console.warn(`No product transactions found for gym "${gymName}" and user "${userId}".`);
-        } else {
-            console.log(`Product transactions found:`, transactionsSnapshot.docs.map(doc => doc.data()));
+            return [];
         }
 
-        // Map Firestore documents to objects
         return transactionsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     } catch (error) {
         console.error("Error fetching product transactions:", error);
         return [];
     }
 }
-
-
 
 async function populateProductTable(transactions) {
     const tableBody = document.querySelector("#productTable tbody");
@@ -451,27 +446,23 @@ async function populateProductTable(transactions) {
         return;
     }
 
-    // Log the transactions to debug
-    console.log(transactions);
+    console.log("Populating table with transactions:", transactions);
 
     for (let transaction of transactions) {
         const row = document.createElement('tr');
 
-        // Fetch username based on userId
         const username = await getUsernameFromUserId(transaction.userId);
-
-        // Format the timestamp (use 'dateAdded' instead of 'timestamp')
-        const formattedTimestamp = transaction.dateAdded
-            ? formatTimestamp(transaction.dateAdded)
+        const formattedTimestamp = transaction.timestamp
+            ? new Date(transaction.timestamp.seconds * 1000).toLocaleString()
             : 'N/A';
 
         row.innerHTML = `
-            <td>${username || 'N/A'}</td> <!-- Display username next to userId -->
+            <td>${username || 'N/A'}</td>
             <td>${transaction.gymName || 'N/A'}</td>
-            <td>${transaction.name || 'N/A'}</td> <!-- Use 'name' for product name -->
+            <td>${transaction.productName || 'N/A'}</td>
             <td>${transaction.quantity || 'N/A'}</td>
-            <td>${formattedTimestamp}</td> <!-- Display formatted dateAdded -->
-            <td>${transaction.price || 'N/A'}</td> <!-- Use 'price' for totalPrice -->
+            <td>${transaction.timestamp}</td>
+            <td>${transaction.totalPrice || 'N/A'}</td>
             <td class="status-cell">${transaction.status || 'N/A'}</td>
             <td>
                 <button class="action-button approve" data-id="${transaction.id}">Approve</button>
@@ -482,18 +473,22 @@ async function populateProductTable(transactions) {
 
         const statusCell = row.querySelector('.status-cell');
         row.querySelector('.approve').addEventListener('click', (event) => {
+            console.log(`Approving transaction ID: ${transaction.id}`);
             updateTransactionStatus(transaction.id, 'Approved', statusCell, event.target);
         });
         row.querySelector('.idle').addEventListener('click', (event) => {
+            console.log(`Idling transaction ID: ${transaction.id}`);
             updateTransactionStatus(transaction.id, 'Idle', statusCell, event.target);
         });
         row.querySelector('.blocked').addEventListener('click', (event) => {
+            console.log(`Blocking transaction ID: ${transaction.id}`);
             updateTransactionStatus(transaction.id, 'Blocked', statusCell, event.target);
         });
 
         tableBody.appendChild(row);
     }
 }
+
 
 
 
