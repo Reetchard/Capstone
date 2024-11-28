@@ -542,7 +542,7 @@ function formatTime(time) {
                         productName: productName,
                         quantity: quantityPurchased,
                         totalPrice: totalPrice,
-                        status: 'Pending Status',
+                        status: 'Pending Owner Approval',
                         read: false, // Unread notification
                         userId: userId, // Use the current user's userId from the document
                         gymName: gymName, // Storing gymName from GymProfile card
@@ -559,9 +559,6 @@ function formatTime(time) {
                         productName: productName,
                         quantity: quantityPurchased,
                         totalPrice: totalPrice,
-                        status: 'Pending',
-                        type : 'Products',
-                        username: username, 
                         gymName: gymName, // Storing gymName from GymProfile card
                         timestamp: new Date().toISOString() // Timestamp of the transaction
                     };
@@ -608,9 +605,10 @@ function formatTime(time) {
     let notificationCount = 0; // Initialize notificationCount to 0
     document.getElementById('confirmPurchaseBtn').onclick = async function () {
         try {
+            // Simulate purchase logic (e.g., update stock, etc.)
             notificationCount++; // Increment the notification count
+            // Ensure productId is set
             document.getElementById('notification-count').innerText = notificationCount;
-    
             const productId = document.getElementById('modalProductPhoto').dataset.productId;
             if (!productId) {
                 console.error('Product ID is undefined.');
@@ -636,33 +634,6 @@ function formatTime(time) {
                 });
                 return;
             }
-    
-            // Fetch the currently logged-in user's ID
-            const currentUser = firebase.auth().currentUser;
-            if (!currentUser) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Authentication Error',
-                    text: 'You must be logged in to complete this purchase.',
-                });
-                return;
-            }
-    
-            const userId = currentUser.uid;
-            console.log('Current User ID:', userId);
-    
-            // Fetch user's username from Firestore
-            const userDocRef = doc(db, 'Users', userId); // Replace 'Users' with your Firestore user collection name
-            const userDoc = await getDoc(userDocRef);
-            
-            let username = 'Unknown User'; // Default value
-            if (userDoc.exists()) {
-                username = userDoc.data().username || username;
-            } else {
-                console.error('User document not found for userId:', userId);
-            }
-    
-            console.log('Fetched Username:', username);
     
             // Fetch the product document from Firestore
             const productDocRef = doc(db, 'Products', productId);
@@ -693,7 +664,8 @@ function formatTime(time) {
             // Update the product quantity in Firestore
             const updatedStock = availableStock - quantityPurchased;
             await updateDoc(productDocRef, { quantity: updatedStock });
-    
+            document.getElementById('notification-count').innerText = notificationCount;
+
             // Add notification
             const newNotification = {
                 message: `You purchased ${quantityPurchased} of ${productName} for ₱${(productPrice * quantityPurchased).toFixed(2)}.`,
@@ -701,10 +673,10 @@ function formatTime(time) {
                 type: 'Products',
                 quantity: quantityPurchased,
                 totalPrice: productPrice * quantityPurchased,
-                status: 'Pending Status',
-                read: false,
-                userId: userId,
-                gymName: gymName,
+                status: 'Pending Owner Approval',
+                read: false, // Unread notification
+                userId: userId, // Use the current user's userId from the document
+                gymName: gymName, // Storing gymName from GymProfile card
                 notificationId: Date.now().toString(),
                 timestamp: new Date().toISOString(),
             };
@@ -714,38 +686,37 @@ function formatTime(time) {
             // Save the notification to Firestore
             await addDoc(collection(db, 'Notifications'), newNotification);
     
-            // Add transaction to 'Transactions' collection
-            const newTransaction = {
+             // Save transaction to 'Transactions' collection
+             const newTransaction = {
                 type: 'product',
-                userId: userId,
+                userId: userId, // Storing userId of the customer/user
                 productName: productName,
                 quantity: quantityPurchased,
-                totalPrice: productPrice * quantityPurchased,
-                gymName: gymName,
-                timestamp: new Date().toISOString(),
+                totalPrice: totalPrice,
+                gymName: gymName, // Storing gymName from GymProfile card
+                timestamp: new Date().toISOString() // Timestamp of the transaction
             };
     
             console.log('Transaction:', newTransaction);
     
             // Save the transaction to Firestore
             await addDoc(collection(db, 'Transactions'), newTransaction);
-    
+            
             // Close the confirmation modal
             $('#confirmationModal').modal('hide');
     
             // Show success modal
             document.getElementById('successProductName').innerText = productName;
             document.getElementById('successQuantity').innerText = quantityPurchased;
-            document.getElementById('successTotalPrice').innerText = (productPrice * quantityPurchased).toFixed(2);
+            document.getElementById('successTotalPrice').innerText = totalPrice;
             $('#successModal').modal('show');
     
             // Update the notification list (assuming this function exists)
             await fetchNotifications(userId);
-    
-            // Close the product modal
+            // Update the UI or redirect
             $('#productModal').modal('hide');
         } catch (error) {
-            console.error('Error saving notification or transaction:', error);
+            console.error('Error saving notification, transaction, or updating stock:', error);
             Swal.fire({
                 icon: 'error',
                 title: 'Purchase Failed',
@@ -1433,56 +1404,66 @@ function formatTime(time) {
     
     
     // Function to display trainer ratings with dynamic star count updates
-    async function displayTrainerRating() {
-        try {
-            const ratingQuery = query(
-                collection(db, "RatingAndFeedback"),
-                where("trainerName", "==", document.getElementById("modalTrainerName").innerText)
-            );
+async function displayTrainerRating() {
+    try {
+        const ratingQuery = query(
+            collection(db, "RatingAndFeedback"),
+            where("trainerName", "==", document.getElementById("modalTrainerName").innerText)
+        );
 
-            const ratingSnapshot = await getDocs(ratingQuery);
+        const ratingSnapshot = await getDocs(ratingQuery);
 
-            let ratingCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-            let totalRating = 0;
-            let totalRatingsCount = 0;
+        let ratingCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+        let totalRating = 0;
+        let totalRatingsCount = 0;
 
-            // Count ratings and calculate the total for average calculation
-            ratingSnapshot.forEach(doc => {
-                const data = doc.data();
-                const rating = data.rating;
+        // Count ratings and calculate the total for average calculation
+        ratingSnapshot.forEach(doc => {
+            const data = doc.data();
+            const rating = data.rating;
 
-                if (ratingCounts.hasOwnProperty(rating)) {
-                    ratingCounts[rating] += 1;
-                    totalRating += rating;
-                    totalRatingsCount += 1;
-                }
-            });
-
-            const averageRating = totalRatingsCount > 0 ? (totalRating / totalRatingsCount).toFixed(1) : 0;
-
-            for (let star = 5; star >= 1; star--) {
-                const starCountElement = document.getElementById(`star-${star}-count`);
-                if (starCountElement) {
-                    starCountElement.innerText = `(${ratingCounts[star]})`;
-                }
+            if (ratingCounts.hasOwnProperty(rating)) {
+                ratingCounts[rating] += 1;
+                totalRating += rating;
+                totalRatingsCount += 1;
             }
+        });
 
-            const overallRatingElement = document.querySelector("#trainerRating .star-rating .star[data-value='average']");
-            const overallRatingCountElement = document.getElementById("average-rating-count");
+        // Calculate the average rating (scaled to 10.0)
+        const averageRating = totalRatingsCount > 0 ? ((totalRating / totalRatingsCount) * 2).toFixed(1) : 0;
 
-            if (overallRatingElement) {
-                overallRatingElement.innerText = `Overall Rating: ${'★'.repeat(Math.floor(averageRating))}${'☆'.repeat(5 - Math.floor(averageRating))}`;
+        // Update the star counts
+        for (let star = 5; star >= 1; star--) {
+            const starCountElement = document.getElementById(`star-${star}-count`);
+            if (starCountElement) {
+                starCountElement.innerText = `(${ratingCounts[star]})`;
             }
-
-            if (overallRatingCountElement) {
-                overallRatingCountElement.innerText = `(${totalRatingsCount})`;
-            }
-
-        } catch (error) {
-            console.error("Error fetching ratings:", error);
         }
+
+        // Update the overall rating (star rating in decimal format)
+        const overallRatingElement = document.querySelector("#trainerRatingContainer .star-rating .star[data-value='average']");
+        const overallRatingCountElement = document.getElementById("average-rating-count");
+
+        if (overallRatingElement) {
+            overallRatingElement.innerText = `★★★★★`;
+        }
+
+        if (overallRatingCountElement) {
+            overallRatingCountElement.innerText = `(${totalRatingsCount})`;
+        }
+
+        // Display the average rating (scaled to 10.0) in the UI next to the stars
+        const averageRatingElement = document.getElementById("average-rating-value");
+        if (averageRatingElement) {
+            averageRatingElement.innerText = `${averageRating}`; // Display as "9.8/10.0"
+        }
+
+    } catch (error) {
+        console.error("Error fetching ratings:", error);
     }
-            // Function to update star icons and rating count in a given container
+}
+
+    // Function to update star icons and rating count in a given container
     window. setTrainerRating = function(container, rating, ratingCount) {
         const stars = container.querySelectorAll('.star'); // Assuming stars are in the #trainerRating container
         stars.forEach((star, index) => {
@@ -2504,16 +2485,21 @@ function formatTime(time) {
             }
         }
         
-        async function fetchTrainers() {
-            const trainerQuery = query(collection(db, 'Trainer')); // Query the Trainer collection
+        async function fetchTrainers(searchTerm = '') {
+            const trainerQuery = query(
+                collection(db, 'Trainer'),
+                where('TrainerEmail', '>=', searchTerm),
+                where('TrainerEmail', '<=', searchTerm + '\uf8ff')
+            );
             try {
                 const querySnapshot = await getDocs(trainerQuery);
-                return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); // Return the Trainer data
+                return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             } catch (error) {
-                console.error("Error fetching trainers: ", error);
+                console.error('Error fetching trainers: ', error);
                 return [];
             }
         }
+        
         
         // Display trainers in the search result
         function displayTrainers(trainers) {
@@ -2868,7 +2854,7 @@ function formatTime(time) {
         // Event listener for the search input
         document.querySelector('#searchInput').addEventListener('input', (event) => {
             const searchTerm = event.target.value;
-            searchUsers(searchTerm);
+            searchTrainers(searchTerm);
         });
         
         // Event listener for the send message button
@@ -2876,5 +2862,3 @@ function formatTime(time) {
         
         // Load inbox messages when the chat modal is opened
         document.querySelector('a[href="#chatModal"]').addEventListener('click', loadInboxMessages);
-
-        
