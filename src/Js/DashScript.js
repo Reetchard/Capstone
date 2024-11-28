@@ -718,7 +718,6 @@ function formatTime(time) {
             const newTransaction = {
                 type: 'product',
                 userId: userId,
-                username: userData.username,
                 productName: productName,
                 quantity: quantityPurchased,
                 totalPrice: productPrice * quantityPurchased,
