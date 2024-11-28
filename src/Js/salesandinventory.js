@@ -263,24 +263,27 @@ document.getElementById("totalSalesCard").addEventListener("click", async () => 
     }
 });
 
-// Function to Load Sales Details
+// Function to Load Approved Sales Details
 async function loadSalesDetails(gymName) {
     const salesTableBody = document.getElementById("salesTableBody");
     const totalSalesElement = document.getElementById("totalSales");
 
-    salesTableBody.innerHTML = "";  // Clear existing rows
+    salesTableBody.innerHTML = ""; // Clear existing rows
     let totalSalesAmount = 0;
 
     try {
-        // Query the transactions for the gym
+        // Query the transactions for the gym with status "Approved"
         const transactionsQuery = query(
-            collection(db, 'Notifications'),
-            where('gymName', '==', gymName)
+            collection(db, 'Transactions'),
+            where('gymName', '==', gymName),   // Match the gymName
+            where('status', '==', 'Approved'), // Match only approved transactions
+            where('type', '==' , 'Products')
         );
+
         const transactionsSnapshot = await getDocs(transactionsQuery);
 
         if (transactionsSnapshot.empty) {
-            salesTableBody.innerHTML = '<tr><td colspan="5">No sales found for this gym.</td></tr>';
+            salesTableBody.innerHTML = '<tr><td colspan="5">No approved sales found for this gym.</td></tr>';
             totalSalesElement.textContent = '₱0.00';
             return;
         }
@@ -288,14 +291,18 @@ async function loadSalesDetails(gymName) {
         transactionsSnapshot.forEach((doc) => {
             const data = doc.data();
 
+            // Safely handle undefined or invalid totalPrice
+            const totalPriceString = data.totalPrice ? String(data.totalPrice) : '₱0.00';
+            const cleanTotalPrice = parseFloat(totalPriceString.replace('₱', '').replace(',', '')) || 0;
+
             // Calculate total sales amount
-            totalSalesAmount += parseFloat(data.totalPrice.replace('₱', '').replace(',', ''));
+            totalSalesAmount += cleanTotalPrice;
 
             const row = document.createElement("tr");
             row.innerHTML = `
                 <td>${data.productName || 'N/A'}</td>
                 <td>${data.quantity || 'N/A'}</td>
-                <td>${formatCurrency(data.totalPrice)}</td>
+                <td>${formatCurrency(cleanTotalPrice)}</td>
                 <td>${formatTimestamp(data.timestamp)}</td>
                 <td>${data.status || 'N/A'}</td>
             `;
@@ -309,3 +316,40 @@ async function loadSalesDetails(gymName) {
         alert("Failed to load sales details.");
     }
 }
+
+async function getCurrentGymOwnerDetails() {
+    try {
+        const currentUser = auth.currentUser;
+
+        if (!currentUser) {
+            console.error('No user is currently logged in.');
+            alert('Please log in to view sales details.');
+            return;
+        }
+
+        const currentUserId = currentUser.uid;
+
+        // Fetch the current gym owner's details from Firestore
+        const gymOwnerSnapshot = await getDoc(doc(db, 'GymOwner', currentUserId));
+        if (gymOwnerSnapshot.exists()) {
+            const gymOwnerData = gymOwnerSnapshot.data();
+            const gymName = gymOwnerData.gymName; // Ensure the gymName field exists in your Firestore
+            loadSalesDetails(gymName);
+        } else {
+            console.error('Gym Owner not found.');
+            alert('Unable to fetch Gym Owner details.');
+        }
+    } catch (error) {
+        console.error('Error fetching Gym Owner details:', error);
+    }
+}
+
+// Ensure user is authenticated before fetching gym owner details
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        getCurrentGymOwnerDetails();
+    } else {
+        console.error('User is not logged in.');
+        alert('Please log in to view sales details.');
+    }
+});

@@ -555,12 +555,15 @@ function formatTime(time) {
     
                     // Save transaction to 'Transactions' collection
                     const newTransaction = {
+                        type: 'Products',
                         userId: userId, // Storing userId of the customer/user
                         productName: productName,
                         quantity: quantityPurchased,
                         totalPrice: totalPrice,
+                        status : 'Pending',           
                         gymName: gymName, // Storing gymName from GymProfile card
                         timestamp: new Date().toISOString() // Timestamp of the transaction
+
                     };
     
                     // Save the transaction to Firestore under a 'Transactions' collection
@@ -688,13 +691,15 @@ function formatTime(time) {
     
              // Save transaction to 'Transactions' collection
              const newTransaction = {
-                type: 'product',
+                type: 'Products',
                 userId: userId, // Storing userId of the customer/user
                 productName: productName,
                 quantity: quantityPurchased,
                 totalPrice: totalPrice,
+                status : 'Pending',           
                 gymName: gymName, // Storing gymName from GymProfile card
                 timestamp: new Date().toISOString() // Timestamp of the transaction
+
             };
     
             console.log('Transaction:', newTransaction);
