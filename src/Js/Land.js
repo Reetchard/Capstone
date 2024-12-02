@@ -105,3 +105,19 @@ window. toggleMenu = function() {
     const navLinks = document.getElementById('navLinks');
     navLinks.classList.toggle('show');
 }
+
+const menuToggle = document.querySelector("#menuToggle");
+const navLinks = document.querySelector("nav ul");
+
+menuToggle.addEventListener("click", () => {
+    menuToggle.classList.toggle("active");
+    navLinks.classList.toggle("active");
+
+    // Add bounce-in animation on click
+    menuToggle.classList.add("animate");
+    setTimeout(() => {
+        menuToggle.classList.remove("animate");
+    }, 400); // Remove animation class after animation duration
+});
+
+

@@ -442,14 +442,14 @@ window.searchTrainer = async function() {
 };
 
 // Function to display trainer data
-async function displayTrainerData(trainerData, TrainerID) {
+async function displayTrainerData(trainerData, userId) {
     const trainerInfoBody = document.getElementById('trainerInfoBody');
     trainerInfoBody.innerHTML = '';  // Clear previous search results
 
     let row = `
         <tr>
-            <td><input type="checkbox" class="rowCheckbox" data-id="${TrainerID}"></td>
-            <td>${trainerData.TrainerID || 'N/A'}</td> <!-- Display Trainer ID from the document -->
+            <td><input type="checkbox" class="rowCheckbox" data-id="${userId}"></td>
+            <td>${trainerData.userId || 'N/A'}</td> <!-- Display Trainer ID from the document -->
             <td>
                 <img src="${trainerData.TrainerPhoto || 'default-image.jpg'}" 
                     alt="Trainer Photo" 
