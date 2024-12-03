@@ -14,13 +14,21 @@
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
 
     <link rel="stylesheet" href="css/Dashstyle.css">
+    <link rel="stylesheet" href="css/DashResponsive.css">
 </head>
 <body>
-    <nav class="sidebar">
+    <div class="menu-toggle" id="menuToggle">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+    </div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
         <div class="profile-container text-center mb-4" style="position: relative;">
             <div class="dropdown">
                 <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" class="img-fluid rounded-circle mb-2" style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;">
-                <h3 id="profile-username" class="mt-2"></h3> <!-- Username header added here -->
+                <h3 id="profile-username" class="mt-2"></h3>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <a class="dropdown-item" href="Pinfo.html">Personal Information</a>
                     <a class="dropdown-item" href="report.html">Submit a Complaint</a>
@@ -28,7 +36,7 @@
                 </div>
             </div>
         </div>
-    
+
         <ul class="nav flex-column">
             <li class="nav-item">
                 <a class="nav-link" href="#profiling">
@@ -41,24 +49,21 @@
                     <span id="membershipNotificationDot" style="display: none; margin-left: 5px; color: red;">●</span>
                 </a>
             </li>
-            
-            <!-- Notification Icon with Badge -->
             <li class="nav-item position-relative">
                 <a class="nav-link" href="#" data-toggle="modal" data-target="#notificationModal">
                     <i class="fas fa-bell"></i> Notifications
                     <span id="notification-count" class="badge badge-danger position-absolute" style="right: 10px; top: 5px;">0</span>
                 </a>
             </li>
-            
             <li class="nav-item" style="position: relative;">
                 <a id="messages" class="nav-link" data-toggle="modal" href="#chatModal">
                     <i class="fas fa-comments"></i> Messages
                     <span id="messagesNotification" class="message-dot"></span>
                 </a>
             </li>
-                 
         </ul>
     </nav>
+
 
 <!-- Membership Status Modal -->
 <div id="membershipStatusModal" class="modal fade" tabindex="-1" role="dialog">

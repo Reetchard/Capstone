@@ -1,134 +1,53 @@
 @media screen and (max-width: 768px) {
     body {
+        display: flex;
+        justify-content: center; /* Center horizontally */
+        align-items: center; /* Center vertically */
         flex-direction: column;
+        height: 100vh; /* Full viewport height */
         margin: 0;
         padding: 0;
-        height: auto; /* Allow dynamic height */
-        justify-content: flex-start;
-    }
-
-    h1 {
-        font-size: 18px; /* Adjust header font size */
-        text-align: center;
-        margin-bottom: 10px;
-    }
-
-    h2 {
-        font-size: 1.4rem; /* Adjust size for smaller screens */
-        text-align: center;
-        margin: 15px 0;
-    }
-
-    p {
-        font-size: 12px; /* Reduce font size */
-        line-height: 1.5; /* Maintain spacing between lines */
-        text-align: center;
-        margin: 10px 0 15px;
     }
 
     .container {
-        width: 90%; /* Fit container to smaller screens */
-        max-width: 400px; /* Maximum width for larger phones */
-        padding: 20px; /* Add padding for spacing */
-        margin: 15px auto; /* Center the container */
-        border-radius: 10px; /* Rounded edges */
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        overflow: hidden; /* Clean visuals */
-        transition: transform 0.6s ease-in-out;
+        width: 110%; /* Full width for smaller screens */
+        max-width: 100%; /* Slightly smaller for mobile */
+        min-height: 500px; /* Adjusted height */
+        padding: 10px; /* Compact padding */
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Optional: Add subtle shadow for focus */
+        border-radius: 10px; /* Rounded corners for better design */
     }
 
-    .form-container {
-        width: 100%; /* Full width for forms */
-        position: absolute;
-        height: 100%; /* Match container height */
-        padding: 10px;
-        transition: all 0.6s ease-in-out;
+    h1 {
+        font-size: 20px; /* Adjusted font size */
+        line-height: 1.5; /* Adjust line height for readability */
+        width:50%; /* Each paragraph takes up 30% of the container width */
+
+
     }
 
-    .overlay-container {
-        width: 100%; /* Match overlay to container size */
-        height: 100%;
-        position: absolute;
-        top: 0;
-        left: 0;
-        transform: translateX(0);
-        transition: transform 0.6s ease-in-out;
+    p {
+        font-size: 10px; /* Smaller text for compact layout */
+        line-height: 1.5; /* Adjust line height for readability */
+        width: 30%; /* Each paragraph takes up 30% of the container width */
+        min-width: 100px; /* Ensure minimum width for smaller paragraphs */
+        margin: 0; /* Remove default margins */
+        padding: 10px; /* Add padding for spacing inside each paragraph */
     }
 
-    .container.right-panel-active .overlay-container {
-        transform: translateX(-100%); /* Animate overlay shift */
-    }
-
-    .overlay {
-        width: 10%; /* Adjust overlay size to cover both panels */
-        height: 100%;
-        position: absolute;
-        top: 0;
-        left: -100%; /* Start overlay off-screen */
-        background: linear-gradient(to right, #274046, #E6DADA);
-        background-size: cover;
-        transform: translateX(0);
-        transition: transform 0.6s ease-in-out;
-    }
-
-    .container.right-panel-active .overlay {
-        transform: translateX(50%);
+    button {
+        padding: 8px 15px; /* Smaller buttons for mobile */
+        font-size: 10px; /* Adjusted font size */
+        margin-top: 10px;
     }
 
     .overlay-panel {
-        width:48%; /* Adjust to fit smaller screens */
-        height: 50%; /* Halve the height for stacking */
-        position: absolute;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 15px; /* Compact padding for readability */
-        text-align: center;
-        transition: transform 0.6s ease-in-out;
-    }
-
-    .overlay-left {
-        top: 0;
-        left: 0;
-        transform: translateY(-20%); /* Position the left panel on top */
-    }
-
-    .container.right-panel-active .overlay-left {
-        transform: translateY(0); /* Animate into place */
-    }
-
-    .overlay-right {
-        bottom: 0;
-        right: 0;
-        transform: translateY(50%); /* Position the right panel at the bottom */
-    }
-
-    .container.right-panel-active .overlay-right {
-        transform: translateY(0); /* Animate into place */
-    }
-
-    .social-container a {
-        height: 30px; /* Smaller social icons */
-        width: 30px;
-        margin: 0 5px; /* Compact spacing */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    footer {
-        font-size: 12px;
-        padding: 10px;
-        text-align: center;
-    }
-
-    .membership-info {
-        font-size: 12px;
-        padding: 10px;
-    }
-
-    .video-background {
-        display: flex; /* Hide video background for performance */
+        width: 59%; /* Adjust overlay panel width */
+        padding: 10px; /* Compact padding for text */
+    }  
+    .footer {
+        font-size: 12px; /* Reduce font size */
+        padding: 5px; /* Reduce padding */
+        display: none;
     }
 }

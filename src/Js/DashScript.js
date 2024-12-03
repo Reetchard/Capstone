@@ -2867,3 +2867,22 @@ async function displayTrainerRating() {
         
         // Load inbox messages when the chat modal is opened
         document.querySelector('a[href="#chatModal"]').addEventListener('click', loadInboxMessages);
+        
+      // Add toggle functionality for the menu
+document.addEventListener('DOMContentLoaded', function () {
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+
+    menuToggle.addEventListener('click', function () {
+        menuToggle.classList.toggle('active'); // Animate the bars
+        sidebar.classList.toggle('open'); // Toggle the sidebar visibility
+    });
+
+    // Optional: Close sidebar when clicking outside
+    document.addEventListener('click', function (event) {
+        if (!menuToggle.contains(event.target) && !sidebar.contains(event.target)) {
+            menuToggle.classList.remove('active');
+            sidebar.classList.remove('open');
+        }
+    });
+});
