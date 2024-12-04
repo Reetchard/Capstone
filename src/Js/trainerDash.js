@@ -51,25 +51,40 @@ document.addEventListener('DOMContentLoaded', () => {
 // Function to display user profile picture
 function displayProfilePicture(user, username) {
     const userId = user.uid;
-    const profilePicRef = ref(storage, `profilePictures/${userId}/profile.jpg`);
-  
-    getDownloadURL(profilePicRef).then((url) => {
-        // Update profile picture in both header and sidebar
-        document.getElementById('profile-picture').src = url;        
-        // Also update the username in the header
-        document.getElementById('profile-username').textContent = username;
-    }).catch((error) => {
-        if (error.code === 'storage/object-not-found') {
-            // Fallback to default image if no profile picture is found
+    const trainerDocRef = doc(db, "Trainer", userId); // Reference to the user's document in the Trainer collection
+
+    getDoc(trainerDocRef)
+        .then((docSnap) => {
+            if (docSnap.exists()) {
+                const trainerData = docSnap.data();
+                const photoURL = trainerData.TrainerPhoto || 'framework/img/Profile.png'; // Use TrainerPhoto or fallback to default
+
+                // Update profile picture in both header and sidebar
+                document.getElementById('profile-picture').src = photoURL;
+
+                // Update the username in the header
+                document.getElementById('profile-username').textContent = username;
+            } else {
+                console.warn('No Trainer document found for this user. Using default profile picture.');
+
+                // Fallback to default image if no document is found
+                document.getElementById('profile-picture').src = 'framework/img/Profile.png';
+
+                // Still set the username
+                document.getElementById('profile-username').textContent = username;
+            }
+        })
+        .catch((error) => {
+            console.error('Error fetching Trainer document:', error.message);
+
+            // Fallback to default image in case of an error
             document.getElementById('profile-picture').src = 'framework/img/Profile.png';
 
             // Still set the username
             document.getElementById('profile-username').textContent = username;
-        } else {
-            console.error('Unexpected error loading profile picture:', error.message);
-        }
-    });
+        });
 }
+
 
 
 async function fetchGymProfiles() {
@@ -658,24 +673,40 @@ async function fetchNotifications(currentUserId) {
             for (const [otherUserId, messageData] of recentMessages.entries()) {
                 const otherUser = await getUserDetails(otherUserId); // Get user details
     
+                // Check if otherUser is null or undefined
+                if (!otherUser) {
+                    console.warn(`User details not found for userId: ${otherUserId}`);
+                    continue; // Skip this entry if user details are missing
+                }
+    
+                // Fallback for missing photo and username/email
+                const photoURL = otherUser.photoURL || 'default-photo-url';
+                const userName = otherUser.username || otherUser.email || 'Unknown User';
+    
+                // Debugging: Log user details to identify missing fields
+                console.log("User Details:", otherUser);
+    
                 // Create a new inbox item
                 const inboxItem = document.createElement('div');
                 inboxItem.className = 'inbox-item';
     
                 inboxItem.innerHTML = `
-                    <img src="${otherUser.photoURL || 'default-photo-url'}" alt="User Photo" class="inbox-user-photo">
-                        <span>${otherUser.username || otherUser.email}: ${messageData.message}</span>
-                    `;
-                
+                    <img src="${photoURL}" alt="User Photo" class="inbox-user-photo">
+                    <div class="inbox-user-details">
+                        <span class="user-name">${userName}</span>
+                        <span class="user-message">${messageData.message}</span>
+                    </div>
+                `;
+    
                 // If the message is unread, make it bold or add an indicator
                 if (unreadMessages.has(messageData.docId)) {
-                    inboxItem.style.fontWeight = 'bold'; // Unread message will be bold
+                    inboxItem.classList.add('bold'); // Add bold class for unread messages
                 }
     
                 // Event listener to start a chat with the user when clicking the inbox item
                 inboxItem.addEventListener('click', () => {
-                    startChat(otherUserId, otherUser.username || otherUser.email);
-                    inboxItem.style.fontWeight = 'normal'; // Mark as read when clicked
+                    startChat(otherUserId, userName);
+                    inboxItem.classList.remove('bold'); // Mark as read when clicked
                     displayChatHeader(otherUser);
                 });
     

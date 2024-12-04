@@ -2388,187 +2388,193 @@ async function displayTrainerRating() {
         }
     }
     
-    // Example function to send a message
-    window.sendMessage = function() {
-        const messageInput = document.getElementById("messageInput");
-        const messagesContainer = document.getElementById("messages");
+// Example function to send a message
+window.sendMessage = function () {
+    const messageInput = document.getElementById("messageInput");
+    const messagesContainer = document.getElementById("messages");
 
-        if (messageInput.value.trim()) {
-            const messageElement = document.createElement("div");
-            messageElement.textContent = messageInput.value;
-            messagesContainer.appendChild(messageElement);
-            messageInput.value = ""; // Clear input after sending
-        }
-    };
-        // Function to show the global spinner
-        function showSpinner() {
-            const spinner = document.getElementById('globalSpinner');
-            if (spinner) {
-                spinner.style.display = 'flex'; // Show spinner
-            }
-        }
+    if (messageInput.value.trim()) {
+        const messageElement = document.createElement("div");
+        messageElement.textContent = messageInput.value;
+        messagesContainer.appendChild(messageElement);
+        messageInput.value = ""; // Clear input after sending
+    }
+};
 
-        // Function to hide the global spinner
-        function hideSpinner() {
-            const spinner = document.getElementById('globalSpinner');
-            if (spinner) {
-                spinner.style.display = 'none'; // Hide spinner
-            }
-        }
+// Function to show the global spinner
+function showSpinner() {
+    const spinner = document.getElementById('globalSpinner');
+    if (spinner) {
+        spinner.style.display = 'flex'; // Show spinner
+    }
+}
 
-        // Add event listeners to all navigation links with a 1.5-second delay
-        document.querySelectorAll('.nav-link').forEach(navLink => {
-            navLink.addEventListener('click', function(event) {
-                event.preventDefault(); // Prevent immediate navigation
-                showSpinner();
+// Function to hide the global spinner
+function hideSpinner() {
+    const spinner = document.getElementById('globalSpinner');
+    if (spinner) {
+        spinner.style.display = 'none'; // Hide spinner
+    }
+}
 
-                // Simulate loading with a 1.5-second delay
-                setTimeout(() => {
-                    hideSpinner();
-                    window.location.href = navLink.href; // Proceed to the link
-                }, 500); // 1.5 seconds delay
-            });
+// Add event listeners to all navigation links with a 1.5-second delay
+document.querySelectorAll('.nav-link').forEach(navLink => {
+    navLink.addEventListener('click', function (event) {
+        event.preventDefault(); // Prevent immediate navigation
+        showSpinner();
+
+        // Simulate loading with a 1.5-second delay
+        setTimeout(() => {
+            hideSpinner();
+            window.location.href = navLink.href; // Proceed to the link
+        }, 500); // 1.5 seconds delay
+    });
+});
+
+// Add event listeners to all buttons with a 2-second delay
+document.querySelectorAll('button').forEach(button => {
+    button.addEventListener('click', function (event) {
+        showSpinner();
+
+        // Simulate loading with a 2-second delay
+        setTimeout(() => {
+            hideSpinner();
+        }, 1500); // 2 seconds delay
+    });
+});
+
+// Event delegation to handle dynamically generated elements like product cards, membership plans, and view-more buttons
+document.addEventListener('click', function (event) {
+    const target = event.target;
+
+    // Check if the target is a "View More" or any dynamically generated button
+    if (target.matches('.view-more-btn') || target.matches('.membership-plan-btn') || target.matches('.product-card-btn')) {
+        showSpinner();
+
+        // Simulate loading with a 2-second delay for these buttons
+        setTimeout(() => {
+            hideSpinner();
+        }, 1500); // 2 seconds delay
+    }
+});
+
+let currentChatUserId = null;
+let messagesCache = []; // Cache for messages
+const userCache = {}; // Cache for user details to reduce database calls
+const unreadMessages = new Set(); // Track unread messages
+
+// Initialize the chat modal and clear previous chats
+document.querySelector('a[href="#chatModal"]').addEventListener('click', async function (event) {
+    event.preventDefault();
+    const chatModal = new bootstrap.Modal(document.getElementById('chatModal'));
+    chatModal.show();
+    document.querySelector('#usersContainer').innerHTML = '';
+    document.querySelector('#inboxContainer').innerHTML = '';
+
+    // Load inbox messages
+    await loadInboxMessages();
+});
+
+// Fetch all users for searching
+async function fetchUsers(searchTerm = '') {
+    const userQuery = query(
+        collection(db, 'Users'),
+        where('email', '>=', searchTerm),
+        where('email', '<=', searchTerm + '\uf8ff')
+    );
+    try {
+        const querySnapshot = await getDocs(userQuery);
+        return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), type: 'user' }));
+    } catch (error) {
+        console.error("Error fetching users: ", error);
+        return [];
+    }
+}
+
+async function fetchTrainers(searchTerm = '') {
+    const trainerQuery = query(
+        collection(db, 'Trainer'),
+        where('email', '>=', searchTerm),
+        where('email', '<=', searchTerm + '\uf8ff')
+    );
+    try {
+        const querySnapshot = await getDocs(trainerQuery);
+        return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), type: 'trainer' }));
+    } catch (error) {
+        console.error('Error fetching trainers: ', error);
+        return [];
+    }
+}
+
+// Combined function to search both Users and Trainers collections
+async function searchAllCollections(searchTerm) {
+    try {
+        const [users, trainers] = await Promise.all([
+            fetchUsers(searchTerm),
+            fetchTrainers(searchTerm),
+        ]);
+        return [...users, ...trainers]; // Merge results from both collections
+    } catch (error) {
+        console.error('Error searching collections:', error);
+        return [];
+    }
+}
+
+// Display trainers and users in the search result
+function displaySearchResults(results) {
+    const searchResultsContainer = document.querySelector('#searchResultsContainer');
+    const inboxContainer = document.querySelector('#inboxContainer');
+
+    searchResultsContainer.innerHTML = ''; // Clear previous search results
+
+    // Limit to a certain number of results displayed
+    const maxDisplayCount = 5; // Set the maximum number of results to display
+
+    // Display only the first maxDisplayCount trainers and users
+    results.slice(0, maxDisplayCount).forEach(result => {
+        const resultElement = document.createElement('div');
+        resultElement.className = 'result-item';
+        resultElement.innerHTML = `
+            <img src="${result.TrainerPhoto || result.photoURL || 'default-profile.png'}" alt="User Photo" class="result-photo">
+            <div class="result-details">
+                <p class="result-name">${result.TrainerName || result.username || 'Unknown'}</p>
+                <p class="result-email">${result.TrainerEmail || result.email}</p>
+            </div>
+        `;
+
+        resultElement.addEventListener('click', async () => {
+            startChat(result.id, result.TrainerName || result.username || result.email);
+            searchResultsContainer.innerHTML = ''; // Clear search results
+            searchResultsContainer.style.display = 'none'; // Hide search results
+            inboxContainer.style.display = 'block'; // Show inbox
+            await loadInboxMessages(); // Reload inbox messages
         });
 
-        // Add event listeners to all buttons with a 2-second delay
-        document.querySelectorAll('button').forEach(button => {
-            button.addEventListener('click', function(event) {
-                showSpinner();
+        searchResultsContainer.appendChild(resultElement); // Append to search results
+    });
 
-                // Simulate loading with a 2-second delay
-                setTimeout(() => {
-                    hideSpinner();
-                }, 1500); // 2 seconds delay
-            });
-        });
+    // Show search results only if there are trainers or users found
+    searchResultsContainer.style.display = results.length > 0 ? 'block' : 'none';
+}
 
-        // Event delegation to handle dynamically generated elements like product cards, membership plans, and view-more buttons
-        document.addEventListener('click', function(event) {
-            const target = event.target;
+window.searchTrainers = async function (searchTerm) {
+    const inboxContainer = document.getElementById('inboxContainer');
+    const searchResultsContainer = document.getElementById('searchResultsContainer');
 
-            // Check if the target is a "View More" or any dynamically generated button
-            if (target.matches('.view-more-btn') || target.matches('.membership-plan-btn') || target.matches('.product-card-btn')) {
-                showSpinner();
+    // If the search term is empty, clear search results, show inbox, and reload inbox messages
+    if (!searchTerm.trim()) {
+        searchResultsContainer.innerHTML = ''; // Clear search results
+        searchResultsContainer.style.display = 'none'; // Hide search results container
+        inboxContainer.style.display = 'block'; // Show inbox container
+        await loadInboxMessages(); // Reload inbox messages to restore the original inbox content
+        return;
+    }
 
-                // Simulate loading with a 2-second delay for these buttons
-                setTimeout(() => {
-                    hideSpinner();
-                }, 1500); // 2 seconds delay
-            }
-        });
+    // If there's a search term, perform the search and display results
+    const results = await searchAllCollections(searchTerm); // Fetch users and trainers
+    displaySearchResults(results); // Display results
+};
 
-
-        let currentChatUserId = null;
-        let messagesCache = []; // Cache for messages
-        const userCache = {}; // Cache for user details to reduce database calls
-        const unreadMessages = new Set(); // Track unread messages
-        
-        // Initialize the chat modal and clear previous chats
-        document.querySelector('a[href="#chatModal"]').addEventListener('click', async function (event) {
-            event.preventDefault();
-            const chatModal = new bootstrap.Modal(document.getElementById('chatModal'));
-            chatModal.show();
-            document.querySelector('#usersContainer').innerHTML = '';
-            document.querySelector('#inboxContainer').innerHTML = '';
-            
-            // Load inbox messages
-            await loadInboxMessages();
-        
-            // Check for booked trainers in the Transactions collection and display them
-            await displayBookedTrainersInInbox();
-        });
-        
-        // Fetch all users for searching
-        async function fetchUsers() {
-            const userQuery = query(collection(db, 'Trainer'));
-            try {
-                const querySnapshot = await getDocs(userQuery);
-                return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            } catch (error) {
-                console.error("Error fetching users: ", error);
-                return [];
-            }
-        }
-        
-        async function fetchTrainers(searchTerm = '') {
-            const trainerQuery = query(
-                collection(db, 'Trainer'),
-                where('TrainerEmail', '>=', searchTerm),
-                where('TrainerEmail', '<=', searchTerm + '\uf8ff')
-            );
-            try {
-                const querySnapshot = await getDocs(trainerQuery);
-                return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            } catch (error) {
-                console.error('Error fetching trainers: ', error);
-                return [];
-            }
-        }
-        
-        
-        // Display trainers in the search result
-        function displayTrainers(trainers) {
-            const inboxContainer = document.querySelector('#inboxContainer');
-            const searchResultsContainer = document.querySelector('#searchResultsContainer');
-        
-            searchResultsContainer.innerHTML = ''; // Clear previous search results
-        
-            // Limit to a certain number of trainers displayed
-            const maxDisplayCount = 5; // Set the maximum number of results to display
-        
-            // Display only the first maxDisplayCount trainers
-            trainers.slice(0, maxDisplayCount).forEach(trainer => {
-                const trainerElement = document.createElement('div');
-                trainerElement.className = 'trainer-email';
-                trainerElement.textContent = `${trainer.TrainerName} (${trainer.TrainerEmail})`;
-        
-                trainerElement.addEventListener('click', async () => {
-                    startChat(trainer.id, trainer.TrainerName);
-                    searchResultsContainer.innerHTML = ''; // Clear the search results
-                    searchResultsContainer.style.display = 'none'; // Hide the search results
-                    inboxContainer.style.display = 'block'; // Show the inbox
-                    await loadInboxMessages(); // Reload inbox messages
-                });
-        
-                searchResultsContainer.appendChild(trainerElement); // Append to search results
-            });
-        
-            // Show search results only if there are trainers found
-            searchResultsContainer.style.display = trainers.length > 0 ? 'block' : 'none';
-        }
-        
-        window.searchTrainers= async function(searchTerm) {
-            const inboxContainer = document.getElementById('inboxContainer');
-            const searchResultsContainer = document.getElementById('searchResultsContainer');
-        
-            // If the search term is empty, clear search results, show inbox, and reload inbox messages
-            if (!searchTerm.trim()) {
-                searchResultsContainer.innerHTML = '';  // Clear search results
-                searchResultsContainer.style.display = 'none';  // Hide search results container
-                inboxContainer.style.display = 'block';  // Show inbox container
-        
-                await loadInboxMessages();  // Reload inbox messages to restore the original inbox content
-                return;
-            }
-        
-                // If there's a search term, perform the search and display results
-                const trainers = await fetchTrainers(); // Fetch trainers
-                const filteredTrainers = trainers.filter(trainer => {
-                    // Ensure email is a valid string (default to empty string if undefined or null)
-                    const email = trainer.TrainerEmail ? trainer.TrainerEmail : ''; 
-
-                    // Ensure searchTerm is a valid string (default to empty string if undefined or null)
-                    const term = searchTerm ? searchTerm : '';
-
-                    // Both email and term should be valid strings before calling toLowerCase
-                    return email.toLowerCase().includes(term.toLowerCase());
-                });
-
-            
-        
-            displayTrainers(filteredTrainers);  // Display results in searchResultsContainer
-        }
-        
         // Start a chat with a selected trainer
         function startChat(trainerId, trainerName) {
             if (currentChatUserId === trainerId) return; // Prevent reloading the same chat
@@ -2728,7 +2734,6 @@ async function displayTrainerRating() {
                 renderMessages(receivedMessages);
             });
         }
-
         async function loadInboxMessages() {
             const userId = auth.currentUser.uid; // Get the ID of the currently logged-in user
             const inboxContainer = document.getElementById('inboxContainer');
@@ -2789,31 +2794,44 @@ async function displayTrainerRating() {
                 // Display each recent message in the inbox
                 for (const [otherUserId, messageData] of recentMessages.entries()) {
                     const otherUser = await getUserDetails(otherUserId); // Get user details
-                
+        
+                    // Check if otherUser is null or undefined
+                    if (!otherUser) {
+                        console.warn(`User details not found for userId: ${otherUserId}`);
+                        continue; // Skip this entry if user details are missing
+                    }
+        
+                    // Fallback for missing photo and username/email
+                    const photoURL = otherUser.TrainerPhoto || 'default-photo-url';
+                    const userName = otherUser.username || otherUser.email || 'Unknown User';
+        
+                    // Debugging: Log user details to identify missing fields
+                    console.log("User Details:", otherUser);
+        
                     // Create a new inbox item
                     const inboxItem = document.createElement('div');
                     inboxItem.className = 'inbox-item';
-                
+        
                     inboxItem.innerHTML = `
-                        <img src="${otherUser.TrainerPhoto || 'default-photo-url'}" alt="User Photo" class="inbox-user-photo">
+                        <img src="${photoURL}" alt="User Photo" class="inbox-user-photo">
                         <div class="inbox-user-details">
-                            <span class="user-name">${otherUser.username || otherUser.email}</span>
+                            <span class="user-name">${userName}</span>
                             <span class="user-message">${messageData.message}</span>
                         </div>
                     `;
-                    
+        
                     // If the message is unread, make it bold or add an indicator
                     if (unreadMessages.has(messageData.docId)) {
                         inboxItem.classList.add('bold'); // Add bold class for unread messages
                     }
-                
+        
                     // Event listener to start a chat with the user when clicking the inbox item
                     inboxItem.addEventListener('click', () => {
-                        startChat(otherUserId, otherUser.username || otherUser.email);
+                        startChat(otherUserId, userName);
                         inboxItem.classList.remove('bold'); // Mark as read when clicked
                         displayChatHeader(otherUser);
                     });
-                
+        
                     // Append the inbox item to the container
                     inboxContainer.appendChild(inboxItem);
                 }
@@ -2821,6 +2839,8 @@ async function displayTrainerRating() {
                 console.error("Error fetching inbox messages:", error);
             }
         }
+        
+        
         
 
         // Call loadInboxMessages when the chat modal is opened
@@ -2869,20 +2889,20 @@ async function displayTrainerRating() {
         document.querySelector('a[href="#chatModal"]').addEventListener('click', loadInboxMessages);
         
       // Add toggle functionality for the menu
-document.addEventListener('DOMContentLoaded', function () {
-    const menuToggle = document.getElementById('menuToggle');
-    const sidebar = document.getElementById('sidebar');
+    document.addEventListener('DOMContentLoaded', function () {
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
 
-    menuToggle.addEventListener('click', function () {
-        menuToggle.classList.toggle('active'); // Animate the bars
-        sidebar.classList.toggle('open'); // Toggle the sidebar visibility
-    });
+        menuToggle.addEventListener('click', function () {
+            menuToggle.classList.toggle('active'); // Animate the bars
+            sidebar.classList.toggle('open'); // Toggle the sidebar visibility
+        });
 
-    // Optional: Close sidebar when clicking outside
-    document.addEventListener('click', function (event) {
-        if (!menuToggle.contains(event.target) && !sidebar.contains(event.target)) {
-            menuToggle.classList.remove('active');
-            sidebar.classList.remove('open');
-        }
-    });
+        // Optional: Close sidebar when clicking outside
+        document.addEventListener('click', function (event) {
+            if (!menuToggle.contains(event.target) && !sidebar.contains(event.target)) {
+                menuToggle.classList.remove('active');
+                sidebar.classList.remove('open');
+            }
+        });
 });

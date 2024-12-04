@@ -26,11 +26,6 @@ const usernameInput = document.getElementById('username');
 const emailInput = document.getElementById('email');
 const phoneInput = document.getElementById('phone');
 const addressInput = document.getElementById('address');
-const weightInput = document.getElementById('weight');
-const heightInput = document.getElementById('height');
-const medicationInput = document.getElementById('medication');
-const allergiesInput = document.getElementById('allergies');
-const statusMessage = document.getElementById('status-message');
 const profilePicture = document.getElementById('profile-picture');
 const profilePictureInput = document.getElementById('profile-picture-input');
 
@@ -69,7 +64,6 @@ onAuthStateChanged(auth, (user) => {
         fetchUserData(userId);
 
         // Fetch messages and notifications
-        fetchMessages(userId);
         fetchNotifications(userId);
     } else {
         window.location.href = 'login.html'; // Redirect to login if user is not authenticated
@@ -91,10 +85,7 @@ async function fetchUserData(userId) {
             if (emailInput) emailInput.value = auth.currentUser.email || '';
             if (phoneInput) phoneInput.value = userData.phone || '';
             if (addressInput) addressInput.value = userData.address || '';
-            if (weightInput) weightInput.value = userData.weight || '';
-            if (heightInput) heightInput.value = userData.height || '';
-            if (medicationInput) medicationInput.value = userData.medication || '';
-            if (allergiesInput) allergiesInput.value = userData.allergies || '';
+        
 
             // Fetch and display the profile picture
             try {
@@ -129,80 +120,74 @@ if (profilePictureInput) {
     });
 }
 
-// Update profile information
-if (personalInfoForm) {
-    personalInfoForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+document.addEventListener('DOMContentLoaded', () => {
+    const statusMessage = document.getElementById('status-message');
 
-        const username = usernameInput?.value || '';
-        const phone = phoneInput?.value || '';
-        const address = addressInput?.value || '';
-        const weight = weightInput?.value || '';
-        const height = heightInput?.value || '';
-        const medication = medicationInput?.value || '';
-        const allergies = allergiesInput?.value || '';
-        const user = auth.currentUser;
+    if (personalInfoForm) {
+        personalInfoForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
 
-        if (user) {
-            const userId = user.uid;
-            const userDocRef = doc(firestore, 'Trainer', userId);
+            const username = usernameInput?.value || '';
+            const phone = phoneInput?.value || '';
+            const address = addressInput?.value || '';
+            const user = auth.currentUser;
 
-            try {
-                await setDoc(userDocRef, {
-                    username,
-                    phone,
-                    address,
-                    weight,
-                    height,
-                    medication,
-                    allergies
-                }, { merge: true });
+            if (user) {
+                const userId = user.uid;
+                const userDocRef = doc(firestore, 'Trainer', userId);
 
-                if (statusMessage) {
-                    statusMessage.textContent = "Profile updated successfully!";
-                    statusMessage.style.color = 'green';
-                }
+                try {
+                    await setDoc(userDocRef, {
+                        username,
+                        phone,
+                        address
+                    }, { merge: true });
 
-                setTimeout(() => {
-                    window.location.href = 'trainer.html'; // Redirect to dashboard after 3 seconds
-                }, 3000);
-            } catch (error) {
-                console.error("Error updating profile:", error);
-                if (statusMessage) {
-                    statusMessage.textContent = "Error updating profile.";
-                    statusMessage.style.color = 'red';
+                    if (statusMessage) {
+                        statusMessage.textContent = "Profile updated successfully!";
+                        statusMessage.style.color = 'green';
+                    }
+
+                    setTimeout(() => {
+                        window.location.href = 'trainer.html'; // Redirect to dashboard after 3 seconds
+                    }, 3000);
+                } catch (error) {
+                    console.error("Error updating profile:", error);
+                    if (statusMessage) {
+                        statusMessage.textContent = "Error updating profile.";
+                        statusMessage.style.color = 'red';
+                    }
                 }
             }
-        }
-    });
-}
+        });
+    }
+});
+
 
 // Upload profile picture and save the URL in Firestore
-function uploadProfilePicture(file) {
+// Function to upload profile picture and save it directly to Firestore
+async function uploadProfilePicture(file) {
     const userId = auth.currentUser.uid;
-    const profilePicRef = storageRef(storage, 'profilePictures/' + userId + '/profile.jpg');
+    const reader = new FileReader();
 
-    const uploadTask = uploadBytesResumable(profilePicRef, file);
-    uploadTask.on('state_changed', 
-        (snapshot) => {
-            // Optional: Track upload progress
-        }, 
-        (error) => {
-            console.error('Error uploading profile picture:', error);
-        }, 
-        async () => {
-            // Upload completed successfully
-            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-            if (profilePicture) profilePicture.src = downloadURL;
+    reader.onload = async function (event) {
+        const base64Image = event.target.result; // Base64 encoded image
 
-            // Save the profile picture URL in the Users collection
-            const userDocRef = doc(firestore, 'Users', userId);
-            try {
-                await setDoc(userDocRef, { photoURL: downloadURL }, { merge: true });
-                console.log("Profile picture URL saved to Firestore.");
-            } catch (error) {
-                console.error("Error saving profile picture URL to Firestore:", error);
-            }
+        // Update the Trainer document with the Base64 profile picture
+        const trainerDocRef = doc(firestore, 'Trainer', userId);
+        try {
+            await setDoc(trainerDocRef, { TrainerPhoto: base64Image }, { merge: true }); // Merge the image data
+            if (profilePicture) profilePicture.src = base64Image; // Update the displayed image
+            console.log("Profile picture saved to Firestore directly.");
+        } catch (error) {
+            console.error("Error saving profile picture to Firestore:", error);
         }
-    );
+    };
+
+    reader.onerror = function (error) {
+        console.error("Error reading file as Base64:", error);
+    };
+
+    reader.readAsDataURL(file); // Read the file as Base64 data URL
 }
+

@@ -1,5 +1,71 @@
-/* DashResponsive.css */
+/* Menu Toggle Default: Hidden */
+.menu-toggle {
+    display: none; /* Ensure menu toggle is hidden by default */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1001;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+    animation: bounce-in 0.4s ease-in-out;
+}
 
+/* Menu Toggle Bars */
+.menu-toggle .bar {
+    width: 25px;
+    height: 3px;
+    background-color: #faf6f0; /* Light bar color */
+    margin: 3px 0;
+    border-radius: 5px; /* Round edges for smoother look */
+    transition: transform 0.3s ease, opacity 0.3s ease; /* Smooth animation for bars */
+}
+
+/* Show Menu Toggle Only on Mobile Screens */
+@media screen and (max-width: 768px) {
+    .menu-toggle {
+        display: flex; /* Display menu toggle on mobile screens */
+        left: 10px; /* Adjust position for smaller screens */
+        top: 40px;
+    }
+
+    .menu-toggle .bar {
+        width: 20px; /* Smaller bars for mobile */
+    }
+
+    .sidebar {
+        width: 80%; /* Adjust sidebar width for mobile */
+    }
+}
+
+@media screen and (min-width: 769px) {
+    .menu-toggle {
+        display: none !important; /* Hide menu toggle on desktop */
+    }
+
+    .sidebar {
+        transform: translateX(0) !important; /* Ensure sidebar is always visible */
+        position: fixed; /* Keep it fixed if necessary */
+        top: 0;
+        left: 0;
+        width: 250px; /* Set fixed width for desktop */
+        height: 100%; /* Full height of the screen */
+        background-color: #1b1b1b; /* Sidebar background color */
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5); /* Optional shadow */
+        z-index: 1000; /* Ensure it stays above content */
+        display: block; /* Ensure the sidebar is displayed */
+    }
+
+    .content {
+        margin-left: 250px; /* Adjust content to leave space for the sidebar */
+        width: calc(100% - 250px); /* Reduce width to account for sidebar */
+        padding: 20px;
+        box-sizing: border-box;
+    }
+}
 @media screen and (max-width: 768px) {
     /* General Body Styling */
     body {
