@@ -1,8 +1,5 @@
 /* General Styling */
-body {
-    overflow-x: hidden;
-    
-}
+
 nav ul {
     display: flex;
     list-style: none;

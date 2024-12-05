@@ -1590,7 +1590,7 @@ async function displayTrainerRating() {
         // Display the average rating (scaled to 10.0) in the UI next to the stars
         const averageRatingElement = document.getElementById("average-rating-value");
         if (averageRatingElement) {
-            averageRatingElement.innerText = `${averageRating}`; // Display as "9.8/10.0"
+            averageRatingElement.innerText = `${averageRating}/10.0`; // Display as "9.8/10.0"
         }
 
     } catch (error) {
@@ -1807,7 +1807,7 @@ async function displayTrainerRating() {
                 displayEventTime: false,
                 eventContent: function(arg) {
                     let customEl = document.createElement('div');
-                    customEl.style.color = '#FFD700';
+                    customEl.style.color = '#1b1b1b';
                     customEl.style.fontWeight = 'bold';
                     customEl.style.textAlign = 'center';
                     customEl.textContent = arg.event.title;

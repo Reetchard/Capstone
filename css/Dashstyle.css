@@ -573,6 +573,7 @@ font-family: "Helvitica Neue", Arial, sans-serif;
     color: #e0e0e0; /* Light gray text for modal */
     margin: auto;
     max-width: 1000px;
+    text-align: justify;
 }
 .modal-header h3 {
     text-align: center; /* Centers the text */
