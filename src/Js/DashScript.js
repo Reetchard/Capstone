@@ -1404,9 +1404,139 @@ function formatTime(time) {
             showToast("error", "An error occurred while fetching trainer data.");
         }
     };
+    window.showBookingConfirmation = async function(trainerData, trainerId) {
+        const confirmTrainerName = document.getElementById('confirmTrainerName');
+        const confirmTrainerRate = document.getElementById('confirmTrainerRate');
+        const confirmBookingButton = document.getElementById('confirmBookingButton');
+        const bookNowTrainerButton = document.getElementById('BookNowTrainer');
     
+        // Get gym name and user ID
+        const gymName = document.getElementById('modalGymName') ? document.getElementById('modalGymName').innerText : "Default Gym";
+        const userId = await getCurrentUserId();
+        const price = trainerData.rate || '0';  // Default to '0' if rate is not available
+
+        // Format the trainer rate to two decimal places
+    function formatRate(rate) {
+        return '₱' + parseFloat(rate).toFixed(2); // Ensure two decimal places
+    }
     
+        // Update confirmation modal content
+        confirmTrainerName.innerText = trainerData.TrainerName || "the trainer";
+        confirmTrainerRate.innerText = formatRate(price); // Use formatted rate
     
+        // Booking confirmation action for the first modal
+        if (confirmBookingButton) {
+            confirmBookingButton.onclick = function() {
+                $('#bookingConfirmationModal').modal('hide');
+                $('#bookingTrainerModal').modal('show'); // Show the booking form modal
+            };
+        }
+    
+        // Handle final booking submission to Reservations collection
+        if (bookNowTrainerButton) {
+            bookNowTrainerButton.onclick = async function() {
+                try {
+                    // Get booking form data
+                    const firstName = document.getElementById('firstName').value;
+                    const lastName = document.getElementById('lastName').value;
+                    const bookingDate = document.getElementById('date').value;
+                    const email = document.getElementById('email').value;
+                    const message = document.getElementById('message').value;
+    
+                    // Check that required fields are filled
+                    if (!firstName || !lastName || !bookingDate || !email) {
+                        showToast("error", "Please fill out all required fields.");
+                        return;
+                    }
+    
+                    // Hide the modal
+                    $('#bookingTrainerModal').modal('hide');
+    
+                    // Prepare data for saving to the Reservations collection
+                    const reservationData = {
+                        trainerName: trainerData.TrainerName,
+                        trainerId: trainerId,
+                        gymName: gymName,
+                        userId: userId,
+                        rate: price,
+                        firstName: firstName,
+                        lastName: lastName,
+                        bookingDate: bookingDate,
+                        email: email,
+                        message: message,
+                        timestamp: new Date().toISOString()
+                    };
+    
+                    // Save reservation to the Reservations collection
+                    await saveToReservationCollection(reservationData);
+    
+                    // Save booking to the Transactions collection
+                    await saveBookingToDatabase(
+                        trainerData.TrainerName,
+                        gymName,
+                        userId,
+                        price,
+                        "Booking_trainer"
+                    );
+    
+                    // Save notification to the Notifications collection
+                    const notificationMessage = `Booked a session with ${trainerData.TrainerName}`;
+                    const notificationData = {
+                        notificationId: Date.now().toString(), // Generate a unique ID or use your own method
+                        trainerName: trainerData.TrainerName,
+                        gymName: gymName,
+                        price: price || "N/A", // Set default if price is undefined
+                        bookingDate: bookingDate,
+                        firstName: firstName,
+                        lastName: lastName,
+                        email: email
+                    };
+                    
+                    await saveNotificationToDatabase(notificationMessage, userId, "Booking_trainer", notificationData);
+                    
+                    
+    
+                    // Show success message
+                    showToast("success", `Successfully booked a session with ${trainerData.TrainerName}!`);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Booking Confirmed',
+                        text: `You have successfully booked a session with ${trainerData.TrainerName}.`,
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#3085d6',
+                    });
+    
+                    // Show the red dot notification
+                    showNotificationDot();
+    
+                    // Optionally, update UI or fetch new notifications if needed
+                    fetchNotifications(userId);
+    
+                } catch (error) {
+                    console.error("Error booking trainer:", error);
+                    showToast("error", "Failed to book the trainer. Please try again.");
+                }
+            };
+        }
+            
+            // Show the initial booking confirmation modal
+            $('#bookingConfirmationModal').modal('show');
+        };
+    
+        async function saveTrainerNotification(trainerId, userName, trainerName) {
+            try {
+                const notificationData = {
+                    trainerId: trainerId,
+                    message: `${userName} has booked a session with you. Please check your schedule and prepare accordingly.`,
+                    timestamp: new Date().toISOString()
+                };
+                // Simulate saving to the fetchTrainerNotifications collection
+                await saveToDatabase('fetchTrainerNotifications', notificationData);
+            } catch (error) {
+                console.error("Error saving trainer notification:", error);
+            }
+        }
+        
     
     // Function to display trainer ratings with dynamic star count updates
 async function displayTrainerRating() {
@@ -1613,124 +1743,7 @@ async function displayTrainerRating() {
         }
     });
     
-    window.showBookingConfirmation = async function(trainerData, trainerId) {
-        const confirmTrainerName = document.getElementById('confirmTrainerName');
-        const confirmTrainerRate = document.getElementById('confirmTrainerRate');
-        const confirmBookingButton = document.getElementById('confirmBookingButton');
-        const bookNowTrainerButton = document.getElementById('BookNowTrainer');
-    
-        // Get gym name and user ID
-        const gymName = document.getElementById('modalGymName') ? document.getElementById('modalGymName').innerText : "Default Gym";
-        const userId = await getCurrentUserId();
-        const price = trainerData.rate || '0';  // Default to '0' if rate is not available
 
-        // Format the trainer rate to two decimal places
-    function formatRate(rate) {
-        return '₱' + parseFloat(rate).toFixed(2); // Ensure two decimal places
-    }
-    
-        // Update confirmation modal content
-        confirmTrainerName.innerText = trainerData.TrainerName || "the trainer";
-        confirmTrainerRate.innerText = formatRate(price); // Use formatted rate
-    
-        // Booking confirmation action for the first modal
-        if (confirmBookingButton) {
-            confirmBookingButton.onclick = function() {
-                $('#bookingConfirmationModal').modal('hide');
-                $('#bookingTrainerModal').modal('show'); // Show the booking form modal
-            };
-        }
-    
-        // Handle final booking submission to Reservations collection
-        if (bookNowTrainerButton) {
-            bookNowTrainerButton.onclick = async function() {
-                try {
-                    // Get booking form data
-                    const firstName = document.getElementById('firstName').value;
-                    const lastName = document.getElementById('lastName').value;
-                    const bookingDate = document.getElementById('date').value;
-                    const email = document.getElementById('email').value;
-                    const message = document.getElementById('message').value;
-    
-                    // Check that required fields are filled
-                    if (!firstName || !lastName || !bookingDate || !email) {
-                        showToast("error", "Please fill out all required fields.");
-                        return;
-                    }
-    
-                    // Hide the modal
-                    $('#bookingTrainerModal').modal('hide');
-    
-                    // Prepare data for saving to the Reservations collection
-                    const reservationData = {
-                        trainerName: trainerData.TrainerName,
-                        trainerId: trainerId,
-                        gymName: gymName,
-                        userId: userId,
-                        rate: price,
-                        firstName: firstName,
-                        lastName: lastName,
-                        bookingDate: bookingDate,
-                        email: email,
-                        message: message,
-                        timestamp: new Date().toISOString()
-                    };
-    
-                    // Save reservation to the Reservations collection
-                    await saveToReservationCollection(reservationData);
-    
-                    // Save booking to the Transactions collection
-                    await saveBookingToDatabase(
-                        trainerData.TrainerName,
-                        gymName,
-                        userId,
-                        price,
-                        "Booking_trainer"
-                    );
-    
-                    // Save notification to the Notifications collection
-                    const notificationMessage = `Booked a session with ${trainerData.TrainerName}`;
-                    const notificationData = {
-                        notificationId: Date.now().toString(), // Generate a unique ID or use your own method
-                        trainerName: trainerData.TrainerName,
-                        gymName: gymName,
-                        price: price || "N/A", // Set default if price is undefined
-                        bookingDate: bookingDate,
-                        firstName: firstName,
-                        lastName: lastName,
-                        email: email
-                    };
-                    
-                    await saveNotificationToDatabase(notificationMessage, userId, "Booking_trainer", notificationData);
-                    
-                    
-    
-                    // Show success message
-                    showToast("success", `Successfully booked a session with ${trainerData.TrainerName}!`);
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Booking Confirmed',
-                        text: `You have successfully booked a session with ${trainerData.TrainerName}.`,
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#3085d6',
-                    });
-    
-                    // Show the red dot notification
-                    showNotificationDot();
-    
-                    // Optionally, update UI or fetch new notifications if needed
-                    fetchNotifications(userId);
-    
-                } catch (error) {
-                    console.error("Error booking trainer:", error);
-                    showToast("error", "Failed to book the trainer. Please try again.");
-                }
-            };
-        }
-            
-            // Show the initial booking confirmation modal
-            $('#bookingConfirmationModal').modal('show');
-        };
 
         // Function to fetch reserved dates for a specific trainer from Firestore
         async function getTrainerBookedDates(trainerName) {
