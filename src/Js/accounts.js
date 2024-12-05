@@ -436,20 +436,19 @@ if (selectAllCheckbox) {
         hideGlobalSpinner();
     }
 };
-document.addEventListener('DOMContentLoaded', () => {
-    const hamburger = document.getElementById('hamburger');
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
+// Toggle Sidebar Visibility
+const sidebar = document.getElementById('sidebar');
+const hamburger = document.querySelector('.hamburger-container');
 
-    // Toggle sidebar visibility
-    hamburger.addEventListener('click', () => {
-        sidebar.classList.toggle('visible');
-        overlay.classList.toggle('visible');
-    });
-
-    // Hide sidebar when clicking on the overlay
-    overlay.addEventListener('click', () => {
-        sidebar.classList.remove('visible');
-        overlay.classList.remove('visible');
-    });
+// Toggle sidebar visibility on hamburger click
+hamburger.addEventListener('click', () => {
+    sidebar.classList.toggle('visible');
 });
+
+// Close sidebar when clicking outside of it on mobile
+document.addEventListener('click', (event) => {
+    if (!sidebar.contains(event.target) && !hamburger.contains(event.target)) {
+        sidebar.classList.remove('visible');
+    }
+});
+

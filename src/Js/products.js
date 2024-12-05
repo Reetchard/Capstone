@@ -231,6 +231,13 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
     window.addProductToTable = function(productId, docId, photoURL, name, price, description, category, quantity, dateAdded, status) {
+        // Format price with commas (e.g., 1,000 or 1,000,000)
+        const formattedPrice = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'PHP',
+        }).format(price);
+    
+        // Format date
         const formattedDate = dateAdded
             ? new Date(dateAdded).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
             : "Invalid Date";
@@ -238,14 +245,21 @@ document.addEventListener("DOMContentLoaded", function () {
         // Use placeholder if photoURL is invalid
         const imageSrc = photoURL || "https://via.placeholder.com/150";
     
+        // Truncate description to 30 characters and add "View More" link
+        const maxDescriptionLength = 30;
+        const shortDescription =
+            description.length > maxDescriptionLength
+                ? `${description.slice(0, maxDescriptionLength)}... <a href="#" class="view-more" data-description="${description}">View More</a>`
+                : description;
+    
         const row = document.createElement("tr");
     
         row.innerHTML = `
             <td>${productId}</td>
             <td><img src="${imageSrc}" alt="Product" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;"></td>
             <td>${name}</td>
-            <td>₱${price}</td>
-            <td>${description}</td>
+            <td>${formattedPrice}</td>
+            <td class="description-cell">${shortDescription}</td>
             <td>${category}</td>
             <td>${quantity}</td>
             <td>${formattedDate}</td>
@@ -259,6 +273,20 @@ document.addEventListener("DOMContentLoaded", function () {
         `;
     
         document.getElementById("productTableBody").appendChild(row);
+    
+        // Add event listener for "View More" links
+        const viewMoreLinks = row.querySelectorAll(".view-more");
+        viewMoreLinks.forEach((link) => {
+            link.addEventListener("click", (event) => {
+                event.preventDefault();
+                Swal.fire({
+                    title: "Product Description",
+                    text: link.dataset.description,
+                    icon: "info",
+                    confirmButtonText: "Close",
+                });
+            });
+        });
     };
     
 

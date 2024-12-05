@@ -232,7 +232,7 @@ function formatTime(time) {
                 if (!trainersSnapshot.empty) {
                     trainersSnapshot.forEach(doc => {
                         const trainerData = doc.data();
-                        if (trainerData.status !== "Under Review") {
+                        if (trainerData.status !== "Not Qualified") {
                             const trainerCard = `
                                 <div class="trainer-card">
                                     <img src="${trainerData.TrainerPhoto || 'default-trainer-photo.jpg'}" alt="Trainer Photo" class="trainer-photo">

@@ -16,49 +16,40 @@
 </head>
 
 <body>
+  <!-- Hamburger Button for Mobile -->
+  <div class="hamburger-container d-lg-none">
+    <div class="hamburger">
+        <span class="line"></span>
+        <span class="line"></span>
+        <span class="line"></span>
+    </div>
+</div>
 
-    <nav class="sidebar" id="sidebar">
-        <div class="profile-container text-center mb-4" style="position: relative;">
-            <div class="dropdown">
-                <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" class="img-fluid rounded-circle mb-2" style="width: 80px; cursor: pointer;">
-                <h3 id="profile-username" class="mt-2"></h3> <!-- Username header added here -->
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-
-                    <a class="dropdown-item" href="login.html">Log Out</a>
-                </div>
+<!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+    <div class="profile-container text-center mb-4">
+        <div class="dropdown">
+            <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" 
+                 class="img-fluid rounded-circle mb-2" style="width: 80px; cursor: pointer;">
+            <h3 id="profile-username" class="mt-2">Admin</h3>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" href="login.html">Log Out</a>
             </div>
         </div>
-    
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link" href="accounts.html">
-                    <i class="fas fa-dumbbell"></i> Manage Account
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="Gym-Profile.html">
-                    <i class="fas fa-user-friends"></i> Manage Gym Profile
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="reports.html">
-                    <i class="fas fa-user-friends"></i> Manage reports
-                </a>
-            </li>
-                             
-        </ul>
-    </nav>
-
-    <!-- Hamburger Menu -->
-    <div class="hamburger" id="hamburger">
-        <i class="fas fa-bars"></i>
     </div>
 
-    <!-- Main Content -->
-    <div class="main-container">
-        <!-- Your main content goes here -->
-    </div>
-
+    <ul class="nav flex-column">
+        <li class="nav-item">
+            <a class="nav-link" href="accounts.html"><i class="fas fa-dumbbell"></i> Manage Account</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="Gym-Profile.html"><i class="fas fa-user-friends"></i> Manage Gym Profile</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="reports.html"><i class="fas fa-chart-line"></i> Manage Reports</a>
+        </li>
+    </ul>
+</nav>
 
     <!-- Main Content -->
     <div class="main-container">
