@@ -134,40 +134,56 @@ window.closeMembershipPlansModal = function() {
      
 
 
-// Fetch Gym Profiles and Display
-    async function fetchGymProfiles() {
-        const gymsCollection = collection(db, 'GymOwner');
-        
-        // Query to get only gym owners
-        const gymOwnerQuery = query(gymsCollection, where('role', '==', 'gymowner'));
-        
-        const gymSnapshot = await getDocs(gymOwnerQuery);
-        const gymList = gymSnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data() // Include the document data and its ID
-        }));
+async function fetchGymProfiles() {
+    const gymsCollection = collection(db, 'GymOwner');
+    const transactionsCollection = collection(db, 'Transactions');
 
-        const gymProfilesContainer = document.getElementById('gym-profiles'); // Ensure correct ID
-        gymProfilesContainer.innerHTML = ''; // Clear existing profiles
+    // Query to get only gym owners
+    const gymOwnerQuery = query(gymsCollection, where('role', '==', 'gymowner'));
 
-        gymList.forEach(gym => {
-            // Check if the gym status is not "Under Review"
-            if (gym.status && gym.status !== 'Under Review') {
-                const gymDiv = document.createElement('div');
-                gymDiv.classList.add('trainer-card', 'gym-profile', 'mb-3'); // Add Bootstrap card classes
+    const gymSnapshot = await getDocs(gymOwnerQuery);
+    const gymList = gymSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data() // Include the document data and its ID
+    }));
 
-                gymDiv.innerHTML = `
+    // Fetch all transactions
+    const transactionSnapshot = await getDocs(transactionsCollection);
+    const transactionsList = transactionSnapshot.docs.map(doc => doc.data());
+
+    const gymProfilesContainer = document.getElementById('gym-profiles'); // Ensure correct ID
+    gymProfilesContainer.innerHTML = ''; // Clear existing profiles
+
+    gymList.forEach(gym => {
+        // Check if the gym status is not "Under Review"
+        if (gym.status && gym.status !== 'Under Review') {
+            const gymDiv = document.createElement('div');
+            gymDiv.classList.add('trainer-card', 'gym-profile', 'mb-3'); // Add Bootstrap card classes
+
+            // Check if the current gym's name exists in the Transactions collection
+            const hasTransaction = transactionsList.some(
+                transaction => transaction.gymName === gym.gymName
+            );
+
+            // Add the badge if a transaction with the same GymName is found
+            const appliedBadge = hasTransaction ? `<span class="badge badge-success applied-badge">APPLIED</span>` : '';
+
+            gymDiv.innerHTML = `
+                <div class="gym-card-container">
+                    ${appliedBadge}
                     <img src="${gym.gymPhoto || 'default-photo.jpg'}" alt="${gym.gymName || 'Gym'}" class="card-img-top gym-photo" />
                     <div class="card-body">
                         <h5 class="card-title gym-title">${gym.gymName || 'N/A'}</h5>
                         <button class="btn-custom btn-primary view-more-btn" onclick="viewMore('${gym.id}')">Gym Info</button>
                     </div>
-                `;
+                </div>
+            `;
 
-                gymProfilesContainer.appendChild(gymDiv); // Append each gym profile to the container
-            }
-        });
-    }
+            gymProfilesContainer.appendChild(gymDiv); // Append each gym profile to the container
+        }
+    });
+}
+
 
     // Function to format time from 24-hour to 12-hour format with AM/PM
 function formatTime(time) {
@@ -356,106 +372,108 @@ function formatTime(time) {
         }
     }
     
-    window.ViewProductInfo = async function (productId) {
-        try {
-            // Hide any open modals before showing the product info
-            $('.modal').modal('hide');
-    
-            // Fetch product data by ID
-            const productDocRef = doc(db, 'Products', productId);
-            const productDoc = await getDoc(productDocRef);
-    
-            if (productDoc.exists()) {
-                const productData = productDoc.data();
-    
-                // Ensure modal elements exist
-                const modalProductName = document.getElementById('modalProductName');
-                const modalProductPrice = document.getElementById('modalProductPrice');
-                const modalProductDescription = document.getElementById('modalProductDescription');
-                const modalProductPhoto = document.getElementById('modalProductPhoto');
-                const modalProductCategory = document.getElementById('modalProductCategory');
-                const modalProductQuantityAvailable = document.getElementById('modalProductQuantity');
-                const modalProductQuantityInput = document.getElementById('modalProductQuantityInput');
-                const increaseQuantityBtn = document.getElementById('increaseQuantity');
-                const decreaseQuantityBtn = document.getElementById('decreaseQuantity');
-    
-                let availableStock = productData.quantity || 0;
-                let selectedQuantity = 1;
-                let productPrice = parseFloat(productData.price) || 0; // Convert to float to handle decimals
-    
-                // Ensure price is always displayed with two decimal places
-                function formatPrice(price) {
-                    return '₱' + price.toFixed(2); // Always show two decimal places
-                }
-    
-                // Store the original product price in a dataset for consistent access
-                modalProductPrice.dataset.originalPrice = productPrice;
-    
-                // Display product data
-                modalProductName.innerText = productData.name || 'Unnamed Product';
-                modalProductPrice.innerText = formatPrice(productPrice);
-                modalProductDescription.innerText = productData.description || 'No description available.';
-                modalProductPhoto.src = productData.photoURL || 'default-product.jpg';
-                modalProductPhoto.setAttribute('data-product-id', productId); // Store productId in the photo element
-                modalProductCategory.innerText = productData.category || 'N/A';
-                modalProductQuantityAvailable.innerText = `Available: ${availableStock}`;
-    
-                // Function to update total price based on selected quantity
-                function updatePrice() {
-                    const totalPrice = productPrice * selectedQuantity;
-                    modalProductPrice.innerText = formatPrice(totalPrice); // Update the total price display
-                }
-    
-                // Update the displayed stock and quantity
-                function updateQuantity() {
-                    modalProductQuantityInput.value = selectedQuantity;
-                    modalProductQuantityAvailable.innerText = `Available: ${availableStock - selectedQuantity}`;
-                    updatePrice(); // Update the total price when quantity changes
-                }
-    
-                // Remove existing event listeners to prevent duplication
-                increaseQuantityBtn.onclick = null;
-                decreaseQuantityBtn.onclick = null;
-    
-                // Increase quantity
-                increaseQuantityBtn.addEventListener('click', function () {
-                    if (selectedQuantity < availableStock) {
-                        selectedQuantity++;
-                        updateQuantity();
-                    }
-                });
-    
-                // Decrease quantity
-                decreaseQuantityBtn.addEventListener('click', function () {
-                    if (selectedQuantity > 1) {
-                        selectedQuantity--;
-                        updateQuantity();
-                    }
-                });
-    
-                // Set initial quantity and price
-                modalProductQuantityInput.value = selectedQuantity;
-                updatePrice(); // Set initial price based on quantity 1
-    
-                // Show the Product Info modal
-                $('#productModal').modal('show');
-            } else {
-                console.error('Product not found!');
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Product Not Found',
-                    text: 'The requested product could not be found.',
-                });
+window.ViewProductInfo = async function (productId) {
+    try {
+        // Hide any open modals before showing the product info
+        $('.modal').modal('hide');
+
+        // Fetch product data by ID
+        const productDocRef = doc(db, 'Products', productId);
+        const productDoc = await getDoc(productDocRef);
+
+        if (productDoc.exists()) {
+            const productData = productDoc.data();
+
+            // Ensure modal elements exist
+            const modalProductName = document.getElementById('modalProductName');
+            const modalProductPrice = document.getElementById('modalProductPrice');
+            const modalProductDescription = document.getElementById('modalProductDescription');
+            const modalProductPhoto = document.getElementById('modalProductPhoto');
+            const modalProductCategory = document.getElementById('modalProductCategory');
+            const modalProductQuantityAvailable = document.getElementById('modalProductQuantity');
+            const modalProductQuantityInput = document.getElementById('modalProductQuantityInput');
+            const increaseQuantityBtn = document.getElementById('increaseQuantity');
+            const decreaseQuantityBtn = document.getElementById('decreaseQuantity');
+
+            let availableStock = productData.quantity || 0;
+            let selectedQuantity = 1;
+            let productPrice = parseFloat(productData.price) || 0; // Convert to float to handle decimals
+
+            // Ensure price is always displayed with commas and two decimal places
+            function formatPrice(price) {
+                return '₱' + price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             }
-        } catch (error) {
-            console.error('Error fetching product data:', error);
+
+            // Store the original product price in a dataset for consistent access
+            modalProductPrice.dataset.originalPrice = productPrice;
+
+            // Display product data
+            modalProductName.innerText = productData.name || 'Unnamed Product';
+            modalProductPrice.innerText = formatPrice(productPrice);
+            modalProductDescription.innerText = productData.description || 'No description available.';
+            modalProductPhoto.src = productData.photoURL || 'default-product.jpg';
+            modalProductPhoto.setAttribute('data-product-id', productId); // Store productId in the photo element
+            modalProductCategory.innerText = productData.category || 'N/A';
+            modalProductQuantityAvailable.innerText = `Available: ${availableStock}`;
+
+            // Function to update total price based on selected quantity
+            function updatePrice() {
+                const totalPrice = productPrice * selectedQuantity;
+                modalProductPrice.innerText = formatPrice(totalPrice); // Update the total price display
+            }
+
+            // Update the displayed stock and quantity
+            function updateQuantity() {
+                modalProductQuantityInput.value = selectedQuantity;
+                modalProductQuantityAvailable.innerText = `Available: ${availableStock - selectedQuantity}`;
+                updatePrice(); // Update the total price when quantity changes
+            }
+
+            // Remove existing event listeners to prevent duplication
+            increaseQuantityBtn.onclick = null;
+            decreaseQuantityBtn.onclick = null;
+
+            // Increase quantity
+            increaseQuantityBtn.addEventListener('click', function () {
+                if (selectedQuantity < availableStock) {
+                    selectedQuantity++;
+                    updateQuantity();
+                }
+            });
+
+            // Decrease quantity
+            decreaseQuantityBtn.addEventListener('click', function () {
+                if (selectedQuantity > 1) {
+                    selectedQuantity--;
+                    updateQuantity();
+                }
+            });
+
+            // Set initial quantity and price
+            modalProductQuantityInput.value = selectedQuantity;
+            updatePrice(); // Set initial price based on quantity 1
+
+            // Show the Product Info modal
+            $('#productModal').modal('show');
+        } else {
+            console.error('Product not found!');
             Swal.fire({
                 icon: 'error',
-                title: 'Error',
-                text: 'An error occurred while fetching product details. Please try again.',
+                title: 'Product Not Found',
+                text: 'The requested product could not be found.',
             });
         }
-    };
+    } catch (error) {
+        console.error('Error fetching product data:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An error occurred while fetching product details. Please try again.',
+        });
+    }
+};
+
+    
     
     window.buyNow = async function () {
         try {
@@ -537,7 +555,7 @@ function formatTime(time) {
     
                     // Create a new notification with detailed information
                     const newNotification = {
-                        message: `You purchased ${quantityPurchased} of ${productName} for ${totalPrice}.`,
+                        message : `You purchased ${quantityPurchased} of ${productName} for ${totalPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.`,
                         type : 'Products', 
                         productName: productName,
                         quantity: quantityPurchased,
@@ -1489,6 +1507,7 @@ function formatTime(time) {
                         bookingDate: bookingDate,
                         firstName: firstName,
                         lastName: lastName,
+                        status:"Pending",
                         email: email
                     };
                     
@@ -2295,37 +2314,43 @@ async function displayTrainerRating() {
                     }
                 }
 
-                // Show detailed notification information in a modal
                 function showNotificationDetails(notification) {
+                    // Helper function to safely format price
+                    const formatPrice = (price) => {
+                        // Remove any non-numeric characters (like ₱) and then parse
+                        const numericPrice = parseFloat(price.replace(/[^\d.-]/g, ''));
+                        return !isNaN(numericPrice)
+                            ? `₱${numericPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                            : 'N/A';
+                    };
                 
                     // Define the content based on notification type
                     let notificationContent = '';
-
+                
                     if (notification.type === "Booking_trainer") {
                         // Content for booking trainer notifications
                         notificationContent = `
-                            <p class="gym-name">${notification.gymName}</p>
+                            <p class="gym-name">${notification.gymName || 'N/A'}</p>
                             <p class="ref-number"><strong>Ref. No:</strong> ${notification.notificationId || 'N/A'}</p>
                             <div class="product-info">
-                                <p><strong>Trainer:</strong> ${notification.trainerName}</p>
-                                <p><strong>Date:</strong> ${notification.bookingDate}</p>
-                                <p><strong>Rate:</strong>₱${parseFloat(notification.price).toFixed(2)}</p>
-                                <p><strong>Status:</strong> ${notification.status}</p>
+                                <p><strong>Trainer:</strong> ${notification.trainerName || 'N/A'}</p>
+                                <p><strong>Date:</strong> ${notification.bookingDate || 'N/A'}</p>
+                                <p><strong>Rate:</strong> ${formatPrice(notification.price)}</p>
+                                <p><strong>Status:</strong> ${notification.status || 'N/A'}</p>
                             </div>
                             <hr>
                             <p class="footer-info">Show this receipt to the Gym owner upon arrival.</p>
                         `;
                     } else if (notification.type === "Products") {
-                        
                         // Content for products notifications
                         notificationContent = `
-                            <p class="gym-name">${notification.gymName}</p>
+                            <p class="gym-name">${notification.gymName || 'N/A'}</p>
                             <p class="ref-number"><strong>Ref. No:</strong> ${notification.notificationId || 'N/A'}</p>
                             <div class="product-info">
-                                <p><strong>Product:</strong> ${notification.productName}</p>
-                                <p><strong>Quantity:</strong> ${notification.quantity}</p>
-                                <p><strong>Total Price:</strong> ${notification.totalPrice || 'N/A'}</p> <!-- Use formatted price -->
-                                <p><strong>Status:</strong> ${notification.status}</p>
+                                <p><strong>Product:</strong> ${notification.productName || 'N/A'}</p>
+                                <p><strong>Quantity:</strong> ${notification.quantity || 'N/A'}</p>
+                                <p><strong>Total Price:</strong> ${formatPrice(notification.totalPrice)}</p>
+                                <p><strong>Status:</strong> ${notification.status || 'N/A'}</p>
                             </div>
                             <hr>
                             <p class="footer-info">Show this receipt to the Gym owner upon collection.</p>
@@ -2339,7 +2364,7 @@ async function displayTrainerRating() {
                             <div class="modal-dialog modal-dialog-centered" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="notificationDetailsLabel">${notification.type === "Booking_trainer" ? "Booking Confirmation" : "Order List"}</h5>
+                                        <h5 class="modal-title" id="notificationDetailsLabel">${notification.type === "Booking_trainer" ? "Booking Confirmation" : "Purchased Product"}</h5>
                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
                                         </button>
@@ -2361,6 +2386,9 @@ async function displayTrainerRating() {
                         this.remove();
                     });
                 }
+                
+                
+                
                 
                 
 
