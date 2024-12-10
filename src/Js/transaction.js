@@ -290,7 +290,7 @@ async function fetchTrainerTransactions(userId, gymName) {
         }
 
         const transactionsQuery = query(
-            collection(db, "Transactions"),
+            collection(db, "Notifications"),
             where("type", "==", "Booking_trainer"),
             where("gymName", "==", gymName)
         );
@@ -298,17 +298,53 @@ async function fetchTrainerTransactions(userId, gymName) {
         const transactionsSnapshot = await getDocs(transactionsQuery);
 
         if (transactionsSnapshot.empty) {
-            console.warn(`No trainer transactions found for gym "${gymName}".`);
+            console.warn(`No trainer notifications found for gym "${gymName}".`);
         } else {
-            console.log(`Trainer transactions found for gym "${gymName}":`, transactionsSnapshot.docs.map(doc => doc.data()));
+            console.log(`Trainer notifications found for gym "${gymName}":`, transactionsSnapshot.docs.map(doc => doc.data()));
         }
 
         return transactionsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     } catch (error) {
-        console.error("Error fetching trainer transactions:", error);
+        console.error("Error fetching trainer notifications:", error);
         return [];
     }
 }
+async function updateNotificationStatus(notificationId, status, statusCell, button) {
+    try {
+        const notificationRef = doc(db, "Notifications", notificationId);
+        await updateDoc(notificationRef, { status });
+
+        // Update the status cell in the table
+        statusCell.textContent = status;
+
+        // Optionally disable buttons or provide feedback
+        button.classList.add("updated");
+        showToast("success", `Status updated to "${status}".`);
+    } catch (error) {
+        console.error(`Error updating status for notification ID ${notificationId}:`, error);
+        showToast("error", "Failed to update status. Please try again.");
+    }
+}
+function showToast(type, message) {
+    const toastContainer = document.getElementById('toast-container');
+
+    if (!toastContainer) {
+        console.error("Toast container not found.");
+        return;
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`; // Use different styles for success, error, etc.
+    toast.textContent = message;
+
+    toastContainer.appendChild(toast);
+
+    // Automatically remove the toast after a delay
+    setTimeout(() => {
+        toast.remove();
+    }, 3000); // 3 seconds
+}
+
 
 async function populateTrainerTable(transactions) {
     const tableBody = document.querySelector("#Booking_trainerTable tbody");
@@ -352,16 +388,25 @@ async function populateTrainerTable(transactions) {
 
         const statusCell = row.querySelector('.status-cell');
         row.querySelector('.approve').addEventListener('click', (event) => {
-            updateTransactionStatus(transaction.id, 'Approved', statusCell, event.target);
+            updateNotificationStatus(transaction.id, 'Approved', statusCell, event.target);
         });
         row.querySelector('.idle').addEventListener('click', (event) => {
-            updateTransactionStatus(transaction.id, 'Idle', statusCell, event.target);
+            updateNotificationStatus(transaction.id, 'Idle', statusCell, event.target);
         });
         row.querySelector('.blocked').addEventListener('click', (event) => {
-            updateTransactionStatus(transaction.id, 'Blocked', statusCell, event.target);
+            updateNotificationStatus(transaction.id, 'Blocked', statusCell, event.target);
         });
 
         tableBody.appendChild(row);
+    }
+}
+
+async function fetchAndPopulateTrainerNotifications(userId, gymName) {
+    try {
+        const transactions = await fetchTrainerTransactions(userId, gymName);
+        await populateTrainerTable(transactions);
+    } catch (error) {
+        console.error("Error fetching and populating trainer notifications:", error);
     }
 }
 
@@ -412,8 +457,8 @@ async function fetchProductTransactions(userId, gymName) {
         }
 
         const transactionsQuery = query(
-            collection(db, "Transactions"), // Correct collection
-            where("type", "==", "Products"),
+            collection(db, "Notifications"),
+            where("type", "==", "Products"), // Ensure it matches product notifications
             where("gymName", "==", gymName)
         );
 
@@ -424,6 +469,7 @@ async function fetchProductTransactions(userId, gymName) {
             return [];
         }
 
+        console.log(`Product notifications found for gym "${gymName}":`, transactionsSnapshot.docs.map(doc => doc.data()));
         return transactionsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     } catch (error) {
         console.error("Error fetching product transactions:", error);
@@ -442,18 +488,19 @@ async function populateProductTable(transactions) {
     tableBody.innerHTML = ''; // Clear existing rows
 
     if (transactions.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="9">No transactions found.</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="8">No transactions found.</td></tr>';
         return;
     }
-
-    console.log("Populating table with transactions:", transactions);
 
     for (let transaction of transactions) {
         const row = document.createElement('tr');
 
+        // Fetch username based on userId
         const username = await getUsernameFromUserId(transaction.userId);
+
+        // Format timestamp if available
         const formattedTimestamp = transaction.timestamp
-            ? new Date(transaction.timestamp.seconds * 1000).toLocaleString()
+            ? formatTimestamp(transaction.timestamp)
             : 'N/A';
 
         row.innerHTML = `
@@ -461,7 +508,7 @@ async function populateProductTable(transactions) {
             <td>${transaction.gymName || 'N/A'}</td>
             <td>${transaction.productName || 'N/A'}</td>
             <td>${transaction.quantity || 'N/A'}</td>
-            <td>${transaction.timestamp}</td>
+            <td>${formattedTimestamp}</td>
             <td>${transaction.totalPrice || 'N/A'}</td>
             <td class="status-cell">${transaction.status || 'N/A'}</td>
             <td>
@@ -473,32 +520,30 @@ async function populateProductTable(transactions) {
 
         const statusCell = row.querySelector('.status-cell');
         row.querySelector('.approve').addEventListener('click', (event) => {
-            console.log(`Approving transaction ID: ${transaction.id}`);
-            updateTransactionStatus(transaction.id, 'Approved', statusCell, event.target);
+            updateNotificationStatus(transaction.id, 'Approved', statusCell, event.target);
         });
         row.querySelector('.idle').addEventListener('click', (event) => {
-            console.log(`Idling transaction ID: ${transaction.id}`);
-            updateTransactionStatus(transaction.id, 'Idle', statusCell, event.target);
+            updateNotificationStatus(transaction.id, 'Idle', statusCell, event.target);
         });
         row.querySelector('.blocked').addEventListener('click', (event) => {
-            console.log(`Blocking transaction ID: ${transaction.id}`);
-            updateTransactionStatus(transaction.id, 'Blocked', statusCell, event.target);
+            updateNotificationStatus(transaction.id, 'Blocked', statusCell, event.target);
         });
 
         tableBody.appendChild(row);
     }
 }
 
-
-
-
 async function loadProductTransactions(userId, gymName) {
-    const transactions = await fetchProductTransactions(userId, gymName);
-
-    populateProductTable(transactions);
-
-    $('#productsModal').modal('show'); // Show the modal
+    try {
+        const transactions = await fetchProductTransactions(userId, gymName);
+        await populateProductTable(transactions);
+        $('#productsModal').modal('show'); // Show the modal
+    } catch (error) {
+        console.error("Error loading product transactions:", error);
+    }
 }
+
+
 
 document.querySelector('button[data-type="product"]').addEventListener('click', async () => {
     onAuthStateChanged(auth, async (user) => {
