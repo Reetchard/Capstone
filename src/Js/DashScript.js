@@ -252,7 +252,7 @@ function formatTime(time) {
                             const trainerCard = `
                                 <div class="trainer-card">
                                     <img src="${trainerData.TrainerPhoto || 'default-trainer-photo.jpg'}" alt="Trainer Photo" class="trainer-photo">
-                                    <h5>${trainerData.TrainerName || 'No Name'}</h5>
+                                    <h5>${trainerData.username || 'No Name'}</h5>
                                     <button class="btn-custom btn-success" onclick="ViewTrainerInfo('${doc.id}')">Trainer Info</button>
                                 </div>
                             `;
@@ -919,11 +919,20 @@ window.ViewProductInfo = async function (productId) {
                 purchaseDate: new Date().toISOString(), // Save the current date and time
                 status: 'Pending Owner Approval' // Default status for membership
             };
-    
             // Save the transaction to Firestore
             await addDoc(collection(db, 'Transactions'), newTransaction);
             console.log('Transaction saved successfully.');
-    
+
+        const message = `A new member has applied; please review it for approval.`;
+        const notification = {
+            userId: userId,
+            gymName: gymName,
+            message: message,
+            timestamp: new Date().toISOString(), // Current date and time
+            status: 'Unread' // Default status
+        };
+        await addDoc(collection(db, 'MemberNotif'), notification);
+        console.log('Member notification saved successfully.');   
         } catch (error) {
             console.error('Error saving transaction:', error);
             throw new Error('Failed to save the transaction');
@@ -1385,7 +1394,7 @@ window.ViewProductInfo = async function (productId) {
                 }
     
                 // Populate the trainer modal with fetched data
-                document.getElementById('modalTrainerName').innerText = trainerData.TrainerName || 'N/A';
+                document.getElementById('modalTrainerName').innerText = trainerData.username || 'N/A';
                 document.getElementById('modalTrainerPhoto').src = trainerData.TrainerPhoto || 'default-trainer-photo.jpg';
                 document.getElementById('modalTrainerExpertise').innerText = trainerData.Expertise || 'N/A';
                 document.getElementById('modalTrainerExperience').innerText = trainerData.Experience || 'N/A';
@@ -1432,7 +1441,7 @@ window.ViewProductInfo = async function (productId) {
         // Get gym name and user ID
         const gymName = document.getElementById('modalGymName') ? document.getElementById('modalGymName').innerText : "Default Gym";
         const userId = await getCurrentUserId();
-        const price = trainerData.rate || '0'; // Default to '0' if rate is not available
+        const price = trainerData?.rate || '0'; // Default to '0' if rate is not available
     
         // Format the trainer rate to two decimal places
         function formatRate(rate) {
@@ -1447,7 +1456,6 @@ window.ViewProductInfo = async function (productId) {
             if (user && user.email) {
                 email = user.email; // Use email from Firebase Auth
             } else {
-                // If no authenticated user is found in auth, try Firestore
                 await new Promise((resolve, reject) => {
                     onAuthStateChanged(auth, async (user) => {
                         if (user) {
@@ -1482,8 +1490,8 @@ window.ViewProductInfo = async function (productId) {
         }
     
         // Update confirmation modal content
-        confirmTrainerName.innerText = trainerData.TrainerName || "the trainer";
-        confirmTrainerRate.innerText = formatRate(price); // Use formatted rate
+        confirmTrainerName.innerText = trainerData?.TrainerName || "Unknown Trainer";
+        confirmTrainerRate.innerText = formatRate(price);
     
         // Booking confirmation action for the first modal
         if (confirmBookingButton) {
@@ -1503,36 +1511,30 @@ window.ViewProductInfo = async function (productId) {
         if (bookNowTrainerButton) {
             bookNowTrainerButton.onclick = async function () {
                 try {
-                    // Fetch the input fields
                     const firstNameInput = document.getElementById('firstName');
                     const lastNameInput = document.getElementById('lastName');
                     const bookingDateInput = document.getElementById('date');
                     const messageInput = document.getElementById('message');
     
-                    // Ensure all fields exist in the DOM
                     if (!firstNameInput || !lastNameInput || !bookingDateInput) {
                         showToast("error", "Booking form elements are missing. Please check the DOM structure.");
                         return;
                     }
     
-                    // Get values from the input fields
                     const firstName = firstNameInput.value.trim();
                     const lastName = lastNameInput.value.trim();
                     const bookingDate = bookingDateInput.value.trim();
-                    const message = messageInput ? messageInput.value.trim() : ""; // Optional message field
+                    const message = messageInput?.value.trim() || "";
     
-                    // Check that required fields are filled
                     if (!firstName || !lastName || !bookingDate || !email) {
                         showToast("error", "Please fill out all required fields.");
                         return;
                     }
     
-                    // Hide the modal
                     $('#bookingTrainerModal').modal('hide');
     
-                    // Prepare data for saving to the Reservations collection
                     const reservationData = {
-                        trainerName: trainerData.TrainerName,
+                        trainerName: trainerData?.TrainerName || "Unknown Trainer",
                         trainerId: trainerId,
                         gymName: gymName,
                         userId: userId,
@@ -1545,23 +1547,20 @@ window.ViewProductInfo = async function (productId) {
                         timestamp: new Date().toISOString()
                     };
     
-                    // Save reservation to the Reservations collection
                     await saveToReservationCollection(reservationData);
     
-                    // Save booking to the Transactions collection
                     await saveBookingToDatabase(
-                        trainerData.TrainerName,
+                        trainerData?.TrainerName || "Unknown Trainer",
                         gymName,
                         userId,
                         price,
                         "Booking_trainer"
                     );
     
-                    // Save notification to the Notifications collection
-                    const notificationMessage = `Booked a session with ${trainerData.TrainerName}`;
+                    const notificationMessage = `Booked a session with ${trainerData?.TrainerName || "Unknown Trainer"}`;
                     const notificationData = {
                         notificationId: Date.now().toString(),
-                        trainerName: trainerData.TrainerName,
+                        trainerName: trainerData?.TrainerName || "Unknown Trainer",
                         gymName: gymName,
                         price: price || "N/A",
                         bookingDate: bookingDate,
@@ -1573,20 +1572,27 @@ window.ViewProductInfo = async function (productId) {
     
                     await saveNotificationToDatabase(notificationMessage, userId, "Booking_trainer", notificationData);
     
-                    // Show success message
-                    showToast("success", `Successfully booked a session with ${trainerData.TrainerName}!`);
+                    const messageNotif = `A customer has made a reservation; look for their username or email address in the messages to get in touch.`;
+                    const memberNotification = {
+                        userId: userId,
+                        gymName: gymName,
+                        message: messageNotif,
+                        timestamp: new Date().toISOString(),
+                        status: 'Unread'
+                    };
+                    await addDoc(collection(db, 'TrainerNotif'), memberNotification);
+                    console.log('Member notification saved successfully.');
+    
+                    showToast("success", `Successfully booked a session with ${trainerData?.TrainerName || "Unknown Trainer"}!`);
                     Swal.fire({
                         icon: 'success',
                         title: 'Booking Confirmed',
-                        text: `You have successfully booked a session with ${trainerData.TrainerName}.`,
+                        text: `You have successfully booked a session with ${trainerData?.TrainerName || "Unknown Trainer"}.`,
                         confirmButtonText: 'OK',
                         confirmButtonColor: '#3085d6',
                     });
     
-                    // Show the red dot notification
                     showNotificationDot();
-    
-                    // Optionally, update UI or fetch new notifications if needed
                     fetchNotifications(userId);
     
                 } catch (error) {
@@ -1596,9 +1602,9 @@ window.ViewProductInfo = async function (productId) {
             };
         }
     
-        // Show the initial booking confirmation modal
         $('#bookingConfirmationModal').modal('show');
     };
+    
     
     
     

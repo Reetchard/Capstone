@@ -125,7 +125,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             // Check if TrainerName exists in Firestore
             const trainersRef = collection(db, "Trainer");
-            const q = query(trainersRef, where("TrainerName", "==", trainerName));
+            const q = query(trainersRef, where("email", "==", trainerEmail));
             const querySnapshot = await getDocs(q);
 
             if (!querySnapshot.empty) {
@@ -148,6 +148,17 @@ document.addEventListener("DOMContentLoaded", function () {
                     status: "Under Review",
                 });
 
+                const message = `A new trainer has applied; kindly check and approve it.`;
+                const notification = {
+                    userId: trainerDoc.id,
+                    gymName: gymName,
+                    message: message,
+                    timestamp: new Date().toISOString(), // Current date and time
+                    status: "Unread", // Default status
+                };
+                await addDoc(collection(db, "MemberNotif"), notification);
+                console.log("Member notification saved successfully.");
+
                 hideSpinner();
                 Swal.fire({
                     icon: "success",
@@ -158,7 +169,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
             } else {
                 // Trainer does not exist, create a new document
-                await addDoc(trainersRef, {
+                const newTrainerRef = await addDoc(trainersRef, {
                     TrainerName: trainerName,
                     TrainerEmail: trainerEmail,
                     TrainerPhoto: TrainerPhotoURL,
@@ -173,6 +184,17 @@ document.addEventListener("DOMContentLoaded", function () {
                     role: "trainer",
                     status: "Under Review",
                 });
+
+                const message = `A new trainer has applied; kindly check and approve it.`;
+                const notification = {
+                    userId: newTrainerRef.id,
+                    gymName: gymName,
+                    message: message,
+                    timestamp: new Date().toISOString(), // Current date and time
+                    status: "Unread", // Default status
+                };
+                await addDoc(collection(db, "MemberNotif"), notification);
+                console.log("Member notification saved successfully.");
 
                 hideSpinner();
                 Swal.fire({
@@ -193,5 +215,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
+
 
 

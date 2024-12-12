@@ -131,7 +131,6 @@ $(document).ready(function () {
                                     <td>${plan.accessLevel}</td>
                                     <td>${plan.allowedClasses}</td>
                                     <td>${plan.guestPasses}</td>
-                                    <td>${plan.referralCode}</td>
                                     <td>${plan.membershipDays}</td>
                                     <td>
                                         <button class="btn btn-primary edit-button" data-id="${id}">Edit</button>
@@ -179,7 +178,6 @@ $(document).ready(function () {
                     $('#accessLevel').val(planData.accessLevel);
                     $('#allowedClasses').val(planData.allowedClasses);
                     $('#guestPasses').val(planData.guestPasses);
-                    $('#referralCode').val(planData.referralCode);
                     $('#membershipDays').val(planData.membershipDays);
 
                     toggleSpinner(false);
@@ -207,7 +205,6 @@ $('#editPlanForm').on('submit', async function (e) {
     const accessLevel = $('#accessLevel').val();
     const allowedClasses = $('#allowedClasses').val();
     const guestPasses = $('#guestPasses').val();
-    const referralCode = $('#referralCode').val();
     const membershipDays = $('#membershipDays').val();
 
     const user = auth.currentUser;
@@ -243,7 +240,6 @@ $('#editPlanForm').on('submit', async function (e) {
             accessLevel,
             allowedClasses,
             guestPasses,
-            referralCode,
             membershipDays,
             ownerEmail: userEmail,
             ownerId: userId,

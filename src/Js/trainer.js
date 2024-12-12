@@ -83,7 +83,7 @@ function renderTrainerCard(trainer, trainerId) {
         </div>
         <img src="${trainer.TrainerPhoto || 'default-image.jpg'}" class="card-img-top rounded-circle border border-success" alt="Trainer Photo">
         <div class="card-body text-center">
-            <a href="#" class="text-white font-weight-bold trainer-name">${trainer.TrainerName || 'N/A'}</a>
+            <a href="#" class="text-white font-weight-bold trainer-name">${trainer.username || 'N/A'}</a>
             <div class="mt-3">
                 <!-- Toggle Switch -->
                 <label class="toggle-switch">
@@ -143,7 +143,7 @@ window.showTrainerDetails = async function (trainerId) {
                 .join(' ');
 
         // Populate modal with trainer information
-        modalTrainerName.textContent = capitalizeName(trainer.TrainerName || 'N/A');
+        modalTrainerName.textContent = capitalizeName(trainer.username || 'N/A');
         modalTrainerPhoto.src = trainer.TrainerPhoto || 'default-image.jpg';
         modalExperience.textContent = trainer.Experience || 'N/A';
         modalExpertise.textContent = trainer.Expertise || 'N/A';
