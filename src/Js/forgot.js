@@ -14,44 +14,62 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app); // Ensure `auth` is properly initialized
+const auth = getAuth(app); // Initialize authentication
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const forgotPasswordForm = document.getElementById('forgotPasswordForm');
     const messageElement = document.getElementById('message');
+    const emailInput = document.getElementById('email');
 
-    // Debugging: Log elements to the console
+    // Debugging: Log the elements
     console.log('Forgot Password Form:', forgotPasswordForm);
     console.log('Message Element:', messageElement);
+    console.log('Email Input:', emailInput);
 
-    // Check if form element is present
-    if (!forgotPasswordForm) {
-        console.error('Form element with ID "forgotPasswordForm" not found.');
+    // Ensure required elements are present
+    if (!forgotPasswordForm || !messageElement || !emailInput) {
+        console.error('Required form elements are missing.');
         return;
     }
 
-    // Check if message element is present
-    if (!messageElement) {
-        console.error('Element with ID "message" not found.');
-        return;
-    }
-
-    forgotPasswordForm.addEventListener('submit', function(event) {
+    // Add event listener to the form
+    forgotPasswordForm.addEventListener('submit', function (event) {
         event.preventDefault();
 
-        const email = document.getElementById('email').value;
+        const email = emailInput.value.trim();
 
         if (!email) {
             showErrorMessage(messageElement, 'Email field is required.');
             return;
         }
 
-        sendPasswordResetEmail(auth, email)  // Use the imported function
+        sendPasswordResetEmail(auth, email)
             .then(() => {
                 showSuccessMessage(messageElement, 'Password reset email sent. Please check your inbox.');
+
+                // Clear email input
+                setTimeout(() => {
+                    emailInput.value = ''; // Ensure input is cleared with a slight delay
+                }, 50);
+
+                // Hide the message after 3 seconds
+                setTimeout(() => {
+                    messageElement.textContent = '';
+                }, 3000);
             })
             .catch((error) => {
-                showErrorMessage(messageElement, 'SignIn Error: ' + error.message);
+                console.error('Error during password reset:', error);
+                showErrorMessage(messageElement, `Error: ${error.message}`);
             });
     });
 });
+
+function showErrorMessage(element, message) {
+    element.style.color = 'red';
+    element.textContent = message;
+}
+
+function showSuccessMessage(element, message) {
+    element.style.color = 'green';
+    element.textContent = message;
+}

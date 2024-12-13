@@ -132,6 +132,21 @@ window.closeMembershipPlansModal = function() {
             }
 };
      
+window.filterGyms = function() {
+    const searchInput = document.getElementById('gymSearch').value.toLowerCase(); // Get search box value
+    const gymProfiles = document.getElementById('gym-profiles'); // Container for gym profiles
+    const gyms = gymProfiles.getElementsByClassName('gym'); // All gym profile elements
+
+    // Iterate through all gym profiles
+    for (let i = 0; i < gyms.length; i++) {
+        const gymName = gyms[i].getAttribute('data-name').toLowerCase(); // Get the data-name attribute
+        if (searchInput === '' || gymName.includes(searchInput)) {
+            gyms[i].style.display = ''; // Show matching gyms or all gyms if input is empty
+        } else {
+            gyms[i].style.display = 'none'; // Hide gyms that don't match
+        }
+    }
+}
 
 
 async function fetchGymProfiles() {
@@ -155,18 +170,20 @@ async function fetchGymProfiles() {
     gymProfilesContainer.innerHTML = ''; // Clear existing profiles
 
     gymList.forEach(gym => {
-        // Check if the gym status is not "Under Review"
+        // Check if the gym status is not "Under review"
         if (gym.status && gym.status !== 'Under Review') {
             const gymDiv = document.createElement('div');
             gymDiv.classList.add('trainer-card', 'gym-profile', 'mb-3'); // Add Bootstrap card classes
 
-            // Check if the current gym's name exists in the Transactions collection
-            const hasTransaction = transactionsList.some(
-                transaction => transaction.gymName === gym.gymName
+            // Check if a transaction for the current gym exists and is "Approved"
+            const hasApprovedTransaction = transactionsList.some(
+                transaction => transaction.gymName === gym.gymName && transaction.status === 'Approved'
             );
 
-            // Add the badge if a transaction with the same GymName is found
-            const appliedBadge = hasTransaction ? `<span class="badge badge-success applied-badge">APPLIED</span>` : '';
+            // Add the badge if an "Approved" transaction with the same GymName is found
+            const appliedBadge = hasApprovedTransaction
+                ? `<span class="badge badge-success applied-badge">APPLIED</span>`
+                : '';
 
             gymDiv.innerHTML = `
                 <div class="gym-card-container">
@@ -183,6 +200,7 @@ async function fetchGymProfiles() {
         }
     });
 }
+
 
 
     // Function to format time from 24-hour to 12-hour format with AM/PM
@@ -1490,7 +1508,7 @@ window.ViewProductInfo = async function (productId) {
         }
     
         // Update confirmation modal content
-        confirmTrainerName.innerText = trainerData?.TrainerName || "Unknown Trainer";
+        confirmTrainerName.innerText = trainerData?.username || "Unknown Trainer";
         confirmTrainerRate.innerText = formatRate(price);
     
         // Booking confirmation action for the first modal
@@ -1534,7 +1552,7 @@ window.ViewProductInfo = async function (productId) {
                     $('#bookingTrainerModal').modal('hide');
     
                     const reservationData = {
-                        trainerName: trainerData?.TrainerName || "Unknown Trainer",
+                        username: trainerData?.username || "Unknown Trainer",
                         trainerId: trainerId,
                         gymName: gymName,
                         userId: userId,
@@ -1550,17 +1568,17 @@ window.ViewProductInfo = async function (productId) {
                     await saveToReservationCollection(reservationData);
     
                     await saveBookingToDatabase(
-                        trainerData?.TrainerName || "Unknown Trainer",
+                        trainerData?.username || "Unknown Trainer",
                         gymName,
                         userId,
                         price,
                         "Booking_trainer"
                     );
     
-                    const notificationMessage = `Booked a session with ${trainerData?.TrainerName || "Unknown Trainer"}`;
+                    const notificationMessage = `Booked a session with ${trainerData?.username || "Unknown Trainer"}`;
                     const notificationData = {
                         notificationId: Date.now().toString(),
-                        trainerName: trainerData?.TrainerName || "Unknown Trainer",
+                        username: trainerData?.username || "Unknown Trainer",
                         gymName: gymName,
                         price: price || "N/A",
                         bookingDate: bookingDate,
@@ -1583,11 +1601,11 @@ window.ViewProductInfo = async function (productId) {
                     await addDoc(collection(db, 'TrainerNotif'), memberNotification);
                     console.log('Member notification saved successfully.');
     
-                    showToast("success", `Successfully booked a session with ${trainerData?.TrainerName || "Unknown Trainer"}!`);
+                    showToast("success", `Successfully booked a session with ${trainerData?.username || "Unknown Trainer"}!`);
                     Swal.fire({
                         icon: 'success',
                         title: 'Booking Confirmed',
-                        text: `You have successfully booked a session with ${trainerData?.TrainerName || "Unknown Trainer"}.`,
+                        text: `You have successfully booked a session with ${trainerData?.username || "Unknown Trainer"}.`,
                         confirmButtonText: 'OK',
                         confirmButtonColor: '#3085d6',
                     });
@@ -1609,7 +1627,7 @@ window.ViewProductInfo = async function (productId) {
     
     
         
-        async function saveTrainerNotification(trainerId, userName, trainerName) {
+        async function saveTrainerNotification(trainerId, userName, username) {
             try {
                 const notificationData = {
                     trainerId: trainerId,
@@ -1629,7 +1647,7 @@ async function displayTrainerRating() {
     try {
         const ratingQuery = query(
             collection(db, "RatingAndFeedback"),
-            where("trainerName", "==", document.getElementById("modalTrainerName").innerText)
+            where("username", "==", document.getElementById("modalTrainerName").innerText)
         );
 
         const ratingSnapshot = await getDocs(ratingQuery);
@@ -1797,17 +1815,17 @@ async function displayTrainerRating() {
                         $('#rateTrainerModal').modal('hide');
     
                         // Save the rating and feedback to Firestore
-                        const trainerName = document.getElementById("modalTrainerName").innerText;
+                        const username = document.getElementById("modalTrainerName").innerText;
                         await addDoc(collection(db, "RatingAndFeedback"), {
                             userId: userId,
-                            trainerName: trainerName,
+                            username: username,
                             gymName: gymName,
                             rating: selectedRating,
                             feedback: feedbackText,
                             timestamp: new Date().toISOString()
                         });
     
-                        showToast("success", `You rated ${trainerName} ${selectedRating} stars!`);
+                        showToast("success", `You rated ${username} ${selectedRating} stars!`);
     
                         // Update the displayed rating in the main view
                         const trainerRatingContainer = document.getElementById("trainerRatingContainer");
@@ -1832,18 +1850,18 @@ async function displayTrainerRating() {
 
 
         // Function to fetch reserved dates for a specific trainer from Firestore
-        async function getTrainerBookedDates(trainerName) {
+        async function getTrainerBookedDates(username) {
             const bookedDates = [];
             try {
                 const transactionsQuery = query(
                     collection(db, "Reservations"),
-                    where("trainerName", "==", trainerName)
+                    where("username", "==", username)
                 );
                 const querySnapshot = await getDocs(transactionsQuery);
 
                 querySnapshot.forEach(doc => {
                     const data = doc.data();
-                    if (data.bookingDate && data.trainerName === trainerName) {
+                    if (data.bookingDate && data.username === username) {
                         const date = data.bookingDate.toDate 
                             ? data.bookingDate.toDate().toISOString().split('T')[0] 
                             : data.bookingDate;
@@ -1867,8 +1885,8 @@ async function displayTrainerRating() {
         
         // Initialize FullCalendar with booked dates when the modal opens
         $('#calendarModal').on('shown.bs.modal', async function () {
-            const trainerName = document.getElementById('modalTrainerName').innerText.trim();
-            const bookedDates = await getTrainerBookedDates(trainerName);
+            const username = document.getElementById('modalTrainerName').innerText.trim();
+            const bookedDates = await getTrainerBookedDates(username);
 
             const calendarEl = document.getElementById('calendar');
             if (!calendarEl) {
@@ -1915,12 +1933,12 @@ async function displayTrainerRating() {
         
 
         // Function to fetch reservations and initialize the calendar for a specific trainer
-            window. fetchAndDisplayReservations= async function (trainerName) {
+            window. fetchAndDisplayReservations= async function (username) {
             try {
                 // Query Firestore for reservations where trainerName matches
                 const reservationsQuery = query(
                     collection(db, 'Reservations'),
-                    where("trainerName", "==", trainerName)
+                    where("username", "==", username)
                 );
                 const querySnapshot = await getDocs(reservationsQuery); // Await Firestore response
 
@@ -1930,7 +1948,7 @@ async function displayTrainerRating() {
                     const reservationData = doc.data();
 
                     // Validate that the reservation's trainerName matches the modal's trainer name
-                    if (reservationData.trainerName === trainerName) {
+                    if (reservationData.username === username) {
                         // Check if bookingDate is a Firestore Timestamp
                         let date;
                         if (reservationData.bookingDate.toDate) {
@@ -1989,11 +2007,11 @@ async function displayTrainerRating() {
             }
         });
         // Save booking to Firestore Transactions collection
-        async function saveBookingToDatabase(trainerName, gymName, userId, price, type) {
+        async function saveBookingToDatabase(username, gymName, userId, price, type) {
             try {
                 await addDoc(collection(db, "Transactions"), {
                     type : 'Booking_trainer',
-                    trainerName,
+                    username,
                     gymName,
                     userId,
                     price,
@@ -2378,7 +2396,6 @@ async function displayTrainerRating() {
                 }
 
                 function showNotificationDetails(notification) {
-                    // Helper function to safely format price
                     const formatPrice = (price) => {
                         const numericPrice = parseFloat(price.replace(/[^\d.-]/g, ''));
                         return !isNaN(numericPrice)
@@ -2386,17 +2403,15 @@ async function displayTrainerRating() {
                             : 'N/A';
                     };
                 
-                    // Define the content based on notification type
                     let notificationContent = '';
-                    let cancelButton = ''; // Placeholder for the cancel button
+                    let cancelButton = '';
                 
                     if (notification.type === "Booking_trainer") {
-                        // Content for booking trainer notifications
                         notificationContent = `
                             <p class="gym-name">${notification.gymName || 'N/A'}</p>
                             <p class="ref-number"><strong>Ref. No:</strong> ${notification.notificationId || 'N/A'}</p>
                             <div class="product-info">
-                                <p><strong>Trainer:</strong> ${notification.trainerName || 'N/A'}</p>
+                                <p><strong>Trainer:</strong> ${notification.username || 'N/A'}</p>
                                 <p><strong>Date:</strong> ${notification.bookingDate || 'N/A'}</p>
                                 <p><strong>Rate:</strong> ${formatPrice(notification.price)}</p>
                                 <p><strong>Status:</strong> ${notification.status || 'N/A'}</p>
@@ -2404,15 +2419,12 @@ async function displayTrainerRating() {
                             <hr>
                             <p class="footer-info">Show this receipt to the Gym owner upon arrival.</p>
                         `;
-                
-                        // Add cancel booking button
                         cancelButton = `
                             <div class="modal-footer">
                                 <button class="btn btn-danger" id="cancelBookingButton">Cancel Booking</button>
                             </div>
                         `;
                     } else if (notification.type === "Products") {
-                        // Content for products notifications
                         notificationContent = `
                             <p class="gym-name">${notification.gymName || 'N/A'}</p>
                             <p class="ref-number"><strong>Ref. No:</strong> ${notification.notificationId || 'N/A'}</p>
@@ -2425,8 +2437,6 @@ async function displayTrainerRating() {
                             <hr>
                             <p class="footer-info">Show this receipt to the Gym owner upon collection.</p>
                         `;
-                
-                        // Add cancel purchase button
                         cancelButton = `
                             <div class="modal-footer">
                                 <button class="btn btn-danger" id="cancelPurchaseButton">Cancel Purchase</button>
@@ -2449,33 +2459,176 @@ async function displayTrainerRating() {
                                     <div class="modal-body" id="notificationDetailsContent">
                                         ${notificationContent}
                                     </div>
-                                    ${cancelButton} <!-- Inject the cancel button -->
+                                    ${cancelButton}
                                 </div>
                             </div>
                         </div>
                     `;
                 
-                    // Append the modal to the body and show it
                     document.body.insertAdjacentHTML('beforeend', notificationModal);
                     $('#notificationDetailsModal').modal('show');
                 
-                    // Add event listeners for the cancel buttons
                     if (notification.type === "Booking_trainer") {
-                        document.getElementById('cancelBookingButton')?.addEventListener('click', async () => {
-                            await cancelBooking(notification.userId);
+                        document.getElementById('cancelBookingButton')?.addEventListener('click', () => {
+                            $('#notificationDetailsModal').modal('hide'); // Close notification modal
+                            $('#notificationDetailsModal').on('hidden.bs.modal', function () {
+                                showbookingConfirmationModal(
+                                    'Are you sure you want to cancel your book?',
+                                    async () => await cancelBooking(notification.userId)
+                                );
+                            });
                         });
                     } else if (notification.type === "Products") {
-                        document.getElementById('cancelPurchaseButton')?.addEventListener('click', async () => {
-                            await cancelPurchase(notification.userId);
+                        document.getElementById('cancelPurchaseButton')?.addEventListener('click', () => {
+                            $('#notificationDetailsModal').modal('hide'); // Close notification modal
+                            $('#notificationDetailsModal').on('hidden.bs.modal', function () {
+                                showproductConfirmationModal(
+                                    'Are you sure you want to cancel this purchase?',
+                                    async () => await cancelPurchase(notification.userId)
+                                );
+                            });
                         });
                     }
                 
-                    // Remove modal from DOM after it is closed
                     $('#notificationDetailsModal').on('hidden.bs.modal', function () {
                         this.remove();
                     });
                 }
+                function showbookingConfirmationModal(bookmessage, onConfirm) {
+                    const confirmationModal = `
+                        <div class="modal fade" id="bookingconfirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>${bookmessage}</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                        <button class="btn btn-danger" id="confirmBookingActionButton">Yes, Proceed</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    document.body.insertAdjacentHTML('beforeend', confirmationModal);
+                    $('#bookingconfirmationModal').modal('show');
                 
+                    document.getElementById('confirmBookingActionButton').addEventListener('click', async () => {
+                        try {
+                            showSpinner(); // Show the spinner
+                            await onConfirm(); // Execute the confirm action
+                        } catch (error) {
+                            console.error('Error during confirmation:', error);
+                        } finally {
+                            hideSpinner(); // Hide the spinner after completion
+                            $('#bookingconfirmationModal').modal('hide');
+                        }
+                    });
+                
+                    $('#bookingconfirmationModal').on('hidden.bs.modal', function () {
+                        this.remove();
+                    });
+                }
+                
+                function showproductConfirmationModal(productmessage, onConfirm) {
+                    const confirmationModal = `
+                        <div class="modal fade" id="productconfirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>${productmessage}</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                        <button class="btn btn-danger" id="confirmProductActionButton">Yes, Proceed</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    document.body.insertAdjacentHTML('beforeend', confirmationModal);
+                    $('#productconfirmationModal').modal('show');
+                
+                    // Add event listener for the confirmation button
+                    document.getElementById('confirmProductActionButton').addEventListener('click', async () => {
+                        try {
+                            showSpinner(); // Show the spinner while processing
+                            await onConfirm(); // Execute the provided action
+                        } catch (error) {
+                            console.error('Error during product confirmation:', error);
+                        } finally {
+                            hideSpinner(); // Hide the spinner after the action is complete
+                            $('#productconfirmationModal').modal('hide');
+                        }
+                    });
+                
+                    // Remove modal from the DOM once it's hidden
+                    $('#productconfirmationModal').on('hidden.bs.modal', function () {
+                        this.remove();
+                    });
+                }
+                
+                window. cancelPurchase = async function(userId) {
+                    try {
+                        console.log(`Attempting to cancel purchase for user ID: ${userId}`);
+                
+                        // Show the confirmation modal before proceeding with the cancellation
+                        showproductConfirmationModal(
+                            'Are you sure you want to cancel this purchase?',
+                            async () => {
+                                try {
+                                    console.log('Fetching notifications for purchase cancellation...');
+                
+                                    // Query the Notifications collection for matching documents
+                                    const notificationsQuery = query(
+                                        collection(db, "Notifications"),
+                                        where("userId", "==", userId),
+                                        where("type", "==", "Products") // Filter for product notifications
+                                    );
+                
+                                    const querySnapshot = await getDocs(notificationsQuery);
+                
+                                    if (querySnapshot.empty) {
+                                        throw new Error(`No purchase found for user ID ${userId}.`);
+                                    }
+                
+                                    // Assume we only want to cancel the first matching notification
+                                    const docRef = querySnapshot.docs[0].ref;
+                
+                                    // Update the document's status to "Cancelled"
+                                    await updateDoc(docRef, { status: "Cancelled" });
+                
+                                    console.log('Purchase successfully cancelled.');
+                
+                                    showToast("success", "Purchase successfully cancelled.");
+                
+                                    // Close any related modals if necessary
+                                    $('#notificationDetailsModal').modal('hide');
+                                } catch (error) {
+                                    console.error('Error during purchase cancellation:', error);
+                                    showToast("error", `Failed to cancel purchase: ${error.message}`);
+                                    throw error; // Re-throw the error to ensure proper handling in the modal
+                                }
+                            }
+                        );
+                    } catch (error) {
+                        console.error('Error initiating purchase cancellation:', error);
+                        showToast("error", `Error initiating purchase cancellation: ${error.message}`);
+                    }
+                }
+                            
                 // Cancel Booking handler
                 async function cancelBooking(userId) {
                     try {
@@ -2508,46 +2661,6 @@ async function displayTrainerRating() {
                     }
                 }
                 
-                async function cancelPurchase(userId) {
-                    try {
-                        console.log(`Attempting to cancel purchase for user ID: ${userId}`);
-                
-                        // Query the Notifications collection for the document with the given userId
-                        const notificationsQuery = query(
-                            collection(db, "Notifications"),
-                            where("userId", "==", userId),
-                            where("type", "==", "Products") // Ensure it's a product notification
-                        );
-                
-                        const querySnapshot = await getDocs(notificationsQuery);
-                
-                        if (querySnapshot.empty) {
-                            throw new Error(`No purchase found for user ID ${userId}.`);
-                        }
-                
-                        // Assume we only want to cancel the first matching notification
-                        const docRef = querySnapshot.docs[0].ref;
-                
-                        // Update the document's status to "Cancelled"
-                        await updateDoc(docRef, { status: "Cancelled" });
-                
-                        showToast("success", "Purchase successfully cancelled.");
-                        $('#notificationDetailsModal').modal('hide');
-                    } catch (error) {
-                        console.error("Error cancelling purchase:", error);
-                        showToast("error", `Failed to cancel purchase: ${error.message}`);
-                    }
-                }
-                
-                
-                
-                
-                
-                
-                
-                
-                
-
                 // Ensure notifications are fetched after user logs in and on page load
                 window.onload = function () {
                     // Load notifications from localStorage immediately on page load
@@ -2734,13 +2847,13 @@ function displaySearchResults(results) {
         resultElement.innerHTML = `
             <img src="${result.TrainerPhoto || result.photoURL || 'default-profile.png'}" alt="User Photo" class="result-photo">
             <div class="result-details">
-                <p class="result-name">${result.TrainerName || result.username || 'Unknown'}</p>
+                <p class="result-name">${result.username || result.username || 'Unknown'}</p>
                 <p class="result-email">${result.TrainerEmail || result.email}</p>
             </div>
         `;
 
         resultElement.addEventListener('click', async () => {
-            startChat(result.id, result.TrainerName || result.username || result.email);
+            startChat(result.id, result.username || result.username || result.email);
             searchResultsContainer.innerHTML = ''; // Clear search results
             searchResultsContainer.style.display = 'none'; // Hide search results
             inboxContainer.style.display = 'block'; // Show inbox
@@ -2773,12 +2886,12 @@ window.searchTrainers = async function (searchTerm) {
 };
 
         // Start a chat with a selected trainer
-        function startChat(trainerId, trainerName) {
+        function startChat(trainerId, username) {
             if (currentChatUserId === trainerId) return; // Prevent reloading the same chat
             currentChatUserId = trainerId;
         
-            document.getElementById('chatWith').textContent = `${trainerName}`;
-            document.querySelector('#searchInput').value = trainerName;
+            document.getElementById('chatWith').textContent = `${username}`;
+            document.querySelector('#searchInput').value = username;
         
             const messagesContainer = document.querySelector('#messagesContainer');
             messagesContainer.innerHTML = ''; // Clear previous chat messages

@@ -240,7 +240,7 @@ async function fetchNotifications(currentUserId) {
     }
     async function markAsRead(notificationId, currentUserId) {
         try {
-            const notificationRef = doc(db, 'UserNotifications', notificationId);
+            const notificationRef = doc(db, 'TrainerNotif', notificationId);
             await updateDoc(notificationRef, { status: 'read' });  // Update status to 'read'
     
             // Refresh the notifications after marking one as read
@@ -277,7 +277,7 @@ async function fetchNotifications(currentUserId) {
                 throw new Error("User ID is undefined. Cannot fetch notifications.");
             }
     
-            const notificationsRef = collection(db, 'Notifications');
+            const notificationsRef = collection(db, 'TrainerNotif');
             const querySnapshot = await getDocs(query(notificationsRef, where('userId', '==', userId)));
     
             if (querySnapshot.empty) {

@@ -269,7 +269,7 @@ async function getNextUserId(role) {
                     errorMsg = '⏳ Too many login attempts. Please try later.';
                     break;
                 default:
-                    errorMsg = `⚠️ Error: ${error.message}`;
+                    errorMsg = `🔐 Incorrect password. Please try again.`;
             }
             showMessage(errorMessageElement, errorMsg, true);
         }
