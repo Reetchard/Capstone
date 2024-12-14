@@ -475,12 +475,135 @@ nav ul li a:hover {
 h2 {
     color: white; /* Set text color to white */
 }
-.table {
-    background-color: white; /* Set text color to white for table headers *//* Optional: Add a background color for contrast */
-}
-/* Style for table headers */
-.table th {
-    color: white; /* Set text color to white for table headers */
-    background-color: #007bff; /* Optional: Add a background color for contrast */
+/* Main Content Container */
+.content {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+    margin-left: 270px; /* Adjust this value to match the width of your sidebar */
+    max-width: calc(100% - 270px);
+    box-sizing: border-box;
 }
 
+/* Heading */
+.content h1 {
+    color: #007bff;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+/* Button to Add New Membership Plan */
+.btn-primary {
+    background-color: #007bff;
+    color: #fff;
+    font-weight: bold;
+    padding: 10px 20px;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+/* Button Hover Effect */
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+/* Heading for Current Plans Section */
+.content h2 {
+    color: #333;
+    font-weight: bold;
+    text-align: center;
+    margin: 30px 0;
+}
+
+/* Table Styling */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+}
+
+/* Table Headers */
+.table th {
+    background-color: #007bff;
+    color: #fff;
+    text-align: center;
+    padding: 12px;
+}
+
+/* Table Cells */
+.table td {
+    text-align: center;
+    padding: 10px;
+    font-size: 14px;
+}
+
+/* Zebra Striping for Rows */
+.table tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+/* Hover Effect on Rows */
+.table tbody tr:hover {
+    background-color: #e9f7fa;
+}
+
+/* Borders for Table Cells */
+.table, .table th, .table td {
+    border: 1px solid #ccc;
+}
+
+/* Button inside Table Actions */
+.btn {
+    font-weight: bold;
+    padding: 5px 10px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    color: #fff;
+}
+
+/* Button Colors for Actions */
+.btn-primary {
+    background-color: #28a745;
+}
+
+.btn-info {
+    background-color: #17a2b8;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+}
+
+/* Button Hover Effects */
+.btn-primary:hover {
+    background-color: #218838;
+}
+
+.btn-info:hover {
+    background-color: #138496;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+/* Responsive Design for Smaller Screens */
+@media (max-width: 768px) {
+    .btn-primary {
+        width: 100%;
+        text-align: center;
+        padding: 15px;
+    }
+
+    .table th, .table td {
+        padding: 8px;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .table {
+        display: block;
+        overflow-x: auto;
+    }
+}

@@ -88,11 +88,6 @@ async function displayMemberInfo() {
                     <td>₱${price ? parseFloat(price).toFixed(2) : 'N/A'}</td>
                     <td>${new Date(purchaseDate).toLocaleString() || 'N/A'}</td>
                     <td>${status}</td>
-                    <td>
-                         <button class="btn btn-success btn-sm" onclick="setStatus('${key}', 'Approved')">Approve</button>
-                        <button class="btn btn-info btn-sm" onclick="viewMemberDetails('${key}')">View</button>
-                        <button class="btn btn-danger btn-sm" onclick="removeMember('${key}')">Remove</button>
-                    </td>
                 `;
                 MemberInfoBody.appendChild(row);
             }

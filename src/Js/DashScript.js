@@ -1627,7 +1627,7 @@ window.ViewProductInfo = async function (productId) {
     
     
         
-        async function saveTrainerNotification(trainerId, userName, username) {
+        async function saveTrainerNotification(trainerId, userName) {
             try {
                 const notificationData = {
                     trainerId: trainerId,
