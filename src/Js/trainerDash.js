@@ -193,32 +193,81 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-
-async function fetchNotifications(currentUserId) {
+async function fetchTrainerData(userId) {
     try {
-        const notifications = await fetchUserNotifications(currentUserId); // Fetch notifications from Firestore
-        const unreadCount = notifications.filter(notification => notification.status === 'unread').length;
-        
-        updateNotificationCount(unreadCount); // Update the count in the badge
+        const trainerRef = doc(db, 'Trainer', userId); // Assuming 'Trainers' is your collection
+        const trainerDoc = await getDoc(trainerRef);
 
-        const notificationList = document.getElementById('notification-list');
+        if (trainerDoc.exists()) {
+            console.log("Trainer data fetched:", trainerDoc.data());
+            return trainerDoc.data();
+        } else {
+            console.error("Trainer document does not exist for user:", userId);
+            return null;
+        }
+    } catch (error) {
+        console.error("Error fetching trainer data:", error);
+        return null;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userId = user.uid;
+                console.log("User authenticated, UID:", userId);
+
+                // Fetch trainer data
+                const trainerData = await fetchTrainerData(userId);
+
+                if (!trainerData) {
+                    console.error("Unable to fetch trainer data. Ensure database entries are correct.");
+                    return;
+                }
+
+                // Fetch notifications and messages
+                await fetchNotifications(userId, trainerData.username); // Pass `trainerData.username`
+                await fetchMessages(userId);
+            } else {
+                console.error("User is not authenticated.");
+                window.location.href = 'login.html'; // Redirect to login if not authenticated
+            }
+        });
+    } catch (error) {
+        console.error("Error during authentication:", error);
+    }
+});
+
+async function fetchNotifications(userId) {
+    try {
+        const notifications = await fetchUserNotifications(userId) || [];
+
+        const unreadCount = notifications.filter(notification => notification.status === 'Unread').length;
+        updateNotificationCount(unreadCount);
+
+        const notificationList = document.getElementById('notificationList'); // Match the ID in the HTML
+        if (!notificationList) {
+            console.error("Element with ID 'notificationList' not found.");
+            return; // Exit the function early
+        }
+
         notificationList.innerHTML = ''; // Clear the list before adding new notifications
-        
+
         if (notifications.length > 0) {
             notifications.forEach(notification => {
                 const notificationItem = document.createElement('li');
                 notificationItem.classList.add('list-group-item');
-                
-                // Mark as read when the user clicks on it
-                if (notification.status === 'unread') {
-                    notificationItem.classList.add('unread');
+
+                if (notification.status === 'Unread') {
+                    notificationItem.classList.add('Unread');
                 } else {
-                    notificationItem.classList.add('read');  // Add a class to style read notifications
+                    notificationItem.classList.add('read');
                 }
-                
+
                 notificationItem.textContent = notification.message;
-                notificationItem.onclick = () => markAsRead(notification.id, currentUserId);  // Mark as read when clicked
-                
+                notificationItem.onclick = () => markAsRead(notification.id, userId);
+
                 notificationList.appendChild(notificationItem);
             });
         } else {
@@ -230,6 +279,9 @@ async function fetchNotifications(currentUserId) {
 }
 
 
+
+
+
     // Function to update the notification badge with the count
     function updateNotificationCount(count) {
         const notificationCountElement = document.getElementById('notification-count');
@@ -238,17 +290,18 @@ async function fetchNotifications(currentUserId) {
             notificationCountElement.style.display = count > 0 ? 'inline-block' : 'none';
         }
     }
-    async function markAsRead(notificationId, currentUserId) {
+    async function markAsRead(notificationId, userId) {
         try {
             const notificationRef = doc(db, 'TrainerNotif', notificationId);
-            await updateDoc(notificationRef, { status: 'read' });  // Update status to 'read'
+            await updateDoc(notificationRef, { status: 'read' }); // Update status to 'read'
     
             // Refresh the notifications after marking one as read
-            fetchNotifications(currentUserId); // Refresh the notifications
+            fetchNotifications(userId); // Refresh the notifications
         } catch (error) {
             console.error('Error marking notification as read:', error);
         }
     }
+    
     document.addEventListener('DOMContentLoaded', async () => {
         try {
             // Wait for Firebase Auth to detect if the user is logged in
@@ -271,17 +324,31 @@ async function fetchNotifications(currentUserId) {
     });
     async function fetchUserNotifications(userId) {
         try {
-            console.log("Fetching notifications for user:", userId);
+            console.log("Fetching trainer data for userId:", userId);
     
-            if (!userId) {
-                throw new Error("User ID is undefined. Cannot fetch notifications.");
+            // Step 1: Fetch the logged-in trainer's username from the 'Trainers' collection
+            const trainerRef = doc(db, 'Trainer', userId); // Replace 'Trainers' with your actual collection name
+            const trainerDoc = await getDoc(trainerRef);
+    
+            if (!trainerDoc.exists()) {
+                console.error("Trainer document not found for userId:", userId);
+                throw new Error("Trainer data not found.");
             }
     
+            const { username } = trainerDoc.data(); // Extract the username
+            if (!username) {
+                console.error("Username is missing in the trainer data.");
+                throw new Error("Username not found for the logged-in trainer.");
+            }
+    
+            console.log("Trainer's username:", username);
+    
+            // Step 2: Fetch notifications from the 'TrainerNotif' collection where username matches
             const notificationsRef = collection(db, 'TrainerNotif');
-            const querySnapshot = await getDocs(query(notificationsRef, where('userId', '==', userId)));
+            const querySnapshot = await getDocs(query(notificationsRef, where('username', '==', username)));
     
             if (querySnapshot.empty) {
-                console.log("No notifications found.");
+                console.log("No notifications found for the username:", username);
                 return [];
             }
     
@@ -292,11 +359,18 @@ async function fetchNotifications(currentUserId) {
     
             console.log("Fetched notifications:", notifications);
     
+            // Step 3: Return notifications for further processing
             return notifications;
         } catch (error) {
             console.error("Error fetching notifications:", error);
+            return []; // Return an empty array to prevent further errors
         }
     }
+    
+    
+
+
+
     async function fetchMessages(userId) {
         try {
             console.log("Fetching messages for user:", userId);
