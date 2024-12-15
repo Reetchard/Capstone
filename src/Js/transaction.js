@@ -375,9 +375,10 @@ async function populateTrainerTable(transactions) {
         row.innerHTML = `
             <td>${username || 'N/A'}</td> <!-- Display username next to userId -->
             <td>${transaction.gymName || 'N/A'}</td>
-            <td>${transaction.trainerName || 'N/A'}</td>
+            <td>${transaction.username || 'N/A'}</td>
             <td>${formattedTimestamp}</td> <!-- Display formatted timestamp here -->
             <td>${transaction.price || 'N/A'}</td>
+            <td>${transaction.notificationId || 'N/A'}</td>
             <td class="status-cell">${transaction.status || 'N/A'}</td>
             <td>
                 <button class="action-button approve" data-id="${transaction.id}">Approve</button>
@@ -510,6 +511,7 @@ async function populateProductTable(transactions) {
             <td>${transaction.quantity || 'N/A'}</td>
             <td>${formattedTimestamp}</td>
             <td>${transaction.totalPrice || 'N/A'}</td>
+            <td>${transaction.notificationId || 'N/A'}</td>
             <td class="status-cell">${transaction.status || 'N/A'}</td>
             <td>
                 <button class="action-button approve" data-id="${transaction.id}">Approve</button>
