@@ -239,36 +239,265 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
+
+function categorizeNotifications(notifications) {
+    const categorized = {
+        'New Notifications': [],
+        'Older Notifications': []
+    };
+
+    const now = new Date();
+
+    notifications.forEach(notification => {
+        const diffInMs = now - notification.timestamp;
+        const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+        if (diffInDays < 1) { // Less than 1 day
+            categorized['New Notifications'].push(notification);
+        } else { // 1 day or older
+            categorized['Older Notifications'].push(notification);
+        }
+    });
+
+    return categorized;
+}
+
+// Function to toggle visibility of older notifications
+function toggleOlderNotifications() {
+    const olderNotificationsDiv = document.getElementById('olderNotifications');
+    const toggleButton = document.getElementById('toggleButton');
+
+    if (olderNotificationsDiv.style.display === 'none') {
+        olderNotificationsDiv.style.display = 'block';
+        toggleButton.innerText = 'Hide Older Notifications';
+    } else {
+        olderNotificationsDiv.style.display = 'none';
+        toggleButton.innerText = 'Show Older Notifications';
+    }
+}
+
+// Function to display categorized notifications
+function displayCategorizedNotifications(categorizedNotifications) {
+    const notificationList = document.getElementById('notificationList');
+    notificationList.innerHTML = ''; // Clear the list before adding new notifications
+
+    for (const [category, notifications] of Object.entries(categorizedNotifications)) {
+        if (notifications.length > 0) {
+            const categoryHeader = document.createElement('h6');
+            categoryHeader.classList.add('category-header'); // Add a class for styling
+            categoryHeader.innerText = category;
+            notificationList.appendChild(categoryHeader);
+
+            // Create a div for older notifications to toggle visibility
+            const isOlder = (category === 'Older Notifications');
+            const notificationContainer = document.createElement('div');
+            notificationContainer.id = isOlder ? 'olderNotifications' : '';
+            notificationContainer.style.display = isOlder ? 'none' : 'block'; // Hide older notifications initially
+
+            notifications.forEach(notification => {
+                const notificationItem = document.createElement('p');
+                notificationItem.classList.add('list-group-item');
+
+                // Calculate how long ago the notification was received
+                const timeAgo = getTimeAgo(notification.timestamp);
+
+                // Use <strong> for unread notifications
+                const message = notification.read ? 
+                    notification.message : `<strong>${notification.message}</strong>`;
+
+                notificationItem.innerHTML = `
+                    ${message}<br>
+                    <small>${timeAgo}</small>
+                `;
+
+                // Add event listener for showing notification details and marking it as read
+                notificationItem.addEventListener('click', () => {
+                    markAsRead(notification.id, notification.userId); // Mark notification as read
+                    showNotificationDetails(notification); // Show notification details in a modal
+                });
+
+                notificationContainer.appendChild(notificationItem);
+            });
+
+            notificationList.appendChild(notificationContainer);
+        }
+    }
+
+    // Add toggle button for older notifications
+    if (categorizedNotifications['Older Notifications'].length > 0) {
+        const toggleButton = document.createElement('button');
+        toggleButton.id = 'toggleButton';
+        toggleButton.classList.add('btn', 'btn-secondary', 'mt-2');
+        toggleButton.innerText = 'Show Older Notifications';
+        toggleButton.addEventListener('click', toggleOlderNotifications);
+        notificationList.appendChild(toggleButton);
+    }
+
+    // If no notifications, show a default message
+    if (notificationList.innerHTML === '') {
+        notificationList.innerHTML = 
+            '<p class="list-group-item text-center text-muted py-3">No new notifications</p>';
+    }
+}
+
+    // Load notifications from localStorage when the page reloads
+    function loadNotificationsFromLocalStorage() {
+        const storedNotifications = localStorage.getItem('notifications');
+        if (storedNotifications) {
+            const notifications = JSON.parse(storedNotifications);
+            console.log('Loading notifications from localStorage:', notifications);
+
+            displayNotifications(notifications);
+
+            // Update notification count after fetching all notifications
+            const unreadCount = notifications.filter(notification => !notification.read).length;
+            updateNotificationCount(unreadCount);
+        } else {
+            console.warn('No notifications found in localStorage');
+            // Optional: Provide a default message if no notifications are found.
+            document.getElementById('notificationList').innerHTML = 
+                '<p class="list-group-item text-center text-muted py-3">No notifications available</p>';
+        }
+    }
+
+    // Display notifications from Firestore or localStorage
+    function displayNotifications(notifications) {
+        const notificationList = document.getElementById('notificationList');
+        notificationList.innerHTML = ''; // Clear the list before adding new notifications
+    
+        // Categorize notifications into new and older
+        const categorized = categorizeNotifications(notifications);
+    
+        // Display new notifications
+        if (categorized['New Notifications'].length > 0) {
+            categorized['New Notifications'].forEach(notification => {
+                const notificationItem = createNotificationItem(notification);
+                notificationList.appendChild(notificationItem);
+            });
+        } else {
+            notificationList.innerHTML = '<p class="list-group-item text-center text-muted py-3">No new notifications</p>';
+        }
+    
+        // Add toggle button for older notifications
+        const toggleOlderBtn = document.createElement('button');
+        toggleOlderBtn.innerText = 'Show Older Notifications';
+        toggleOlderBtn.classList.add('btn', 'btn-link'); // Bootstrap styling
+        toggleOlderBtn.onclick = () => {
+            const olderNotificationsContainer = document.getElementById('olderNotifications');
+            if (olderNotificationsContainer.style.display === 'none') {
+                olderNotificationsContainer.style.display = 'block';
+                toggleOlderBtn.innerText = 'Hide Older Notifications';
+            } else {
+                olderNotificationsContainer.style.display = 'none';
+                toggleOlderBtn.innerText = 'Show Older Notifications';
+            }
+        };
+    
+        notificationList.appendChild(toggleOlderBtn);
+    
+        // Create container for older notifications
+        const olderNotificationsContainer = document.createElement('div');
+        olderNotificationsContainer.id = 'olderNotifications';
+        olderNotificationsContainer.style.display = 'none'; // Hidden by default
+    
+        // Display older notifications
+        categorized['Older Notifications'].forEach(notification => {
+            const notificationItem = createNotificationItem(notification);
+            olderNotificationsContainer.appendChild(notificationItem);
+        });
+    
+        notificationList.appendChild(olderNotificationsContainer);
+    }
+    
+    // Helper function to create a notification item
+    function createNotificationItem(notification) {
+        const notificationItem = document.createElement('p');
+        notificationItem.classList.add('list-group-item');
+    
+        // Calculate how long ago the notification was received
+        const timeAgo = getTimeAgo(notification.timestamp);
+        const message = notification.read ? 
+                        notification.message : 
+                        `<strong>${notification.message}</strong>`;
+    
+        notificationItem.innerHTML = `
+            ${message}<br>
+            <small>${timeAgo}</small>
+        `;
+    
+        // Add event listener for showing notification details and marking it as read
+        notificationItem.addEventListener('click', () => {
+            markAsRead(notification.id, notification.userId); // Mark notification as read
+            showNotificationDetails(notification); // Show notification details in a modal
+        });
+    
+        return notificationItem;
+    }
+// Fetch and display notifications with timestamp
 async function fetchNotifications(userId) {
     try {
         const notifications = await fetchUserNotifications(userId) || [];
 
+        // Update unread notification count
         const unreadCount = notifications.filter(notification => notification.status === 'Unread').length;
         updateNotificationCount(unreadCount);
 
-        const notificationList = document.getElementById('notificationList'); // Match the ID in the HTML
+        // Get the notification list container
+        const notificationList = document.getElementById('notificationList'); 
         if (!notificationList) {
             console.error("Element with ID 'notificationList' not found.");
-            return; // Exit the function early
+            return;
         }
 
-        notificationList.innerHTML = ''; // Clear the list before adding new notifications
+        // Clear the list before adding new notifications
+        notificationList.innerHTML = '';
 
+        // Render notifications with message and timestamp
         if (notifications.length > 0) {
             notifications.forEach(notification => {
                 const notificationItem = document.createElement('li');
                 notificationItem.classList.add('list-group-item');
 
+                // Add 'Unread' or 'read' styling
                 if (notification.status === 'Unread') {
                     notificationItem.classList.add('Unread');
                 } else {
                     notificationItem.classList.add('read');
                 }
 
-                notificationItem.textContent = notification.message;
+                // Calculate relative time using getTimeAgo
+                const timeAgo = getTimeAgo(notification.timestamp);
+
+                // Populate the notification content
+                notificationItem.innerHTML = `
+                    <div>
+                        <strong>${notification.message}</strong>
+                        <br>
+                        <small>${timeAgo}</small>
+                    </div>
+                `;
+
+                // Add event to mark notification as read
                 notificationItem.onclick = () => markAsRead(notification.id, userId);
 
                 notificationList.appendChild(notificationItem);
+                // Sort notifications by timestamp in descending order (newest first)
+                notifications.sort((a, b) => b.timestamp - a.timestamp);
+            
+                console.log('Fetched notifications:', notifications);
+        
+                // Store notifications in localStorage for persistence across refreshes
+                localStorage.setItem('notifications', JSON.stringify(notifications));
+        
+                // Categorize notifications by time
+                const categorizedNotifications = categorizeNotifications(notifications);
+        
+                // Display the notifications
+                displayCategorizedNotifications(categorizedNotifications);
+        
+                // Update notification count after fetching all notifications
+                const unreadCount = notifications.filter(notification => !notification.read).length;
+                updateNotificationCount(unreadCount);
             });
         } else {
             notificationList.innerHTML = '<li class="list-group-item">No new notifications</li>';
@@ -278,29 +507,103 @@ async function fetchNotifications(userId) {
     }
 }
 
+// Fetch notifications for the trainer based on username
+async function fetchUserNotifications(userId) {
+    try {
+        console.log("Fetching trainer data for userId:", userId);
 
+        // Step 1: Fetch the logged-in trainer's username
+        const trainerRef = doc(db, 'Trainer', userId);
+        const trainerDoc = await getDoc(trainerRef);
 
+        if (!trainerDoc.exists()) {
+            throw new Error("Trainer data not found.");
+        }
 
+        const { username } = trainerDoc.data();
+        if (!username) {
+            throw new Error("Username not found for the logged-in trainer.");
+        }
 
-    // Function to update the notification badge with the count
-    function updateNotificationCount(count) {
-        const notificationCountElement = document.getElementById('notification-count');
-        if (notificationCountElement) {
-            notificationCountElement.textContent = count;
-            notificationCountElement.style.display = count > 0 ? 'inline-block' : 'none';
+        console.log("Trainer's username:", username);
+
+        // Step 2: Fetch notifications where the username matches
+        const notificationsRef = collection(db, 'TrainerNotif');
+        const querySnapshot = await getDocs(query(notificationsRef, where('username', '==', username)));
+
+        const notifications = [];
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            let timestamp = data.timestamp;
+
+            // Convert Firestore timestamp to Date object
+            if (timestamp && typeof timestamp.toDate === 'function') {
+                timestamp = timestamp.toDate();
+            } else if (typeof timestamp === 'string') {
+                timestamp = new Date(timestamp);
+            } else {
+                timestamp = new Date(); // Default to now
+            }
+
+            notifications.push({
+                id: doc.id,
+                ...data,
+                timestamp: timestamp
+            });
+        });
+
+        console.log("Fetched notifications:", notifications);
+        return notifications;
+    } catch (error) {
+        console.error("Error fetching notifications:", error);
+        return [];
+    }
+}
+
+// Helper function to calculate relative time
+function getTimeAgo(timestamp) {
+    const now = new Date();
+    const secondsAgo = Math.floor((now - timestamp) / 1000);
+
+    const intervals = {
+        year: 31536000,
+        month: 2592000,
+        day: 86400,
+        hour: 3600,
+        minute: 60
+    };
+
+    for (const [unit, seconds] of Object.entries(intervals)) {
+        const count = Math.floor(secondsAgo / seconds);
+        if (count >= 1) {
+            return `${count} ${unit}${count > 1 ? 's' : ''} ago`;
         }
     }
-    async function markAsRead(notificationId, userId) {
-        try {
-            const notificationRef = doc(db, 'TrainerNotif', notificationId);
-            await updateDoc(notificationRef, { status: 'read' }); // Update status to 'read'
-    
-            // Refresh the notifications after marking one as read
-            fetchNotifications(userId); // Refresh the notifications
-        } catch (error) {
-            console.error('Error marking notification as read:', error);
-        }
+    return 'Just now';
+}
+
+// Mark notification as read and refresh the list
+async function markAsRead(notificationId, userId) {
+    try {
+        const notificationRef = doc(db, 'TrainerNotif', notificationId);
+        await updateDoc(notificationRef, { status: 'read' });
+        fetchNotifications(userId);
+    } catch (error) {
+        console.error('Error marking notification as read:', error);
     }
+}
+
+// Update unread notification count in UI
+function updateNotificationCount(unreadCount) {
+    const notificationCountElement = document.getElementById('notification-count');
+    notificationCountElement.textContent = unreadCount;
+
+    if (unreadCount > 0) {
+        notificationCountElement.style.display = 'inline-block';
+    } else {
+        notificationCountElement.style.display = 'none';
+    }
+}
     
     document.addEventListener('DOMContentLoaded', async () => {
         try {
@@ -322,50 +625,6 @@ async function fetchNotifications(userId) {
             console.error("Error during authentication:", error);
         }
     });
-    async function fetchUserNotifications(userId) {
-        try {
-            console.log("Fetching trainer data for userId:", userId);
-    
-            // Step 1: Fetch the logged-in trainer's username from the 'Trainers' collection
-            const trainerRef = doc(db, 'Trainer', userId); // Replace 'Trainers' with your actual collection name
-            const trainerDoc = await getDoc(trainerRef);
-    
-            if (!trainerDoc.exists()) {
-                console.error("Trainer document not found for userId:", userId);
-                throw new Error("Trainer data not found.");
-            }
-    
-            const { username } = trainerDoc.data(); // Extract the username
-            if (!username) {
-                console.error("Username is missing in the trainer data.");
-                throw new Error("Username not found for the logged-in trainer.");
-            }
-    
-            console.log("Trainer's username:", username);
-    
-            // Step 2: Fetch notifications from the 'TrainerNotif' collection where username matches
-            const notificationsRef = collection(db, 'TrainerNotif');
-            const querySnapshot = await getDocs(query(notificationsRef, where('username', '==', username)));
-    
-            if (querySnapshot.empty) {
-                console.log("No notifications found for the username:", username);
-                return [];
-            }
-    
-            const notifications = [];
-            querySnapshot.forEach((doc) => {
-                notifications.push({ id: doc.id, ...doc.data() });
-            });
-    
-            console.log("Fetched notifications:", notifications);
-    
-            // Step 3: Return notifications for further processing
-            return notifications;
-        } catch (error) {
-            console.error("Error fetching notifications:", error);
-            return []; // Return an empty array to prevent further errors
-        }
-    }
     
     
 

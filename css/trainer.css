@@ -888,3 +888,27 @@ strong:hover .custom-tooltip {
 .notification-modal-body::-webkit-scrollbar-thumb:hover {
     background-color: #555; /* Darker on hover */
 }
+/* Style for the toggle button */
+#toggleButton {
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid #ffa31a;
+    color: rgb(30, 30, 30); /* Set text color to white */
+    padding: 10px 20px; /* Add some padding */
+    font-size: 15Spx; /* Increase font size */
+    transition: background-color 0.3s, border-color 0.3s, transform 0.3s ease-in-out; /* Smooth transition for background, border, and transform */
+}
+
+/* Hover Effect for the button */
+#toggleButton:hover {
+    background-color: transparent; /* Change background color on hover */
+    border-color: #ffa31a; /* Change border color on hover */
+    color: #ffa31a;
+    cursor: pointer; /* Change cursor on hover */
+    transform: scale(1.1); /* Slightly increase size on hover */
+}
+
+/* Optional: Adding a pulse effect when the button is hovered */
+#toggleButton:active {
+    transform: scale(0.95); /* Slightly reduce the size when clicked */
+}

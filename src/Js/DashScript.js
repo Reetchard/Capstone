@@ -578,7 +578,7 @@ window.ViewProductInfo = async function (productId) {
                         productName: productName,
                         quantity: quantityPurchased,
                         totalPrice: totalPrice,
-                        status: 'Pending Owner Approval',
+                        status: 'Pending',
                         read: false, // Unread notification
                         userId: userId, // Use the current user's userId from the document
                         gymName: gymName, // Storing gymName from GymProfile card
@@ -712,7 +712,7 @@ window.ViewProductInfo = async function (productId) {
                 type: 'Products',
                 quantity: quantityPurchased,
                 totalPrice: productPrice * quantityPurchased,
-                status: 'Pending Owner Approval',
+                status: 'Pending',
                 read: false, // Unread notification
                 userId: userId, // Use the current user's userId from the document
                 gymName: gymName, // Storing gymName from GymProfile card
@@ -1589,26 +1589,21 @@ window.ViewProductInfo = async function (productId) {
                     };
     
                     await saveNotificationToDatabase(notificationMessage, userId, "Booking_trainer", notificationData);
-    
-                    const messageNotif = `A customer has made a reservation; look for their username or email address in the messages to get in touch.`;
+                    
+                    const messageNotif = `A customer has made a reservation!`;
                     const memberNotification = {
                         userId: userId,
+                        username:trainerData?.username,
                         gymName: gymName,
                         message: messageNotif,
                         timestamp: new Date().toISOString(),
-                        status: 'Unread'
+                        status: 'Unread',
+                        type: "Booking"
                     };
                     await addDoc(collection(db, 'TrainerNotif'), memberNotification);
                     console.log('Member notification saved successfully.');
     
                     showToast("success", `Successfully booked a session with ${trainerData?.username || "Unknown Trainer"}!`);
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Booking Confirmed',
-                        text: `You have successfully booked a session with ${trainerData?.username || "Unknown Trainer"}.`,
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#3085d6',
-                    });
     
                     showNotificationDot();
                     fetchNotifications(userId);
@@ -2579,79 +2574,106 @@ async function displayTrainerRating() {
                         this.remove();
                     });
                 }
-                
-                window. cancelPurchase = async function(userId) {
-                    try {
-                        console.log(`Attempting to cancel purchase for user ID: ${userId}`);
-                
-                        // Show the confirmation modal before proceeding with the cancellation
-                        showproductConfirmationModal(
-                            'Are you sure you want to cancel this purchase?',
-                            async () => {
+                async function cancelPurchase(userId) {                
                                 try {
-                                    console.log('Fetching notifications for purchase cancellation...');
+                                    console.log(`Attempting to cancel purchase for user ID: ${userId}`);
+                                    showSpinner(); // Show spinner during processing
                 
-                                    // Query the Notifications collection for matching documents
+                                    // Step 1: Fetch the notification for the purchase
+                                    console.log('Fetching notifications for purchase cancellation...');
                                     const notificationsQuery = query(
                                         collection(db, "Notifications"),
                                         where("userId", "==", userId),
-                                        where("type", "==", "Products") // Filter for product notifications
+                                        where("type", "==", "Products")
                                     );
                 
-                                    const querySnapshot = await getDocs(notificationsQuery);
+                                    const notificationsSnapshot = await getDocs(notificationsQuery);
                 
-                                    if (querySnapshot.empty) {
+                                    if (notificationsSnapshot.empty) {
+                                        console.warn(`No purchase notifications found for user ID ${userId}.`);
                                         throw new Error(`No purchase found for user ID ${userId}.`);
                                     }
                 
-                                    // Assume we only want to cancel the first matching notification
-                                    const docRef = querySnapshot.docs[0].ref;
+                                    // Update the first matching notification
+                                    const notificationDocRef = notificationsSnapshot.docs[0].ref;
+                                    await updateDoc(notificationDocRef, { status: "Cancelled" });
+                                    console.log('Notification status updated to "Cancelled".');
                 
-                                    // Update the document's status to "Cancelled"
-                                    await updateDoc(docRef, { status: "Cancelled" });
+                                    // Step 2: Fetch the transaction for the purchase
+                                    console.log('Fetching transactions for purchase cancellation...');
+                                    const transactionsQuery = query(
+                                        collection(db, "Transactions"),
+                                        where("userId", "==", userId),
+                                        where("type", "==", "Products")
+                                    );
                 
-                                    console.log('Purchase successfully cancelled.');
+                                    const transactionsSnapshot = await getDocs(transactionsQuery);
                 
-                                    showToast("success", "Purchase successfully cancelled.");
+                                    if (transactionsSnapshot.empty) {
+                                        console.warn(`No product transactions found for user ID ${userId}.`);
+                                        throw new Error(`No transaction found for user ID ${userId}.`);
+                                    }
                 
-                                    // Close any related modals if necessary
+                                    // Update the first matching transaction
+                                    const transactionDocRef = transactionsSnapshot.docs[0].ref;
+                                    await updateDoc(transactionDocRef, { status: "Cancelled" });
+                                    console.log('Transaction status updated to "Cancelled".');
+                
+                                    // Step 3: Success message and UI updates
+                                    showToast("success", "Product purchase successfully cancelled.");
                                     $('#notificationDetailsModal').modal('hide');
                                 } catch (error) {
                                     console.error('Error during purchase cancellation:', error);
                                     showToast("error", `Failed to cancel purchase: ${error.message}`);
-                                    throw error; // Re-throw the error to ensure proper handling in the modal
                                 }
                             }
-                        );
-                    } catch (error) {
-                        console.error('Error initiating purchase cancellation:', error);
-                        showToast("error", `Error initiating purchase cancellation: ${error.message}`);
-                    }
-                }
-                            
-                // Cancel Booking handler
+                        
+                    
+                    
+                
+                
+                
                 async function cancelBooking(userId) {
                     try {
                         console.log(`Attempting to cancel booking for user ID: ${userId}`);
                 
-                        // Query the Notifications collection for the document with the given userId and type
+                        // Query the Notifications collection
                         const notificationsQuery = query(
                             collection(db, "Notifications"),
                             where("userId", "==", userId),
-                            where("type", "==", "Booking_trainer") // Ensure it's a booking trainer notification
+                            where("type", "==", "Booking_trainer")
                         );
                 
-                        const querySnapshot = await getDocs(notificationsQuery);
+                        const notificationsSnapshot = await getDocs(notificationsQuery);
                 
-                        if (querySnapshot.empty) {
+                        if (notificationsSnapshot.empty) {
+                            console.warn(`No booking notifications found for user ID ${userId}.`);
                             throw new Error(`No booking found for user ID ${userId}.`);
                         }
                 
-                        // Assume we only want to cancel the first matching notification
-                        const docRef = querySnapshot.docs[0].ref;
+                        // Update the first matching notification
+                        const notificationDocRef = notificationsSnapshot.docs[0].ref;
+                        await updateDoc(notificationDocRef, { status: "Cancelled" });
+                        console.log('Notification status updated to "Cancelled".');
                 
-                        // Update the document's status to "Cancelled"
-                        await updateDoc(docRef, { status: "Cancelled" });
+                        // Query the Transactions collection
+                        const transactionsQuery = query(
+                            collection(db, "Transactions"),
+                            where("userId", "==", userId),
+                            where("type", "==", "Booking_trainer")
+                        );
+                
+                        const transactionsSnapshot = await getDocs(transactionsQuery);
+                
+                        if (transactionsSnapshot.empty) {
+                            console.warn(`No booking transactions found for user ID ${userId}.`);
+                            throw new Error(`No transaction found for user ID ${userId}.`);
+                        }
+                
+                        // Update the first matching transaction
+                        const transactionDocRef = transactionsSnapshot.docs[0].ref;
+                        await updateDoc(transactionDocRef, { status: "Cancelled" });
+                        console.log('Transaction status updated to "Cancelled".');
                 
                         showToast("success", "Booking successfully cancelled.");
                         $('#notificationDetailsModal').modal('hide');
@@ -2660,6 +2682,7 @@ async function displayTrainerRating() {
                         showToast("error", `Failed to cancel booking: ${error.message}`);
                     }
                 }
+                
                 
                 // Ensure notifications are fetched after user logs in and on page load
                 window.onload = function () {
