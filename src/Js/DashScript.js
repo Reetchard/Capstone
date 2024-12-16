@@ -151,7 +151,6 @@ window.filterGyms = function() {
 
 async function fetchGymProfiles() {
     const gymsCollection = collection(db, 'GymOwner');
-    const transactionsCollection = collection(db, 'Transactions');
 
     // Query to get only gym owners
     const gymOwnerQuery = query(gymsCollection, where('role', '==', 'gymowner'));
@@ -162,10 +161,6 @@ async function fetchGymProfiles() {
         ...doc.data() // Include the document data and its ID
     }));
 
-    // Fetch all transactions
-    const transactionSnapshot = await getDocs(transactionsCollection);
-    const transactionsList = transactionSnapshot.docs.map(doc => doc.data());
-
     const gymProfilesContainer = document.getElementById('gym-profiles'); // Ensure correct ID
     gymProfilesContainer.innerHTML = ''; // Clear existing profiles
 
@@ -175,19 +170,9 @@ async function fetchGymProfiles() {
             const gymDiv = document.createElement('div');
             gymDiv.classList.add('trainer-card', 'gym-profile', 'mb-3'); // Add Bootstrap card classes
 
-            // Check if a transaction for the current gym exists and is "Approved"
-            const hasApprovedTransaction = transactionsList.some(
-                transaction => transaction.gymName === gym.gymName && transaction.status === 'Approved'
-            );
-
-            // Add the badge if an "Approved" transaction with the same GymName is found
-            const appliedBadge = hasApprovedTransaction
-                ? `<span class="badge badge-success applied-badge">APPLIED</span>`
-                : '';
-
+            // Simplified card structure without "Applied" badge logic
             gymDiv.innerHTML = `
                 <div class="gym-card-container">
-                    ${appliedBadge}
                     <img src="${gym.gymPhoto || 'default-photo.jpg'}" alt="${gym.gymName || 'Gym'}" class="card-img-top gym-photo" />
                     <div class="card-body">
                         <h5 class="card-title gym-title">${gym.gymName || 'N/A'}</h5>
@@ -200,6 +185,7 @@ async function fetchGymProfiles() {
         }
     });
 }
+
 
 
 

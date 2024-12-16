@@ -266,7 +266,6 @@ document.addEventListener("DOMContentLoaded", function () {
             <td class="status-cell">${status}</td>
             <td>
                 <button class="btn btn-warning btn-sm edit-btn" data-id="${docId}">Edit</button>
-                <button class="btn btn-secondary btn-sm idle-btn" data-id="${docId}">Idle</button>
                 <button class="btn btn-success btn-sm approve-btn" data-id="${docId}">Approve</button>
                 <button class="btn btn-danger btn-sm remove-btn" data-id="${docId}">Remove</button>
             </td>

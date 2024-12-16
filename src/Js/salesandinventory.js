@@ -274,7 +274,7 @@ async function loadSalesDetails(gymName) {
     try {
         // Query the transactions for the gym with status "Approved"
         const transactionsQuery = query(
-            collection(db, 'Transactions'),
+            collection(db, 'Notifications'),
             where('gymName', '==', gymName),   // Match the gymName
             where('status', '==', 'Approved'), // Match only approved transactions
             where('type', '==' , 'Products')

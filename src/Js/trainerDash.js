@@ -745,33 +745,37 @@ function updateNotificationCount(unreadCount) {
     }
     
     // Start a chat with a selected user
-    function startChat(userId, username) {
-        currentChatUserId = userId;
-        document.getElementById('chatWith').textContent = `${username}`;
-        document.querySelector('#searchInput').value = username;
+    async function startChat(userId, username) {
+        try {
+            currentChatUserId = userId;
+            document.getElementById('chatWith').textContent = `${username}`;
     
-        // Ensure the target container exists before modifying it
-        const usersContainer = document.querySelector('#inboxContainer'); // Use #inboxContainer if #usersContainer doesn't exist
-        if (usersContainer) {
-            usersContainer.innerHTML = ''; // Clear the container if it exists
-        } else {
-            console.error("Element with ID 'inboxContainer' not found in the DOM.");
-        }
+            // Ensure chat elements are visible
+            document.getElementById('chatHeader').style.display = 'block';
+            document.getElementById('messagesContainer').style.display = 'block';
+            document.getElementById('messageInputContainer').style.display = 'block';
     
-        // Display chat elements
-        document.getElementById('chatHeader').style.display = 'block';
-        document.getElementById('messagesContainer').style.display = 'block';
-        document.getElementById('messageInputContainer').style.display = 'block';
-
-        // Mark all messages in this conversation as read
-        unreadMessages.forEach(messageId => {
-            if (messageId.startsWith(currentChatUserId)) { // Message from this user
-                unreadMessages.delete(messageId); // Remove from unread set
+            // Load user details to get their photo
+            const userDetails = await getUserDetails(userId);
+            if (userDetails && userDetails.photoURL) {
+                document.getElementById('chatUserPhoto').src = userDetails.photoURL;
+            } else {
+                document.getElementById('chatUserPhoto').src = 'default-profile.png';
             }
-        });
     
-        loadMessages(); // Load messages for the chat
+            loadMessages(); // Load messages for the chat interface
+    
+            // Prevent search input from being automatically filled
+            const searchInput = document.querySelector('#searchInput');
+            if (searchInput) {
+                searchInput.blur(); 
+                searchInput.value = '';
+            }
+        } catch (error) {
+            console.error("Error in startChat:", error);
+        }
     }
+    
 
     async function getUserDetails(userId) {
         // Return cached data if available
@@ -831,119 +835,106 @@ function updateNotificationCount(unreadCount) {
         }
     }    
     let unsubscribeSentMessages = null;
-    let unsubscribeReceivedMessages = null;
-    
-    window. loadMessages = async function() {
-        const userId = auth.currentUser.uid;
-        const messagesContainer = document.querySelector('#messagesContainer');
-        messagesContainer.innerHTML = '';
-    
-        // Clear any previous listeners if they exist
-        if (unsubscribeSentMessages) unsubscribeSentMessages();
-        if (unsubscribeReceivedMessages) unsubscribeReceivedMessages();
-    
-        // Real-time listener for messages sent by the user
-        const sentMessagesQuery = query(
-            collection(db, 'Messages'),
-            where('from', '==', userId),
-            where('to', '==', currentChatUserId),
-            orderBy('timestamp')
-        );
-    
-        // Real-time listener for messages received by the user
-        const receivedMessagesQuery = query(
-            collection(db, 'Messages'),
-            where('from', '==', currentChatUserId),
-            where('to', '==', userId),
-            orderBy('timestamp')
-        );
-    
-        // Function to render messages
-        const renderMessages = async (messages) => {
-            messagesContainer.innerHTML = ''; // Clear previous messages
-            for (const messageData of messages) {
-                const fromUser = await getUserDetails(messageData.from);
-                const isSelf = messageData.from === auth.currentUser.uid;
-    
-                // Message wrapper
-                const messageElement = document.createElement('div');
-                messageElement.className = 'message ' + (isSelf ? 'self' : 'other');
-    
-                // Avatar
-                const avatarElement = document.createElement('div');
-                avatarElement.className = 'avatar';
-    
-                if (fromUser && fromUser.photoURL) {
-                    // If a photo URL is available, display the image
-                    const avatarImage = document.createElement('img');
-                    avatarImage.src = fromUser.photoURL;
-                    avatarImage.alt = `${fromUser.username}'s avatar`;
-                    avatarImage.style.width = '30px';
-                    avatarImage.style.height = '30px';
-                    avatarImage.style.borderRadius = '50%';
-                    avatarElement.appendChild(avatarImage);
-                } else {
-                    // Display initials as fallback if photoURL is missing
-                    avatarElement.textContent = isSelf ? 'You' : (fromUser ? fromUser.username[0].toUpperCase() : '?');
-                }
-    
-                // Message content
-                const messageContent = document.createElement('div');
-                messageContent.className = 'message-content ' + (isSelf ? 'self' : 'other');
-                messageContent.textContent = messageData.message;
-    
-                // Timestamp
-                const timestamp = document.createElement('span');
-                timestamp.className = 'timestamp';
-    
-                // Ensure timestamp is valid and properly formatted
-                if (messageData.timestamp && messageData.timestamp.toDate) {
-                    timestamp.textContent = messageData.timestamp.toDate().toLocaleTimeString();
-                } else {
-                    timestamp.textContent = "Invalid Date"; // Placeholder for testing
-                }
-    
-                messageContent.appendChild(timestamp);
-    
-                // Append elements based on message sender
-                if (isSelf) {
-                    messageElement.appendChild(messageContent);
-                    messageElement.appendChild(avatarElement);
-                } else {
-                    messageElement.appendChild(avatarElement);
-                    messageElement.appendChild(messageContent);
-                }
-    
-                messagesContainer.appendChild(messageElement);
+let unsubscribeReceivedMessages = null;
+
+window.loadMessages = async function() {
+    const userId = auth.currentUser.uid;
+    const messagesContainer = document.querySelector('#messagesContainer');
+
+    // Clear any previous listeners if they exist
+    if (unsubscribeSentMessages) unsubscribeSentMessages();
+    if (unsubscribeReceivedMessages) unsubscribeReceivedMessages();
+
+    const sentMessagesQuery = query(
+        collection(db, 'Messages'),
+        where('from', '==', userId),
+        where('to', '==', currentChatUserId),
+        orderBy('timestamp')
+    );
+
+    const receivedMessagesQuery = query(
+        collection(db, 'Messages'),
+        where('from', '==', currentChatUserId),
+        where('to', '==', userId),
+        orderBy('timestamp')
+    );
+
+    const messages = new Map(); // Use a Map to prevent duplication
+
+    const renderMessage = async (messageData) => {
+        if (messages.has(messageData.id)) return; // Skip already rendered messages
+
+        messages.set(messageData.id, messageData);
+
+        const fromUser = await getUserDetails(messageData.from);
+        const isSelf = messageData.from === auth.currentUser.uid;
+
+        const messageElement = document.createElement('div');
+        messageElement.className = 'message ' + (isSelf ? 'self' : 'other');
+
+        // Avatar
+        const avatarElement = document.createElement('div');
+        avatarElement.className = 'avatar';
+
+        if (fromUser && fromUser.photoURL) {
+            const avatarImage = document.createElement('img');
+            avatarImage.src = fromUser.photoURL;
+            avatarImage.alt = `${fromUser.username}'s avatar`;
+            avatarImage.style.width = '30px';
+            avatarImage.style.height = '30px';
+            avatarImage.style.borderRadius = '50%';
+            avatarElement.appendChild(avatarImage);
+        } else {
+            avatarElement.textContent = isSelf ? 'You' : (fromUser ? fromUser.username[0].toUpperCase() : '?');
+        }
+
+        // Message content
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content ' + (isSelf ? 'self' : 'other');
+        messageContent.textContent = messageData.message;
+
+        // Timestamp
+        const timestamp = document.createElement('span');
+        timestamp.className = 'timestamp';
+        if (messageData.timestamp && messageData.timestamp.toDate) {
+            timestamp.textContent = messageData.timestamp.toDate().toLocaleTimeString();
+        } else {
+            timestamp.textContent = 'Invalid Date';
+        }
+        messageContent.appendChild(timestamp);
+
+        if (isSelf) {
+            messageElement.appendChild(messageContent);
+            messageElement.appendChild(avatarElement);
+        } else {
+            messageElement.appendChild(avatarElement);
+            messageElement.appendChild(messageContent);
+        }
+
+        messagesContainer.appendChild(messageElement);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight; // Auto-scroll to the latest message
+    };
+
+    unsubscribeSentMessages = onSnapshot(sentMessagesQuery, snapshot => {
+        snapshot.docChanges().forEach(change => {
+            if (change.type === 'added') {
+                const messageData = { id: change.doc.id, ...change.doc.data() };
+                renderMessage(messageData);
             }
-            messagesContainer.scrollTop = messagesContainer.scrollHeight; // Auto-scroll to the latest message
-        };
-    
-        // Combine and render messages in real-time
-        const messages = [];
-        unsubscribeSentMessages = onSnapshot(sentMessagesQuery, (snapshot) => {
-            snapshot.docChanges().forEach((change) => {
-                if (change.type === "added") {
-                    messages.push({ id: change.doc.id, ...change.doc.data() });
-                }
-            });
-            messages.sort((a, b) => a.timestamp - b.timestamp);
-            renderMessages(messages);
         });
-    
-        unsubscribeReceivedMessages = onSnapshot(receivedMessagesQuery, (snapshot) => {
-            snapshot.docChanges().forEach((change) => {
-                if (change.type === "added") {
-                    messages.push({ id: change.doc.id, ...change.doc.data() });
-                    // Add the received message to the unreadMessages set
-                    unreadMessages.add(change.doc.id);
-                }
-            });
-            messages.sort((a, b) => a.timestamp - b.timestamp);
-            renderMessages(messages);
+    });
+
+    unsubscribeReceivedMessages = onSnapshot(receivedMessagesQuery, snapshot => {
+        snapshot.docChanges().forEach(change => {
+            if (change.type === 'added') {
+                const messageData = { id: change.doc.id, ...change.doc.data() };
+                renderMessage(messageData);
+                unreadMessages.add(change.doc.id); // Track unread messages
+            }
         });
-        
-    }
+    });
+};
+
 
     async function loadInboxMessages() {
         const userId = auth.currentUser.uid; // Get the ID of the currently logged-in user
@@ -1026,8 +1017,8 @@ function updateNotificationCount(unreadCount) {
                 inboxItem.innerHTML = `
                     <img src="${photoURL}" alt="User Photo" class="inbox-user-photo">
                     <div class="inbox-user-details">
-                        <span class="user-name">${userName}</span>
-                        <span class="user-message">${messageData.message}</span>
+                        <div class="user-name" style="font-weight: bold;">${userName}</div>
+                        <div class="user-message">${messageData.message}</div>
                     </div>
                 `;
     
@@ -1065,24 +1056,28 @@ function updateNotificationCount(unreadCount) {
     
     // Send a message
     async function sendMessage() {
-        const messageInput = document.querySelector('#messageInput');
-        const messageText = messageInput.value.trim();
-        if (messageText && currentChatUserId) {
-            const userId = auth.currentUser.uid;
-            try {
-                await addDoc(collection(db, 'Messages'), {
-                    from: userId,
-                    to: currentChatUserId,
-                    message: messageText,
-                    timestamp: new Date() // Firebase.Timestamp can also be used for consistency
-                });
-                messageInput.value = ''; // Clear input after sending
-                loadMessages();
-            } catch (error) {
-                console.error("Error sending message: ", error); // Log any errors
-            }
+    const messageInput = document.querySelector('#messageInput');
+    const messageText = messageInput.value.trim();
+
+    if (messageText && currentChatUserId) {
+        const userId = auth.currentUser.uid;
+
+        try {
+            // Send a message to Firestore
+            await addDoc(collection(db, 'Messages'), {
+                from: userId,
+                to: currentChatUserId,
+                message: messageText,
+                timestamp: new Date()
+            });
+
+            messageInput.value = ''; // Clear input after sending
+        } catch (error) {
+            console.error("Error sending message: ", error);
         }
     }
+}
+
     
     
     // Event listener for the search input
@@ -1093,6 +1088,14 @@ function updateNotificationCount(unreadCount) {
     
     // Event listener for the send message button
     document.getElementById('sendMessageButton').addEventListener('click', sendMessage);
+
+      // Bind Enter key press to send a message as well
+    document.getElementById('messageInput').addEventListener('keypress', (event) => {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        sendMessage(event);
+    }
+    });
     
     // Load inbox messages when the chat modal is opened
     document.querySelector('a[href="#chatModal"]').addEventListener('click', loadInboxMessages);
