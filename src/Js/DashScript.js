@@ -3225,3 +3225,66 @@ window.searchTrainers = async function (searchTerm) {
             }
         });
 });
+
+
+window.handleDayPass = async function () {
+    // Get the modalGymName dynamically from the HTML element
+    const modalGymName = document.getElementById("modalGymName").innerText.trim();
+    console.log("Modal Gym Name:", modalGymName); // Debugging
+
+    // Check for a valid gym name
+    if (!modalGymName) {
+        console.error("Error: modalGymName is undefined or empty.");
+        alert("Error: Gym name is not available.");
+        return;
+    }
+
+    try {
+        // Reference the GymOwner collection
+        const gymOwnerRef = collection(db, "GymOwner");
+
+        // Query Firestore where gymName matches modalGymName
+        const q = query(gymOwnerRef, where("gymName", "==", modalGymName));
+        const querySnapshot = await getDocs(q);
+
+        // Check if data is returned
+        if (!querySnapshot.empty) {
+            const gymData = querySnapshot.docs[0].data();
+
+            // Update price dynamically in the modal
+            document.getElementById("dynamicPrice").innerText = `$${gymData.gymPriceRate.toFixed(2)}`;
+
+            // Initialize Flatpickr Calendar
+            flatpickr("#calendarDate", {
+                dateFormat: "Y-m-d",
+                minDate: "today"
+            });
+
+            // Show the Day Pass Modal
+            $('#dayPassModal').modal('show');
+        } else {
+            alert("Gym details not found. Please try again.");
+        }
+    } catch (error) {
+        console.error("Error fetching gym data:", error);
+        alert("An error occurred while fetching gym details. Please try again later.");
+    }
+};
+
+// Handle Day Pass Form Submission
+document.getElementById("dayPassForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    // Get user input
+    const email = document.getElementById("email").value;
+    const selectedDate = document.getElementById("calendarDate").value;
+    const price = document.getElementById("dynamicPrice").innerText;
+
+    if (email && selectedDate) {
+        alert(`Day Pass confirmed!\n\nPrice: ${price}\nDate: ${selectedDate}\nConfirmation sent to: ${email}`);
+        $('#dayPassModal').modal('hide');
+    } else {
+        alert("Please fill in all the required fields.");
+    }
+});
+

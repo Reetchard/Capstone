@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/5.11.3/main.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
 
     <link rel="stylesheet" href="css/Dashstyle.css">
     <link rel="stylesheet" href="css/DashResponsive.css">
@@ -165,12 +167,15 @@
                                     </div>
                                 </div>
     
-                                <!-- Modal Footer (Only on Profiling Section) -->
                                 <div class="modal-footer">
-                                        <button class="btn btn-cust-secondary" id="membershipPlansBtn">
-                                            <i class="fas fa-list-alt"></i> Membership Plans
-                                        </button>
+                                    <button class="btn btn-cust-secondary" onclick="handleDayPass('PeakPulse Gym')">
+                                        <i class="fas fa-ticket-alt"></i> Day Pass Access
+                                    </button>
+                                    <button class="btn btn-cust-secondary" id="membershipPlansBtn">
+                                        <i class="fas fa-list-alt"></i> Membership Plans
+                                    </button>
                                 </div>
+                                
                             </div>
     
                             <!-- Trainers Section -->
@@ -302,6 +307,34 @@
 </div>
 
     
+<!-- Day Pass Payment Modal -->
+<div id="dayPassModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Purchase Day Pass</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Price:</strong> <span id="dynamicPrice">Loading...</span></p>
+                <p>Please select a date and proceed to the gym counter to complete your payment.</p>
+                <form id="dayPassForm">
+                    <div class="form-group">
+                        <label for="calendarDate">Select Date:</label>
+                        <input type="text" class="form-control" id="calendarDate" placeholder="Pick a date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Your Email:</label>
+                        <input type="email" class="form-control" id="email" placeholder="Enter your email" required>
+                    </div>
+                    <button type="submit" class="btn btn-success">Confirm Day Pass</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 <!-- Booking Confirmation Modal -->
@@ -725,6 +758,7 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script type="module" src="src/Js/DashScript.js"></script>
 </body>
 </html>
