@@ -2423,6 +2423,25 @@ async function displayTrainerRating() {
                                 <button class="btn btn-danger" id="cancelPurchaseButton">Cancel Purchase</button>
                             </div>
                         `;
+                    } 
+                    else if (notification.type === "Day Pass") {
+                        notificationContent = `
+                            <p class="gym-name">${notification.gymName || 'N/A'}</p>
+                            <p class="ref-number"><strong>Ref. No:</strong> ${notification.notificationId || 'N/A'}</p>
+                            <div class="day-pass-info">
+                                <p><strong>Date:</strong> ${notification.date || 'N/A'}</p>
+                                <p><strong>Price:</strong> ${formatPrice(notification.totalPrice)}</p>
+                                <p><strong>Status:</strong> ${notification.status || 'N/A'}</p>
+                            </div>
+                            <hr>
+                            <p class="footer-info">Present this receipt to the Gym reception.</p>
+                        `;
+                        cancelButton = `
+                            <div class="modal-footer">
+                                <button class="btn btn-danger" id="cancelDayPassButton">Cancel Day Pass</button>
+                            </div>
+                        `;
+                
                     } else {
                         notificationContent = `<p>No details available for this notification type.</p>`;
                     }
@@ -2432,7 +2451,11 @@ async function displayTrainerRating() {
                             <div class="modal-dialog modal-dialog-centered" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="notificationDetailsLabel">${notification.type === "Booking_trainer" ? "Booking Confirmation" : "Purchased Product"}</h5>
+                                        <h5 class="modal-title" id="notificationDetailsLabel">
+                                            ${notification.type === "Booking_trainer" ? "Booking Confirmation" :
+                                            notification.type === "Products" ? "Purchased Product" :
+                                            notification.type === "Day Pass" ? "Day Pass Confirmation" : "Notification"}
+                                        </h5>
                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
                                         </button>
@@ -2451,23 +2474,26 @@ async function displayTrainerRating() {
                 
                     if (notification.type === "Booking_trainer") {
                         document.getElementById('cancelBookingButton')?.addEventListener('click', () => {
-                            $('#notificationDetailsModal').modal('hide'); // Close notification modal
-                            $('#notificationDetailsModal').on('hidden.bs.modal', function () {
-                                showbookingConfirmationModal(
-                                    'Are you sure you want to cancel your book?',
-                                    async () => await cancelBooking(notification.userId)
-                                );
-                            });
+                            $('#notificationDetailsModal').modal('hide');
+                            showbookingConfirmationModal('Are you sure you want to cancel your booking?', async () =>
+                                await cancelBooking(notification.userId)
+                            );
                         });
+                
                     } else if (notification.type === "Products") {
                         document.getElementById('cancelPurchaseButton')?.addEventListener('click', () => {
-                            $('#notificationDetailsModal').modal('hide'); // Close notification modal
-                            $('#notificationDetailsModal').on('hidden.bs.modal', function () {
-                                showproductConfirmationModal(
-                                    'Are you sure you want to cancel this purchase?',
-                                    async () => await cancelPurchase(notification.userId)
-                                );
-                            });
+                            $('#notificationDetailsModal').modal('hide');
+                            showproductConfirmationModal('Are you sure you want to cancel this purchase?', async () =>
+                                await cancelPurchase(notification.userId)
+                            );
+                        });
+                
+                    } else if (notification.type === "Day Pass") {
+                        document.getElementById('cancelDayPassButton')?.addEventListener('click', () => {
+                            $('#notificationDetailsModal').modal('hide');
+                            showDayPassConfirmationModal('Are you sure you want to cancel this day pass?', async () =>
+                                await cancelDayPass(notification.userId)
+                            );
                         });
                     }
                 
@@ -3203,6 +3229,14 @@ window.searchTrainers = async function (searchTerm) {
         
         // Event listener for the send message button
         document.getElementById('sendMessageButton').addEventListener('click', sendMessage);
+
+        // Bind Enter key press to send a message as well
+    document.getElementById('messageInput').addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            sendMessage(event);
+        }
+        });
         
         // Load inbox messages when the chat modal is opened
         document.querySelector('a[href="#chatModal"]').addEventListener('click', loadInboxMessages);
@@ -3252,7 +3286,7 @@ window.handleDayPass = async function () {
             const gymData = querySnapshot.docs[0].data();
 
             // Update price dynamically in the modal
-            document.getElementById("dynamicPrice").innerText = `$${gymData.gymPriceRate.toFixed(2)}`;
+            document.getElementById("dynamicPrice").innerText = `₱${gymData.gymPriceRate.toFixed(2)}`;
 
             // Initialize Flatpickr Calendar
             flatpickr("#calendarDate", {
@@ -3288,3 +3322,66 @@ document.getElementById("dayPassForm").addEventListener("submit", function (e) {
     }
 });
 
+document.getElementById("dayPassForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const email = document.getElementById("email").value;
+    const selectedDate = document.getElementById("calendarDate").value;
+    const price = document.getElementById("dynamicPrice").innerText;
+    const gymName = document.getElementById("modalGymName").innerText;
+
+    const userId = await getCurrentUserId();
+
+    if (!userId) {
+        Swal.fire({
+            icon: 'error',
+            title: 'User Not Authenticated',
+            text: 'Please log in to confirm your day pass.'
+        });
+        return;
+    }
+
+    try {
+        const newNotification = {
+            message: `Day Pass confirmed for ${gymName} on ${selectedDate} at ${price}.`,
+            type: 'Day Pass',
+            email: email,
+            status: 'Pending',
+            read: false,
+            gymName: gymName,
+            notificationId: Date.now().toString(),
+            timestamp: new Date().toISOString(),
+            userId: userId
+        };
+    
+        await addDoc(collection(db, 'Notifications'), newNotification);
+    
+        // Update the notification count on the UI
+        notificationCount++;
+        document.getElementById('notification-count').innerText = notificationCount;
+    
+        const newTransaction = {
+            type: 'Day Pass',
+            userId: userId,
+            gymName: gymName,
+            email: email,
+            date: selectedDate,
+            totalPrice: parseFloat(price.replace(' ', '')) || 0,
+            status: 'Pending',
+            timestamp: new Date().toISOString()
+        };
+    
+        await addDoc(collection(db, 'Transactions'), newTransaction);
+    
+        alert(`Day Pass confirmed!\nPrice: ${price}\nDate: ${selectedDate}`);
+        $('#dayPassModal').modal('hide');
+    } catch (error) {
+        console.error('Firestore Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Confirmation Failed',
+            text: 'An error occurred. Please try confirming your day pass again.'
+        });
+    }
+    
+});

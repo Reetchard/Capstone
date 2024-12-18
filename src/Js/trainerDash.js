@@ -749,6 +749,10 @@ function updateNotificationCount(unreadCount) {
         try {
             currentChatUserId = userId;
             document.getElementById('chatWith').textContent = `${username}`;
+
+            // Clear the messages container before loading new messages
+        const messagesContainer = document.getElementById('messagesContainer');
+        messagesContainer.innerHTML = '';
     
             // Ensure chat elements are visible
             document.getElementById('chatHeader').style.display = 'block';
@@ -841,6 +845,9 @@ window.loadMessages = async function() {
     const userId = auth.currentUser.uid;
     const messagesContainer = document.querySelector('#messagesContainer');
 
+    // Clear the container to prevent duplicates
+    messagesContainer.innerHTML = '';
+
     // Clear any previous listeners if they exist
     if (unsubscribeSentMessages) unsubscribeSentMessages();
     if (unsubscribeReceivedMessages) unsubscribeReceivedMessages();
@@ -849,14 +856,14 @@ window.loadMessages = async function() {
         collection(db, 'Messages'),
         where('from', '==', userId),
         where('to', '==', currentChatUserId),
-        orderBy('timestamp')
+        orderBy('timestamp', 'asc')
     );
 
     const receivedMessagesQuery = query(
         collection(db, 'Messages'),
         where('from', '==', currentChatUserId),
         where('to', '==', userId),
-        orderBy('timestamp')
+        orderBy('timestamp', 'asc')
     );
 
     const messages = new Map(); // Use a Map to prevent duplication
