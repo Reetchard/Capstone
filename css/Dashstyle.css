@@ -2565,3 +2565,41 @@ strong:hover .custom-tooltip {
 .gym-card-container {
     position: relative;
 }
+/* Style for btn-daypass-secondary */
+.btn-daypass-secondary {
+    background-color: #d4edda; /* Light green background */
+    color: #155724; /* Darker green text color */
+    border: 2px solid #28a745;
+    font-weight: bold;
+    padding: 10px 20px;
+    font-size: 16px;
+    transition: background-color 0.3s, color 0.3s, transform 0.2s;
+}
+
+/* Hover effect */
+.btn-daypass-secondary:hover {
+    background-color: #c3e6cb;
+    color: #14532d;
+    border-color: #28a745;
+    transform: scale(1.05);
+}
+
+/* Active button effect */
+.btn-daypass-secondary:active {
+    transform: scale(0.95);
+}
+
+/* Focus effect */
+.btn-daypass-secondary:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(198, 239, 197, 0.5);
+}
+
+/* Disabled button state */
+.btn-daypass-secondary:disabled {
+    background-color: #e9f7fa;
+    color: #6c757d;
+    border-color: #ced4da;
+    cursor: not-allowed;
+    opacity: 0.7;
+}

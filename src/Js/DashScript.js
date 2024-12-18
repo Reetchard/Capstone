@@ -2398,7 +2398,7 @@ async function displayTrainerRating() {
                                 <p><strong>Status:</strong> ${notification.status || 'N/A'}</p>
                             </div>
                             <hr>
-                            <p class="footer-info">Show this receipt to the Gym owner upon arrival.</p>
+                            <p class="footer-info">Show this booking confirmation to the Gym owner upon arrival.</p>
                         `;
                         cancelButton = `
                             <div class="modal-footer">
@@ -2416,7 +2416,7 @@ async function displayTrainerRating() {
                                 <p><strong>Status:</strong> ${notification.status || 'N/A'}</p>
                             </div>
                             <hr>
-                            <p class="footer-info">Show this receipt to the Gym owner upon collection.</p>
+                            <p class="footer-info">Show this order list to the Gym owner upon collection.</p>
                         `;
                         cancelButton = `
                             <div class="modal-footer">
@@ -3315,12 +3315,18 @@ document.getElementById("dayPassForm").addEventListener("submit", function (e) {
     const price = document.getElementById("dynamicPrice").innerText;
 
     if (email && selectedDate) {
-        alert(`Day Pass confirmed!\n\nPrice: ${price}\nDate: ${selectedDate}\nConfirmation sent to: ${email}`);
-        $('#dayPassModal').modal('hide');
+        // Populate the confirmation modal with details
+        document.getElementById("confirmPrice").innerText = price;
+        document.getElementById("confirmDate").innerText = selectedDate;
+        document.getElementById("confirmEmail").innerText = email;
+
+        // Show the confirmation modal
+        $('#confirmationModal').modal('show');
     } else {
         alert("Please fill in all the required fields.");
     }
 });
+
 
 document.getElementById("dayPassForm").addEventListener("submit", async function (e) {
     e.preventDefault();
@@ -3342,8 +3348,11 @@ document.getElementById("dayPassForm").addEventListener("submit", async function
     }
 
     try {
+        // Clean up the price value to ensure it's properly formatted
+        const cleanPrice = parseFloat(price.replace(/[^0-9.]/g, '')) || 0;
+
         const newNotification = {
-            message: `Day Pass confirmed for ${gymName} on ${selectedDate} at ${price}.`,
+            message: `Day Pass Access for ${gymName} on ${selectedDate} at ${price}.`,
             type: 'Day Pass',
             email: email,
             status: 'Pending',
@@ -3366,22 +3375,33 @@ document.getElementById("dayPassForm").addEventListener("submit", async function
             gymName: gymName,
             email: email,
             date: selectedDate,
-            totalPrice: parseFloat(price.replace(' ', '')) || 0,
+            totalPrice: cleanPrice,
             status: 'Pending',
             timestamp: new Date().toISOString()
         };
     
         await addDoc(collection(db, 'Transactions'), newTransaction);
     
-        alert(`Day Pass confirmed!\nPrice: ${price}\nDate: ${selectedDate}`);
+        // Display success confirmation using SweetAlert2
+        Swal.fire({
+            icon: 'success',
+            title: 'Day Pass Access!',
+            html: `
+                <p><strong>Gym Name:</strong> ${gymName}</p>
+                <p><strong>Price:</strong> ${price}</p>
+                <p><strong>Date:</strong> ${selectedDate}</p>
+                <p><strong>Email:</strong> ${email}</p>
+            `,
+            confirmButtonText: 'Okay',
+        });
+
         $('#dayPassModal').modal('hide');
     } catch (error) {
         console.error('Firestore Error:', error);
         Swal.fire({
             icon: 'error',
             title: 'Confirmation Failed',
-            text: 'An error occurred. Please try confirming your day pass again.'
+            text: 'An error occurred. Please try confirming your day pass again.',
         });
     }
-    
 });
