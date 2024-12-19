@@ -186,3 +186,95 @@ nav ul li a:hover {
         display: none;
     }
 }
+
+/* Modal Custom Styling */
+.modal-content {
+    border-radius: 10px; /* Rounded corners for the modal */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow around the modal */
+}
+
+.modal-header {
+    background-color: #1b1b1b; /* Primary color for the header */
+    color: white; /* White text color */
+    border-bottom: 1px solid #ddd; /* Light gray border */
+}
+
+.modal-title {
+    font-size: 1.5rem; /* Bigger font size for the title */
+    font-weight: bold; /* Make the title bold */
+}
+
+.btn-close {
+    background: none; /* Remove default background */
+    border: none; /* Remove border */
+    font-size: 1.25rem; /* Increase the close button size */
+    color: white; /* Close button color */
+    opacity: 0.6; /* Slightly transparent */
+}
+
+.btn-close:hover {
+    opacity: 1; /* Make the close button fully opaque on hover */
+}
+
+/* Modal Body Styling */
+.modal-body {
+    padding: 30px; /* Add extra padding inside the modal */
+    background-color: #1b1b1b;
+    font-family: Arial, sans-serif; /* Use a clean font */
+}
+
+.img-fluid {
+    max-width: 150px; /* Max width for the profile image */
+    height: auto; /* Maintain aspect ratio */
+    border-radius: 50%; /* Make the image round */
+    border: 2px solid #007bff; /* Add border matching the header */
+    margin-bottom: 20px; /* Space below the image */
+}
+
+/* Form Controls Styling */
+.form-label {
+    font-weight: bold; /* Make labels bold */
+    font-size: 1rem; /* Slightly larger font for labels */
+}
+
+.form-control {
+    border-radius: 5px; /* Rounded borders for inputs */
+    border: 1px solid #ddd; /* Light gray border */
+    padding: 10px; /* Add padding inside the inputs */
+    font-size: 1rem; /* Standard font size */
+    background-color: #f9f9f9; /* Slightly gray background for inputs */
+    color: #333; /* Darker text color */
+    transition: all 0.3s ease; /* Smooth transition for focus effect */
+}
+
+/* Input Focus Styling */
+.form-control:focus {
+    border-color: #007bff; /* Blue border on focus */
+    background-color: #fff; /* White background on focus */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Light blue glow on focus */
+}
+
+/* Button Styling */
+.btn-secondary {
+    background-color: #6c757d; /* Gray color for the close button */
+    color: white; /* White text color */
+    border: none; /* Remove border */
+    padding: 10px 20px; /* Add padding for the button */
+    border-radius: 5px; /* Rounded corners */
+    transition: background-color 0.3s; /* Smooth transition for hover effect */
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268; /* Darker gray on hover */
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .modal-dialog {
+        max-width: 90%; /* Make the modal smaller on smaller screens */
+    }
+
+    .modal-body {
+        padding: 20px; /* Less padding for smaller screens */
+    }
+}
