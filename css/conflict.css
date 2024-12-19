@@ -79,7 +79,7 @@ nav ul li a:hover {
 .hamburger-container {
     width: 50px;
     height: 50px;
-    background-color: #007bff;
+    background-color: #444;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -159,29 +159,109 @@ nav ul li a:hover {
     font-size: 18px;
     margin-top: 10px;
 }
-
-/* Responsive Behavior */
-@media (max-width: 991.98px) {
-    .sidebar {
-        transform: translateX(-100%);
-    }
-
-    .sidebar.show {
-        transform: translateX(0);
-    }
-
-    .content {
-        margin-left: 0;
-    }
+.table::-webkit-scrollbar {
+    width: 12px; /* Width of the scrollbar */
 }
 
+.table::-webkit-scrollbar-track {
+    background: #444; /* Background of the scrollbar track */
+    border-radius: 10px; /* Rounded corners for the track */
+}
 
-@media (min-width: 992px) {
-    .content {
-        margin-left: 250px;
+.table::-webkit-scrollbar-thumb {
+    background-color: #888; /* Color of the scrollbar thumb */
+    border-radius: 10px; /* Rounded corners for the thumb */
+}
+
+.table::-webkit-scrollbar-thumb:hover {
+    background-color: #666; /* Color of the thumb when hovered */
+}
+
+/* Custom Scrollbar Styles for Firefox */
+.table {
+    scrollbar-width: thin; /* Set scrollbar to thin */
+    scrollbar-color: #888 #444; /* Thumb color and track color */
+}
+
+/* Existing Styles for Reference */
+.container {
+    padding: 20px;
+    background-color: #333; /* Dark background for the container */
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Header Styles */
+h2 {
+    color: #ffffff; /* White text for the header */
+    font-family: 'Merriweather', serif; /* Use Merriweather font */
+}
+
+/* Card Styles */
+.card {
+    background-color: #444; /* Card background color */
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.card-header {
+    color: #fff; /* Card background color */
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Table Styles */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #ffffff; /* White text for table */
+    font-family: 'Merriweather', serif; /* Use Merriweather font */
+    overflow: hidden; /* Ensure rounded corners are respected */
+    border-radius: 10px; /* Rounded corners for the table */
+    max-height: 400px; /* Optional: Set max height for the table */
+    overflow-y: auto; /* Enable vertical scrolling */
+}
+
+.table thead {
+    background-color: #212529; /* Header background */
+}
+
+.table th, .table td {
+    padding: 15px; /* Padding for cells */
+    text-align: center; /* Center text */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Light border */
+}
+
+.table th {
+    color: #ffffff; /* White text for headers */
+    font-weight: bold; /* Bold text for headers */
+}
+
+.table tbody tr {
+    transition: background-color 0.3s; /* Smooth background transition */
+}
+
+.table tbody tr:nth-child(even) {
+    background-color: #333; /* Slightly darker background for even rows */
+}
+
+.table tbody tr:hover {
+    background-color: #666; /* Highlight on hover */
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .table {
+        display: block; /* Allow horizontal scrolling */
+        overflow-x: auto; /* Enable horizontal scrolling */
     }
 
-    #toggleSidebar {
-        display: none;
+    .table th, .table td {
+        padding: 10px; /* Smaller padding for smaller screens */
+        font-size: 14px; /* Adjust font size */
+    }
+
+    h2 {
+        font-size: 1.5em; /* Responsive font size for header */
     }
 }

@@ -1,10 +1,11 @@
 /* General Styling */
 body {
-    font-family: "Helvitica Neue", Arial, sans-serif;
-    background-color: #1b1b1b; /* Dark background */
-    color: #FAF0E6;/* Light gray text */
+    font-family: 'Merriweather', serif; /* Updated to a more formal font */
+    background-color: #292929; /* Dark background */
+    color: #FAF0E6; /* Light gray text */
     overflow-x: hidden;
 }
+
 nav ul {
     display: flex;
     list-style: none;
@@ -27,6 +28,7 @@ nav ul li a {
 nav ul li a:hover {
     color: #ffa31a; /* Text color on hover */
     transform: scale(1.1); /* Subtle grow effect on hover */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Soft shadow on hover */
 }
 
 nav ul li a::after {
@@ -45,9 +47,6 @@ nav ul li a:hover::after {
     width: 100%; /* Full width on hover */
 }
 
-nav ul li a:hover {
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Soft shadow on hover */
-}
 .sidebar {
     background-color: #1b1b1b;
     width: 250px;
@@ -161,28 +160,276 @@ nav ul li a:hover {
     margin-top: 10px;
 }
 
-/* Responsive Behavior */
-@media (max-width: 991.98px) {
-    .sidebar {
-        transform: translateX(-100%);
+/* General Styles */
+.content {
+    padding: 30px;
+}
+
+.container-fluid {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Card Styles */
+.card {
+    background-color: #fff;
+    border: 2px solid #444; /* Border color */
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* Increased shadow for more depth */
+    overflow: hidden;
+    transition: transform 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3); /* Darker shadow on hover */
+}
+
+/* Enhanced Card Header */
+.card-header {
+    background: #444; /* Dark background for header */
+    color: #fff; /* White text */
+    padding: 24px 30px; /* Increased padding */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /* Wraps content on smaller screens */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    gap: 16px; /* Spacing between elements */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    border-radius: 12px 12px 0 0; /* Rounded corners at the top */
+    transition: background 0.3s ease; /* Background transition */
+}
+
+.card-header:hover {
+    background: #007bff; /* Darker background on hover */
+}
+
+.card-header h4 {
+    font-size: 2rem; /* Larger font size */
+    font-weight: 700; /* Bold weight */
+    margin: 0; /* Remove margin for tight spacing */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5); /* Text shadow for emphasis */
+    color: #FFFFFF; /* White color for the main title */
+}
+
+/* Specific style for the profile-text span */
+.card-header h4 .profile-text {
+    color: #FFA500; /* Orange color for the highlighted text */
+    font-weight: bold; /* Ensure the highlighted text is bold */
+}
+
+/* Search Actions */
+.card-header .search-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px; /* Spacing between buttons and input */
+    flex-wrap: wrap; /* Wraps input and buttons on smaller screens */
+}
+
+/* Input and Buttons */
+.card-header input {
+    padding: 10px 14px; /* Increased padding */
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    outline: none;
+    transition: all 0.3s ease;
+    min-width: 220px; /* Minimum width */
+    flex: 1;
+}
+
+.card-header input:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.card-header button {
+    padding: 10px 16px; /* Increased padding */
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem; /* Button font size */
+    transition: background 0.3s ease, transform 0.2s ease;
+    white-space: nowrap;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Button shadow */
+}
+
+.card-header .search-btn {
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+.card-header .search-btn:hover {
+    background-color: #FFA500;
+    transform: translateY(-2px);
+}
+
+.card-header .delete-btn {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.card-header .delete-btn:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+}
+
+/* Responsive Search Bar */
+@media (max-width: 768px) {
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
     }
 
-    .sidebar.show {
-        transform: translateX(0);
+    .card-header .search-actions {
+        flex-direction: column;
+        width: 100%;
     }
 
-    .content {
-        margin-left: 0;
+    .card-header input {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+
+    .card-header button {
+        width: 100%;
     }
 }
 
+.card-body {
+    padding: 20px; /* Increased padding for inner content */
+    font-size: 1rem; /* Base font size */
+    line-height: 1.5; /* Improved readability */
+    background-color: #333;
+}
 
+/* Modern Table Styles */
+.table {
+    width: 100%;
+    border-collapse: collapse; /* Collapse borders */
+    border-radius: 12px; /* Rounded corners for the table */
+    overflow: hidden; /* Ensure rounded corners are visible */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Light shadow for table */
+}
+
+.table thead {
+    background-color: #0056b3; /* Header background color */
+    color: #fff; /* Header text color */
+    text-transform: uppercase; /* Uppercase for headers */
+    font-weight: bold; /* Bold headers */
+}
+
+.table th {
+    padding: 16px; /* Increased padding for headers */
+    text-align: center;
+    font-weight: 600;
+    border-bottom: 2px solid #000000; /* Darker border for headers */
+
+}
+
+.table td {
+    padding: 16px; /* Increased padding for cells */
+    text-align: center;
+    background-color: #444; /* White background for cells */
+    border: 1px solid #eee; /* Light border */
+    border-radius: 8px; /* Rounded corners for cells */
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transitions */
+    color : #fff;
+}
+
+.table tr {
+    transition: background-color 0.3s ease;
+}
+.table tr:hover td {
+    background-color: #ffa31a; /* Background color on hover */
+    transform: translateY(-2px); /* Slight lift effect */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Shadow on hover */
+    color: #1b1b1b; /* Change font color to white on hover */
+}
+
+/* Scrollbar Styles for Mobile */
+.table-responsive::-webkit-scrollbar {
+    height: 8px; /* Height of the horizontal scrollbar */
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Background of the scrollbar track */
+    border-radius: 10px; /* Rounded corners for the track */
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #333; /* Color of the scrollbar thumb */
+    border-radius: 10px; /* Rounded corners for the thumb */
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #333; /* Darker thumb color on hover */
+}
+
+/* Smooth Transitions */
+button,
+input,
+.table td,
+.card {
+    transition: all 0.3s ease-in-out;
+}
+
+/* Responsive Behavior */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 15px; /* Adjust padding for smaller screens */
+    }
+
+    .table-responsive {
+        overflow-x: auto; /* Enable horizontal scrolling */
+    }
+
+    /* Custom scrollbar styles for mobile */
+    .table-responsive::-webkit-scrollbar {
+        height: 6px; /* Height of the horizontal scrollbar */
+    }
+}
+
+/* Adjustments for larger screens */
 @media (min-width: 992px) {
     .content {
-        margin-left: 250px;
+        margin-left: 250px; /* Content margin for sidebar */
     }
 
     #toggleSidebar {
-        display: none;
+        display: none; /* Hide hamburger button on large screens */
+    }
+}
+@media (max-width: 768px) {
+    .card-body {
+        padding: 15px; /* Adjust padding for smaller screens */
+    }
+
+    .container {
+        overflow-x: auto; /* Enable horizontal scrolling */
+    }
+
+    /* Custom scrollbar styles for mobile */
+    .container::-webkit-scrollbar {
+        height: 6px; /* Height of the horizontal scrollbar */
+    }
+ 
+    .table th, .table td {
+        padding: 10px; /* Reduced padding for table cells */
+        font-size: 0.9rem; /* Smaller font size for table */
+    }
+
+    .btn-primary, .btn-success {
+        padding: 10px; /* Reduced padding for buttons */
+    }
+}
+
+@media (max-width: 576px) {
+    .container {
+        padding: 8px; /* Further reduced padding for very small screens */
+    }
+
+    .table th, .table td {
+        font-size: 0.8rem; /* Smaller font size for very small screens */
     }
 }

@@ -145,11 +145,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     dateAdded,
                     downloadURL
                 );
-    
+                
                 // Refetch products to update the table
                 fetchAndDisplayProducts(gymName);
-    
+                $("#productForm").modal("hide");
+
                 showMessage("success", "✅ Product added successfully!");
+
             } else {
                 showMessage("error", "User not found. Please check your account.");
             }
@@ -264,12 +266,16 @@ document.addEventListener("DOMContentLoaded", function () {
             <td>${quantity}</td>
             <td>${formattedDate}</td>
             <td class="status-cell">${status}</td>
-            <td>
-                <button class="btn btn-warning btn-sm edit-btn" data-id="${docId}">Edit</button>
-                <button class="btn btn-success btn-sm approve-btn" data-id="${docId}">Approve</button>
-                <button class="btn btn-danger btn-sm remove-btn" data-id="${docId}">Remove</button>
+            <td class="actions">
+                  <div class="button-container">
+                <button class="btn btn-warning btn-sm edit-btn" data-id="${docId}"> <i class="fas fa-edit"> </i> Edit </button>
+                <button class="btn btn-success btn-sm approve-btn" data-id="${docId}"> <i class="fas fa-check"> </i>Approve </button>
+                <button class="btn btn-danger btn-sm remove-btn" data-id="${docId}">   <i class="fas fa-trash">  </i> Remove </button>
+                 </button>
+                  </div>
             </td>
         `;
+        
     
         document.getElementById("productTableBody").appendChild(row);
     

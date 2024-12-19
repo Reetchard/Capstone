@@ -21,6 +21,8 @@ const storage = getStorage(app);
 
 document.addEventListener("DOMContentLoaded", () => {
     const GymNameField = document.getElementById("GymName");
+    const TrainerEmailField = document.getElementById("TrainerEmail");
+    const TrainerUsernameField = document.getElementById("TrainerUsername");
 
     // Function to get query parameters
     function getQueryParam(param) {
@@ -35,25 +37,55 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
         GymNameField.value = "Unknown Gym"; // Fallback if no gymName is passed
     }
+
+    // Populate TrainerEmail field if email is passed in the URL
+    const trainerEmail = getQueryParam("email");
+    if (trainerEmail) {
+        TrainerEmailField.value = decodeURIComponent(trainerEmail);
+    }
+
+    // Populate TrainerUsername field if username is passed in the URL
+    const trainerUsername = getQueryParam("username");
+    if (trainerUsername) {
+        TrainerUsernameField.value = decodeURIComponent(trainerUsername);
+    }
 });
 
-document.addEventListener("DOMContentLoaded", function () {
-    const form = document.getElementById("TrainerForm");
+document.addEventListener("DOMContentLoaded", () => {
+    const GymNameField = document.getElementById("GymName");
+    const TrainerEmailField = document.getElementById("TrainerEmail");
+    const TrainerUsernameField = document.getElementById("TrainerUsername");
 
-    const TrainerName = document.getElementById("TrainerName");
-    const TrainerEmail = document.getElementById("TrainerEmail");
+    // Function to get query parameters
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    // Populate GymName field if gymName is passed in the URL
+    const gymName = getQueryParam("gymName");
+    if (gymName) {
+        GymNameField.value = decodeURIComponent(gymName);
+    } else {
+        GymNameField.value = "Unknown Gym"; // Fallback if no gymName is passed
+    }
+
+    // Populate TrainerEmail field if email is passed in the URL
+    const trainerEmail = getQueryParam("email");
+    if (trainerEmail) {
+        TrainerEmailField.value = decodeURIComponent(trainerEmail);
+    }
+
+    // Populate TrainerUsername field if username is passed in the URL
+    const trainerUsername = getQueryParam("username");
+    if (trainerUsername) {
+        TrainerUsernameField.value = decodeURIComponent(trainerUsername);
+    }
+
+    // Event listener for TrainerPhotoInput to preview profile picture
     const TrainerPhotoInput = document.getElementById("TrainerPhoto");
-    const TrainerApplicationInput = document.getElementById("TrainerApplication");
-    const ResumeInput = document.getElementById("Resume");
-    const Days = document.getElementById("Days");
-    const Experience = document.getElementById("Experience");
-    const Expertise = document.getElementById("Expertise");
-    const Contact = document.getElementById("Contact");
-    const rate = document.getElementById("rate");
     const profilePic = document.getElementById("profilePic");
-    const spinnerModal = document.getElementById("spinnerModal");
 
-    // Preview profile picture
     TrainerPhotoInput.addEventListener("change", (event) => {
         const file = event.target.files[0];
         if (file) {
@@ -67,33 +99,22 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // Upload files to Firebase Storage
-    async function uploadFile(file, path) {
-        const storageReference = storageRef(storage, path);
-        const snapshot = await uploadBytes(storageReference, file);
-        return await getDownloadURL(snapshot.ref);
-    }
-
-    // Show/hide spinner modal
-    function showSpinner() {
-        spinnerModal.style.display = "block";
-    }
-    function hideSpinner() {
-        spinnerModal.style.display = "none";
-    }
-
     // Handle form submission
+    const form = document.getElementById("TrainerForm");
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const trainerName = TrainerName.value.trim();
-        const trainerEmail = TrainerEmail.value.trim();
+        const trainerName = document.getElementById("TrainerName").value.trim();
+        const trainerEmail = TrainerEmailField.value.trim();
 
         try {
+            const spinnerModal = document.getElementById("spinnerModal");
+            const showSpinner = () => (spinnerModal.style.display = "block");
+            const hideSpinner = () => (spinnerModal.style.display = "none");
             showSpinner();
 
             // Fetch GymName dynamically
-            const gymName = document.getElementById("GymName").value.trim();
+            const gymName = GymNameField.value.trim();
             if (!gymName || gymName === "Unknown Gym") {
                 hideSpinner();
                 Swal.fire({
@@ -102,6 +123,17 @@ document.addEventListener("DOMContentLoaded", function () {
                     text: "Error: Gym Name could not be determined for the applied trainer.",
                 });
                 return;
+            }
+
+            const TrainerPhotoInput = document.getElementById("TrainerPhoto");
+            const TrainerApplicationInput = document.getElementById("TrainerApplication");
+            const ResumeInput = document.getElementById("Resume");
+
+            // Upload files to Firebase Storage
+            async function uploadFile(file, path) {
+                const storageReference = storageRef(storage, path);
+                const snapshot = await uploadBytes(storageReference, file);
+                return await getDownloadURL(snapshot.ref);
             }
 
             const TrainerPhotoURL = TrainerPhotoInput.files[0]
@@ -123,13 +155,11 @@ document.addEventListener("DOMContentLoaded", function () {
                   )
                 : "";
 
-            // Check if TrainerName exists in Firestore
             const trainersRef = collection(db, "Trainer");
             const q = query(trainersRef, where("email", "==", trainerEmail));
             const querySnapshot = await getDocs(q);
 
             if (!querySnapshot.empty) {
-                // Trainer exists, update the existing document
                 const trainerDoc = querySnapshot.docs[0];
                 const trainerDocRef = trainerDoc.ref;
 
@@ -138,12 +168,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     ...(TrainerPhotoURL && { TrainerPhoto: TrainerPhotoURL }),
                     ...(TrainerApplicationURL && { TrainerApplication: TrainerApplicationURL }),
                     ...(ResumeURL && { Resume: ResumeURL }),
-                    Days: Days.value,
-                    Experience: Experience.value,
-                    Expertise: Expertise.value,
-                    Contact: Contact.value,
-                    rate: rate.value,
-                    gymName: gymName, // Automatically associate GymName
+                    Days: document.getElementById("Days").value,
+                    Experience: document.getElementById("Experience").value,
+                    Expertise: document.getElementById("Expertise").value,
+                    Contact: document.getElementById("Contact").value,
+                    rate: document.getElementById("rate").value,
+                    gymName: gymName,
                     role: "trainer",
                     status: "Under Review",
                 });
@@ -153,34 +183,31 @@ document.addEventListener("DOMContentLoaded", function () {
                     userId: trainerDoc.id,
                     gymName: gymName,
                     message: message,
-                    timestamp: new Date().toISOString(), // Current date and time
-                    status: "Unread", // Default status
+                    timestamp: new Date().toISOString(),
+                    status: "Unread",
                 };
                 await addDoc(collection(db, "MemberNotif"), notification);
-                console.log("Member notification saved successfully.");
-
                 hideSpinner();
                 Swal.fire({
                     icon: "success",
                     title: "Applied Success",
                     text: "Apply Gym successfully Sent wait for the Gym Owners Approval!",
                 }).then(() => {
-                    window.location.href = "trainer.html"; // Redirect after success
+                    window.location.href = "trainer.html";
                 });
             } else {
-                // Trainer does not exist, create a new document
                 const newTrainerRef = await addDoc(trainersRef, {
                     TrainerName: trainerName,
                     TrainerEmail: trainerEmail,
                     TrainerPhoto: TrainerPhotoURL,
                     TrainerApplication: TrainerApplicationURL,
                     Resume: ResumeURL,
-                    Days: Days.value,
-                    Experience: Experience.value,
-                    Expertise: Expertise.value,
-                    Contact: Contact.value,
-                    rate: rate.value,
-                    gymName: gymName, // Automatically associate GymName
+                    Days: document.getElementById("Days").value,
+                    Experience: document.getElementById("Experience").value,
+                    Expertise: document.getElementById("Expertise").value,
+                    Contact: document.getElementById("Contact").value,
+                    rate: document.getElementById("rate").value,
+                    gymName: gymName,
                     role: "trainer",
                     status: "Under Review",
                 });
@@ -190,19 +217,17 @@ document.addEventListener("DOMContentLoaded", function () {
                     userId: newTrainerRef.id,
                     gymName: gymName,
                     message: message,
-                    timestamp: new Date().toISOString(), // Current date and time
-                    status: "Unread", // Default status
+                    timestamp: new Date().toISOString(),
+                    status: "Unread",
                 };
                 await addDoc(collection(db, "MemberNotif"), notification);
-                console.log("Member notification saved successfully.");
-
                 hideSpinner();
                 Swal.fire({
                     icon: "success",
                     title: "Application Submitted",
                     text: "Trainer information submitted successfully! Your information is under review.",
                 }).then(() => {
-                    window.location.href = "trainer.html"; // Redirect after success
+                    window.location.href = "trainer.html";
                 });
             }
         } catch (error) {
@@ -215,6 +240,5 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
-
 
 

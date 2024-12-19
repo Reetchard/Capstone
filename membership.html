@@ -9,10 +9,11 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
 
 </head>
 
-<body style="background-color: #1b1b1b;">
+<body style="background-color: #292929; font-family:'Merriweather', serif;">
 <!-- Hamburger Button -->
 <div class="hamburger-container d-lg-none position-fixed" id="toggleSidebar" style="top: 20px; left: 20px; z-index: 1050;">
     <div class="hamburger">
@@ -54,8 +55,8 @@
     </ul>
 </nav>
     <!-- Main Content -->
-    <div class="container mt-5 content modal-lg">
-        <h1 class="text-center mb-4" style="color: #1b1b1b;">Manage Membership Plans</h1>
+    <div class="container mt-5 modal-lg">
+        <h1 class="mb-4 text-center">Manage <span class="profile-text">Membership Plans</span></h1>
 
         <!-- Add New Membership Plan Button -->
         <div class="d-flex justify-content-end mb-3">
@@ -65,7 +66,7 @@
         </div>
 
         <!-- Table to Display Current Plans -->
-        <h2 class="mt-5 text-center">Current Plans</h2>
+        <h2 class="mt-5 text-center" style="color:#fff;">Current Plans</h2>
         <table class="table table-bordered table-striped mt-3 ">
             <thead>
                 <tr>
@@ -89,7 +90,7 @@
     <div class="modal fade" id="membershipModal" tabindex="-1" aria-labelledby="membershipModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
+                <div class="modal-header  text-white">
                     <h5 class="modal-title" id="membershipModalLabel">Add / Edit Membership Plan</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
