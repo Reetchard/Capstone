@@ -2378,12 +2378,40 @@ async function displayTrainerRating() {
 
                 function showNotificationDetails(notification) {
                     const formatPrice = (price) => {
-                        const numericPrice = parseFloat(price.replace(/[^\d.-]/g, ''));
+                        if (price == null || price === '') {
+                            return 'N/A'; // Return 'N/A' for null, undefined, or empty values
+                        }
+                    
+                        // Convert price to a string (if not already) and sanitize it
+                        const numericPrice = parseFloat(
+                            typeof price === 'string' ? price.replace(/[^\d.-]/g, '') : price
+                        );
+                    
+                        // Return formatted price or 'N/A' if not a valid number
                         return !isNaN(numericPrice)
                             ? `₱${numericPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                             : 'N/A';
-                    };
-                
+                    };                    
+                    function formatDate(date) {
+                        if (!date) return null; // Return null if the date is undefined or null
+                        const parsedDate = new Date(date); // Parse the date
+                        if (isNaN(parsedDate)) return null; // Return null for invalid dates
+                    
+                        // Array of month names
+                        const monthNames = [
+                            'January', 'February', 'March', 'April', 'May', 'June',
+                            'July', 'August', 'September', 'October', 'November', 'December'
+                        ];
+                    
+                        // Extract month, day, and year
+                        const month = monthNames[parsedDate.getMonth()]; // Get month name
+                        const day = String(parsedDate.getDate()).padStart(2, '0'); // Get day with leading zero
+                        const year = parsedDate.getFullYear(); // Get full year (e.g., 2024)
+                    
+                        return `${month} ${day}, ${year}`;
+                    }
+                    
+                    
                     let notificationContent = '';
                     let cancelButton = '';
                 
@@ -2393,7 +2421,7 @@ async function displayTrainerRating() {
                             <p class="ref-number"><strong>Ref. No:</strong> ${notification.notificationId || 'N/A'}</p>
                             <div class="product-info">
                                 <p><strong>Trainer:</strong> ${notification.username || 'N/A'}</p>
-                                <p><strong>Date:</strong> ${notification.bookingDate || 'N/A'}</p>
+                                <p><strong>Date:</strong> ${formatDate(notification.bookingDate) || 'N/A'}</p>
                                 <p><strong>Rate:</strong> ${formatPrice(notification.price)}</p>
                                 <p><strong>Status:</strong> ${notification.status || 'N/A'}</p>
                             </div>
@@ -2429,8 +2457,8 @@ async function displayTrainerRating() {
                             <p class="gym-name">${notification.gymName || 'N/A'}</p>
                             <p class="ref-number"><strong>Ref. No:</strong> ${notification.notificationId || 'N/A'}</p>
                             <div class="day-pass-info">
-                                <p><strong>Date:</strong> ${notification.date || 'N/A'}</p>
-                                <p><strong>Price:</strong> ${formatPrice(notification.totalPrice)}</p>
+                                <p><strong>Date:</strong> ${formatDate(notification.Date) || 'N/A'}</p>
+                                <p><strong>Price:</strong> ${formatPrice(notification.price)}</p>
                                 <p><strong>Status:</strong> ${notification.status || 'N/A'}</p>
                             </div>
                             <hr>
@@ -3286,7 +3314,7 @@ window.handleDayPass = async function () {
             const gymData = querySnapshot.docs[0].data();
 
             // Update price dynamically in the modal
-            document.getElementById("dynamicPrice").innerText = `₱${gymData.gymPriceRate.toFixed(2)}`;
+            document.getElementById("dynamicPrice").innerText = `₱${gymData.gymPriceRate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
             // Initialize Flatpickr Calendar
             flatpickr("#calendarDate", {
@@ -3352,10 +3380,12 @@ document.getElementById("dayPassForm").addEventListener("submit", async function
         const cleanPrice = parseFloat(price.replace(/[^0-9.]/g, '')) || 0;
 
         const newNotification = {
-            message: `Day Pass Access for ${gymName} on ${selectedDate} at ${price}.`,
+            message: `Day Pass Access for ${gymName} on ${selectedDate} at ${price.toLocaleString()}.`,
             type: 'Day Pass',
             email: email,
             status: 'Pending',
+            price : price,
+            Date : selectedDate,
             read: false,
             gymName: gymName,
             notificationId: Date.now().toString(),
@@ -3375,20 +3405,22 @@ document.getElementById("dayPassForm").addEventListener("submit", async function
             gymName: gymName,
             email: email,
             date: selectedDate,
-            totalPrice: cleanPrice,
+            totalPrice: cleanPrice >= 1000 ? cleanPrice.toLocaleString() : cleanPrice.toString(), // Format with comma if >= 1000
             status: 'Pending',
             timestamp: new Date().toISOString()
         };
+
     
         await addDoc(collection(db, 'Transactions'), newTransaction);
-    
+        await fetchNotifications(userId);
+
         // Display success confirmation using SweetAlert2
         Swal.fire({
             icon: 'success',
             title: 'Day Pass Access!',
             html: `
                 <p><strong>Gym Name:</strong> ${gymName}</p>
-                <p><strong>Price:</strong> ${price}</p>
+                <p><strong>Price:</strong> ${price.toLocaleString()}</p>
                 <p><strong>Date:</strong> ${selectedDate}</p>
                 <p><strong>Email:</strong> ${email}</p>
             `,
