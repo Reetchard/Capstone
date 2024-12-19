@@ -366,7 +366,7 @@ h1 {
 /* Compact Modal Styling */
 .modal-content {
     background-color: #333; /* Dark background */
-    color: #fff;            /* Light text color */
+    color: #333333;            /* Light text color */
     border-radius: 8px;
     padding: 10px; /* Minimal padding for compact look */
     width: auto; /* Adjust width to fit content */

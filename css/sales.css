@@ -1,13 +1,17 @@
 /* General Styling */
 body {
-    background-color: #1b1b1b;
+    background-color: #292929;
     overflow-x: hidden;
-    
+    font-family: 'Merriweather', serif; /* Add the Merriweather font */
+    color: #FAF6F0; /* Default text color */
 }
+
 nav ul {
     display: flex;
     list-style: none;
     padding: 0;
+    flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+    margin: 0; /* Reset margin */
 }
 
 nav ul li {
@@ -22,10 +26,12 @@ nav ul li a {
     transition: color 0.3s ease, transform 0.3s ease; /* Transition effects */
     letter-spacing: 0.5px; /* Letter spacing for a modern feel */
 }
+
 nav ul li a:hover {
     color: #ffa31a; /* Text color on hover */
     transform: scale(1.1); /* Subtle grow effect on hover */
 }
+
 nav ul li a::after {
     content: ''; /* Create an empty element */
     display: block; /* Display as block */
@@ -45,28 +51,29 @@ nav ul li a:hover::after {
 nav ul li a:hover {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Soft shadow on hover */
 }
+
 /* Sidebar */
 .sidebar {
-    width: 250px;
-    height: 100vh;
-    position: fixed;
-    top: 0;
-    left: -250px; /* Hidden initially */
-    background-color: #1b1b1b;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    overflow-y: auto;
-    transition: transform 0.3s ease, left 0.3s ease;
+    width: 250px; /* Fixed width */
+    height: 100vh; /* Full height */
+    position: fixed; /* Fixed position */
+    top: 0; /* Align to the top */
+    left: -250px; /* Initially hidden off-screen */
+    background-color: #1b1b1b; /* Sidebar background */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    overflow-y: auto; /* Scrollable if necessary */
+    transition: left 0.3s ease; /* Smooth transition */
     z-index: 1000;
 }
 
 .sidebar.show {
-    left: 0; /* Slide-in */
+    left: 0; /* Slide in */
 }
 
 /* Sidebar on Large Screens */
 @media (min-width: 992px) {
     .sidebar {
-        left: 0; /* Always visible on wider screens */
+        left: 0; /* Always visible on larger screens */
     }
 
     #toggleSidebar {
@@ -78,16 +85,14 @@ nav ul li a:hover {
 .hamburger-container {
     width: 50px;
     height: 50px;
-    background-color: #007bff;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, background-color 0.3s ease, left 0.3s ease;
+    transition: transform 0.3s ease, background-color 0.3s ease;
 }
-
 .hamburger-container:hover {
     background-color: #0056b3;
     transform: scale(1.1);
@@ -130,7 +135,7 @@ nav ul li a:hover {
 
 /* Sidebar Links */
 .sidebar-links .nav-link {
-    color: #fffdfd;
+    color: #ffffff;
     padding: 10px 15px;
     font-size: 16px;
     border-radius: 5px;
@@ -142,6 +147,7 @@ nav ul li a:hover {
     color: #fff;
 }
 
+
 /* Profile Section */
 .profile-container {
     padding: 15px;
@@ -152,6 +158,7 @@ nav ul li a:hover {
     width: 80px;
     height: 80px;
     object-fit: cover;
+    border-radius: 50%; /* Added rounded corners for profile image */
 }
 
 .profile-container h3 {
@@ -159,57 +166,71 @@ nav ul li a:hover {
     margin-top: 10px;
 }
 
-/* Responsive Behavior */
-@media (max-width: 991.98px) {
-    .sidebar {
-        transform: translateX(-100%);
-    }
-
-    .sidebar.show {
-        transform: translateX(0);
-    }
-
-    .content {
-        margin-left: 0;
-    }
+/* Card Styles */
+body {
+    background-color: #1b1b1b;
+    overflow-x: hidden;
+    font-family: 'Merriweather', serif;
+    color: #FAF6F0;
+}
+/* Main Content Container */
+.main-content {
+    margin-left: 250px; /* Set left margin */
+}
+.main-content  h1 {
+    font-size: 2rem; /* Larger font size */
+    font-weight: 700; /* Bold weight */
+    margin: 0; /* Remove margin for tight spacing */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5); /* Text shadow for emphasis */
+    color: #FFFFFF; /* White color for the main title */
 }
 
-
-@media (min-width: 992px) {
-    .content {
-        margin-left: 250px;
-    }
-
-    #toggleSidebar {
-        display: none;
-    }
+/* Specific style for the profile-text span */
+.main-content  h1 .profile-text {
+    color: #FFA500; /* Orange color for the highlighted text */
+    font-weight: bold; /* Ensure the highlighted text is bold */
 }
+
+/* Flex Container for Cards */
 .card {
     border-radius: 10px;
+    background-color: #444;
+    color: #ffffff;
+    margin: 15px auto; /* Center horizontally */
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: calc(100% - 40px); /* Full width minus margin */
 }
 
+/* Center text in cards */
 .card-title {
     font-weight: bold;
-    font-size: 1.2rem;
+    font-size: 1.5rem;
+    text-align: center;
 }
 
 .card-text {
     font-size: 1.25rem;
+    text-align: center;
 }
 
-.text-warning {
-    color: #ffc107 !important;
-}
 
+/* Table Styles */
 .table {
     border-collapse: collapse;
     width: 100%;
+    margin-top: 20px;
 }
 
 .table th,
 .table td {
     text-align: center;
-    vertical-align: middle; /* Align content vertically */
+    vertical-align: middle;
+    padding: 12px;
 }
 
 .table th {
@@ -218,8 +239,143 @@ nav ul li a:hover {
 }
 
 .table-responsive {
-    max-height: 400px; /* Ensure table fits within a scrollable container */
+    max-height: 400px;
     overflow-y: auto;
-    margin-top: 20px;
+}
+/* Modal Styles */
+.modal-body {
+    background-color: #444; /* Dark background for modal */
+    padding: 20px; /* Padding for body content */
+    overflow-x: auto; /* Allow horizontal scrolling */
+    overflow-y: auto; /* Allow vertical scrolling */
 }
 
+.modal-header {
+    background-color: #444; /* Header background color */
+    border-bottom: 1px solid #333; /* Subtle border for separation */
+}
+
+.modal-title {
+    font-size: 1.5rem; /* Title font size */
+    font-weight: 700; /* Bold title */
+    color: #FFFFFF; /* White color for the title */
+}
+
+/* Table Styles */
+.table {
+    border-collapse: collapse;
+    width: 100%; /* Full width */
+    margin-top: 10px;
+}
+
+.table th,
+.table td {
+    text-align: center; /* Center align text */
+    vertical-align: middle; /* Vertical alignment */
+    padding: 12px; /* Padding for cells */
+}
+
+.table th {
+    background-color: #444; /* Dark header background */
+    color: white; /* White text for header */
+}
+
+.table td {
+    background-color: #2b2b2b; /* Slightly darker background for table cells */
+    color: #FAF6F0; /* Light text color for table cells */
+}
+/* Webkit Scrollbar Styles for Chrome, Safari, and Edge */
+.modal-body::-webkit-scrollbar {
+    width: 12px; /* Width of the scrollbar */
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: #444; /* Background of the scrollbar track */
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: #888; /* Color of the scrollbar thumb */
+    border-radius: 6px; /* Rounded corners for the thumb */
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: #aaa; /* Color of the thumb on hover */
+}
+
+/* Mozilla Firefox Scrollbar Styles */
+.modal-body {
+    scrollbar-width: thin; /* Set scrollbar width */
+    scrollbar-color: #888 #444; /* Thumb and track color */
+}
+
+/* Title Styles */
+/* Responsive Behavior */
+@media (max-width: 991.98px) {
+    .modal-dialog {
+        max-width: 90%; /* Make modal wider on mobile */
+        margin: 20px auto; /* Center modal with margin */
+    }
+
+    .modal-title {
+        font-size: 1.25rem; /* Smaller title font size on mobile */
+    }
+
+    .table th,
+    .table td {
+        padding: 8px; /* Reduced padding for smaller screens */
+        overflow: hidden; /* Hide overflow for table cells */
+        text-overflow: ellipsis; /* Ellipsis for overflowing text */
+        white-space: nowrap; /* Prevent text from wrapping */
+    }
+}
+/* Responsive Behavior */
+@media (max-width: 991.98px) {
+
+    .sidebar.show {
+        left: 0; /* Slide in */
+    }
+
+    .content {
+        margin-left: 0; /* No margin on mobile */
+    }
+
+    /* Adjust sidebar links for smaller screens */
+
+    /* Make the hamburger button larger for easier tapping */
+    .hamburger-container {
+        width: 60px;
+        height: 60px;
+    }
+}
+@media (max-width: 991.98px) {
+    .main-content {
+        margin-left: 0; /* Reset margin on mobile */
+    }
+@media (min-width: 992px) {
+    .content {
+        margin-left: 0px; /* Keep content to the right of sidebar */
+    }
+
+    #toggleSidebar {
+        display: none; /* Hide toggle button on large screens */
+ 
+    }
+}
+}
+
+@media (max-width: 991.98px) {
+    .card {
+        width: calc(100% - 40px); /* Full width minus margin */
+        margin: 10px auto; /* Center horizontally */
+    }
+
+    .card-title {
+        font-size: 1.2rem; /* Smaller title font size */
+        text-align: center; /* Center align title */
+    }
+
+    .card-text {
+        font-size: 1rem; /* Smaller text size */
+        text-align: center; /* Center align text */
+    }
+}
