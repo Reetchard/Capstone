@@ -3468,7 +3468,7 @@ document.getElementById("dayPassForm").addEventListener("submit", async function
             message: `Day Pass Access for ${gymName} on ${selectedDate} at ${price.toLocaleString()}.`,
             type: 'Day Pass',
             email: email,
-            status: 'Pending',
+            status: 'Pending Status',
             price : price,
             Date : selectedDate,
             read: false,
@@ -3491,7 +3491,7 @@ document.getElementById("dayPassForm").addEventListener("submit", async function
             email: email,
             date: selectedDate,
             totalPrice: cleanPrice >= 1000 ? cleanPrice.toLocaleString() : cleanPrice.toString(), // Format with comma if >= 1000
-            status: 'Pending',
+            status: 'Pending Status',
             timestamp: new Date().toISOString()
         };
 
