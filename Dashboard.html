@@ -101,12 +101,17 @@
     <div class="content">
         <section id="profiling">
             <h2 class="mb-4 text-center">Gym <span class="profile-text">Profile</span></h2>
-            <div class="search-container">
-                <input type="text" placeholder="Search PeakPulse" id="gymSearch">
-                <span class="search-icon" onclick="filterGyms()">
+            <div class="search-container" id="searchContainer">
+                <div class="input-wrapper">
+                    <input type="text" placeholder="Search PeakPulse" id="gymSearch" oninput="searchGyms()">
+                    <span id="clearIcon" class="clear-icon">
+                        <i class="fas fa-times"></i>
+                    </span>
+                </div>
+                <span class="search-icon" onclick="searchGyms()">
                     <i class="fas fa-search">Search</i>
                 </span>
-            </div>
+            </div>            
             <div class="gym-profile" id="gym-profiles">
                 <!-- Add more gym profiles here -->
             </div>

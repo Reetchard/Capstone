@@ -149,10 +149,95 @@ window.filterGyms = function() {
 }
 
 
-async function fetchGymProfiles() {
-    const gymsCollection = collection(db, 'GymOwner');
+window.searchGyms = async function searchGyms() {
+    const searchInput = document.getElementById('gymSearch').value.trim().toLowerCase();
+    const searchContainer = document.querySelector('.search-container');
+    const clearIcon = document.getElementById('clearIcon'); // Get the clear icon element
 
-    // Query to get only gym owners
+    searchContainer.style.position = 'relative'; // Ensure results are positioned below the container
+
+    // Show or hide the "X" icon based on input
+    if (searchInput !== '') {
+        clearIcon.style.display = 'block'; // Show the "X" icon when typing
+    } else {
+        clearIcon.style.display = 'none'; // Hide the "X" icon when input is empty
+    }
+
+    // Remove any existing search results
+    let existingResults = document.querySelector('.search-results');
+    if (existingResults) {
+        existingResults.remove();
+    }
+
+    if (searchInput === '') {
+        // Show all gym profiles when input is empty (i.e., no filter applied)
+        fetchGymProfiles();
+        return; // Exit if no search input
+    }
+
+    try {
+        const gymsCollection = collection(db, 'GymOwner');
+        const gymSnapshot = await getDocs(gymsCollection); // Fetch all gyms
+
+        const matchingGyms = gymSnapshot.docs
+            .map(doc => ({ id: doc.id, ...doc.data() }))
+            .filter(gym => 
+                gym.gymName && gym.gymName.toLowerCase().includes(searchInput) &&
+                gym.status && gym.status !== 'Under Review'
+            );
+
+        const resultsContainer = document.createElement('div');
+        resultsContainer.classList.add('search-results'); // Use the CSS class for styling
+
+        if (matchingGyms.length === 0) {
+            resultsContainer.innerHTML = '<div class="search-result-item">No gyms found.</div>';
+        } else {
+            matchingGyms.forEach(gym => {
+                const resultItem = document.createElement('div');
+                resultItem.classList.add('search-result-item');
+                resultItem.textContent = gym.gymName;
+
+                // Display the selected gym profile on click
+                resultItem.onclick = () => {
+                    document.getElementById('gymSearch').value = gym.gymName; // Update the search input
+                    resultsContainer.remove(); // Clear search suggestions
+                    fetchGymProfiles(gym.gymName); // Fetch and display only the selected gym profile
+                };
+
+                resultsContainer.appendChild(resultItem);
+            });
+        }
+
+        searchContainer.appendChild(resultsContainer); // Append results below the container
+
+        // Close the results when clicking outside
+        document.addEventListener('click', function closeResults(event) {
+            if (!searchContainer.contains(event.target)) {
+                resultsContainer.remove();
+                document.removeEventListener('click', closeResults); // Remove the event listener after closing
+            }
+        });
+
+    } catch (error) {
+        console.error('Error fetching gyms:', error);
+    }
+};
+
+// Event listener for the "X" icon (clear the input)
+document.getElementById('clearIcon').addEventListener('click', () => {
+    const searchInput = document.getElementById('gymSearch');
+    searchInput.value = ''; // Clear the search input field
+    searchInput.focus(); // Focus back to the input field
+    document.getElementById('clearIcon').style.display = 'none'; // Hide the "X" icon
+    fetchGymProfiles(); // Show all gyms again
+});
+
+
+
+
+// Fetch and display gyms, optionally filtered by name
+async function fetchGymProfiles(filterName = null) {
+    const gymsCollection = collection(db, 'GymOwner');
     const gymOwnerQuery = query(gymsCollection, where('role', '==', 'gymowner'));
 
     const gymSnapshot = await getDocs(gymOwnerQuery);
@@ -165,12 +250,11 @@ async function fetchGymProfiles() {
     gymProfilesContainer.innerHTML = ''; // Clear existing profiles
 
     gymList.forEach(gym => {
-        // Check if the gym status is not "Under review"
-        if (gym.status && gym.status !== 'Under Review') {
+        // Check if the gym matches the filter or if no filter is applied
+        if (gym.status && gym.status !== 'Under Review' && (!filterName || gym.gymName === filterName)) {
             const gymDiv = document.createElement('div');
             gymDiv.classList.add('trainer-card', 'gym-profile', 'mb-3'); // Add Bootstrap card classes
 
-            // Simplified card structure without "Applied" badge logic
             gymDiv.innerHTML = `
                 <div class="gym-card-container">
                     <img src="${gym.gymPhoto || 'default-photo.jpg'}" alt="${gym.gymName || 'Gym'}" class="card-img-top gym-photo" />
@@ -185,6 +269,7 @@ async function fetchGymProfiles() {
         }
     });
 }
+
 
 
 

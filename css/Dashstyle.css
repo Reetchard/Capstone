@@ -442,31 +442,55 @@ h4 {
     margin-bottom: 20px;
 }
 
+.input-wrapper {
+    position: relative; /* Position the "X" icon inside the input wrapper */
+    display: flex;
+    align-items: center;
+    width: 200px; /* Match the width of the input field */
+}
+
 .search-container input {
     padding: 10px;
+    padding-right: 30px; /* Make space for the "X" icon */
     margin-right: 10px;
     border: 1px solid #444; /* Dark gray border */
     border-radius: 20px;
     background-color: #ffffff; /* Darker input background */
-    color: white; /* Default text color to white */
-    width: 200px; /* Set a fixed width for the input */
+    color: black; /* Change text color to black */
+    width: 100%; /* Ensure input takes full width of wrapper */
     outline: none; /* Remove the default outline on focus */
     transition: color 0.3s; /* Smooth transition for color change */
 }
 
 /* Change text color on input hover */
 .search-container input:hover {
-color: #ffa31a; /* Text color on hover */
+    color: #ffa31a; /* Text color on hover */
+}
+
+/* Style for the "X" clear icon inside the input */
+.clear-icon {
+    position: absolute;
+    right: 10px; /* Position the "X" on the right side */
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #888; /* Light gray color for the icon */
+    display: none; /* Initially hidden */
+}
+
+/* Change icon color when hovered */
+.clear-icon:hover {
+    color: #333;
 }
 
 .search-icon {
-cursor: pointer;
-display: flex;
-align-items: center;
-font-family: "Helvitica Neue", Arial, sans-serif; /* Set your custom font */
-font-size: 16px; /* Adjust size */
-color: white; /* Set text color to white */
-transition: color 0.3s; /* Smooth transition for color change */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-family: "Helvetica Neue", Arial, sans-serif; /* Set your custom font */
+    font-size: 16px; /* Adjust size */
+    color: white; /* Set text color to white */
+    transition: color 0.3s; /* Smooth transition for color change */
 }
 
 /* Change icon color on hover */
@@ -474,15 +498,58 @@ transition: color 0.3s; /* Smooth transition for color change */
     color: #ffa31a; /* Icon color on hover */
 }
 
-
-
 /* Ensure the text inside the input is light */
 .search-container input::placeholder {
-color: #888; /* Light gray placeholder text */
-font-family: "Helvitica Neue", Arial, sans-serif;
+    color: #888; /* Light gray placeholder text */
+    font-family: "Helvetica Neue", Arial, sans-serif;
 }
 
+/* Style for the search results container */
+.search-results {
+    position: absolute;
+    top: 100%; /* Position below the input */
+    left: 74%; /* Align search results with the left side of the search container */
+    width: 20%; /* Match the width of the input */
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: #333; /* Set background color */
+    border: 1px solid #ddd; /* Border for separation */
+    border-radius: 5px; /* Optional: Rounded corners */
+}
 
+/* Style for individual search result items */
+.search-result-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    background-color: #333; /* Dark background */
+    border-bottom: 1px solid #ddd; /* Light gray border between items */
+    transition: background-color 0.3s, padding-left 0.3s; /* Smooth transition for hover effect */
+    font-family: "Helvetica Neue", Arial, sans-serif; /* Custom font */
+    font-size: 14px; /* Adjust font size */
+    color: #fff; /* White text color */
+    width: 100%; /* Ensure the result item takes full width of the parent container */
+    box-sizing: border-box; /* Include padding and border in the width calculation */
+    border-radius: 10px; /* Rounded corners */
+}
+
+/* Highlight search result item on hover */
+.search-result-item:hover {
+    background-color: #f1f1f1; /* Slightly lighter background on hover */
+    padding-left: 20px; /* Indent on hover */
+    color: #ffa31a; /* Change text color on hover */
+}
+
+/* Active state when the result is clicked */
+.search-result-item:active {
+    background-color: #e1e1e1; /* Slightly darker when clicked */
+    color: #333; /* Retain the original text color */
+}
+
+/* Optional: Add a shadow to give depth to the list items */
+.search-result-item {
+    box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
 
 /* Profile Card Styles */
 .gym-profile, .trainers-content {
