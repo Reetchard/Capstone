@@ -80,7 +80,7 @@
                                 <th>Price</th>
                                 <th>End Date</th>
                                 <th>Status</th>
-                                 <th>Actions</th>
+                                <!-- <th>Actions</th> -->
                             </tr>
                         </thead>
                         <tbody id="MemberInfoBody">
@@ -94,9 +94,9 @@
 </div>
 
 <div class="modal fade" id="MemberModal" tabindex="-1" aria-labelledby="MemberModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
+            <div class="modal-header text-white">
                 <h5 class="modal-title" id="MemberModalLabel">Member Details</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -104,36 +104,60 @@
                 <div class="mb-3 text-center">
                     <img id="photoURL" src="path/to/default-image.png" alt="Profile Picture" class="img-fluid rounded-circle" style="max-width: 150px;">
                 </div>
-                <div class="mb-3">
-                    <label for="username" class="form-label">Name</label>
-                    <input type="text" class="form-control" id="username" readonly>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="username" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" readonly>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="purchaseDate" class="form-label">Purchase Date</label>
+                            <input type="text" class="form-control" id="purchaseDate" readonly>
+                        </div>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label for="email" class="form-label">Email</label>
-                    <input type="email" class="form-control" id="email" readonly>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <input type="text" class="form-control" id="status" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="planType" class="form-label">Plan Type</label>
+                            <input type="text" class="form-control" id="planType" readonly>
+                        </div>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label for="status" class="form-label">Status</label>
-                    <input type="text" class="form-control" id="status" readonly>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="membershipDays" class="form-label">Membership Days</label>
+                            <input type="text" class="form-control" id="membershipDays" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="price" class="form-label">Price</label>
+                            <input type="text" class="form-control" id="price" readonly>
+                        </div>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label for="planType" class="form-label">Plan Type</label>
-                    <input type="text" class="form-control" id="planType" readonly>
-                </div>
-                <div class="mb-3">
-                    <label for="membershipDays" class="form-label">Membership Days</label>
-                    <input type="text" class="form-control" id="membershipDays" readonly>
-                </div>
-                <div class="mb-3">
-                    <label for="price" class="form-label">Price</label>
-                    <input type="text" class="form-control" id="price" readonly>
-                </div>
-                <div class="mb-3">
-                    <label for="purchaseDate" class="form-label">Purchase Date</label>
-                    <input type="text" class="form-control" id="purchaseDate" readonly>
-                </div>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
+            
         </div>
     </div>
 </div>
