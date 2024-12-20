@@ -237,7 +237,7 @@ async function getNextUserId(role) {
                         window.location.href = 'Accounts.html';
                         break;
                     case 'gymowner':
-                        window.location.href = 'trainer-info.html';
+                        window.location.href = 'salesandinventory.html';
                         break;
                     case 'trainer':
                         window.location.href = 'trainer.html';
