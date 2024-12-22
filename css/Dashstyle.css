@@ -1516,13 +1516,24 @@ strong:hover .custom-tooltip {
     color: #777;
     margin-top: 5px; /* Add some space below the username */
 }
-.inbox-item:hover {
-    background-color: #2e3446;
+.inbox-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
     cursor: pointer;
 }
-.inbox-item.bold {
-    font-weight: bold; /* For unread messages */
+
+.inbox-item .inbox-user-details {
+    margin-left: 10px;
+    display: flex;
+    flex-direction: column;
 }
+
+.bold {
+    font-weight: bold;
+}
+
 
 
 /* Messages Container */
@@ -2669,4 +2680,21 @@ strong:hover .custom-tooltip {
     border-color: #ced4da;
     cursor: not-allowed;
     opacity: 0.7;
+}
+.message-count {
+    position: absolute;
+    top: 5px;            
+    right: 19px;
+    background-color: rgb(182, 57, 57);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 5px;  /* Less rounded for square effect */
+    width:18px;         /* Adjust for square shape */
+    height: 20px;        /* Same as width for square */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: translate(50%, -50%);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
 }

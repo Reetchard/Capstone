@@ -1526,97 +1526,93 @@ window.ViewProductInfo = async function (productId) {
         const confirmTrainerRate = document.getElementById('confirmTrainerRate');
         const confirmBookingButton = document.getElementById('confirmBookingButton');
         const bookNowTrainerButton = document.getElementById('BookNowTrainer');
+        
+        const gymName = document.getElementById('modalGymName') 
+            ? document.getElementById('modalGymName').innerText 
+            : "Default Gym";
+        const price = trainerData?.rate || '0';
     
-        // Get gym name and user ID
-        const gymName = document.getElementById('modalGymName') ? document.getElementById('modalGymName').innerText : "Default Gym";
-        const userId = await getCurrentUserId();
-        const price = trainerData?.rate || '0'; // Default to '0' if rate is not available
-    
-        // Format the trainer rate to two decimal places
         function formatRate(rate) {
-            return '₱' + parseFloat(rate).toFixed(2); // Ensure two decimal places
+            return '₱' + parseFloat(rate).toFixed(2);
         }
     
-        // Fetch email directly
         let email = '';
+        let fullName = '';
+        let userId = '';
+    
         try {
-            const user = auth.currentUser;
+            // Ensure user is authenticated
+            const authUser = auth.currentUser;
     
-            if (user && user.email) {
-                email = user.email; // Use email from Firebase Auth
+            if (!authUser) {
+                throw new Error("No authenticated user found.");
+            }
+    
+            console.log("Fetching userId for UID:", authUser.uid);
+            
+            // Step 1: Fetch userId from Firestore using uid
+            const userDocRef = doc(db, 'Users', authUser.uid);
+            const userDoc = await getDoc(userDocRef);
+    
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                userId = userData?.userId;
+    
+                if (!userId) {
+                    throw new Error("UserId not found in Firestore document.");
+                }
+    
+                console.log("UserId found:", userId);
+    
+                email = userData?.email || authUser.email || 'N/A';
+                fullName = userData?.username || authUser.displayName || 'Unknown User';
             } else {
-                await new Promise((resolve, reject) => {
-                    onAuthStateChanged(auth, async (user) => {
-                        if (user) {
-                            const userDocRef = doc(db, 'Users', user.uid);
-                            const userDoc = await getDoc(userDocRef);
-    
-                            if (userDoc.exists()) {
-                                const userData = userDoc.data();
-                                email = userData.email || '';
-                                resolve();
-                            } else {
-                                reject("User document not found in Firestore.");
-                            }
-                        } else {
-                            reject("No authenticated user found.");
-                        }
-                    });
-                });
+                throw new Error("User document does not exist in Firestore.");
             }
     
-            if (!email) {
-                throw new Error("Unable to fetch user email.");
+            // Populate form with fetched details
+            const emailInput = document.getElementById('userEmail');
+            const nameInput = document.getElementById('username');
+    
+            if (emailInput && nameInput) {
+                emailInput.value = email;
+                nameInput.value = fullName;
+            } else {
+                console.error("Form inputs not found.");
             }
+    
         } catch (error) {
-            console.error("Error fetching email:", error);
+            console.error("Error fetching user details:", error);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: error.message || 'An unexpected error occurred while fetching user email.',
+                text: error.message || 'An unexpected error occurred.',
             });
             return;
         }
     
-        // Update confirmation modal content
+        // Update modal content
         confirmTrainerName.innerText = trainerData?.username || "Unknown Trainer";
         confirmTrainerRate.innerText = formatRate(price);
     
-        // Booking confirmation action for the first modal
+        // Show the booking modal
         if (confirmBookingButton) {
             confirmBookingButton.onclick = function () {
-                const emailInput = document.getElementById('email');
-                if (emailInput) {
-                    emailInput.value = email; // Pre-fill with the fetched email
-                }
-    
-                // Transition from confirmation modal to booking form modal
                 $('#bookingConfirmationModal').modal('hide');
                 $('#bookingTrainerModal').modal('show');
             };
         }
     
-        // Handle final booking submission to Reservations collection
         if (bookNowTrainerButton) {
             bookNowTrainerButton.onclick = async function () {
                 try {
-                    const firstNameInput = document.getElementById('firstName');
-                    const lastNameInput = document.getElementById('lastName');
                     const bookingDateInput = document.getElementById('date');
                     const messageInput = document.getElementById('message');
-    
-                    if (!firstNameInput || !lastNameInput || !bookingDateInput) {
-                        showToast("error", "Booking form elements are missing. Please check the DOM structure.");
-                        return;
-                    }
-    
-                    const firstName = firstNameInput.value.trim();
-                    const lastName = lastNameInput.value.trim();
                     const bookingDate = bookingDateInput.value.trim();
                     const message = messageInput?.value.trim() || "";
     
-                    if (!firstName || !lastName || !bookingDate || !email) {
-                        showToast("error", "Please fill out all required fields.");
+                    if (!bookingDate) {
+                        showToast("error", "Please select a booking date.");
                         return;
                     }
     
@@ -1628,8 +1624,7 @@ window.ViewProductInfo = async function (productId) {
                         gymName: gymName,
                         userId: userId,
                         rate: price,
-                        firstName: firstName,
-                        lastName: lastName,
+                        fullName: fullName,
                         bookingDate: bookingDate,
                         email: email,
                         message: message,
@@ -1638,14 +1633,7 @@ window.ViewProductInfo = async function (productId) {
     
                     await saveToReservationCollection(reservationData);
     
-                    await saveBookingToDatabase(
-                        trainerData?.username || "Unknown Trainer",
-                        gymName,
-                        userId,
-                        price,
-                        "Booking_trainer"
-                    );
-    
+                    // Send notification to trainer
                     const notificationMessage = `Booked a session with ${trainerData?.username || "Unknown Trainer"}`;
                     const notificationData = {
                         notificationId: Date.now().toString(),
@@ -1653,29 +1641,30 @@ window.ViewProductInfo = async function (productId) {
                         gymName: gymName,
                         price: price || "N/A",
                         bookingDate: bookingDate,
-                        firstName: firstName,
-                        lastName: lastName,
                         status: "Pending",
                         email: email
                     };
     
                     await saveNotificationToDatabase(notificationMessage, userId, "Booking_trainer", notificationData);
                     
-                    const messageNotif = `A customer has made a reservation!`;
                     const memberNotification = {
-                        userId: userId,
-                        username:trainerData?.username,
+                        userId: trainerId,  // Notify the trainer using trainerId
+                        username: trainerData?.username,  // Trainer's username
+                        customerUsername: fullName,       // Customer's username (full name)
+                        customerEmail: email,             // Customer's email
                         gymName: gymName,
-                        message: messageNotif,
+                        message: `A customer has made a reservation!`,
                         timestamp: new Date().toISOString(),
                         status: 'Unread',
                         type: "Booking"
                     };
                     await addDoc(collection(db, 'TrainerNotif'), memberNotification);
-                    console.log('Member notification saved successfully.');
+                    console.log('Trainer notification saved successfully.');
+                    
     
                     showToast("success", `Successfully booked a session with ${trainerData?.username || "Unknown Trainer"}!`);
     
+                    // Update notifications for user
                     showNotificationDot();
                     fetchNotifications(userId);
     
@@ -1688,7 +1677,6 @@ window.ViewProductInfo = async function (productId) {
     
         $('#bookingConfirmationModal').modal('show');
     };
-    
     
     
     
@@ -3267,9 +3255,11 @@ window.searchTrainers = async function (searchTerm) {
                     console.log("User Details:", otherUser);
         
                     // Create a new inbox item
+                    // Create inbox item dynamically
                     const inboxItem = document.createElement('div');
                     inboxItem.className = 'inbox-item';
-        
+
+                    // Populate the inbox with message and user details
                     inboxItem.innerHTML = `
                         <img src="${photoURL}" alt="User Photo" class="inbox-user-photo">
                         <div class="inbox-user-details">
@@ -3277,18 +3267,28 @@ window.searchTrainers = async function (searchTerm) {
                             <span class="user-message">${messageData.message}</span>
                         </div>
                     `;
-        
-                    // If the message is unread, make it bold or add an indicator
-                    if (unreadMessages.has(messageData.docId)) {
-                        inboxItem.classList.add('bold'); // Add bold class for unread messages
+
+                    // Apply bold for unread messages
+                    if (messageData.status === 'Unread') {
+                        inboxItem.classList.add('bold');  // Add bold class
                     }
-        
-                    // Event listener to start a chat with the user when clicking the inbox item
-                    inboxItem.addEventListener('click', () => {
+
+                    // Event listener to handle clicks (mark as read)
+                    inboxItem.addEventListener('click', async () => {
                         startChat(otherUserId, userName);
-                        inboxItem.classList.remove('bold'); // Mark as read when clicked
+                        inboxItem.classList.remove('bold');  // Remove bold when clicked
                         displayChatHeader(otherUser);
+
+                        // Update Firestore to mark the message as read
+                        try {
+                            const messageRef = doc(db, 'Messages', messageData.docId);
+                            await updateDoc(messageRef, { status: 'Read' });  // Set status to 'Read'
+                            console.log('Message marked as read');
+                        } catch (error) {
+                            console.error('Error updating message status:', error);
+                        }
                     });
+
         
                     // Append the inbox item to the container
                     inboxContainer.appendChild(inboxItem);
@@ -3323,7 +3323,8 @@ window.searchTrainers = async function (searchTerm) {
                         from: userId,
                         to: currentChatUserId,
                         message: messageText,
-                        timestamp: new Date() // Firebase.Timestamp can also be used
+                        timestamp: new Date(), // Firebase.Timestamp can also be used
+                        status: "Unread"
                     });
                     messageInput.value = ''; // Clear input
                 } catch (error) {
@@ -3371,6 +3372,101 @@ window.searchTrainers = async function (searchTerm) {
                 sidebar.classList.remove('open');
             }
         });
+});
+
+let unsubscribeUnreadListener;  // Store the listener reference globally
+
+// Listen for clicks on inbox items and mark messages as read
+document.addEventListener('click', async (event) => {
+    const inboxItem = event.target.closest('.inbox-item');
+
+    if (inboxItem) {
+        const userId = auth.currentUser?.uid;
+        if (userId) {
+            await markAllMessagesAsRead(userId);
+        }
+    }
+});
+
+// Mark all unread messages as read (Batch Update)
+async function markAllMessagesAsRead(userId) {
+    try {
+        const messagesRef = collection(db, 'Messages');
+        const querySnapshot = await getDocs(
+            query(messagesRef, where('to', '==', userId), where('status', '==', 'Unread'))
+        );
+
+        if (querySnapshot.empty) {
+            console.log('No unread messages.');
+            return;
+        }
+
+        // Detach the current snapshot listener
+        if (unsubscribeUnreadListener) {
+            unsubscribeUnreadListener();
+        }
+
+        const batch = writeBatch(db);
+        querySnapshot.forEach((docSnapshot) => {
+            const messageRef = docSnapshot.ref;
+            batch.update(messageRef, { status: 'Read' });
+        });
+
+        await batch.commit();
+        console.log('All messages marked as read.');
+
+        // Update the UI immediately
+        updateMessageNotification(0);
+
+        // Re-attach the listener to reflect the latest state
+        listenForUnreadMessages(userId);
+
+    } catch (error) {
+        console.error('Error marking messages as read:', error);
+    }
+}
+
+// Real-time listener for unread messages
+function listenForUnreadMessages(userId) {
+    const messagesRef = collection(db, 'Messages');
+
+    unsubscribeUnreadListener = onSnapshot(
+        query(messagesRef, where('to', '==', userId), where('status', '==', 'Unread')),
+        (snapshot) => {
+            const unreadCount = snapshot.size;
+            updateMessageNotification(unreadCount);  // Update unread count in real-time
+
+            // Play notification sound if new unread messages arrive
+            if (unreadCount > 0) {
+                const audio = new Audio('/sounds/Notification.mp3');
+                audio.play().catch((error) => console.log('Audio play error:', error));
+            }
+        },
+        (error) => {
+            console.error('Error listening for unread messages:', error);
+        }
+    );
+}
+
+// Update unread message count in UI
+function updateMessageNotification(unreadCount) {
+    const messageNotificationElement = document.getElementById('messagesNotification');
+
+    if (unreadCount > 0) {
+        messageNotificationElement.textContent = unreadCount;
+        messageNotificationElement.style.display = 'flex';
+    } else {
+        messageNotificationElement.style.display = 'none';
+    }
+}
+
+// Start listener when user logs in
+document.addEventListener('DOMContentLoaded', () => {
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            listenForUnreadMessages(user.uid);
+        }
+    });
 });
 
 
@@ -3441,6 +3537,49 @@ document.getElementById("dayPassForm").addEventListener("submit", function (e) {
 });
 
 
+document.addEventListener("DOMContentLoaded", async function () {
+    const userId = await getCurrentUserId();
+
+    if (userId) {
+        try {
+            // Query the Users collection for the logged-in user by userId
+            const userQuery = query(collection(db, 'Users'), where("userId", "==", userId));
+            const querySnapshot = await getDocs(userQuery);
+
+            if (!querySnapshot.empty) {
+                const userDoc = querySnapshot.docs[0];  // Assume the first matching document
+                const userEmail = userDoc.data().email;
+
+                // Populate email field and disable it
+                const emailField = document.getElementById("email");
+                emailField.value = userEmail;
+                emailField.setAttribute("readonly", true);  // Make email field non-editable
+            } else {
+                console.error("User document not found.");
+                Swal.fire({
+                    icon: 'error',
+                    title: 'User Not Found',
+                    text: 'Your user profile could not be found. Please contact support.'
+                });
+            }
+        } catch (error) {
+            console.error("Error fetching user data:", error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to retrieve your email. Please refresh and try again.'
+            });
+        }
+    } else {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Not Logged In',
+            text: 'Please log in to continue.'
+        });
+    }
+});
+
+// Handle form submission
 document.getElementById("dayPassForm").addEventListener("submit", async function (e) {
     e.preventDefault();
 
@@ -3461,7 +3600,6 @@ document.getElementById("dayPassForm").addEventListener("submit", async function
     }
 
     try {
-        // Clean up the price value to ensure it's properly formatted
         const cleanPrice = parseFloat(price.replace(/[^0-9.]/g, '')) || 0;
 
         const newNotification = {
@@ -3469,37 +3607,35 @@ document.getElementById("dayPassForm").addEventListener("submit", async function
             type: 'Day Pass',
             email: email,
             status: 'Pending Status',
-            price : price,
-            Date : selectedDate,
+            price: price,
+            Date: selectedDate,
             read: false,
             gymName: gymName,
             notificationId: Date.now().toString(),
             timestamp: new Date().toISOString(),
             userId: userId
         };
-    
+
         await addDoc(collection(db, 'Notifications'), newNotification);
-    
+
         // Update the notification count on the UI
         notificationCount++;
         document.getElementById('notification-count').innerText = notificationCount;
-    
+
         const newTransaction = {
             type: 'Day Pass',
             userId: userId,
             gymName: gymName,
             email: email,
             date: selectedDate,
-            totalPrice: cleanPrice >= 1000 ? cleanPrice.toLocaleString() : cleanPrice.toString(), // Format with comma if >= 1000
+            totalPrice: cleanPrice >= 1000 ? cleanPrice.toLocaleString() : cleanPrice.toString(),
             status: 'Pending Status',
             timestamp: new Date().toISOString()
         };
 
-    
         await addDoc(collection(db, 'Transactions'), newTransaction);
         await fetchNotifications(userId);
 
-        // Display success confirmation using SweetAlert2
         Swal.fire({
             icon: 'success',
             title: 'Day Pass Access!',

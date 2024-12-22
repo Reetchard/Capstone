@@ -911,4 +911,57 @@ strong:hover .custom-tooltip {
 /* Optional: Adding a pulse effect when the button is hovered */
 #toggleButton:active {
     transform: scale(0.95); /* Slightly reduce the size when clicked */
+}input#modalProductQuantityInput {
+    width: 60px; /* Adjust width as needed */
+    font-size: 1rem; /* Adjust font size if necessary */
+    height: 38px; /* Adjust height to match button size */
+    text-align: center; /* Center align the text */
+    border: 1px solid #ccc; /* Add a 1px border */
+    border-radius: 10px; /* Rounded corners */
+    color: #ccc; /* Set text color to #ccc */
+    background-color: transparent; /* Keep the background transparent */
+}
+
+input#modalProductQuantityInput:focus {
+    border-color: #ffa31a; /* Change border color on focus */
+    outline: none; /* Remove focus outline */
+}
+
+#notificationList .list-group-item:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Optional: Add a hover effect */
+    color: #ffa31a;
+}
+.message-count {
+    position: absolute;
+    top: 5px;            
+    right: 19px;
+    background-color: rgb(182, 57, 57);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 5px;  /* Less rounded for square effect */
+    width:18px;         /* Adjust for square shape */
+    height: 20px;        /* Same as width for square */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: translate(50%, -50%);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+.inbox-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+}
+
+.inbox-item .inbox-user-details {
+    margin-left: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.bold {
+    font-weight: bold;
 }

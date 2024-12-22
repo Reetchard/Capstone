@@ -626,7 +626,84 @@ function updateNotificationCount(unreadCount) {
         }
     });
     
+function showNotificationDetails(notification) {
+        const formatPrice = (price) => {
+            if (price == null || price === '') {
+                return 'N/A';
+            }
+            const numericPrice = parseFloat(
+                typeof price === 'string' ? price.replace(/[^\d.-]/g, '') : price
+            );
+            return !isNaN(numericPrice)
+                ? `₱${numericPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                : 'N/A';
+        };
     
+        function formatDate(date) {
+            if (!date) return null;
+            const parsedDate = new Date(date);
+            if (isNaN(parsedDate)) return null;
+    
+            const monthNames = [
+                'January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'
+            ];
+    
+            const month = monthNames[parsedDate.getMonth()];
+            const day = String(parsedDate.getDate()).padStart(2, '0');
+            const year = parsedDate.getFullYear();
+    
+            return `${month} ${day}, ${year}`;
+        }
+    
+        let notificationContent = '';
+        let cancelButton = '';
+    
+        // Booking Trainer Notification for Trainer
+        if (notification.type === "Booking") {
+            notificationContent = `
+                <p class="gym-name">${notification.gymName || 'N/A'}</p>
+                <div class="product-info">
+                    <p><strong>Customer:</strong> ${notification.customerUsername || 'N/A'}</p>
+                    <p><strong>Email:</strong> ${notification.customerEmail || 'N/A'}</p>
+                    <p><strong>Reserve Date:</strong> ${formatDate(notification.timestamp) || 'N/A'}</p>
+                </div>
+                <hr>
+                <p class="footer-info">A customer has booked you a session. You can contact the customer by searching for their email or username in your messages.</p>
+            `;
+        } else {
+            notificationContent = `<p>No details available for this notification type.</p>`;
+        }
+    
+        const notificationModal = `
+            <div class="modal fade" id="notificationDetailsModal" tabindex="-1" role="dialog" aria-labelledby="notificationDetailsLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="notificationDetailsLabel">
+                                ${notification.type === "TrainerBooking" ? "New Booking Alert" : "Notification"}
+                            </h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body" id="notificationDetailsContent">
+                            ${notificationContent}
+                        </div>
+                        ${cancelButton}
+                    </div>
+                </div>
+            </div>
+        `;
+    
+        document.body.insertAdjacentHTML('beforeend', notificationModal);
+        $('#notificationDetailsModal').modal('show');
+    
+        $('#notificationDetailsModal').on('hidden.bs.modal', function () {
+            this.remove();
+        });
+    }
+        
 
 
 
@@ -839,9 +916,9 @@ function updateNotificationCount(unreadCount) {
         }
     }    
     let unsubscribeSentMessages = null;
-let unsubscribeReceivedMessages = null;
+    let unsubscribeReceivedMessages = null;
 
-window.loadMessages = async function() {
+  window.loadMessages = async function() {
     const userId = auth.currentUser.uid;
     const messagesContainer = document.querySelector('#messagesContainer');
 
@@ -940,7 +1017,7 @@ window.loadMessages = async function() {
             }
         });
     });
-};
+  };
 
 
     async function loadInboxMessages() {
@@ -1075,7 +1152,8 @@ window.loadMessages = async function() {
                 from: userId,
                 to: currentChatUserId,
                 message: messageText,
-                timestamp: new Date()
+                timestamp: new Date(),
+                status: "Unread"
             });
 
             messageInput.value = ''; // Clear input after sending
@@ -1166,10 +1244,6 @@ window.loadMessages = async function() {
                 alert("An error occurred while fetching the gym profile. Please try again.");
             }
         };
-        
-        
-        
-        
         // Function to close the confirmation modal
         window.closeConfirmationModal = function () {
             $("#confirmationModal").modal("hide");
@@ -1223,121 +1297,7 @@ window.loadMessages = async function() {
             $('#spinnerModal').modal('hide');
         };
                 
-   
 
-
-        
-
-            // document.addEventListener("DOMContentLoaded", () => {
-            //     const TrainerForm = document.getElementById("TrainerForm");
-            //     const globalSpinner = document.getElementById("globalSpinner");
-            //     const successToast = new bootstrap.Toast(document.getElementById("successToast"));
-            //     const errorToast = new bootstrap.Toast(document.getElementById("errorToast"));
-            //     const successToastMessage = document.getElementById("successToastMessage");
-            //     const errorToastMessage = document.getElementById("errorToastMessage");
-            
-            //     // Prevent form refresh and handle submission
-            //     TrainerForm.addEventListener("submit", async (e) => {
-            //         e.preventDefault(); // Prevent default form submission behavior
-            
-            //         console.log("Form submission triggered");
-            
-            //         // Show spinner
-            //         if (globalSpinner) {
-            //             globalSpinner.style.display = "flex";
-            //         }
-            
-            //         try {
-            //             // Get form values
-            //             const trainerName = document.getElementById("TrainerName").value;
-            //             const gymName = document.getElementById("GymName").value;
-            
-            //             console.log("Trainer Name:", trainerName);
-            //             console.log("Gym Name:", gymName);
-            
-            //             // Query Firestore for existing trainer
-            //             const trainersRef = collection(db, "Trainer");
-            //             const q = query(trainersRef, where("TrainerName", "==", trainerName));
-            //             const querySnapshot = await getDocs(q);
-            
-            //             console.log("QuerySnapshot size:", querySnapshot.size);
-            
-            //             if (querySnapshot.empty) {
-            //                 throw new Error("No matching trainer found in the database.");
-            //             }
-            
-            //             const trainerDoc = querySnapshot.docs[0];
-            //             const trainerDocRef = trainerDoc.ref;
-            
-            //             console.log("Trainer document ID:", trainerDoc.id);
-            
-            //             // File uploads
-            //             const photoInput = document.getElementById("TrainerPhoto");
-            //             const photoFile = photoInput.files[0];
-            //             const applicationFile = document.getElementById("TrainerApplication").files[0];
-            //             const resumeFile = document.getElementById("Resume").files[0];
-            
-            //             console.log("Uploading files...");
-            //             const photoURL = photoFile ? await uploadFile(photoFile, `Trainer_photos/${photoFile.name}`) : "";
-            //             const applicationURL = applicationFile ? await uploadFile(applicationFile, `Trainer_applications/${applicationFile.name}`) : "";
-            //             const resumeURL = resumeFile ? await uploadFile(resumeFile, `Trainer_resumes/${resumeFile.name}`) : "";
-            
-            //             console.log("Uploaded file URLs:", { photoURL, applicationURL, resumeURL });
-            
-            //             // Update Firestore document
-            //             const updatedData = {
-            //                 TrainerName: trainerName,
-            //                 TrainerEmail: document.getElementById("TrainerEmail").value,
-            //                 GymName: gymName,
-            //                 Days: document.getElementById("Days").value,
-            //                 Contact: document.getElementById("Contact").value,
-            //                 Experience: document.getElementById("Experience").value,
-            //                 Expertise: document.getElementById("Expertise").value,
-            //                 rate: parseFloat(document.getElementById("rate").value),
-            //                 ...(photoURL && { TrainerPhoto: photoURL }),
-            //                 ...(applicationURL && { TrainerApplication: applicationURL }),
-            //                 ...(resumeURL && { Resume: resumeURL }),
-            //                 status: "Under Review"
-            //             };
-            
-            //             console.log("Updating Firestore with data:", updatedData);
-            //             await updateDoc(trainerDocRef, updatedData);
-            
-            //             console.log("Trainer document updated successfully.");
-            
-            //             // Hide spinner and show success
-            //             if (globalSpinner) {
-            //                 globalSpinner.style.display = "none";
-            //             }
-            //             successToastMessage.textContent = "Application successfully submitted!";
-            //             successToast.show();
-            
-            //             // Reset form
-            //             TrainerForm.reset();
-            //             document.getElementById("profilePic").src = "framework/img/Profile.png";
-            //         } catch (error) {
-            //             console.error("Error during form submission:", error);
-            
-            //             // Hide spinner and show error
-            //             if (globalSpinner) {
-            //                 globalSpinner.style.display = "none";
-            //             }
-            //             errorToastMessage.textContent = `Error: ${error.message}`;
-            //             errorToast.show();
-            //         }
-            //     });
-            
-            //     // File upload helper
-            //     async function uploadFile(file, path) {
-            //         console.log("Uploading file:", file.name, "to path:", path);
-            //         const storageReference = ref(storage, path);
-            //         const snapshot = await uploadBytes(storageReference, file);
-            //         const downloadURL = await getDownloadURL(snapshot.ref);
-            //         console.log("File uploaded. URL:", downloadURL);
-            //         return downloadURL;
-            //     }
-            // });
-            
         
         
 
