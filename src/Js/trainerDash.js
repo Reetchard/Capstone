@@ -1,6 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
 import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
-import { getFirestore, collection, getDocs, doc, addDoc,getDoc,query,where,updateDoc,orderBy,onSnapshot} from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js'; 
+import { getFirestore, collection, getDocs, doc,writeBatch,addDoc,getDoc,query,where,updateDoc,orderBy,onSnapshot} from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js'; 
 import { getStorage, ref, getDownloadURL,uploadBytes  } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-storage.js';
 
 // Your Firebase configuration
@@ -1298,11 +1298,94 @@ function showNotificationDetails(notification) {
         };
                 
 
-        
-        
-
-
-
     });
     
+    let unsubscribeUnreadListener;  // Store the listener reference globally
+    
+    // Listen for clicks on inbox items and mark messages as read
+    document.addEventListener('click', async (event) => {
+        const inboxItem = event.target.closest('.inbox-item');
+    
+        if (inboxItem) {
+            const userId = auth.currentUser?.uid;
+            if (userId) {
+                await markAllMessagesAsRead(userId);
+            }
+        }
+    });
+    
+    // Mark all unread messages as read (Batch Update)
+    async function markAllMessagesAsRead(userId) {
+        try {
+            const messagesRef = collection(db, 'Messages');
+            const querySnapshot = await getDocs(
+                query(messagesRef, where('to', '==', userId), where('status', '==', 'Unread'))
+            );
+    
+            if (querySnapshot.empty) {
+                console.log('No unread messages.');
+                return;
+            }
+    
+            // Detach the current snapshot listener
+            if (unsubscribeUnreadListener) {
+                unsubscribeUnreadListener();
+            }
+    
+            const batch = writeBatch(db);
+            querySnapshot.forEach((docSnapshot) => {
+                const messageRef = docSnapshot.ref;
+                batch.update(messageRef, { status: 'Read' });
+            });
+    
+            await batch.commit();
+            console.log('All messages marked as read.');
+    
+            // Update the UI immediately
+            updateMessageNotification(0);
+    
+            // Re-attach the listener to reflect the latest state
+            listenForUnreadMessages(userId);
+    
+        } catch (error) {
+            console.error('Error marking messages as read:', error);
+        }
+    }
+    
+    // Real-time listener for unread messages
+    function listenForUnreadMessages(userId) {
+        const messagesRef = collection(db, 'Messages');
+    
+        unsubscribeUnreadListener = onSnapshot(
+            query(messagesRef, where('to', '==', userId), where('status', '==', 'Unread')),
+            (snapshot) => {
+                const unreadCount = snapshot.size;
+                updateMessageNotification(unreadCount);  // Update unread count in real-time
+            },
+            (error) => {
+                console.error('Error listening for unread messages:', error);
+            }
+        );
+    }
+    
+    // Update unread message count in UI
+    function updateMessageNotification(unreadCount) {
+        const messageNotificationElement = document.getElementById('messagesNotification');
+    
+        if (unreadCount > 0) {
+            messageNotificationElement.textContent = unreadCount;
+            messageNotificationElement.style.display = 'flex';
+        } else {
+            messageNotificationElement.style.display = 'none';
+        }
+    }
+    
+    // Start listener when user logs in
+    document.addEventListener('DOMContentLoaded', () => {
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                listenForUnreadMessages(user.uid);
+            }
+        });
+    });
     

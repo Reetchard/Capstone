@@ -1570,16 +1570,16 @@ window.ViewProductInfo = async function (productId) {
                 throw new Error("User document does not exist in Firestore.");
             }
     
-            // Populate form with fetched details
             const emailInput = document.getElementById('userEmail');
             const nameInput = document.getElementById('username');
-    
+            
             if (emailInput && nameInput) {
                 emailInput.value = email;
                 nameInput.value = fullName;
             } else {
                 console.error("Form inputs not found.");
             }
+            
     
         } catch (error) {
             console.error("Error fetching user details:", error);
@@ -3435,12 +3435,6 @@ function listenForUnreadMessages(userId) {
         (snapshot) => {
             const unreadCount = snapshot.size;
             updateMessageNotification(unreadCount);  // Update unread count in real-time
-
-            // Play notification sound if new unread messages arrive
-            if (unreadCount > 0) {
-                const audio = new Audio('/sounds/Notification.mp3');
-                audio.play().catch((error) => console.log('Audio play error:', error));
-            }
         },
         (error) => {
             console.error('Error listening for unread messages:', error);
