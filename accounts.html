@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="css/accounts.css">
+    <link rel="stylesheet" href="css/spinner.css">
 
 </head>
 
@@ -59,29 +60,64 @@
             </div>
             <div class="card-body">
                 <div class="d-flex justify-content-between mb-4">
-                    <input type="text" id="searchAccountId" class="form-control w-50" placeholder="Search by ID">
-                    <div>
+                    <input type="text" id="searchAccountId" class="form-control w-50" 
+                    placeholder="Search by ID or Username" oninput="handleSearch()">
+                                 <div>
                         <button class="btn btn-primary" onclick="handleSearch()">Search</button>
-                        <button class="btn btn-danger ml-2" onclick="deleteSelected()">Delete Selected</button>
                     </div>
                 </div>
+    
+                <!-- Customers/Users Table -->
+                <h4>Customers/Users</h4>
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th><input type="checkbox" id="selectAll" onclick="selectAllProfiles(this)"></th>
                             <th>ID</th>
                             <th>Username</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="accountInfoBody">
-                        <!-- Account data will be dynamically populated here -->
+                    <tbody id="customerInfoBody">
+                        <!-- Dynamically filled with customer data -->
+                    </tbody>
+                </table>
+    
+                <!-- Trainers Table -->
+                <h4 class="mt-5">Trainers</h4>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trainerInfoBody">
+                        <!-- Dynamically filled with trainer data -->
+                    </tbody>
+                </table>
+    
+                <!-- Gym Owners Table -->
+                <h4 class="mt-5">Gym Owners</h4>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ownerInfoBody">
+                        <!-- Dynamically filled with gym owner data -->
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
+    
 
     <!-- Global Spinner Loader -->
     <div id="globalSpinner" class="spinner-overlay" style="display: none;">
@@ -140,6 +176,16 @@
                         </div>
                     </form>
                 </div>
+            </div>
+        </div>
+    </div>
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1050">
+        <div id="liveToast" class="toast align-items-center text-white bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="toastMessage">
+                    <!-- Dynamic message will be injected here -->
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
         </div>
     </div>

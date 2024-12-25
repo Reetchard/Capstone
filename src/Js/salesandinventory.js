@@ -1,6 +1,7 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
-import { getFirestore, collection, getDocs, query, where, doc, getDoc } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
+import { getFirestore, collection, getDocs, query, where, doc, getDoc,onSnapshot } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
+import dayjs from 'https://cdn.jsdelivr.net/npm/dayjs@1.11.7/+esm';
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -353,3 +354,360 @@ onAuthStateChanged(auth, (user) => {
         alert('Please log in to view sales details.');
     }
 });
+
+
+async function fetchMembershipPlans() {
+    const membershipBody = document.getElementById('membershipBody');
+    membershipBody.innerHTML = '';  // Clear previous data
+
+    const q = query(collection(db, 'Transactions'), where('type', '==', 'membership'));
+
+    const querySnapshot = await getDocs(q);
+
+    querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const row = `
+            <tr>
+                <td>${data.userId}</td>
+                <td>${data.memberName || 'N/A'}</td>
+                <td>₱${data.price || '0.00'}</td>
+                <td>${data.accessLevel || 'Standard'}</td>
+                <td>${data.membershipDays || '-'}</td>
+                <td>${data.allowedClasses || 'Unlimited'}</td>
+                <td>${data.guestPasses || '0'}</td>
+            </tr>
+        `;
+        membershipBody.innerHTML += row;
+    });
+}
+
+// Fetch and display trainer bookings
+async function fetchTrainerBookings() {
+    const bookingBody = document.getElementById('trainerBookingBody');
+    bookingBody.innerHTML = '';  // Clear previous data
+
+    const q = query(collection(db, 'Transactions'), where('type', '==', 'Booking_trainer'));
+
+    const querySnapshot = await getDocs(q);
+
+    querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const row = `
+            <tr>
+                <td>${data.userId}</td>
+                <td>${data.trainerName || 'N/A'}</td>
+                <td>${data.username || 'N/A'}</td>
+                <td>${data.bookingDate || 'N/A'}</td>
+                <td>${data.sessionType || 'N/A'}</td>
+                <td>${data.status || 'Pending'}</td>
+            </tr>
+        `;
+        bookingBody.innerHTML += row;
+    });
+}
+
+// Load data on page load
+window.addEventListener('DOMContentLoaded', async () => {
+    await fetchMembershipPlans();
+    await fetchTrainerBookings();
+});
+
+
+async function fetchTransactions() {
+    const querySnapshot = await getDocs(collection(db, "Transactions"));
+    let transactions = [];
+    querySnapshot.forEach((doc) => {
+        let data = doc.data();
+        transactions.push(data);
+    });
+    return transactions;
+}
+
+// Group Transactions by Type (Improved)
+function groupTransactions(transactions) {
+    const grouped = {
+        Products: [],
+        Membership: [],
+        Trainer_Booking: [],
+        Day_Pass: []
+    };
+
+    transactions.forEach(tx => {
+        const txType = tx.type ? tx.type.toLowerCase().replace(/\s+/g, '_') : '';
+
+        switch (txType) {
+            case 'products':
+                grouped.Products.push(tx);
+                break;
+            case 'membership':
+                grouped.Membership.push(tx);
+                break;
+            case 'booking_trainer':
+                grouped.Trainer_Booking.push(tx);
+                break;
+            case 'day_pass':
+                grouped.Day_Pass.push(tx);
+                break;
+            default:
+                console.warn(`Unknown transaction type: ${tx.type}`);
+        }
+    });
+
+    return grouped;
+}
+
+// Generate PDF Report
+async function generatePDF() {
+    const transactions = await fetchTransactions();
+    if (!transactions.length) {
+        alert("No transactions found.");
+        return;
+    }
+
+    const grouped = groupTransactions(transactions);
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF();
+
+    let y = 20;
+    pdf.setFontSize(16);
+    pdf.setFont("helvetica", "bold");
+    pdf.text('Transactions Report', 105, y, { align: "center" });
+    y += 12;
+
+    pdf.setFontSize(8);
+
+    // Section for Products
+    if (grouped.Products.length > 0) {
+        y = addSection(pdf, 'Products', grouped.Products, y, ['productName', 'quantity', 'totalPrice', 'timestamp']);
+    }
+
+    // Section for Memberships
+    if (grouped.Membership.length > 0) {
+        y = addSection(pdf, 'Memberships', grouped.Membership, y, ['planType', 'price', 'purchaseDate', 'status']);
+    }
+
+    // Section for Trainer Bookings
+    if (grouped.Trainer_Booking.length > 0) {
+        y = addSection(pdf, 'Trainer Bookings', grouped.Trainer_Booking, y, ['username', 'price', 'timestamp', 'status']);
+    }
+
+    // Section for Day Passes
+    if (grouped.Day_Pass.length > 0) {
+        y = addSection(pdf, 'Day Passes', grouped.Day_Pass, y, ['email', 'totalPrice', 'date', 'status']);
+    }
+
+    pdf.save('transactions_report.pdf');
+}
+
+// Format Date to MM-DD-YY with Time
+function formatDate(dateInput) {
+    let date;
+
+    // Detect Firestore timestamp object and convert to date
+    if (dateInput && typeof dateInput === 'object' && dateInput.seconds) {
+        date = new Date(dateInput.seconds * 1000); // Convert seconds to milliseconds
+    } else {
+        date = new Date(dateInput);
+    }
+
+    if (isNaN(date)) {
+        return 'Invalid Date';
+    }
+
+    const formattedDate = date.toLocaleDateString('en-US', {
+        year: '2-digit',
+        month: '2-digit',
+        day: '2-digit'
+    });
+
+    const formattedTime = date.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    });
+
+    return `${formattedDate} ${formattedTime}`;
+}
+
+// Add Section Table to PDF with Borders and Shading
+function addSection(pdf, title, data, yStart, fields) {
+    let y = yStart + 12;
+    pdf.setFontSize(10);
+    pdf.setFont("helvetica", "bold");
+    pdf.setTextColor(0, 76, 153);  // Blue Title
+    pdf.text(title, 14, y);
+    y += 6;
+
+    pdf.setFontSize(7);
+    pdf.setTextColor(0, 0, 0);
+
+    // Table Headers (Bold)
+    pdf.setFont("helvetica", "bold");
+    pdf.text('No.', 14, y);
+    let x = 30;
+    fields.forEach(field => {
+        pdf.text(field, x, y);
+        x += 45;
+    });
+
+    y += 4;
+    pdf.setDrawColor(0, 0, 0);  // Black Border
+    pdf.line(14, y, 190, y);  // Horizontal line
+    y += 6;
+
+    // Table Rows (With Alternating Shading)
+    pdf.setFont("helvetica", "normal");
+
+    data.forEach((tx, index) => {
+        const rowColor = index % 2 === 0 ? [240, 240, 240] : [255, 255, 255];  // Alternating colors
+        pdf.setFillColor(...rowColor);
+        pdf.rect(14, y - 4, 176, 8, 'F');  // Row background fill
+
+        pdf.text(`${index + 1}`, 14, y);
+        x = 30;
+
+        fields.forEach(field => {
+            let value = tx[field] || 'N/A';
+        
+            // Apply Peso sign and remove ± symbol
+            if (field === 'totalPrice' || field === 'price') {
+                value = `₱${value.replace('±', '').trim()}`;
+            }
+        
+            // Format Timestamp or Date
+            if (field === 'timestamp' || field === 'purchaseDate' || field === 'date') {
+                value = formatDate(tx[field]);
+            }
+        
+            pdf.text(`${value}`, x, y);
+            x += 45;
+        });
+        
+
+        y += 8;
+
+        // Add new page if needed
+        if (y > 270) {
+            pdf.addPage();
+            y = 20;
+        }
+    });
+
+    y += 8;
+    return y;
+}
+
+// Attach to Button
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('downloadReportBtn').addEventListener('click', generatePDF);
+});
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const notificationList = document.getElementById("notificationList");
+    const loadingSpinner = document.createElement("div");
+    loadingSpinner.id = "loadingSpinner";
+    loadingSpinner.innerHTML = "Loading...";
+    loadingSpinner.style.display = "none";
+    notificationList.parentElement.insertBefore(loadingSpinner, notificationList);
+
+    const notifBadge = document.createElement("span");
+    notifBadge.id = "notifBadge";
+    notifBadge.className = "badge bg-danger ms-2";
+    document.getElementById("notificationModalLabel").appendChild(notifBadge);
+
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const userId = user.uid;
+        const gymOwnerRef = doc(db, "GymOwner", userId);
+
+        getDoc(gymOwnerRef)
+          .then((doc) => {
+            if (doc.exists()) {
+              const data = doc.data();
+              if (data.gymName) {
+                const userGymName = data.gymName;
+                loadingSpinner.style.display = "block";
+
+                const notifQuery = query(
+                  collection(db, "MemberNotif"),
+                  where("gymName", "==", userGymName)
+                );
+
+                onSnapshot(notifQuery, (snapshot) => {
+                  notificationList.innerHTML = "";
+                  let hasNewNotif = false;
+                  let unreadCount = 0;
+
+                  snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const notificationItem = document.createElement("p");
+                    notificationItem.classList.add("list-group-item");
+                    notificationItem.textContent = data.message;
+
+                    if (data.isNew) {
+                      notificationItem.innerHTML += ' <span class="red-dot"></span>';
+                      hasNewNotif = true;
+                      unreadCount++;
+                    }
+
+                    notificationList.appendChild(notificationItem);
+                  });
+
+                  notifBadge.textContent = unreadCount > 0 ? unreadCount : "";
+                  loadingSpinner.style.display = "none";
+                  hasNewNotif ? showNotificationDot() : hideNotificationDot();
+                }, (error) => {
+                  loadingSpinner.style.display = "none";
+                  console.error("Error fetching notifications: ", error);
+                });
+
+                $('#notificationModal').on('shown.bs.modal', function () {
+                  const unreadNotifQuery = query(
+                    collection(db, "MemberNotif"),
+                    where("gymName", "==", userGymName),
+                    where("isNew", "==", true)
+                  );
+
+                  getDoc(unreadNotifQuery).then((querySnapshot) => {
+                    const batch = writeBatch(db);
+                    querySnapshot.forEach((doc) => {
+                      const docRef = doc.ref;
+                      batch.update(docRef, { isNew: false });
+                    });
+                    return batch.commit();
+                  })
+                  .then(() => {
+                    notifBadge.textContent = "";
+                    console.log("Notifications marked as read.");
+                  })
+                  .catch((error) => {
+                    console.error("Error marking notifications as read: ", error);
+                  });
+                });
+              } else {
+                console.warn("Gym name is missing in GymOwners document.");
+              }
+            } else {
+              console.warn("No gym owner data found for this user.");
+            }
+          })
+          .catch((error) => {
+            console.error("Error fetching gym owner data: ", error);
+          });
+      } else {
+        console.warn("No user is logged in.");
+      }
+    });
+
+    function showNotificationDot() {
+      const modalLabel = document.getElementById("notificationModalLabel");
+      modalLabel.innerHTML = 'Notifications <span class="red-dot"></span>';
+    }
+
+    function hideNotificationDot() {
+      const modalLabel = document.getElementById("notificationModalLabel");
+      modalLabel.textContent = 'Notifications';
+    }
+  });

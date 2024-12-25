@@ -251,7 +251,7 @@ async function fetchGymProfiles(filterName = null) {
 
     gymList.forEach(gym => {
         // Check if the gym matches the filter or if no filter is applied
-        if (gym.status && gym.status !== 'Under Review' && (!filterName || gym.gymName === filterName)) {
+        if (gym.status && gym.status !== 'Decline' && (!filterName || gym.gymName === filterName)) {
             const gymDiv = document.createElement('div');
             gymDiv.classList.add('trainer-card', 'gym-profile', 'mb-3'); // Add Bootstrap card classes
 
@@ -337,7 +337,7 @@ function formatTime(time) {
                 if (!trainersSnapshot.empty) {
                     trainersSnapshot.forEach(doc => {
                         const trainerData = doc.data();
-                        if (trainerData.status !== "Not Qualified") {
+                        if (trainerData.status !== "Decline") {
                             const trainerCard = `
                                 <div class="trainer-card">
                                     <img src="${trainerData.TrainerPhoto || 'default-trainer-photo.jpg'}" alt="Trainer Photo" class="trainer-photo">

@@ -264,4 +264,22 @@ h2 {
     h2 {
         font-size: 1.5em; /* Responsive font size for header */
     }
+}.notification-dot {
+    display: none;
+    height: 10px;
+    width: 10px;
+    background-color: red;
+    border-radius: 50%;
+    position: absolute;
+    top: 5px;  /* Adjust to position at the top */
+    right: 7px;  /* Adjust to position it near the text */
 }
+
+
+/* Adjust badge position */
+.sidebar-links .nav-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+

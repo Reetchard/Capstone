@@ -1,5 +1,5 @@
 // Import necessary Firebase modules
-import { getFirestore, collection, getDocs, query, where, doc, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
+import { getFirestore, collection, getDocs, query, where, doc, updateDoc, deleteDoc,onSnapshot } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
 
@@ -98,3 +98,56 @@ onAuthStateChanged(getAuth(app), async (user) => {
         window.location.href = 'login.html';
     }
 });
+let newTransactions = false;
+let newDayPass = false;
+
+function listenForUpdates() {
+    const transactionsRef = collection(db, "Transactions");
+
+    // Listen for all transactions
+    onSnapshot(transactionsRef, (snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+            if (change.type === "added") {
+                const transactionType = change.doc.data().type;
+
+                switch (transactionType) {
+                    case "Day Pass":
+                        showNotificationDot('daypass-dot');
+                        newDayPass = true;
+                        break;
+                    default:
+                        showNotificationDot('transactions-dot');
+                        newTransactions = true;
+                        break;
+                }
+            }
+        });
+    });
+}
+
+// Show notification dot
+function showNotificationDot(dotId) {
+    const dot = document.getElementById(dotId);
+    if (dot) {
+        dot.style.display = 'inline-block';
+    }
+}
+
+// Hide notification dot and reset when viewed
+function resetDot() {
+    document.getElementById('transactions-dot').style.display = 'none';
+    document.getElementById('daypass-dot').style.display = 'none';
+
+    newTransactions = false;
+    newDayPass = false;
+
+    console.log("Notification dots reset.");
+}
+
+// Attach click listener to reset dots on link click
+document.querySelectorAll('.notification-link[data-reset="true"]').forEach(link => {
+    link.addEventListener('click', resetDot);
+});
+
+// Call listenForUpdates when DOM is loaded
+document.addEventListener('DOMContentLoaded', listenForUpdates);

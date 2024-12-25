@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, addDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs,query, where ,doc, updateDoc, deleteDoc, addDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 
 // Your Firebase config
 const firebaseConfig = {
@@ -15,8 +16,43 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth();
+
   // Toggle dropdown on profile picture click
-  
+
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        try {
+            // Query Firestore for the admin role in the 'Admin' collection
+            const q = query(
+                collection(db, 'Admin'), 
+                where('role', '==', 'admin'),  // Check for admin role
+                where('userId', '==', user.uid)   // Match UID of the logged-in user
+            );
+
+            const querySnapshot = await getDocs(q);
+
+            if (!querySnapshot.empty) {
+                // Fetch the first matching admin document
+                const adminData = querySnapshot.docs[0].data();
+                const username = adminData.username || user.displayName || 'Admin';
+
+                // Update the profile-username element
+                const profileUsernameElement = document.getElementById('profile-username');
+                if (profileUsernameElement) {
+                    profileUsernameElement.textContent = username;
+                }
+            } else {
+                console.error("User is not an admin.");
+                // Optional: Redirect or disable admin-only content
+            }
+        } catch (error) {
+            console.error("Error fetching admin data:", error);
+        }
+    } else {
+        console.error("No user is signed in");
+    }
+});
   document.getElementById('profile-picture').addEventListener('click', function(event) {
     const dropdownMenu = document.querySelector('.dropdown-menu');
     event.stopPropagation();
@@ -104,338 +140,284 @@ function displayProfilePicture(user, username) {
 }
 
 
-// Show modal with a message
-function showModal(title, message) {
-    document.getElementById('modalTitle').innerText = title;
-    document.getElementById('modalBody').innerText = message;
-    const messageModal = new bootstrap.Modal(document.getElementById('messageModal'));
-    messageModal.show();
-}
 
-async function displayAccountInfo(searchQuery = '') {
-    const collections = ['Users', 'GymOwner', 'Trainer']; // Collections to fetch from
-    const accountInfoBody = document.getElementById('accountInfoBody');
-    accountInfoBody.innerHTML = ''; // Clear previous results
+// // Initialize global accounts object to store user data by role
+let accounts = {
+    customers: [],
+    trainers: [],
+    owners: []
+};
 
+async function fetchAccountsFromFirestore() {
     try {
-        const allAccounts = []; // Array to store all accounts
+        // Clear existing accounts to avoid duplicates
+        accounts = {
+            customers: [],
+            trainers: [],
+            owners: []
+        };
 
-        for (const collectionName of collections) {
-            const querySnapshot = await getDocs(collection(db, collectionName));
-
-            querySnapshot.forEach((doc) => {
-                const account = doc.data();
-                account.id = doc.id; // Include the document ID
-                account.collectionName = collectionName; // Include collection name
-
-                // Ensure userId exists and filter based on the search query
-                if (searchQuery && account.userId && !account.userId.toString().includes(searchQuery)) {
-                    return; // Skip if the userId doesn't match
-                }
-
-                allAccounts.push(account); // Add account to the list
-            });
-        }
-
-        // Sort accounts: "Under review" first, then by other statuses
-        allAccounts.sort((a, b) => {
-            if (a.status === 'Under review' && b.status !== 'Under review') {
-                return -1; // a comes before b
-            } else if (a.status !== 'Under review' && b.status === 'Under review') {
-                return 1; // b comes before a
-            }
-            return 0; // Preserve order for accounts with the same status
+        // Fetch from Users (Customers)
+        const userSnapshot = await getDocs(
+            query(collection(db, 'Users'), where('role', '==', 'user'))
+        );
+        accounts.customers = userSnapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                id: data.userId || doc.id,
+                ...data,
+                role: 'user'  
+            };
         });
 
-        // Append sorted accounts to the table
-        allAccounts.forEach((account) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td><input type="checkbox" class="selectAccount" value="${account.id}" data-collection="${account.collectionName}"></td>
-                <td>${account.userId || 'N/A'}</td>
-                <td><a href="#" onclick="viewAccountDetails('${account.id}', '${account.collectionName}'); return false;">${account.username || 'N/A'}</a></td>
-                <td>${account.status || account.collectionName}</td>
-                <td>
-                    <button class="btn btn-info btn-sm" onclick="setStatus('${account.id}', '${account.collectionName}', 'Under review')">Review</button>
-                    <button class="btn btn-success btn-sm" onclick="setStatus('${account.id}', '${account.collectionName}', 'Approved')">Approve</button>
-                    <button class="btn btn-danger btn-sm" onclick="blockAccount('${account.id}', '${account.collectionName}')">Block</button>
-                </td>
-            `;
-            accountInfoBody.appendChild(row);
+        // Fetch from Trainer (Trainers)
+        const trainerSnapshot = await getDocs(
+            query(collection(db, 'Trainer'), where('role', '==', 'trainer'))
+        );
+        accounts.trainers = trainerSnapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                id: data.userId || doc.id,
+                ...data,
+                role: 'trainer'
+            };
         });
 
+        // Fetch from GymOwner (Owners)
+        const ownerSnapshot = await getDocs(
+            query(collection(db, 'GymOwner'), where('role', '==', 'gymowner'))
+        );
+        accounts.owners = ownerSnapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                id: data.userId || doc.id,
+                ...data,
+                role: 'gymowner'
+            };
+        });
+
+        // Sort the accounts by status and ID
+        sortAccountsByStatusAndId();
+
+        // Populate the tables after fetching
+        populateTables();
     } catch (error) {
-        console.error('Error fetching accounts:', error);
-        Swal.fire({
-            title: 'Error!',
-            text: 'Error fetching accounts. Please try again later.',
-            icon: 'error',
-            confirmButtonText: 'Okay'
-        });
+        console.error("Error fetching accounts:", error);
     }
 }
 
+// Sort function to prioritize "Under Review" status and then by ID
+function sortAccountsByStatusAndId() {
+    const sortFunction = (a, b) => {
+        // "Under Review" appears first
+        if (a.status === 'Under Review' && b.status !== 'Under Review') return -1;
+        if (a.status !== 'Under Review' && b.status === 'Under Review') return 1;
 
+        // Sort by numeric ID (assuming the ID can be parsed as an integer)
+        return parseInt(a.id) - parseInt(b.id);
+    };
 
-// Handle button click with spinner and delay
-function handleButtonClick(action) {
-    showSpinner(); // Show spinner
-    setTimeout(async () => {
-        try {
-            await action(); // Execute the action
-            // After action completes successfully, show success alert
-            Swal.fire({
-                title: 'Action Complete',
-                text: 'The action was executed successfully!',
-                icon: 'success',
-                confirmButtonText: 'Okay'
-            });
-        } catch (error) {
-            console.error('Error executing action:', error);
-            Swal.fire({
-                title: 'Error!',
-                text: 'There was an issue executing the action. Please try again.',
-                icon: 'error',
-                confirmButtonText: 'Okay'
-            });
-        } finally {
-            hideSpinner(); // Hide spinner
-        }
-    }, 1500); // Minimum 1.5 seconds delay
+    accounts.customers.sort(sortFunction);
+    accounts.trainers.sort(sortFunction);
+    accounts.owners.sort(sortFunction);
 }
 
-// Function to handle search
+
 window.handleSearch = function() {
-    const searchQuery = document.getElementById('searchAccountId').value.trim();
-    console.log('Search Query:', searchQuery); // Log to check if the search query is retrieved
-    displayAccountInfo(searchQuery);
-};
+    const searchValue = document.getElementById('searchAccountId').value.toLowerCase();
+    const tableRows = document.querySelectorAll('tbody tr');
 
-// Show spinner and blur
-function showGlobalSpinner() {
-    const spinner = document.getElementById("globalSpinner");
-    const blurOverlay = document.getElementById("blurOverlay");
+    tableRows.forEach(row => {
+        let match = false;
 
-    if (spinner) spinner.style.display = "flex";
-    if (blurOverlay) blurOverlay.style.display = "block";
-}
+        // If search box is empty, show all rows
+        if (searchValue === '') {
+            row.style.display = '';
+            return;
+        }
 
-// Hide spinner and blur
-function hideGlobalSpinner() {
-    const spinner = document.getElementById("globalSpinner");
-    const blurOverlay = document.getElementById("blurOverlay");
-
-    if (spinner) spinner.style.display = "none";
-    if (blurOverlay) blurOverlay.style.display = "none";
-}
-
-// Example action function with spinner
-window.setStatus = async function (key, collectionName, status) {
-    try {
-        showGlobalSpinner(); // Show spinner and blur
-
-        // Simulate network delay
-        await new Promise((resolve) => setTimeout(resolve, 3000));
-
-        // Perform the update
-        await updateDoc(doc(db, collectionName, key), { status: status });
-
-        // Show success message
-        Swal.fire({
-            title: "Success!",
-            text: `Status updated to ${status}.`,
-            icon: "success",
-            confirmButtonText: "OK",
+        // Check each cell for a match
+        row.querySelectorAll('td').forEach(cell => {
+            if (cell.textContent.toLowerCase().includes(searchValue)) {
+                match = true;
+            }
         });
 
-        // Reload the accounts display
-        displayAccountInfo();
-    } catch (error) {
-        console.error("Error updating status:", error);
+        row.style.display = match ? '' : 'none';
+    });
+}
 
-        // Show error message
-        Swal.fire({
-            title: "Error",
-            text: "Failed to update status. Please try again.",
-            icon: "error",
-            confirmButtonText: "OK",
-        });
-    } finally {
-        hideGlobalSpinner(); // Hide spinner and blur
+
+
+// Populate tables dynamically
+function populateTables() {
+    const customerBody = document.getElementById('customerInfoBody');
+    const trainerBody = document.getElementById('trainerInfoBody');
+    const ownerBody = document.getElementById('ownerInfoBody');
+
+    // Clear existing content
+    customerBody.innerHTML = '';
+    trainerBody.innerHTML = '';
+    ownerBody.innerHTML = '';
+
+    // Populate Customers Table
+    accounts.customers.forEach(account => {
+        customerBody.innerHTML += generateTableRow(account);
+    });
+
+    // Populate Trainers Table
+    accounts.trainers.forEach(account => {
+        trainerBody.innerHTML += generateTableRow(account);
+    });
+
+    // Populate Gym Owners Table
+    accounts.owners.forEach(account => {
+        ownerBody.innerHTML += generateTableRow(account);
+    });
+
+    // Display "No records" if tables are empty
+    if (!customerBody.innerHTML) {
+        customerBody.innerHTML = '<tr><td colspan="5" class="text-center">No Customers Found</td></tr>';
     }
-};
+    if (!trainerBody.innerHTML) {
+        trainerBody.innerHTML = '<tr><td colspan="5" class="text-center">No Trainers Found</td></tr>';
+    }
+    if (!ownerBody.innerHTML) {
+        ownerBody.innerHTML = '<tr><td colspan="5" class="text-center">No Gym Owners Found</td></tr>';
+    }
+}
+
+// Generate HTML row for each account
+function generateTableRow(account) {
+    return `
+        <tr>
+            <td>${account.id}</td>
+            <td>${account.username || 'N/A'}</td>
+            <td>${account.status || 'Active'}</td>
+            <td>
+                <button class="btn btn-info btn-sm" onclick="viewDetails('${account.id}', '${account.role}')">View</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteAccount('${account.username}', '${account.role}', this)">Delete</button>
+            </td>
+        </tr>
+    `;
+}
 
 
-window.deleteSelected = async function () {
-    const selectedCheckboxes = document.querySelectorAll('.selectAccount:checked');
+// View account details
+window.viewDetails = function(accountId, role) {
+    let account;
+    if (role === 'Customer') {
+        account = accounts.customers.find(acc => acc.id === accountId);
+    } else if (role === 'Trainer') {
+        account = accounts.trainers.find(acc => acc.id === accountId);
+    } else if (role === 'Owner') {
+        account = accounts.owners.find(acc => acc.id === accountId);
+    }
 
-    if (selectedCheckboxes.length === 0) {
+    if (account) {
         Swal.fire({
-            title: 'Warning!',
-            text: '⚠️ Please select at least one account to delete.',
-            icon: 'warning',
-            confirmButtonText: 'Okay'
+            title: 'Account Details',
+            html: `
+                <strong>Username:</strong> ${account.username || 'N/A'}<br>
+                <strong>Email:</strong> ${account.email || 'N/A'}<br>
+                <strong>Role:</strong> ${role}<br>
+                <strong>Status:</strong> ${account.status || 'Active'}
+            `,
+            icon: 'info'
         });
+    }
+}
+
+window.deleteAccount = async function(username, role, buttonElement) {
+    if (!username || username === 'N/A') {
+        showToast('Error!', 'Invalid or missing username.', 'danger');
+        console.error("Invalid or undefined username passed:", username);
         return;
     }
 
-    Swal.fire({
+    let normalizedRole = role.toLowerCase();
+    let collectionName;
+
+    switch (normalizedRole) {
+        case 'user':
+            collectionName = 'Users';
+            break;
+        case 'trainer':
+            collectionName = 'Trainer';
+            break;
+        case 'gymowner':
+            collectionName = 'GymOwner';
+            break;
+        default:
+            showToast('Error!', `Invalid role specified: ${role}`, 'danger');
+            return;
+    }
+
+    const confirmDelete = await Swal.fire({
         title: 'Are you sure?',
-        text: 'This action cannot be undone!',
+        text: 'This action cannot be undone.',
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonText: 'Delete',
+        confirmButtonText: 'Yes, delete it!',
         cancelButtonText: 'Cancel'
-    }).then(async (result) => {
-        if (result.isConfirmed) {
-            showGlobalSpinner(); // Show spinner and blur
-            try {
-                for (const checkbox of selectedCheckboxes) {
-                    const key = checkbox.value;
-                    const collectionName = checkbox.getAttribute('data-collection');
-                    await deleteDoc(doc(db, collectionName, key));
-                }
-
-                displayAccountInfo();
-
-                Swal.fire({
-                    title: 'Deleted!',
-                    text: 'The selected accounts have been deleted successfully.',
-                    icon: 'success',
-                    confirmButtonText: 'Okay'
-                });
-            } catch (error) {
-                console.error('Error deleting accounts:', error);
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'We were unable to delete the selected accounts. Please try again later.',
-                    icon: 'error',
-                    confirmButtonText: 'Okay'
-                });
-            } finally {
-                setTimeout(hideGlobalSpinner, 3000); // Ensure spinner is hidden after 3 seconds
-            }
-        }
     });
-};
 
-window.viewAccountDetails = async function(key, collectionName) {
-    try {
-        // Fetch the account document from Firestore
-        const docSnap = await getDoc(doc(db, collectionName, key));
-        const account = docSnap.data();
+    if (confirmDelete.isConfirmed) {
+        try {
+            const originalContent = buttonElement.innerHTML;
+            buttonElement.innerHTML = `<span class="spinner-border spinner-border-sm" role="status"></span> Deleting...`;
+            buttonElement.disabled = true;
 
-        if (account) {
-            // Ensure modal elements exist before setting their values
-            const usernameField = document.getElementById('username');
-            const emailField = document.getElementById('email');
-            const statusField = document.getElementById('status');
-            const roleField = document.getElementById('role');
+            // Query Firestore for the document by username
+            const querySnapshot = await getDocs(
+                query(collection(db, collectionName), where('username', '==', username))
+            );
 
-            if (!usernameField || !emailField || !statusField || !roleField) {
-                throw new Error('Modal input fields are missing from the DOM.');
+            if (querySnapshot.empty) {
+                showToast('Error!', 'No account found with that username.', 'danger');
+                console.error("No document found with username:", username);
+                return;
             }
 
-            // Populate modal fields with account data
-            usernameField.value = account.username || 'N/A';
-            emailField.value = account.email || 'N/A';
-            statusField.value = account.status || 'N/A';
-            roleField.value = account.role || collectionName;
-
-            // Initialize and show the modal
-            const modalElement = document.getElementById('accountModal');
-            const bootstrapModal = new bootstrap.Modal(modalElement); // Bootstrap 5 modal initialization
-            bootstrapModal.show();
-        } else {
-            Swal.fire({
-                title: 'Error!',
-                text: 'Account not found.',
-                icon: 'error',
-                confirmButtonText: 'Okay'
+            // Delete each matching document
+            querySnapshot.forEach(async (docSnapshot) => {
+                await deleteDoc(doc(db, collectionName, docSnapshot.id));
+                console.log(`Deleted document: ${docSnapshot.id}`);
             });
+
+            const row = buttonElement.closest('tr');
+            if (row) {
+                row.remove();
+            }
+
+            showToast('Deleted!', 'The account has been successfully deleted.', 'success');
+
+        } catch (error) {
+            showToast('Error!', 'Failed to delete the account.', 'danger');
+            console.error("Error deleting account:", error);
+        } finally {
+            buttonElement.innerHTML = 'Delete';
+            buttonElement.disabled = false;
         }
-    } catch (error) {
-        console.error('Error fetching account data:', error);
-        Swal.fire({
-            title: 'Error!',
-            text: 'Error fetching account data. Please try again later.',
-            icon: 'error',
-            confirmButtonText: 'Okay'
-        });
     }
-};
-
-
-
-window. selectAllProfiles = function(checkbox) {
-    // Get all checkboxes with the class 'selectAccount'
-    const checkboxes = document.querySelectorAll('.selectAccount');
-    // Toggle their checked state based on the main checkbox
-    checkboxes.forEach((cb) => {
-        cb.checked = checkbox.checked;
-    });
 }
 
-
-
-document.addEventListener('DOMContentLoaded', () => {
-    displayAccountInfo();
-});
-
-
-// Function to toggle select all checkboxes
-window.toggleSelectAll = function(selectAllCheckbox) {
-    const checkboxes = document.querySelectorAll('.selectAccount');
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = selectAllCheckbox.checked;
-    });
-};
-const selectAllCheckbox = document.getElementById('selectAll');
-if (selectAllCheckbox) {
-    selectAllCheckbox.addEventListener('change', function(e) {
-        const checkboxes = document.querySelectorAll('.selectAccount');
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = e.target.checked;
-        });
-    });
-} else {
-    console.error("Element with ID 'selectAll' not found.");
-}window.blockAccount = async function (key, collectionName) {
-    try {
-        // Show the spinner and blur overlay
-        showGlobalSpinner();
-
-        // Simulate a slight delay for the spinner to be visible
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        // Update the status of the account to 'Blocked'
-        await updateDoc(doc(db, collectionName, key), { status: 'Blocked' });
-
-        // Refresh the displayed accounts
-        await displayAccountInfo();
-
-        // Show success message
-        await Swal.fire({
-            title: 'Success!',
-            text: 'The account has been blocked successfully.',
-            icon: 'success',
-            confirmButtonText: 'Okay',
-        });
-    } catch (error) {
-        console.error('Error blocking account:', error);
-
-        // Show error message
-        await Swal.fire({
-            title: 'Error!',
-            text: 'An error occurred while blocking the account. Please try again.',
-            icon: 'error',
-            confirmButtonText: 'Okay',
-        });
-    } finally {
-        // Hide the spinner and blur overlay
-        hideGlobalSpinner();
+// Select all profiles within a specific table
+window.selectAllProfiles = function(role, checkbox) {
+    let checkboxes;
+    if (role === 'Customers') {
+        checkboxes = document.querySelectorAll('#customerInfoBody .select-checkbox');
+    } else if (role === 'Trainers') {
+        checkboxes = document.querySelectorAll('#trainerInfoBody .select-checkbox');
+    } else if (role === 'Owners') {
+        checkboxes = document.querySelectorAll('#ownerInfoBody .select-checkbox');
     }
-};
+    checkboxes.forEach(cb => cb.checked = checkbox.checked);
+}
+
+// Fetch accounts on page load
+document.addEventListener('DOMContentLoaded', fetchAccountsFromFirestore);
+
 // Toggle Sidebar Visibility
 const sidebar = document.getElementById('sidebar');
 const hamburger = document.querySelector('.hamburger-container');
@@ -452,3 +434,15 @@ document.addEventListener('click', (event) => {
     }
 });
 
+function showToast(title, message, type = 'primary') {
+    const toast = document.getElementById('liveToast');
+    const toastMessage = document.getElementById('toastMessage');
+
+    // Set the message and background color based on the type
+    toastMessage.innerHTML = `<strong>${title}</strong> - ${message}`;
+    toast.className = `toast align-items-center text-white bg-${type} border-0`;
+
+    // Show the toast
+    const toastInstance = new bootstrap.Toast(toast);
+    toastInstance.show();
+}

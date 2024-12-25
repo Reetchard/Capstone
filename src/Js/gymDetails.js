@@ -111,9 +111,8 @@ async function loadGymProfiles() {
                 <td>${gymData.gymLocation || 'N/A'}</td>
                 <td>${gymData.status || 'N/A'}</td>
                 <td>
-                    <button class="btn btn-success btn-sm mx-1" onclick="updateStatus('approved', '${gymDoc.id}')">Approve</button>
-                    <button class="btn btn-secondary btn-sm mx-1" onclick="updateStatus('idle', '${gymDoc.id}')">Idle</button>
-                    <button class="btn btn-warning btn-sm mx-1" onclick="updateStatus('blocked', '${gymDoc.id}')">Block</button>
+                    <button class="btn btn-success btn-sm mx-1" onclick="updateStatus('Approved', '${gymDoc.id}')">Accept</button>
+                    <button class="btn btn-warning btn-sm mx-1" onclick="updateStatus('Decline', '${gymDoc.id}')">Decline</button>
                 </td>
             `;
             gymListBody.appendChild(row);
@@ -235,14 +234,11 @@ window.updateStatus = async function(status, key) {
                 // Display message based on the status
                 let message = '';
                 switch (status) {
-                    case 'approved':
+                    case 'Approved':
                         message = `Successfully approved ${gymName}.`;
                         break;
-                    case 'blocked':
+                    case 'Decline':
                         message = `Successfully blocked ${gymName}.`;
-                        break;
-                    case 'idle':
-                        message = `Successfully set ${gymName} to idle.`;
                         break;
                     default:
                         message = 'Status updated.';

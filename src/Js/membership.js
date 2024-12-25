@@ -59,29 +59,40 @@ function showCustomConfirmation(message, onConfirm) {
     });
 }
 
-// Event delegation for delete button functionality with custom confirmation modal
-$('#plansTableBody').on('click', '.delete-button', function () {
+// Populate the edit form when an edit button is clicked
+$('#plansTableBody').on('click', '.edit-button', async function () {
     const planId = $(this).data('id');
 
-    // Show custom confirmation modal
-    showCustomConfirmation('Are you sure you want to delete this membership plan?', async function() {
-        try {
-            toggleSpinner(true, 'Deleting membership plan...');
+    try {
+        toggleSpinner(true, 'Loading membership plan data for editing...');
 
-            // Delete the membership plan from Firestore
-            await deleteDoc(doc(db, 'MembershipPlans', planId));
+        const planRef = doc(db, 'MembershipPlans', planId);
+        const planDoc = await getDoc(planRef);
 
-            // Remove the plan row from the table
-            $(`#${planId}`).remove();
+        if (planDoc.exists()) {
+            const planData = planDoc.data();
+
+            $('#editPlanId').val(planId);
+            $('#membershipType').val(planData.membershipType);
+            $('#editPlanPrice').val(planData.price);
+            $('#editPlanDescription').val(planData.description);  // Fill textarea with plan description
+            $('#accessLevel').val(planData.accessLevel);
+            $('#allowedClasses').val(planData.allowedClasses);
+            $('#guestPasses').val(planData.guestPasses);
+            $('#membershipDays').val(planData.membershipDays);
 
             toggleSpinner(false);
-            toggleMessage('success', 'Plan deleted successfully.');
-        } catch (error) {
+            $('#membershipModal').modal('show');
+        } else {
             toggleSpinner(false);
-            toggleMessage('danger', 'Error deleting plan: ' + error.message);
+            toggleMessage('danger', 'Failed to retrieve membership plan data for editing.');
         }
-    });
+    } catch (error) {
+        toggleSpinner(false);
+        toggleMessage('danger', 'Error retrieving plan for editing: ' + error.message);
+    }
 });
+
 
 // Fetch and display updated data on landing page
 $(document).ready(function () {
@@ -174,7 +185,7 @@ $(document).ready(function () {
                     $('#editPlanId').val(planId);
                     $('#membershipType').val(planData.membershipType);
                     $('#editPlanPrice').val(planData.price);
-                    tinymce.get('editPlanDescription').setContent(planData.description);
+                    $('editPlanDescription').setContent(planData.description);
                     $('#accessLevel').val(planData.accessLevel);
                     $('#allowedClasses').val(planData.allowedClasses);
                     $('#guestPasses').val(planData.guestPasses);
@@ -201,7 +212,7 @@ $('#editPlanForm').on('submit', async function (e) {
     const id = $('#editPlanId').val();
     const membershipType = $('#membershipType').val();
     const price = $('#editPlanPrice').val();
-    const description = tinymce.get('editPlanDescription').getContent();
+    const description = $('#editPlanDescription').val();  // Fetch value directly from textarea
     const accessLevel = $('#accessLevel').val();
     const allowedClasses = $('#allowedClasses').val();
     const guestPasses = $('#guestPasses').val();
@@ -236,7 +247,7 @@ $('#editPlanForm').on('submit', async function (e) {
         await setDoc(doc(db, 'MembershipPlans', docName), {
             membershipType,
             price,
-            description,
+            description,  // Save the description directly from textarea
             accessLevel,
             allowedClasses,
             guestPasses,
@@ -250,7 +261,7 @@ $('#editPlanForm').on('submit', async function (e) {
         toggleMessage(true, 'Plan saved successfully.');
 
         $('#editPlanForm')[0].reset();
-        tinymce.get('editPlanDescription').setContent('');
+        $('#editPlanDescription').val('');  // Clear textarea after submission
         $('#membershipModal').modal('hide');
     } catch (error) {
         toggleSpinner(false);
@@ -258,14 +269,6 @@ $('#editPlanForm').on('submit', async function (e) {
     }
 });
 
-// Initialize TinyMCE for the description field
-tinymce.init({
-    selector: '#editPlanDescription',
-    menubar: false,
-    plugins: 'lists link image charmap preview anchor',
-    toolbar: 'undo redo | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat',
-    height: 300
-});
 document.addEventListener('DOMContentLoaded', function () {
     const sidebar = document.querySelector('.sidebar');
     const toggleSidebar = document.getElementById('toggleSidebar');
@@ -282,3 +285,56 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
+let newTransactions = false;
+let newDayPass = false;
+
+function listenForUpdates() {
+    const transactionsRef = collection(db, "Transactions");
+
+    // Listen for all transactions
+    onSnapshot(transactionsRef, (snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+            if (change.type === "added") {
+                const transactionType = change.doc.data().type;
+
+                switch (transactionType) {
+                    case "Day Pass":
+                        showNotificationDot('daypass-dot');
+                        newDayPass = true;
+                        break;
+                    default:
+                        showNotificationDot('transactions-dot');
+                        newTransactions = true;
+                        break;
+                }
+            }
+        });
+    });
+}
+
+// Show notification dot
+function showNotificationDot(dotId) {
+    const dot = document.getElementById(dotId);
+    if (dot) {
+        dot.style.display = 'inline-block';
+    }
+}
+
+// Hide notification dot and reset when viewed
+function resetDot() {
+    document.getElementById('transactions-dot').style.display = 'none';
+    document.getElementById('daypass-dot').style.display = 'none';
+
+    newTransactions = false;
+    newDayPass = false;
+
+    console.log("Notification dots reset.");
+}
+
+// Attach click listener to reset dots on link click
+document.querySelectorAll('.notification-link[data-reset="true"]').forEach(link => {
+    link.addEventListener('click', resetDot);
+});
+
+// Call listenForUpdates when DOM is loaded
+document.addEventListener('DOMContentLoaded', listenForUpdates);

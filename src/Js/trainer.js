@@ -1,5 +1,5 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
-import { getFirestore, collection, getDocs, doc, getDoc, query, where,updateDoc  } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js';
+import { getFirestore,onSnapshot , collection, getDocs, doc, getDoc, query, where,updateDoc  } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js';
 
 // Firebase Configuration
@@ -77,7 +77,7 @@ function renderTrainerCard(trainer, trainerId) {
 
     trainerCard.innerHTML = `
         <div class="status-badge position-absolute top-0 end-0 m-2 badge ${
-            trainer.status === 'Approved' ? 'badge-success' : trainer.status === 'Not Qualified' ? 'badge-danger' : 'badge-secondary'
+            trainer.status === 'Accept' ? 'badge-success' : trainer.status === 'Decline' ? 'badge-danger' : 'badge-secondary'
         }">
             ${trainer.status || 'Pending'}
         </div>
@@ -87,7 +87,7 @@ function renderTrainerCard(trainer, trainerId) {
             <div class="mt-3">
                 <!-- Toggle Switch -->
                 <label class="toggle-switch">
-                    <input type="checkbox" ${trainer.status === 'Approved' ? 'checked' : ''}>
+                    <input type="checkbox" ${trainer.status === 'Accept' ? 'checked' : ''}>
                     <span class="slider"></span>
                 </label>
             </div>
@@ -104,7 +104,7 @@ function renderTrainerCard(trainer, trainerId) {
     // Add event listener to the toggle switch
     const toggleSwitch = trainerCard.querySelector('.toggle-switch input');
     toggleSwitch.addEventListener('change', () => {
-        const newStatus = toggleSwitch.checked ? 'Approved' : 'Not Qualified';
+        const newStatus = toggleSwitch.checked ? 'Accept' : 'Decline';
         updateTrainerStatus(trainerId, newStatus, trainerCard);
     });
 
@@ -159,9 +159,9 @@ window.showTrainerDetails = async function (trainerId) {
 
         modalStatus.textContent = trainer.status || 'Under Review';
         modalStatus.className = `badge fs-6 px-3 py-2 mt-2 ${
-            trainer.status === 'Approved'
+            trainer.status === 'Accept'
                 ? 'bg-success'
-                : trainer.status === 'Not Qualified'
+                : trainer.status === 'Decline'
                 ? 'bg-danger'
                 : 'bg-secondary'
         }`;
@@ -228,7 +228,7 @@ window.updateTrainerStatus = async function (trainerId, newStatus, trainerCard) 
         if (statusBadge) {
             statusBadge.textContent = newStatus;
             statusBadge.className = `status-badge position-absolute top-0 end-0 m-2 badge ${
-                newStatus === 'Approved' ? 'badge-success' : newStatus === 'Not Qualified' ? 'badge-danger' : 'badge-secondary'
+                newStatus === 'Accept' ? 'badge-success' : newStatus === 'Decline' ? 'badge-danger' : 'badge-secondary'
             }`;
         }
 
@@ -255,3 +255,56 @@ window.updateTrainerStatus = async function (trainerId, newStatus, trainerCard) 
     }
 };
 
+let newTransactions = false;
+let newDayPass = false;
+
+function listenForUpdates() {
+    const transactionsRef = collection(db, "Transactions");
+
+    // Listen for all transactions
+    onSnapshot(transactionsRef, (snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+            if (change.type === "added") {
+                const transactionType = change.doc.data().type;
+
+                switch (transactionType) {
+                    case "Day Pass":
+                        showNotificationDot('daypass-dot');
+                        newDayPass = true;
+                        break;
+                    default:
+                        showNotificationDot('transactions-dot');
+                        newTransactions = true;
+                        break;
+                }
+            }
+        });
+    });
+}
+
+// Show notification dot
+function showNotificationDot(dotId) {
+    const dot = document.getElementById(dotId);
+    if (dot) {
+        dot.style.display = 'inline-block';
+    }
+}
+
+// Hide notification dot and reset when viewed
+function resetDot() {
+    document.getElementById('transactions-dot').style.display = 'none';
+    document.getElementById('daypass-dot').style.display = 'none';
+
+    newTransactions = false;
+    newDayPass = false;
+
+    console.log("Notification dots reset.");
+}
+
+// Attach click listener to reset dots on link click
+document.querySelectorAll('.notification-link[data-reset="true"]').forEach(link => {
+    link.addEventListener('click', resetDot);
+});
+
+// Call listenForUpdates when DOM is loaded
+document.addEventListener('DOMContentLoaded', listenForUpdates);
