@@ -51,6 +51,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Function to create Gym Profile Card
     function createGymProfileCard(gym) {
+        if (gym.status !== 'Approved') return '';
+        
         return `
             <div class="gym-profile-card">
                 <div class="gym-profile-header">
@@ -58,11 +60,44 @@ document.addEventListener("DOMContentLoaded", function() {
                     <h3>${gym.gymName}</h3>
                 </div>
                 <div class="gym-profile-details">
-                    <a href="login.html" class="btn-primary" onclick="showConfirmationMessage()">GYM INFO</a>
+                    <button class="btn-primary" onclick="showLoginToastAndRedirect()">Gym Info</button>
                 </div>
             </div>
         `;
     }
+    
+    // Function to show toast message for login and redirect to login page
+    window. showLoginToastAndRedirect = function() {
+        const toast = document.createElement('div');
+        toast.className = 'toast-error';
+        toast.textContent = 'You need to log in first';
+        document.body.appendChild(toast);
+    
+        // Show the toast for 3 seconds
+        setTimeout(() => {
+            toast.remove();
+            window.location.href = 'login.html';
+        }, 3000);
+    }
+    
+    // Basic CSS for toast message (can be moved to a separate CSS file)
+    const style = document.createElement('style');
+    style.textContent = `
+    .toast-error {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #e74c3c;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-size: 16px;
+        z-index: 1000;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }`;
+    
+    document.head.appendChild(style);
 
     // Fetch trainers data from Firestore
     getDocs(trainersRef).then((snapshot) => {

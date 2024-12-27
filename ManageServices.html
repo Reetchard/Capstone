@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/transact.css">
+    <link rel="stylesheet" href="css/img.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">'
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>Service and Promotions Page</title>
+</head>
+<body style="background-color: #1b1b1b;">
+<!-- Hamburger Button -->
+<div class="hamburger-container d-lg-none position-fixed" id="toggleSidebar" style="top: 20px; left: 20px; z-index: 1050;">
+    <div class="hamburger">
+        <span class="line"></span>
+        <span class="line"></span>
+        <span class="line"></span>
+    </div>
+</div>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+    <div class="profile-container text-center mb-4">
+        <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" class="img-fluid rounded-circle mb-2">
+        <h3 id="profile-username" class="mt-2" style="color: #ffffff;">Gym Owner</h3>
+        <a href="login.html" class="btn btn-danger btn-sm mt-2">Log Out</a>
+    </div>
+    <ul class="nav flex-column sidebar-links">
+        <li class="nav-item">
+            <a class="nav-link" href="member.html"><i class="fas fa-users"></i> Manage Members</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="trainer-info.html"><i class="fas fa-dumbbell"></i> Manage Trainer Profile</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="Products.html"><i class="fas fa-box"></i> Manage Products</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="membership.html"><i class="fas fa-id-card"></i> Manage Memberships</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="Transactions.html"><i class="fas fa-credit-card"></i> Manage Transactions</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="reservation.html"><i class="fas fa-calendar-alt"></i> Manage Day Pass</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="salesandinventory.html"><i class="fas fa-clipboard-list"></i> Sales and Inventory</a>
+        </li>
+    </ul>
+</nav>
+    <!-- Content -->
+    <html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/transact.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <title>Manage Services and Promotions</title>
+</head>
+<body style="background-color: #1b1b1b; color: white;">
+    <div class="container mt-5">
+        <h1 class="text-center mb-5">Gym Management</h1>
+
+        <!-- Manage Gym Details Section -->
+        <div class="mb-5">
+            <h2>Manage Gym Details And Services</h2>
+            <table class="table table-dark table-bordered mt-3">
+                <thead>
+                    <tr>
+                        <th>Profile Photo</th>                       
+                        <th>Certifications</th>
+                        <th>Gym Name</th>
+                        <th>Location</th>
+                        <th>Contact</th>
+                        <th>Programs</th>
+                        <th>Equipment</th>
+                        <th>Price Rate</th>
+                        <th>Opening Time</th>
+                        <th>Closing Time</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="gymDetailsTable">
+                    <!-- Data will be populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+        <div class="modal fade" id="imageModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Image Preview</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <img id="modalImage" class="modal-img" alt="Gym Image">
+                    </div>
+                </div>
+            </div>
+        </div>  
+        
+                <!-- Edit Modal -->
+                <div class="modal fade" id="editGymModal" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Edit Gym Details</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="editGymForm">
+                                    <div class="form-group">
+                                        <label for="gymPhoto">Gym Profile Photo</label>
+                                        <input type="text" class="form-control" id="gymPhoto">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="gymCertifications">Certifications</label>
+                                        <input type="text" class="form-control" id="gymCertifications">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="gymName">Gym Name</label>
+                                        <input type="text" class="form-control" id="gymName" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="gymLocation">Location</label>
+                                        <input type="text" class="form-control" id="gymLocation" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="gymContact">Contact</label>
+                                        <input type="text" class="form-control" id="gymContact" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="gymPrograms">Programs</label>
+                                        <input type="text" class="form-control" id="gymPrograms">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="gymEquipment">Equipment</label>
+                                        <input type="text" class="form-control" id="gymEquipment">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="gymPriceRate">Price Rate</label>
+                                        <input type="number" class="form-control" id="gymPriceRate">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="gymOpeningTime">Opening Time</label>
+                                        <input type="time" class="form-control" id="gymOpeningTime">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="gymClosingTime">Closing Time</label>
+                                        <input type="time" class="form-control" id="gymClosingTime">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+        <!-- Manage Promotions Section -->
+        <div class="mb-5">
+            <h2>Manage Promotions</h2>
+            <button class="btn btn-success" onclick="addPromotion()">Add Promotion</button>
+            <table class="table table-dark table-bordered mt-3">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="promotionsTable">
+                    <!-- Dynamic Content -->
+                </tbody>
+            </table>
+        </div>
+
+
+    <!-- Modal for Adding/Editing Promotions and Services -->
+    <div class="modal fade" id="manageModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Manage Item</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="manageForm">
+                        <div class="form-group">
+                            <label for="itemTitle">Title</label>
+                            <input type="text" class="form-control" id="itemTitle" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="itemDescription">Description</label>
+                            <textarea class="form-control" id="itemDescription" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="module" src="src/Js/ServicePromotion.js"></script>
+
+
+</body>
+</html>
