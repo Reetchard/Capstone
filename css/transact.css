@@ -595,3 +595,102 @@ h1 {
     box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
     font-weight: bold;
 }
+/* Modal Enhancements */
+.modal-content {
+    background: rgba(255, 255, 255, 0.95); /* Increase opacity to reduce transparency */
+    border-radius: 15px;
+    border: none;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Table Header */
+thead th {
+    background-color: rgba(0, 0, 0, 0.9);
+    color: white;
+    text-transform: uppercase;
+    padding: 15px;
+    text-align: center;
+}
+
+/* Table Body - Rows */
+tbody tr {
+    background-color: rgba(255, 255, 255, 0.9);  /* Light background to contrast with text */
+    color: #333;  /* Darker text for visibility */
+}
+
+tbody tr:hover {
+    background-color: rgba(240, 240, 240, 1);  /* Slightly darker on hover */
+    transform: translateY(-2px);
+    transition: all 0.3s ease-in-out;
+}
+
+/* Table Cells */
+td {
+    padding: 15px;
+    text-align: center;
+    font-weight: 500;
+}
+
+/* Action Buttons */
+.action-button {
+    border: none;
+    padding: 8px 15px;
+    border-radius: 8px;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 5px;
+}
+
+.approve {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+}
+
+.idle {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+}
+
+.blocked {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+.action-button:hover {
+    opacity: 0.9;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+.action-button {
+    border: none;
+    padding: 8px 15px;
+    border-radius: 8px;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 5px;
+}
+
+.Accept {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+}
+
+.Decline {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+}
+
+.Delete {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+.action-button:hover {
+    opacity: 0.9;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+.swal2-popup {
+    font-size: 1rem;
+    font-family: 'Poppins', sans-serif;
+}
+
+.swal2-toast {
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}

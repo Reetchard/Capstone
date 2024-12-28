@@ -220,12 +220,20 @@ nav ul li a:hover::after {
 }
 
 /* Search Actions */
+.card-header {
+    display: flex;
+    justify-content: space-between; /* Space between title and actions */
+    align-items: center;
+}
+
 .card-header .search-actions {
     display: flex;
     align-items: center;
     gap: 16px; /* Spacing between buttons and input */
     flex-wrap: wrap; /* Wraps input and buttons on smaller screens */
+    justify-content: flex-end;  /* Align to the right */
 }
+
 
 /* Input and Buttons */
 .card-header input {

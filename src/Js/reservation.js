@@ -1,5 +1,5 @@
 // Import necessary Firebase modules
-import { getFirestore, collection, getDocs, query, where, doc, updateDoc, deleteDoc,onSnapshot } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
+import { getFirestore, collection, getDocs, query, where, doc, updateDoc, deleteDoc, onSnapshot, getDoc } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
 
@@ -17,6 +17,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);  // Initialize auth globally
 
 // Function to update reservation status (Approved/Cancelled)
 const updateReservationStatus = async (docId, newStatus) => {
@@ -90,7 +91,7 @@ const fetchDayPassReservations = async () => {
 };
 
 // Authenticate and load reservations
-onAuthStateChanged(getAuth(app), async (user) => {
+onAuthStateChanged(auth, async (user) => {
     if (user) {
         await fetchDayPassReservations();
     } else {
@@ -98,6 +99,7 @@ onAuthStateChanged(getAuth(app), async (user) => {
         window.location.href = 'login.html';
     }
 });
+
 let newTransactions = false;
 let newDayPass = false;
 
@@ -151,3 +153,33 @@ document.querySelectorAll('.notification-link[data-reset="true"]').forEach(link 
 
 // Call listenForUpdates when DOM is loaded
 document.addEventListener('DOMContentLoaded', listenForUpdates);
+
+async function fetchGymOwnerUsername() {
+    const user = auth.currentUser;
+
+    if (user) {
+        try {
+            const gymOwnerDocRef = doc(db, 'GymOwner', user.uid);  
+            const gymOwnerDocSnap = await getDoc(gymOwnerDocRef);
+
+            if (gymOwnerDocSnap.exists()) {
+                const username = gymOwnerDocSnap.data().username || 'Gym Owner';
+                document.querySelector('#profile-username').textContent = username;
+            } else {
+                document.querySelector('#profile-username').textContent = 'Gym Owner';
+                console.error("Gym owner document not found.");
+            }
+        } catch (error) {
+            console.error("Error fetching gym owner data:", error);
+        }
+    } else {
+        document.querySelector('#profile-username').textContent = 'Not Logged In';
+        console.error("No authenticated user.");
+    }
+}
+
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        fetchGymOwnerUsername();
+    }
+});

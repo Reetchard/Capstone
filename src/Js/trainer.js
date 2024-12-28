@@ -1,5 +1,5 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
-import { getFirestore,onSnapshot , collection, getDocs, doc, getDoc, query, where,updateDoc  } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js';
+import { getFirestore,onSnapshot , collection, getDocs, doc, getDoc, query, where,updateDoc ,deleteDoc  } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js';
 
 // Firebase Configuration
@@ -29,20 +29,7 @@ const modalApplicationLink = document.getElementById('modalApplicationLink');
 const modalResumeLink = document.getElementById('modalResumeLink');
 const modalStatus = document.getElementById('modalStatus');
 
-// Fetch Gym Owner's GymName
-async function fetchGymOwnerGymName() {
-    const user = auth.currentUser;
 
-    if (user) {
-        const gymOwnerDocRef = doc(db, 'GymOwner', user.uid);
-        const gymOwnerDocSnap = await getDoc(gymOwnerDocRef);
-
-        if (gymOwnerDocSnap.exists()) {
-            return gymOwnerDocSnap.data().gymName || gymOwnerDocSnap.data().GymName;
-        }
-    }
-    return null;
-}
 
 // Fetch Trainers and Render the Gallery
 async function fetchTrainerData(gymOwnerGymName) {
@@ -308,3 +295,153 @@ document.querySelectorAll('.notification-link[data-reset="true"]').forEach(link 
 
 // Call listenForUpdates when DOM is loaded
 document.addEventListener('DOMContentLoaded', listenForUpdates);
+
+// Function to Load Feedbacks and Match Users by userId
+// Function to fetch the gym owner's gym name
+async function fetchGymOwnerGymName() {
+    const user = auth.currentUser;
+
+    if (user) {
+        const gymOwnerDocRef = doc(db, 'GymOwner', user.uid);
+        const gymOwnerDocSnap = await getDoc(gymOwnerDocRef);
+
+        if (gymOwnerDocSnap.exists()) {
+            return gymOwnerDocSnap.data().gymName || gymOwnerDocSnap.data().GymName;
+        } else {
+            console.error("Gym owner document not found.");
+        }
+    } else {
+        console.error("No authenticated user.");
+    }
+    return null;
+}
+
+// Function to load feedback filtered by the gym owner's gym name
+async function loadFeedbacks() {
+    const feedbackContainer = document.querySelector('#feedbackContainer');
+    feedbackContainer.innerHTML = ''; // Clear existing cards
+
+    const gymName = await fetchGymOwnerGymName();
+
+    if (!gymName) {
+        feedbackContainer.innerHTML = `
+            <div class="col-12 text-center">
+                <p class="text-muted">Unable to fetch gym information.</p>
+            </div>`;
+        return;
+    }
+
+    // Query feedback filtered by gym name
+    const feedbackQuery = query(
+        collection(db, 'RatingAndFeedback'),
+        where('gymName', '==', gymName)
+    );
+
+    const feedbackSnapshot = await getDocs(feedbackQuery);
+
+    if (feedbackSnapshot.empty) {
+        feedbackContainer.innerHTML = `
+            <div class="col-12 text-center">
+                <p class="text-muted">No feedback available for your gym.</p>
+            </div>`;
+        return;
+    }
+
+    // Iterate and display feedback
+    for (const feedbackDoc of feedbackSnapshot.docs) {
+        const feedback = feedbackDoc.data();
+        const date = new Date(feedback.timestamp).toLocaleDateString();
+        const ratingStars = '⭐'.repeat(feedback.rating);
+        let customerName = 'N/A';
+
+        // Fetch customer name by userId (if available)
+        if (feedback.userId) {
+            const userQuery = query(collection(db, 'Users'), where('userId', '==', feedback.userId));
+            const userSnapshot = await getDocs(userQuery);
+            
+            if (!userSnapshot.empty) {
+                userSnapshot.forEach((userDoc) => {
+                    customerName = userDoc.data().username || 'N/A';
+                });
+            }
+        }
+
+        // Render feedback card
+        const feedbackCard = `
+            <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="feedback-card">
+                    <div class="d-flex justify-content-between">
+                        <span class="feedback-card-header">${customerName}</span>
+                        <span class="badge">${feedback.gymName}</span>
+                    </div>
+                    <p class="mt-2">
+                        <strong>Trainer:</strong> ${feedback.username || 'N/A'}
+                    </p>
+                    <p class="rating">${ratingStars}</p>
+                    <p class="feedback-text">"${feedback.feedback || 'No feedback'}"</p>
+                    <p class="feedback-date"><small>${date}</small></p>
+                    <div class="text-end action-btn">
+                        <button class="btn btn-danger btn-sm" onclick="deleteFeedback('${feedbackDoc.id}')">
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+
+        feedbackContainer.innerHTML += feedbackCard;
+    }
+}
+
+// Delete feedback function
+window.deleteFeedback = async function (id) {
+    const confirmDelete = await Swal.fire({
+        title: 'Are you sure?',
+        text: "This action cannot be undone.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+    });
+
+    if (confirmDelete.isConfirmed) {
+        await deleteDoc(doc(db, 'RatingAndFeedback', id));
+        Swal.fire('Deleted!', 'Feedback has been removed.', 'success');
+        loadFeedbacks();
+    }
+};
+
+// Wait for Firebase Auth to be ready, then load feedbacks
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        loadFeedbacks();
+    } else {
+        console.error("User is not logged in.");
+    }
+});
+async function fetchGymOwnerUsername() {
+    const user = auth.currentUser;  // Get the currently authenticated user
+
+    if (user) {
+        const gymOwnerDocRef = doc(db, 'GymOwner', user.uid);  // Reference to GymOwner document
+        const gymOwnerDocSnap = await getDoc(gymOwnerDocRef);
+
+        if (gymOwnerDocSnap.exists()) {
+            const username = gymOwnerDocSnap.data().username || 'Gym Owner';
+            document.querySelector('#profile-username').textContent = username;
+        } else {
+            document.querySelector('#profile-username').textContent = 'Gym Owner';
+            console.error("Gym owner document not found.");
+        }
+    } else {
+        document.querySelector('#profile-username').textContent = 'Not Logged In';
+        console.error("No authenticated user.");
+    }
+}
+
+// Wait for Firebase Authentication state change
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        fetchGymOwnerUsername();
+    }
+});

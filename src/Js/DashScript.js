@@ -432,7 +432,7 @@ function formatTime(time) {
             if (!membershipSnapshot.empty) {
                 for (const doc of membershipSnapshot.docs) {
                     const transaction = doc.data();
-                    if (transaction.status === 'Approved') {
+                    if (transaction.status === 'Accepted') {
                         return true; // Return true if any document has 'Approved' status
                     }
                 }
@@ -1126,7 +1126,7 @@ window.ViewProductInfo = async function (productId) {
                             <p style="margin: 8px 0;"><strong>Purchased on:</strong> ${purchaseDate.toLocaleDateString()}</p>
                             <p style="margin: 8px 0;"><strong>Expires on:</strong> ${expirationDate.toLocaleDateString()}</p>
                             <p style="margin: 8px 0;"><strong>Status:</strong> 
-                                <span style="color: ${membership.status === 'Approved' ? '#28a745' : '#FF5722'};">${membership.status || 'N/A'}</span>
+                                <span style="color: ${membership.status === 'Accepted' ? '#28a745' : '#FF5722'};">${membership.status || 'N/A'}</span>
                             </p>
                         </div>
                     </li>
@@ -1150,7 +1150,7 @@ window.ViewProductInfo = async function (productId) {
                                 <p><strong>Expires on:</strong> ${expirationDate.toLocaleDateString()}</p>
                                 <p><strong>Time Remaining:</strong> <span id="countdown" class="countdown"></span></p>
                                     <p style="margin: 10px 0;"><strong>Status:</strong> 
-                                    <span style="color: ${membership.status === 'Approved' ? '#28a745' : '#FF5722'};">${membership.status || 'N/A'}</span>
+                                    <span style="color: ${membership.status === 'Delete' ? '#28a745' : '#FF5722'};">${membership.status || 'N/A'}</span>
                                 </p>
                             </div>
                         </div>
@@ -1200,7 +1200,7 @@ window.ViewProductInfo = async function (productId) {
             }
 
             // Only start the countdown if the status is "Approved"
-            if (status !== 'Approved') {
+            if (status !== 'Accepted') {
                 countdownElement.innerText = status === 'Pending Owner Approval' ? 'Pending Owner Approval' : 'Status not approved';
                 console.log('Countdown will not start, status is not approved.');
                 return;

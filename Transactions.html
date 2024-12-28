@@ -4,67 +4,121 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/transact.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">'
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <title>Transaction Page</title>
-</head>
-<body style="background-color: #1b1b1b;">
-<!-- Hamburger Button -->
-<div class="hamburger-container d-lg-none position-fixed" id="toggleSidebar" style="top: 20px; left: 20px; z-index: 1050;">
-    <div class="hamburger">
-        <span class="line"></span>
-        <span class="line"></span>
-        <span class="line"></span>
-    </div>
-</div>
+    <style>
+        body {
+            background-color: #f3dad8; /* Light pink background */
+            color: #544b3d; /* Dark brown text */
+            font-family: 'Arial', sans-serif;
+        }
 
-<!-- Sidebar -->
-<nav class="sidebar">
-    <div class="profile-container text-center mb-4">
-        <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" class="img-fluid rounded-circle mb-2">
-        <h3 id="profile-username" class="mt-2" style="color: #ffffff;">Gym Owner</h3>
-        <a href="login.html" class="btn btn-danger btn-sm mt-2">Log Out</a>
+        .sidebar {
+            background-color: #544b3d; /* Dark brown sidebar */
+            height: 100vh;
+            padding-top: 20px;
+            transition: transform 0.3s ease;
+            transform: translateX(0);
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-100%);
+        }
+
+        .sidebar-links .nav-link {
+            color: #ffffff; /* White text for nav links */
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .sidebar-links .nav-link:hover {
+            background-color: #3b7f5a; /* Darker emerald on hover */
+            color: #f3dad8; /* Light pink on hover */
+        }
+
+        .card {
+            background-color: #ffffff; /* White card background */
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            background-color: #50c878; /* Emerald green */
+            color: white;
+        }
+
+        .btn-custom {
+            background-color: #50c878; /* Emerald green button */
+            color: white;
+        }
+
+        .btn-custom:hover {
+            background-color: #3b7f5a; /* Darker emerald on hover */
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Hamburger Button -->
+    <div class="hamburger-container d-lg-none position-fixed" id="toggleSidebar" style="top: 20px; left: 20px; z-index: 1050;">
+        <div class="hamburger">
+            <span class="line"></span>
+            <span class="line"></span>
+            <span class="line"></span>
+        </div>
     </div>
-    <ul class="nav flex-column sidebar-links">
-        <li class="nav-item">
-            <a class="nav-link" href="member.html"><i class="fas fa-users"></i> Manage Members</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="trainer-info.html"><i class="fas fa-dumbbell"></i> Manage Trainer Profile</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="Products.html"><i class="fas fa-box"></i> Manage Products</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="membership.html"><i class="fas fa-id-card"></i> Manage Memberships</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="Transactions.html"><i class="fas fa-credit-card"></i> Manage Transactions</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="reservation.html"><i class="fas fa-calendar-alt"></i> Manage Day Pass</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="salesandinventory.html"><i class="fas fa-clipboard-list"></i> Sales and Inventory</a>
-        </li>
-    </ul>
-</nav>
+
+    <nav class="sidebar">
+        <div class="profile-container text-center mb-4">
+            <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" class="img-fluid rounded-circle mb-2">
+            <h3 id="profile-username" class="mt-2" style="color: #ffffff;">Gym Owner</h3>
+            <a href="login.html" class="btn btn-danger btn-sm mt-2">Log Out</a>
+        </div>
+        <ul class="nav flex-column sidebar-links">
+            <li class="nav-item">
+                <a class="nav-link" href="member.html"><i class="fas fa-users"></i> Manage Members</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="trainer-info.html"><i class="fas fa-dumbbell"></i> Manage Trainer Profile</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="Products.html"><i class="fas fa-box"></i> Manage Products</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="membership.html"><i class="fas fa-id-card"></i> Manage Memberships</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="Transactions.html"><i class="fas fa-credit-card"></i> Manage Transactions</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="DayPass.html"><i class="fas fa-calendar-alt"></i> Manage Day Pass</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="salesandinventory.html"><i class="fas fa-clipboard-list"></i> Sales and Inventory</a>
+            </li>
+        </ul>
+    </nav>
     <!-- Content -->
     <div class="container mt-5">
         <h1 style="color: #7a5f4d;">All Transactions</h1>
-
         <div id="transactionTabs">
-            <button class="btn btn-primary" data-type="membership" data-toggle="modal" data-target="#membershipsModal">Memberships</button>
-            <button class="btn btn-primary" data-type="Booking_trainer" data-toggle="modal" data-target="#trainersModal">Trainers</button>
-            <button class="btn btn-primary" data-type="product" data-toggle="modal" data-target="#productsModal">Products</button>
+            <button class="btn btn-custom" data-type="membership" data-toggle="modal" data-target="#membershipsModal">Memberships</button>
+            <button class="btn btn-custom" data-type="Booking_trainer" data-toggle="modal" data-target="#trainersModal">Trainers</button>
+            <button class="btn btn-custom" data-type="product" data-toggle="modal" data-target="#productsModal">Products</button>
         </div>  
     </div>
+
+    <!-- Memberships Modal -->
     <div class="modal fade" id="membershipsModal" tabindex="-1" role="dialog" aria-labelledby="membershipsModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="membershipsModalLabel" style="color: #1b1b1b;">Memberships Transactions</h5>
+                    <h5 class="modal-title" id="membershipsModalLabel">Memberships Transactions</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -94,13 +148,13 @@
             </div>
         </div>
     </div>
-    
 
+    <!-- Trainers Modal -->
     <div class="modal fade" id="trainersModal" tabindex="-1" role="dialog" aria-labelledby="trainersModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="trainersModalLabel" style="color: #1b1b1b;">Trainers Transactions</h5>
+                    <h5 class="modal-title" id="trainersModalLabel">Trainers Transactions</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -130,13 +184,13 @@
             </div>
         </div>
     </div>
-    
 
+    <!-- Products Modal -->
     <div class="modal fade" id="productsModal" tabindex="-1" role="dialog" aria-labelledby="productsModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="productsModalLabel" style="color: #1b1b1b;">Products Transactions</h5>
+                    <h5 class="modal-title" id="productsModalLabel">Products Transactions</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -167,7 +221,7 @@
             </div>
         </div>
     </div>
-    
+
     <div id="globalSpinner" class="spinner-overlay" style="display: none;">
         <div class="spinner-container">
             <span class="loader"></span>
@@ -175,12 +229,18 @@
     </div>
     <div id="toast-container" class="toast-container"></div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-    <script type="module"src = "src/Js/transaction.js"></script>
+    <script type="module" src="src/Js/transaction.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-
+    <script>
+        // Toggle sidebar visibility on mobile
+        document.getElementById('toggleSidebar').onclick = function () {
+            document.getElementById('sidebar').classList.toggle('hidden');
+        };
+    </script>
 </body>
 </html>

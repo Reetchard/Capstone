@@ -810,3 +810,43 @@ button.btn-danger:hover {
     align-items: center;
 }
 
+.feedback-card {
+    background-color: #212529;
+    color: white;
+    border: 1px solid #454d55;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.feedback-card-header {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.feedback-card .rating {
+    color: #fbc531;
+}
+
+.feedback-card .feedback-text {
+    font-style: italic;
+    color: #adb5bd;
+}
+
+.feedback-card .feedback-date {
+    color: #6c757d;
+}
+
+.feedback-card .action-btn {
+    margin-top: 15px;
+}
+
+.feedback-card .badge {
+    background-color: #28a745;
+    font-size: 0.9rem;
+}
+
+.h3{
+    color: #ffffff;
+}

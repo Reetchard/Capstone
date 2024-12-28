@@ -1,4 +1,7 @@
-import { getFirestore ,collection, getDocs, doc, addDoc,getDoc,query,where,updateDoc,onSnapshot,orderBy, limit} from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js'; 
+// Import Firebase modules (MODULAR SYNTAX)
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
+import { getFirestore, collection, getDocs, doc, addDoc, getDoc, query, where, updateDoc, onSnapshot, orderBy, limit,deleteDoc } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -11,98 +14,69 @@ const firebaseConfig = {
     measurementId: "G-CDP5BCS8EY"
 };
 
-// Initialize Firebase
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
+// Initialize Firebase App
+const app = initializeApp(firebaseConfig);
 
-// Initialize Firestore and Authentication
-const db = firebase.firestore();
-const auth = firebase.auth();
+// Initialize Firestore and Auth
+const db = getFirestore(app);
+const auth = getAuth(app);
 
-// Define Firestore collections
-const transactionsCollection = db.collection('Transactions');
-const usersCollection = db.collection('GymOwner');
+// 🔹 Define collections at the top
+const transactionsCollection = collection(db,'Transactions');
+const usersCollection = collection(db, 'GymOwner');  // This refers to the collection
+
 async function displayMemberInfo() {
     const MemberInfoBody = document.getElementById('MemberInfoBody');
-    MemberInfoBody.innerHTML = '';
+    MemberInfoBody.innerHTML = '';  // Clear table to prevent duplicate rows
 
     try {
-        // Ensure the user is authenticated
         const user = auth.currentUser;
         if (!user) {
-            console.error("User not authenticated");
             alert("Please log in to access this page.");
             return;
         }
 
         const userId = user.uid;
-        const userDoc = await usersCollection.doc(userId).get();
+        const userDocRef = doc(db, 'GymOwner', userId);  // Correct reference to document
+        const userDocSnap = await getDoc(userDocRef);
 
-        if (!userDoc.exists) {
-            console.error(`No user document found for user ID: ${userId}`);
+        if (!userDocSnap.exists()) {
             alert("User information is missing. Please contact support.");
             return;
         }
 
-        const userData = userDoc.data();
-        const gymOwnerGymName = userData?.gymName;
+        const gymOwnerGymName = userDocSnap.data().gymName;
 
-        if (!gymOwnerGymName) {
-            console.error("Gym name is undefined or missing for the logged-in user.");
-            alert("Your gym name is not set. Please update your profile.");
-            return;
-        }
-
-        console.log("Gym name for the logged-in user:", gymOwnerGymName);
-
-        // Fetch all membership transactions
-        const querySnapshot = await transactionsCollection
-            .where('type', '==', 'membership')
-            .get();
+        const q = query(collection(db, 'Transactions'), where('type', '==', 'membership'));
+        const querySnapshot = await getDocs(q);
 
         let hasResults = false;
         querySnapshot.forEach(doc => {
             const transaction = doc.data();
-            const key = doc.id;
-
-            console.log("Transaction data:", transaction);
-
-            // Validate if the gymName matches
             if (transaction.gymName === gymOwnerGymName) {
                 hasResults = true;
 
-                // Match Firestore field names
-                const membershipDays = transaction.membershipDays || 'N/A';
-                const planType = transaction.planType || 'N/A';
-                const price = transaction.price || 'N/A';
-                const purchaseDate = transaction.purchaseDate || 'N/A';
-                const status = transaction.status || 'N/A';
-
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td><input type="checkbox" class="selectMember" value="${key}"></td>
+                    <td><input type="checkbox" class="selectMember" value="${doc.id}"></td>
                     <td>${transaction.userId || 'N/A'}</td>
-                    <td>${planType}</td>
-                    <td>${membershipDays} days</td>
-                    <td>₱${price ? parseFloat(price).toFixed(2) : 'N/A'}</td>
-                    <td>${new Date(purchaseDate).toLocaleString() || 'N/A'}</td>
-                    <td>${status}</td>
-                 <td>
-                    <button class="btn btn-info btn-sm" onclick="viewMemberDetails('${key}')">View</button>
-                </td>
+                    <td>${transaction.planType || 'N/A'}</td>
+                    <td>${transaction.membershipDays || 'N/A'} days</td>
+                    <td>₱${parseFloat(transaction.price || 0).toFixed(2)}</td>
+                    <td>${new Date(transaction.purchaseDate).toLocaleString()}</td>
+                    <td>${transaction.status || 'N/A'}</td>
+                    <td><button class="btn btn-info btn-sm" onclick="viewMemberDetails('${doc.id}')">View</button></td>
                 `;
                 MemberInfoBody.appendChild(row);
             }
         });
 
-        // Display message if no matching members found
         if (!hasResults) {
-            MemberInfoBody.innerHTML = '<tr><td colspan="9">No members found for your gym.</td></tr>';
+            MemberInfoBody.innerHTML = '<tr><td colspan="8">No members found for your gym.</td></tr>';
         }
     } catch (error) {
-        console.error("Error displaying member information:", error);
-        alert("An error occurred while loading member information. Please try again.");
+        console.error("Error displaying member info:", error);
+        alert("Failed to load member information.");
     }
 }
 
@@ -116,41 +90,9 @@ window. toggleSelectAll = function(source) {
     });
 }
 
-// Search Member
-window.searchMember = function() {
-    const searchId = document.getElementById('searchMemberId').value.trim();
-    const MemberInfoBody = document.getElementById('MemberInfoBody');
-    MemberInfoBody.innerHTML = '';
 
-    transactionsCollection.where('id', '==', searchId).get().then(querySnapshot => {
-        if (querySnapshot.empty) {
-            MemberInfoBody.innerHTML = '<tr><td colspan="8">No members found with this ID.</td></tr>';
-            return;
-        }
 
-        querySnapshot.forEach(doc => {
-            const transaction = doc.data();
-            const key = doc.id;
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td><input type="checkbox" class="selectMember" value="${key}"></td>
-                <td>${transaction.userId}</td>
-                <td>${transaction.username}</td>
-                <td>${transaction.membershipType}</td>
-                <td>${transaction.startDate}</td>
-                <td>${transaction.endDate}</td>
-                <td>${transaction.paymentMethod}</td>
-                <td>${transaction.status}</td>
-                <td>
-                    <button class="btn btn-info btn-sm" onclick="viewMemberDetails('${key}')">View</button>
-                </td>
-            `;
-            MemberInfoBody.appendChild(row);
-        });
-    }).catch(error => {
-        console.error("Error searching member:", error);
-    });
-}
+
 
 window.deleteSelected = function () {
     const selectedCheckboxes = document.querySelectorAll('.selectMember:checked');
@@ -167,44 +109,44 @@ window.deleteSelected = function () {
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
         confirmButtonText: 'Yes, delete them!'
-    }).then((result) => {
+    }).then(async (result) => {
         if (result.isConfirmed) {
             let promises = [];
             selectedCheckboxes.forEach(checkbox => {
                 const key = checkbox.value;
-                promises.push(transactionsCollection.doc(key).delete());
+                const docRef = doc(db, 'Transactions', key);  // Reference the document
+                promises.push(deleteDoc(docRef));  // Use deleteDoc to delete
             });
 
-            Promise.all(promises)
-                .then(() => {
-                    Swal.fire(
-                        'Deleted!',
-                        'Selected members have been deleted.',
-                        'success'
-                    );
-                    displayMemberInfo();
-                })
-                .catch(error => {
-                    console.error("Error deleting members:", error);
-                    Swal.fire(
-                        'Error!',
-                        'An error occurred while deleting the members.',
-                        'error'
-                    );
-                });
+            try {
+                await Promise.all(promises);
+                Swal.fire(
+                    'Deleted!',
+                    'Selected members have been deleted.',
+                    'success'
+                );
+                displayMemberInfo();
+            } catch (error) {
+                console.error("Error deleting members:", error);
+                Swal.fire(
+                    'Error!',
+                    'An error occurred while deleting the members.',
+                    'error'
+                );
+            }
         }
     });
 };
 
+
 // Function to view member details
 window.viewMemberDetails = async function (key) {
-    const db = firebase.firestore();
-
     try {
         // Step 1: Fetch transaction data
-        const transactionDoc = await db.collection('Transactions').doc(key).get();
+        const transactionDocRef = doc(db, 'Transactions', key);  // Get the doc reference
+        const transactionDoc = await getDoc(transactionDocRef);
 
-        if (!transactionDoc.exists) {
+        if (!transactionDoc.exists()) {
             alert('Transaction not found!');
             return;
         }
@@ -213,14 +155,16 @@ window.viewMemberDetails = async function (key) {
         const userId = transactionData.userId;
 
         // Step 2: Fetch user data
-        const userQuery = await db.collection('Users').where('userId', '==', userId).get();
+        const usersCollectionRef = collection(db, 'Users');
+        const userQuery = query(usersCollectionRef, where('userId', '==', userId));
+        const userSnapshot = await getDocs(userQuery);
 
-        if (userQuery.empty) {
+        if (userSnapshot.empty) {
             alert('User not found!');
             return;
         }
 
-        const userDoc = userQuery.docs[0];
+        const userDoc = userSnapshot.docs[0];
         const userData = userDoc.data();
 
         // Step 3: Populate modal fields
@@ -243,8 +187,8 @@ window.viewMemberDetails = async function (key) {
         document.getElementById('planType').value = transactionData.planType || 'N/A';
         document.getElementById('membershipDays').value = transactionData.membershipDays || 'N/A';
         document.getElementById('price').value = transactionData.price 
-        ? `₱${parseFloat(transactionData.price).toFixed(2)}`
-        : 'N/A';    
+            ? `₱${parseFloat(transactionData.price).toFixed(2)}`
+            : 'N/A';    
         document.getElementById('purchaseDate').value = transactionData.purchaseDate || 'N/A';
 
         // Step 4: Show the modal
@@ -255,7 +199,6 @@ window.viewMemberDetails = async function (key) {
         alert('Failed to fetch member details. Please check the console for more information.');
     }
 };
-
 
 
 
@@ -393,3 +336,36 @@ document.querySelectorAll('.notification-link[data-reset="true"]').forEach(link 
 
 // Call listenForUpdates when DOM is loaded
 document.addEventListener('DOMContentLoaded', listenForUpdates);
+
+
+async function fetchGymOwnerUsername() {
+    const user = auth.currentUser;
+
+    if (user) {
+        try {
+            // Reference to GymOwner document
+            const gymOwnerDocRef = doc(db, 'GymOwner', user.uid);  
+            const gymOwnerDocSnap = await getDoc(gymOwnerDocRef);
+
+            if (gymOwnerDocSnap.exists()) {
+                const username = gymOwnerDocSnap.data().username || 'Gym Owner';
+                document.querySelector('#profile-username').textContent = username;
+            } else {
+                document.querySelector('#profile-username').textContent = 'Gym Owner';
+                console.error("Gym owner document not found.");
+            }
+        } catch (error) {
+            console.error("Error fetching gym owner data:", error);
+        }
+    } else {
+        document.querySelector('#profile-username').textContent = 'Not Logged In';
+        console.error("No authenticated user.");
+    }
+}
+
+// Wait for Firebase Authentication state change
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        fetchGymOwnerUsername();
+    }
+});

@@ -965,3 +965,21 @@ input#modalProductQuantityInput:focus {
 .bold {
     font-weight: bold;
 }
+ .table th, .table td {
+        vertical-align: middle;
+        padding: 12px;
+    }
+    .table th {
+        background-color: #343a40; /* Dark table header */
+        color: white;
+    }
+    .table td {
+        background-color: #212529;
+        color: #fff;
+    }
+    .table th, .table td {
+        border: 1px solid #454d55;
+    }
+    .btn-danger {
+        padding: 5px 10px;
+    }

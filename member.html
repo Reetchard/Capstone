@@ -26,7 +26,7 @@
 <nav class="sidebar">
     <div class="profile-container text-center mb-4">
         <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" class="img-fluid rounded-circle mb-2">
-        <h3 id="profile-username" class="mt-2">Gym Owner</h3>
+        <h3 id="profile-username" class="mt-2" style="color: #ffffff;">Gym Owner</h3>
         <a href="login.html" class="btn btn-danger btn-sm mt-2">Log Out</a>
     </div>
     <ul class="nav flex-column sidebar-links">
@@ -46,7 +46,7 @@
             <a class="nav-link" href="Transactions.html"><i class="fas fa-credit-card"></i> Manage Transactions</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="reservation.html"><i class="fas fa-calendar-alt"></i> Manage Day Pass</a>
+            <a class="nav-link" href="DayPass.html"><i class="fas fa-calendar-alt"></i> Manage Day Pass</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="salesandinventory.html"><i class="fas fa-clipboard-list"></i> Sales and Inventory</a>
@@ -58,13 +58,13 @@
     <div class="container-fluid">
         <div class="card shadow-lg">
             <!-- Card Header -->
-            <div class="card-header text-white d-flex justify-content-between align-items-center">
-                <h4 class="mb-4 text-center">Manage <span class="profile-text">Members</span></h4>
+            <div class="card-header">
+                <h4 class="mb-0">Manage <span class="profile-text">Members</span></h4>
                 <div class="search-actions">
-                    <input type="text" id="searchMemberId" class="form-control d-inline-block me-2 search-input" placeholder="Search by ID">
-                    <button class="btn btn-light search-btn" onclick="searchMember()">Search</button>
-                    <button class="btn btn-danger ms-2 delete-btn" onclick="deleteSelected()">Delete Selected</button>
+                    <button class="btn btn-danger delete-btn" onclick="deleteSelected()">Delete Selected</button>
                 </div>
+            </div>
+            
             </div>
 
             <!-- Card Body -->

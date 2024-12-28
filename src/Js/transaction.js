@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-import { getFirestore, collection, getDocs, getDoc, doc, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+import { getFirestore, collection, getDocs, getDoc, doc, query, where, updateDoc,deleteDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 
 const firebaseConfig = {
@@ -166,32 +166,74 @@ async function populateTable(transactionType, transactions) {
 
         if (transactionType === 'membership') {
             row.innerHTML = `
-                <td>${username || 'N/A'}</td> <!-- Display username next to userId -->
-                <td>${transaction.gymName || 'N/A'}</td>
-                <td>${transaction.membershipDays || 'N/A'}</td>
-                <td>${transaction.price || 'N/A'}</td>
-                <td>${transaction.planType || 'N/A'}</td>
-                <td>${formattedPurchaseDate}</td> <!-- Use formatted purchase date -->
-                <td class="status-cell">${transaction.status || 'N/A'}</td>
-                <td>
-                    <button class="action-button approve" data-id="${transaction.id}">Approve</button>
-                    <button class="action-button idle" data-id="${transaction.id}">Idle</button>
-                    <button class="action-button blocked" data-id="${transaction.id}">Blocked</button>
+                <td style="color: white;">${username || 'N/A'}</td> <!-- Display username next to userId -->
+                <td style="color: white;">${transaction.gymName || 'N/A'}</td>
+                <td style="color: white;">${transaction.membershipDays || 'N/A'}</td>
+                <td style="color: white;">${transaction.price || 'N/A'}</td>
+                <td style="color: white;">${transaction.planType || 'N/A'}</td>
+                <td style="color: white;">${formattedPurchaseDate}</td> <!-- Use formatted purchase date -->
+                <td class="status-cell" style="color: white;">${transaction.status || 'N/A'}</td>
+                <td style="color: white;">
+                    <button class="action-button Accept" data-id="${transaction.id}">Accept</button>
+                    <button class="action-button Decline" data-id="${transaction.id}">Decline</button>
+                    <button class="action-button Delete" data-id="${transaction.id}">Delete</button>
                 </td>
             `;
         }
-
-        // Attach click events to action buttons
+        
+        // Attach click events to the new action buttons
         const statusCell = row.querySelector('.status-cell');
-        row.querySelector('.approve').addEventListener('click', (event) => {
-            updateTransactionStatus(transaction.id, 'Approved', statusCell, event.target);
+        row.querySelector('.Accept').addEventListener('click', (event) => {
+            updateTransactionStatus(transaction.id, 'Accepted', statusCell, event.target);
         });
-        row.querySelector('.idle').addEventListener('click', (event) => {
-            updateTransactionStatus(transaction.id, 'Idle', statusCell, event.target);
+        row.querySelector('.Decline').addEventListener('click', (event) => {
+            updateTransactionStatus(transaction.id, 'Declined', statusCell, event.target);
         });
-        row.querySelector('.blocked').addEventListener('click', (event) => {
-            updateTransactionStatus(transaction.id, 'Blocked', statusCell, event.target);
+        row.querySelector('.Delete').addEventListener('click', async (event) => {
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: "This action cannot be undone!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            });
+        
+            if (result.isConfirmed) {
+                try {
+                    await deleteDoc(doc(db, 'Transactions', transaction.id));
+                    row.remove(); // Remove the row from the table
+        
+                    // Show success toast
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'Transaction has been deleted.',
+                        timer: 3000,
+                        toast: true,
+                        position: 'top-right',
+                        showConfirmButton: false
+                    });
+        
+                } catch (error) {
+                    console.error('Error deleting transaction:', error);
+        
+                    // Show error toast
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed!',
+                        text: 'Failed to delete transaction.',
+                        timer: 3000,
+                        toast: true,
+                        position: 'top-right',
+                        showConfirmButton: false
+                    });
+                }
+            }
         });
+        
+        
 
         tableBody.appendChild(row);
     }
@@ -344,13 +386,57 @@ function showToast(type, message) {
         toast.remove();
     }, 3000); // 3 seconds
 }
+const searchContainer = document.createElement('div');
+searchContainer.innerHTML = `
+    <input type="text" id="productSearchInput" placeholder="Search by reference number..." style="margin-bottom: 15px; padding: 10px; width: 300px;">
+`;
 
+const productTable = document.querySelector('#productTable');
+if (productTable) {
+    productTable.before(searchContainer);
+}
 
+const trainerSearchContainer = document.createElement('div');
+trainerSearchContainer.innerHTML = `
+    <input type="text" id="trainerSearchInput" placeholder="Search by reference number..." style="margin-bottom: 15px; padding: 10px; width: 300px;">
+`;
+
+const trainerTable = document.querySelector('#Booking_trainerTable');
+if (trainerTable) {
+    trainerTable.before(trainerSearchContainer);
+}
+
+// Add event listener to filter table rows
+const productSearchInput = document.getElementById('productSearchInput');
+productSearchInput.addEventListener('input', () => {
+    const filter = productSearchInput.value.toLowerCase();
+    filterTable('#productTable', filter);
+});
+
+const trainerSearchInput = document.getElementById('trainerSearchInput');
+trainerSearchInput.addEventListener('input', () => {
+    const filter = trainerSearchInput.value.toLowerCase();
+    filterTable('#Booking_trainerTable', filter);
+});
+
+function filterTable(tableSelector, filter) {
+    const rows = document.querySelectorAll(`${tableSelector} tbody tr`);
+    rows.forEach(row => {
+        const refNo = row.cells[6].textContent || row.cells[6].innerText; // Adjusted index for ref no
+        if (refNo.toLowerCase().includes(filter)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+// Existing function to populate trainer table
 async function populateTrainerTable(transactions) {
     const tableBody = document.querySelector("#Booking_trainerTable tbody");
 
     if (!tableBody) {
-        console.error(`Table for trainer transactions not found.`);
+        console.error('Table for trainer transactions not found.');
         return;
     }
 
@@ -363,39 +449,70 @@ async function populateTrainerTable(transactions) {
 
     for (let transaction of transactions) {
         const row = document.createElement('tr');
-
-        // Fetch username based on userId
         const username = await getUsernameFromUserId(transaction.userId);
-
-        // Use the formatTimestamp function to convert the raw timestamp
         const formattedTimestamp = transaction.timestamp
             ? formatTimestamp(transaction.timestamp)
             : 'N/A';
 
         row.innerHTML = `
-            <td>${username || 'N/A'}</td> <!-- Display username next to userId -->
-            <td>${transaction.gymName || 'N/A'}</td>
-            <td>${transaction.username || 'N/A'}</td>
-            <td>${formattedTimestamp}</td> <!-- Display formatted timestamp here -->
-            <td>${transaction.price || 'N/A'}</td>
-            <td>${transaction.notificationId || 'N/A'}</td>
-            <td class="status-cell">${transaction.status || 'N/A'}</td>
+            <td style="color: white;">${username || 'N/A'}</td>
+            <td style="color: white;">${transaction.gymName || 'N/A'}</td>
+            <td style="color: white;">${transaction.username || 'N/A'}</td>
+            <td style="color: white;">${formattedTimestamp}</td>
+            <td style="color: white;">${transaction.price || 'N/A'}</td>
+            <td style="color: white;">${transaction.notificationId || 'N/A'}</td>
+            <td style="color: white;" class="status-cell">${transaction.status || 'N/A'}</td>
             <td>
-                <button class="action-button approve" data-id="${transaction.id}">Approve</button>
-                <button class="action-button idle" data-id="${transaction.id}">Idle</button>
-                <button class="action-button blocked" data-id="${transaction.id}">Blocked</button>
+                <button class="action-button Accept" data-id="${transaction.id}">Accept</button>
+                <button class="action-button Decline" data-id="${transaction.id}">Decline</button>
+                <button class="action-button Delete" data-id="${transaction.id}">Delete</button>
             </td>
         `;
 
         const statusCell = row.querySelector('.status-cell');
-        row.querySelector('.approve').addEventListener('click', (event) => {
-            updateNotificationStatus(transaction.id, 'Approved', statusCell, event.target);
+        row.querySelector('.Accept').addEventListener('click', (event) => {
+            updateNotificationStatus(transaction.id, 'Accepted', statusCell, event.target);
         });
-        row.querySelector('.idle').addEventListener('click', (event) => {
-            updateNotificationStatus(transaction.id, 'Idle', statusCell, event.target);
+        row.querySelector('.Decline').addEventListener('click', (event) => {
+            updateNotificationStatus(transaction.id, 'Declined', statusCell, event.target);
         });
-        row.querySelector('.blocked').addEventListener('click', (event) => {
-            updateNotificationStatus(transaction.id, 'Blocked', statusCell, event.target);
+        row.querySelector('.Delete').addEventListener('click', async (event) => {
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    await deleteDoc(doc(db, 'Notifications', transaction.id));
+                    row.remove();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'Transaction has been deleted.',
+                        timer: 3000,
+                        toast: true,
+                        position: 'top-right',
+                        showConfirmButton: false
+                    });
+                } catch (error) {
+                    console.error('Error deleting transaction:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Failed to delete transaction.',
+                        timer: 3000,
+                        toast: true,
+                        position: 'top-right',
+                        showConfirmButton: false
+                    });
+                }
+            }
         });
 
         tableBody.appendChild(row);
@@ -478,6 +595,8 @@ async function fetchProductTransactions(userId, gymName) {
     }
 }
 
+
+// Existing function to populate product table
 async function populateProductTable(transactions) {
     const tableBody = document.querySelector("#productTable tbody");
 
@@ -486,7 +605,7 @@ async function populateProductTable(transactions) {
         return;
     }
 
-    tableBody.innerHTML = ''; // Clear existing rows
+    tableBody.innerHTML = '';
 
     if (transactions.length === 0) {
         tableBody.innerHTML = '<tr><td colspan="8">No transactions found.</td></tr>';
@@ -495,28 +614,24 @@ async function populateProductTable(transactions) {
 
     for (let transaction of transactions) {
         const row = document.createElement('tr');
-
-        // Fetch username based on userId
         const username = await getUsernameFromUserId(transaction.userId);
-
-        // Format timestamp if available
         const formattedTimestamp = transaction.timestamp
             ? formatTimestamp(transaction.timestamp)
             : 'N/A';
 
         row.innerHTML = `
-            <td>${username || 'N/A'}</td>
-            <td>${transaction.gymName || 'N/A'}</td>
-            <td>${transaction.productName || 'N/A'}</td>
-            <td>${transaction.quantity || 'N/A'}</td>
-            <td>${formattedTimestamp}</td>
-            <td>${transaction.totalPrice || 'N/A'}</td>
-            <td>${transaction.notificationId || 'N/A'}</td>
-            <td class="status-cell">${transaction.status || 'N/A'}</td>
+            <td style="color: white;">${username || 'N/A'}</td>
+            <td style="color: white;">${transaction.gymName || 'N/A'}</td>
+            <td style="color: white;">${transaction.productName || 'N/A'}</td>
+            <td style="color: white;">${transaction.quantity || 'N/A'}</td>
+            <td style="color: white;">${formattedTimestamp}</td>
+            <td style="color: white;">${transaction.totalPrice || 'N/A'}</td>
+            <td style="color: white;">${transaction.notificationId || 'N/A'}</td>
+            <td  style="color: white;" class="status-cell">${transaction.status || 'N/A'}</td>
             <td>
                 <button class="action-button approve" data-id="${transaction.id}">Approve</button>
-                <button class="action-button idle" data-id="${transaction.id}">Idle</button>
-                <button class="action-button blocked" data-id="${transaction.id}">Blocked</button>
+                <button class="action-button decline" data-id="${transaction.id}">Decline</button>
+                <button class="action-button delete" data-id="${transaction.id}">Delete</button>
             </td>
         `;
 
@@ -524,16 +639,46 @@ async function populateProductTable(transactions) {
         row.querySelector('.approve').addEventListener('click', (event) => {
             updateNotificationStatus(transaction.id, 'Approved', statusCell, event.target);
         });
-        row.querySelector('.idle').addEventListener('click', (event) => {
-            updateNotificationStatus(transaction.id, 'Idle', statusCell, event.target);
+        row.querySelector('.decline').addEventListener('click', (event) => {
+            updateNotificationStatus(transaction.id, 'Declined', statusCell, event.target);
         });
-        row.querySelector('.blocked').addEventListener('click', (event) => {
-            updateNotificationStatus(transaction.id, 'Blocked', statusCell, event.target);
+        row.querySelector('.delete').addEventListener('click', async (event) => {
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    await deleteDoc(doc(db, 'Notifications', transaction.id));
+                    row.remove();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'Transaction has been deleted.',
+                        timer: 3000,
+                        toast: true,
+                        position: 'top-right',
+                        showConfirmButton: false
+                    });
+                } catch (error) {
+                    console.error('Error deleting transaction:', error);
+                }
+            }
         });
 
         tableBody.appendChild(row);
     }
 }
+
+
+
+
 
 async function loadProductTransactions(userId, gymName) {
     try {
@@ -696,3 +841,36 @@ document.querySelectorAll('.notification-link[data-reset="true"]').forEach(link 
 
 // Call listenForUpdates when DOM is loaded
 document.addEventListener('DOMContentLoaded', listenForUpdates);
+
+
+async function fetchGymOwnerUsername() {
+    const user = auth.currentUser;
+
+    if (user) {
+        try {
+            // Reference to GymOwner document
+            const gymOwnerDocRef = doc(db, 'GymOwner', user.uid);  
+            const gymOwnerDocSnap = await getDoc(gymOwnerDocRef);
+
+            if (gymOwnerDocSnap.exists()) {
+                const username = gymOwnerDocSnap.data().username || 'Gym Owner';
+                document.querySelector('#profile-username').textContent = username;
+            } else {
+                document.querySelector('#profile-username').textContent = 'Gym Owner';
+                console.error("Gym owner document not found.");
+            }
+        } catch (error) {
+            console.error("Error fetching gym owner data:", error);
+        }
+    } else {
+        document.querySelector('#profile-username').textContent = 'Not Logged In';
+        console.error("No authenticated user.");
+    }
+}
+
+// Wait for Firebase Authentication state change
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        fetchGymOwnerUsername();
+    }
+});

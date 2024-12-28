@@ -21,53 +21,41 @@
 </div>
 
 <!-- Sidebar -->
-<nav class="sidebar">
+<nav class="sidebar shadow-lg hidden">
     <div class="profile-container text-center mb-4">
-        <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" class="img-fluid rounded-circle mb-2">
-        <h3 id="profile-username" class="mt-2"style="color: #ffffff;">Gym Owner</h3>
+        <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" 
+             class="img-fluid rounded-circle mb-2" style="width: 100px; height: 100px;">
+        <h3 id="profile-username" class="mt-2 white-text">Loading...</h3>
         <a href="login.html" class="btn btn-danger btn-sm mt-2">Log Out</a>
     </div>
     <ul class="nav flex-column sidebar-links">
         <li class="nav-item">
-            <a class="nav-link" data-reset="true" href="member.html">
-                <i class="fas fa-users"></i> Members
-            </a>
+            <a class="nav-link" href="ManageServices.html"><i class="fas fa-id-card"></i> Manage Services/Promotions</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" data-reset="true" href="trainer-info.html">
-                <i class="fas fa-dumbbell"></i> Trainer Profile
-            </a>
+            <a class="nav-link" href="member.html"><i class="fas fa-users"></i> Manage Members</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="Products.html">
-                <i class="fas fa-box"></i> Products
-            </a>
+            <a class="nav-link" href="trainer-info.html"><i class="fas fa-dumbbell"></i> Manage Trainer Profile</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="membership.html">
-                <i class="fas fa-id-card"></i> Memberships
-            </a>
+            <a class="nav-link" href="Products.html"><i class="fas fa-box"></i> Manage Products</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link notification-link" data-reset="true" href="Transactions.html">
-                <i class="fas fa-credit-card"></i> Transactions
-                <span class="notification-dot" id="transactions-dot"></span>
-            </a>
+            <a class="nav-link" href="membership.html"><i class="fas fa-id-card"></i> Manage Memberships</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link notification-link" data-reset="true" href="reservation.html">
-                <i class="fas fa-calendar-alt"></i> Day Pass
-                <span class="notification-dot" id="daypass-dot"></span>
-            </a>
+            <a class="nav-link" href="Transactions.html"><i class="fas fa-credit-card"></i> Manage Transactions</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="salesandinventory.html">
-                <i class="fas fa-clipboard-list"></i> Sales and Inventory
-            </a>
+            <a class="nav-link" href="DayPass.html"><i class="fas fa-calendar-alt"></i> Manage Day Pass</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="salesandinventory.html"><i class="fas fa-clipboard-list"></i> Sales and Inventory</a>
         </li>
     </ul>
-    
 </nav>
+
 <!-- Main Content -->
 <div class="container mt-4">
     <h2 class="text-center" style="color: #ffffff;">Day Pass Management</h2>
