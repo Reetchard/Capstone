@@ -175,6 +175,7 @@
                         <th>ID</th>
                         <th>Title</th>
                         <th>Description</th>
+                        <th>Type</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -183,32 +184,41 @@
                 </tbody>
             </table>
         </div>
-
-
-    <!-- Modal for Adding/Editing Promotions and Services -->
-    <div class="modal fade" id="manageModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalTitle">Manage Item</h5>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <form id="manageForm">
-                        <div class="form-group">
-                            <label for="itemTitle">Title</label>
-                            <input type="text" class="form-control" id="itemTitle" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="itemDescription">Description</label>
-                            <textarea class="form-control" id="itemDescription" rows="3" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Save</button>
-                    </form>
+        
+        <!-- Modal for Adding/Editing Promotions and Services -->
+        <div class="modal fade" id="manageModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalTitle">Manage Item</h5>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="manageForm">
+                            <div class="form-group">
+                                <label for="itemTitle">Title</label>
+                                <input type="text" class="form-control" id="itemTitle" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="itemDescription">Description</label>
+                                <textarea class="form-control" id="itemDescription" rows="3" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="promotionType">Promotion Type</label>
+                                <select class="form-control" id="promotionType" required>
+                                    <option value="">Select Type</option>
+                                    <option value="GymProfile">Gym Profile</option>
+                                    <option value="Products">Products</option>
+                                    <option value="Programs">Programs</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+        <div id="toast-container" class="toast-container"></div>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>

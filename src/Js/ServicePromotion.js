@@ -148,62 +148,65 @@ let currentGymId = null;
         };
 
         let editMode = false;
-let editId = null;
-
-// Ensure elements exist before setting event listeners
-document.addEventListener('DOMContentLoaded', () => {
-    const manageForm = document.getElementById('manageForm');
-    const searchButton = document.getElementById('searchTitleBtn');
-
-    if (manageForm) {
-        manageForm.onsubmit = async function (e) {
-            e.preventDefault();
-
-            const title = document.getElementById('itemTitle').value.trim();
-            const description = document.getElementById('itemDescription').value.trim();
-
-            if (!title || !description) {
-                alert("Please fill in all fields.");
-                return;
-            }
-
-            if (editMode) {
-                const docRef = doc(db, 'Promotions', editId);
-                await updateDoc(docRef, {
-                    title,
-                    description
-                });
-                alert('Promotion updated successfully!');
-                editMode = false;
-                editId = null;
-            } else {
-                const promotion = {
-                    PromotionId: 'P' + (Date.now()),
-                    title,
-                    description
+        let editId = null;
+        let productIdCounter = 1; // Counter for Product ID
+    
+        document.addEventListener('DOMContentLoaded', () => {
+            const manageForm = document.getElementById('manageForm');
+            const searchButton = document.getElementById('searchTitleBtn');
+    
+            if (manageForm) {
+                manageForm.onsubmit = async function (e) {
+                    e.preventDefault();
+    
+                    const title = document.getElementById('itemTitle').value.trim();
+                    const description = document.getElementById('itemDescription').value.trim();
+                    const type = document.getElementById('promotionType').value;
+    
+                    if (!title || !description || !type) {
+                        showToast("Please fill in all fields.");
+                        return;
+                    }
+    
+                    if (editMode) {
+                        const docRef = doc(db, 'Promotions', editId);
+                        await updateDoc(docRef, {
+                            title,
+                            description,
+                            type
+                        });
+                        showToast('Promotion updated successfully!');
+                        editMode = false;
+                        editId = null;
+                    } else {
+                        const promotion = {
+                            PromotionId: productIdCounter++, // Incrementing Product ID
+                            title,
+                            description,
+                            type
+                        };
+                        await addDoc(collection(db, 'Promotions'), promotion);
+                        showToast('Promotion added successfully!');
+                    }
+    
+                    $('#manageModal').modal('hide');
+                    renderTable();
                 };
-                await addDoc(collection(db, 'Promotions'), promotion);
-                alert('Promotion added successfully!');
             }
-
-            $('#manageModal').modal('hide');
+    
+            if (searchButton) {
+                searchButton.onclick = async function() {
+                    const title = document.getElementById('searchTitle').value.trim();
+                    if (title) {
+                        await filterPromotionsByTitle(title);
+                    } else {
+                        renderTable();
+                    }
+                };
+            }
+    
             renderTable();
-        };
-    }
-
-    if (searchButton) {
-        searchButton.onclick = async function() {
-            const title = document.getElementById('searchTitle').value.trim();
-            if (title) {
-                await filterPromotionsByTitle(title);
-            } else {
-                renderTable();
-            }
-        };
-    }
-
-    renderTable();
-});
+        });
 
 window.addPromotion = function() {
     const modalTitle = document.getElementById('modalTitle');
@@ -216,6 +219,25 @@ window.addPromotion = function() {
         $('#manageModal').modal('show');
     }
 };
+function showToast(type, message) {
+    const toastContainer = document.getElementById('toast-container');
+
+    if (!toastContainer) {
+        console.error("Toast container not found.");
+        return;
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`; // Use different styles for success, error, etc.
+    toast.textContent = message;
+
+    toastContainer.appendChild(toast);
+
+    // Automatically remove the toast after a delay
+    setTimeout(() => {
+        toast.remove();
+    }, 3000); // 3 seconds
+}
 
 async function renderTable() {
     const tableBody = document.getElementById('promotionsTable');
@@ -229,6 +251,7 @@ async function renderTable() {
                 <td>${promotion.PromotionId}</td>
                 <td>${promotion.title}</td>
                 <td>${promotion.description}</td>
+                <td>${promotion.type}</td>
                 <td>
                     <button class="btn btn-warning btn-sm" onclick="editPromotion('${doc.id}')">Edit</button>
                     <button class="btn btn-danger btn-sm" onclick="deletePromotion('${doc.id}')">Delete</button>
@@ -247,25 +270,81 @@ async function editPromotion(docId) {
         const modalTitle = document.getElementById('modalTitle');
         const itemTitle = document.getElementById('itemTitle');
         const itemDescription = document.getElementById('itemDescription');
-        if (modalTitle && itemTitle && itemDescription) {
+        const itemType = document.getElementById('promotionType');
+        if (modalTitle && itemTitle && itemDescription && itemType) {
             modalTitle.textContent = "Edit Promotion";
             itemTitle.value = promotion.title;
             itemDescription.value = promotion.description;
+            itemType.value = promotion.type;
             editMode = true;
             editId = docId;
             $('#manageModal').modal('show');
         }
     }
 }
-
-async function deletePromotion(docId) {
-    if (confirm("Are you sure you want to delete this promotion?")) {
-        const docRef = doc(db, 'Promotions', docId);
-        await deleteDoc(docRef);
-        alert("Promotion deleted successfully!");
-        renderTable();
+window.deletePromotion = async function(docId) {
+    let toastContainer = document.getElementById('toastContainer');
+    
+    // Create toast container if not present
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toastContainer';
+        toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+        toastContainer.style.zIndex = 1055;
+        document.body.appendChild(toastContainer);
     }
+
+    const toastId = 'confirmToast-' + Date.now();
+    const toast = document.createElement('div');
+    toast.className = 'toast align-items-center text-bg-warning border-0 shadow-lg';
+    toast.id = toastId;
+    toast.style.position = 'fixed';
+    toast.style.top = '50%';
+    toast.style.left = '50%';
+    toast.style.transform = 'translate(-50%, -50%)';
+    toast.style.width = '400px';
+    toast.style.borderRadius = '12px';
+    toast.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
+    toast.innerHTML = `
+        <div class="d-flex flex-column justify-content-center align-items-center p-4">
+            <div class="toast-body text-center fs-5">
+                <i class="fas fa-exclamation-circle fa-2x mb-3"></i><br>
+                Are you sure you want to delete this promotion?
+            </div>
+            <div class="mt-4">
+                <button class="btn btn-danger btn-lg me-3 px-4" onclick="confirmDelete('${docId}', '${toastId}')">Delete</button>
+                <button class="btn btn-secondary btn-lg px-4" onclick="cancelDelete('${toastId}')">Cancel</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(toast);
+
+    // Show toast manually (Bootstrap 4 doesn't have native JavaScript toast())
+    toast.classList.add('show');
 }
+
+window.confirmDelete = async function(docId, toastId) {
+    const docRef = doc(db, 'Promotions', docId);
+    await deleteDoc(docRef);
+    showToast("Promotion deleted successfully!", 'success');
+    renderTable();
+
+    // Hide and remove toast
+    const toast = document.getElementById(toastId);
+    toast.classList.remove('show');
+    toast.remove();
+}
+
+window.cancelDelete = function(toastId) {
+    showToast("Promotion deletion canceled.", 'danger');
+
+    // Hide and remove toast
+    const toast = document.getElementById(toastId);
+    toast.classList.remove('show');
+    toast.remove();
+}
+
 
 async function filterPromotionsByTitle(title) {
     const tableBody = document.getElementById('promotionsTable');
@@ -281,6 +360,7 @@ async function filterPromotionsByTitle(title) {
                 <td>${promotion.PromotionId}</td>
                 <td>${promotion.title}</td>
                 <td>${promotion.description}</td>
+                <td>${promotion.type}</td>
                 <td>
                     <button class="btn btn-warning btn-sm" onclick="editPromotion('${doc.id}')">Edit</button>
                     <button class="btn btn-danger btn-sm" onclick="deletePromotion('${doc.id}')">Delete</button>
@@ -290,7 +370,7 @@ async function filterPromotionsByTitle(title) {
         });
 
         if (snapshot.empty) {
-            tableBody.innerHTML = '<tr><td colspan="4">No promotions found</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="5">No promotions found</td></tr>';
         }
     }
 }

@@ -155,4 +155,28 @@ menuToggle.addEventListener("click", () => {
     }, 400); // Remove animation class after animation duration
 });
 
+async function loadPromotions() {
+    const servicesContainer = document.querySelector('.services');
 
+    const snapshot = await getDocs(collection(db, 'Promotions'));
+    snapshot.forEach((doc) => {
+        const promotion = doc.data();
+
+        const serviceElement = `
+            <div class="service">
+                <div class="overlay">
+                    <h3>${promotion.type}</h3>
+                    <p>${promotion.description}</p>
+                </div>
+            </div>`;
+
+        servicesContainer.innerHTML += serviceElement;
+    });
+
+    if (snapshot.empty) {
+        servicesContainer.innerHTML = '<p>No promotions available.</p>';
+    }
+}
+
+// Call the function on page load
+document.addEventListener('DOMContentLoaded', loadPromotions);
