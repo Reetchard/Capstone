@@ -355,62 +355,159 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-
-async function fetchMembershipPlans() {
+// Fetch Membership Transactions
+async function fetchMembershipTransactions() {
     const membershipBody = document.getElementById('membershipBody');
-    membershipBody.innerHTML = '';  // Clear previous data
+    membershipBody.innerHTML = '';  // Clear existing data
 
-    const q = query(collection(db, 'Transactions'), where('type', '==', 'membership'));
+    try {
+        const membershipQuery = query(collection(db, 'Transactions'), where('type', '==', 'membership'));
+        const querySnapshot = await getDocs(membershipQuery);
 
-    const querySnapshot = await getDocs(q);
+        if (querySnapshot.empty) {
+            membershipBody.innerHTML = '<tr><td colspan="7" class="text-center">No membership transactions found</td></tr>';
+            return;
+        }
 
-    querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        const row = `
-            <tr>
-                <td>${data.userId}</td>
-                <td>${data.memberName || 'N/A'}</td>
-                <td>₱${data.price || '0.00'}</td>
-                <td>${data.accessLevel || 'Standard'}</td>
-                <td>${data.membershipDays || '-'}</td>
-                <td>${data.allowedClasses || 'Unlimited'}</td>
-                <td>${data.guestPasses || '0'}</td>
-            </tr>
-        `;
-        membershipBody.innerHTML += row;
-    });
+        // Fetch user data for each transaction
+        const fetchUserPromises = querySnapshot.docs.map(async (docItem) => {
+            const data = docItem.data();
+            const userId = data.userId;
+
+            try {
+                let username = 'N/A';
+
+                // Try fetching user by document ID
+                const userDocRef = doc(db, 'Users', String(userId));
+                const userDocSnap = await getDoc(userDocRef);
+
+                if (!userDocSnap.exists()) {
+                    // If no doc by ID, query Users collection by userId field
+                    const q = query(collection(db, 'Users'), where('userId', '==', userId));
+                    const userQuerySnapshot = await getDocs(q);
+
+                    if (!userQuerySnapshot.empty) {
+                        const userDoc = userQuerySnapshot.docs[0];
+                        const userData = userDoc.data();
+                        username = userData.username || 'N/A';
+                    } else {
+                        console.warn(`User with ID ${userId} not found.`);
+                    }
+                } else {
+                    const userData = userDocSnap.data();
+                    username = userData.username || 'N/A';
+                }
+
+                // Format date from purchaseDate
+                const formattedDate = new Date(data.purchaseDate).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+
+                // Create a row with membership data and fetched username
+                const row = `
+                    <tr>
+                        <td>${data.userId}</td>
+                        <td>${username}</td>
+                        <td>${data.planType || 'N/A'}</td>
+                        <td>₱${parseFloat(data.price || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                        <td>${data.membershipDays || '-'}</td>
+                        <td>${formattedDate}</td>
+                        <td>${data.status || 'Pending'}</td>
+                    </tr>
+                `;
+                membershipBody.innerHTML += row;
+
+            } catch (error) {
+                console.error(`Error fetching user for userId ${userId}:`, error);
+            }
+        });
+
+        // Wait for all promises to resolve
+        await Promise.all(fetchUserPromises);
+
+    } catch (error) {
+        console.error('Error fetching membership transactions:', error);
+        alert('Failed to load membership transactions.');
+    }
 }
 
-// Fetch and display trainer bookings
+
+
 async function fetchTrainerBookings() {
     const bookingBody = document.getElementById('trainerBookingBody');
-    bookingBody.innerHTML = '';  // Clear previous data
+    bookingBody.innerHTML = '';  // Clear existing data
 
-    const q = query(collection(db, 'Transactions'), where('type', '==', 'Booking_trainer'));
+    try {
+        const bookingQuery = query(collection(db, 'Notifications'), where('type', '==', 'Booking_trainer'));
+        const bookingSnapshot = await getDocs(bookingQuery);
 
-    const querySnapshot = await getDocs(q);
+        if (bookingSnapshot.empty) {
+            bookingBody.innerHTML = '<tr><td colspan="6" class="text-center">No trainer bookings found</td></tr>';
+            return;
+        }
 
-    querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        const row = `
-            <tr>
-                <td>${data.userId}</td>
-                <td>${data.trainerName || 'N/A'}</td>
-                <td>${data.username || 'N/A'}</td>
-                <td>${data.bookingDate || 'N/A'}</td>
-                <td>${data.sessionType || 'N/A'}</td>
-                <td>${data.status || 'Pending'}</td>
-            </tr>
-        `;
-        bookingBody.innerHTML += row;
-    });
+        const fetchUserPromises = bookingSnapshot.docs.map(async (docItem) => {
+            const data = docItem.data();
+            const userId = data.userId;
+
+            try {
+                // First, try to fetch by document ID
+                const userDocRef = doc(db, 'Users', String(userId));
+                const userDocSnap = await getDoc(userDocRef);
+
+                let username = 'N/A';
+
+                if (!userDocSnap.exists()) {
+                    // If document ID doesn't exist, query by userId field
+                    const q = query(collection(db, 'Users'), where('userId', '==', userId));
+                    const querySnapshot = await getDocs(q);
+
+                    if (!querySnapshot.empty) {
+                        const userDocFromQuery = querySnapshot.docs[0];
+                        const userData = userDocFromQuery.data();
+                        username = userData.username || 'N/A';
+                    } else {
+                        console.warn(`User with ID ${userId} not found.`);
+                    }
+                } else {
+                    const userData = userDocSnap.data();
+                    username = userData.username || 'N/A';
+                }
+
+                // Create table row with booking info
+                const row = `
+                    <tr>
+                        <td>${userId}</td>
+                        <td>${username}</td>
+                        <td>${data.username || 'N/A'}</td>
+                        <td>₱${data.price || 'N/A'}</td>                        
+                        <td>${data.bookingDate || 'N/A'}</td>
+                        <td>${data.status || 'Pending'}</td>
+                    </tr>
+                `;
+                bookingBody.innerHTML += row;
+
+            } catch (error) {
+                console.error(`Error fetching user for userId ${userId}:`, error);
+            }
+        });
+
+        await Promise.all(fetchUserPromises);
+    } catch (error) {
+        console.error('Error fetching trainer bookings:', error);
+        alert('Failed to load trainer bookings.');
+    }
 }
+
 
 // Load data on page load
 window.addEventListener('DOMContentLoaded', async () => {
-    await fetchMembershipPlans();
+    await fetchMembershipTransactions();
     await fetchTrainerBookings();
 });
+
 
 
 async function fetchTransactions() {
@@ -738,3 +835,18 @@ document.addEventListener("DOMContentLoaded", function () {
           fetchGymOwnerUsername();
       }
   });
+
+  const sidebar = document.getElementById('sidebar');
+const hamburger = document.querySelector('.hamburger-container');
+
+// Toggle sidebar visibility on hamburger click
+hamburger.addEventListener('click', () => {
+    sidebar.classList.toggle('visible');
+});
+
+// Close sidebar when clicking outside of it on mobile
+document.addEventListener('click', (event) => {
+    if (!sidebar.contains(event.target) && !hamburger.contains(event.target)) {
+        sidebar.classList.remove('visible');
+    }
+});

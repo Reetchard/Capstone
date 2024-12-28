@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sales and Inventory Dashboard</title>
     <!-- Bootstrap CSS -->
@@ -9,12 +10,113 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/sales.css">
     <link rel="stylesheet" href="css/notif.css">
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #F3DAD8; /* Light pink background */
+            font-family: 'Merriweather', serif;
+        }
+            .sidebar {
+        background-color: #544B3D;
+        color: white;
+        position: fixed;
+        top: 0;
+        left: -250px;
+        width: 250px;
+        height: 100%;
+        transition: left 0.3s ease;
+        z-index: 1050;
+        overflow-y: auto;  /* Enable scrolling for long sidebars */
+    }
+        /* Sidebar Visible on Desktop (md and up) */
+@media (min-width: 768px) {
+    .sidebar {
+        left: 0;
+        width: 250px;
+        position: fixed;
+    }
+
+    .hamburger-container {
+        display: none;  /* Hide Hamburger on Desktop */
+    }
+}
+            .sidebar.show {
+            left: 0; /* Show sidebar */
+        }
+        .sidebar .nav-link {
+            color: white; /* White text for sidebar links */
+        }
+        .sidebar .nav-link:hover {
+            background-color: #444; /* Darker on hover */
+        }
+        .table {
+            background-color: #50C878; /* Emerald green for tables */
+            color: black; /* Black text for table */
+        }
+        .table thead {
+            background-color: #444; /* Darker header for tables */
+            color: white; /* White text for thead */
+        }
+        .main-content h3 {
+            color: #544B3D; /* Dark text for section headers */
+        }
+        .btn-primary {
+            background-color: #50C878; /* Button color */
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #45a049; /* Darker green on hover */
+        }
+        .card {
+            background-color: #fff; /* White cards */
+            border: 1px solid #ddd; /* Light border */
+        }
+        /* Hamburger Container */
+        .hamburger-container {
+            cursor: pointer;
+        }
+
+        /* Hamburger Lines */
+        .hamburger .line {
+            width: 35px;
+            height: 4px;
+            background-color: white;
+            margin: 7px auto;
+            display: block;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        /* Hamburger Transforms to X */
+        .hamburger.open .line:nth-child(1) {
+            transform: translateY(11px) rotate(45deg);
+        }
+
+        .hamburger.open .line:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.open .line:nth-child(3) {
+            transform: translateY(-11px) rotate(-45deg);
+        }
+        /* Sidebar Links */
+        .sidebar .nav-link {
+            color: white;
+            padding: 15px;
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: #6c5e4d;
+        }
+    </style>
 </head>
-<body style="background-color: #292929; font-family:'Merriweather', serif;">
-<!-- Hamburger Button -->
-<div class="hamburger-container d-lg-none position-fixed" id="toggleSidebar" style="top: 20px; left: 20px; z-index: 1050;">
+<body>
+<!-- Hamburger Button (Hidden by Default) -->
+<div class="hamburger-container d-lg-none">
     <div class="hamburger">
         <span class="line"></span>
         <span class="line"></span>
@@ -23,11 +125,10 @@
 </div>
 
 <!-- Sidebar -->
-<nav class="sidebar shadow-lg hidden">
+<nav class="sidebar" id="sidebar">
     <div class="profile-container text-center mb-4">
-        <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" 
-             class="img-fluid rounded-circle mb-2" style="width: 100px; height: 100px;">
-        <h3 id="profile-username" class="mt-2 white-text">Loading...</h3>
+        <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" class="img-fluid rounded-circle mb-2" style="width: 100px; height: 100px;">
+        <h3 id="profile-username" class="mt-2">Loading...</h3>
         <a href="login.html" class="btn btn-danger btn-sm mt-2">Log Out</a>
     </div>
     <ul class="nav flex-column sidebar-links">
@@ -59,13 +160,14 @@
 </nav>
 
 
+
 <div class="main-content p-4">
-    <h1 class="text-center flex-grow-1">Sales And <span class="profile-text">Inventory Dashboard</span></h1>
+    <h1 class="text-center">Sales And <span class="profile-text">Inventory Dashboard</span></h1>
     <button class="btn btn-primary float-right" id="downloadReportBtn">
         <i class="fas fa-save"></i> Download report
     </button>
      
-     <div class="row">
+    <div class="row">
         <!-- Sales Summary -->
         <div class="col-md-4">
             <div class="card shadow-sm" id="totalSalesCard" style="cursor: pointer;">
@@ -78,16 +180,16 @@
         </div>
 
         <!-- Pending Sales -->
-            <div class="col-md-4">
-                <div class="card shadow-sm" id="SalesOverviewCard"style="cursor: pointer;">
-                    <div class="card-body">
-                        <h5 class="card-title">Pending Sales</h5>
-                        <p class="card-text fs-5 fw-bold text-warning" id="pendingSales">₱0.00</p>
-                        <canvas id="pendingSalesChart" height="200"></canvas>
-                        <small class="text-muted" style="color: red;">Sales awaiting approval</small>
-                    </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm" id="SalesOverviewCard" style="cursor: pointer;">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Sales</h5>
+                    <p class="card-text fs-5 fw-bold text-warning" id="pendingSales">₱0.00</p>
+                    <canvas id="pendingSalesChart" height="200"></canvas>
+                    <small class="text-muted" style="color: red;">Sales awaiting approval</small>
                 </div>
             </div>
+        </div>
 
         <!-- Inventory Summary -->
         <div class="col-md-4">
@@ -103,14 +205,14 @@
 
     <!-- Recent Transactions -->
     <div class="mt-4">
-        <h3 style="color: #ffffff;" >Inventory</h3>
+        <h3>Inventory</h3>
         <div class="table-responsive">
             <table id="productTable" class="table table-bordered table-striped align-middle">
-                <thead class="table-dark">
+                <thead>
                     <tr>
                         <th>Product ID</th>
                         <th>Product Name</th>
-                        <th>Category </th>
+                        <th>Category</th>
                         <th>Quantity Available</th>
                         <th>Price</th>
                         <th>Date Added</th>
@@ -120,101 +222,69 @@
             </table>
         </div>
     </div>
-</div>
 
-<div class="mt-4">
-    <h3 style="color: #ffffff;">Membership Plans</h3>
-    <div class="table-responsive">
-        <table id="membershipTable" class="table table-bordered table-striped align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>Membership ID</th>
-                    <th>Member Name</th>
-                    <th>Price</th>
-                    <th>Access Level</th>
-                    <th>Duration (Days)</th>
-                    <th>Allowed Classes</th>
-                    <th>Guest Passes</th>
-                </tr>
-            </thead>
-            <tbody id="membershipBody"></tbody>
-        </table>
+    <div class="mt-5">
+        <h3>Membership Plans</h3>
+        <div class="table-responsive">
+            <table id="membershipTable" class="table table-bordered table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 10%;">Membership ID</th>
+                        <th style="width: 20%;">Member Name</th>
+                        <th style="width: 10%;">Price</th>
+                        <th style="width: 15%;">Plan Price</th>
+                        <th style="width: 10%;">Duration (Days)</th>
+                        <th style="width: 15%;">Membership Started</th>
+                        <th style="width: 10%;">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="membershipBody"></tbody>
+            </table>
+        </div>
     </div>
-</div>
 
-<div class="mt-4">
-    <h3 style="color: #ffffff;">Trainer Bookings</h3>
-    <div class="table-responsive">
-        <table id="trainerBookingTable" class="table table-bordered table-striped align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>Booking ID</th>
-                    <th>Trainer Name</th>
-                    <th>Client Name</th>
-                    <th>Booking Date</th>
-                    <th>Session Type</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody id="trainerBookingBody"></tbody>
-        </table>
+    <div class="mt-6">
+        <h3>Trainer Bookings</h3>
+        <div class="table-responsive">
+            <table id="trainerBookingTable" class="table table-bordered table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 10%;">Booking ID</th>
+                        <th style="width: 20%;">Client Name</th>
+                        <th style="width: 20%;">Trainer Name</th>
+                        <th style="width: 10%;">Booking Rate</th>
+                        <th style="width: 15%;">Booking Date</th>
+                        <th style="width: 10%;">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="trainerBookingBody"></tbody>
+            </table>
+        </div>
     </div>
-</div>
-
-<!-- Modal for Sales Details -->
-<div class="modal fade" id="salesModal" tabindex="-1" aria-labelledby="salesModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="salesModalLabel">Sales Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <table class="table table-bordered table-striped">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Product Name</th>
-                            <th>Quantity</th>
-                            <th>Total Price</th>
-                            <th>Timestamp</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="salesTableBody">
-                        <!-- Sales data rows will be populated here -->
-                    </tbody>
-                </table>
+    <div class="modal fade" id="inventoryModal" tabindex="-1" aria-labelledby="inventoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="inventoryModalLabel">Product Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Photo</th>
+                                <th>Product Name</th>
+                                <th>Category</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTableBody"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Modal for Inventory Details -->
-<div class="modal fade" id="inventoryModal" tabindex="-1" aria-labelledby="inventoryModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="inventoryModalLabel">Product Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <table class="table table-bordered table-striped">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Photo</th>
-                            <th>Product Name</th>
-                            <th>Category</th>
-                            <th>Description</th>
-                        </tr>
-                    </thead>
-                    <tbody id="inventoryTableBody"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
-   
 </div> Pending Sales -->
 <div class="modal fade" id="pendingSalesModal" tabindex="-1" aria-labelledby="pendingSalesModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -240,18 +310,45 @@
         </div>
     </div>
 </div>
+    <!-- Modal for Sales Details -->
+    <div class="modal fade" id="salesModal" tabindex="-1" aria-labelledby="salesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="salesModalLabel">Sales Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Product Name</th>
+                                <th>Quantity</th>
+                                <th>Total Price</th>
+                                <th>Timestamp</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="salesTableBody">
+                            <!-- Sales data rows will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
-
-    <!-- Firebase Script -->
-     <script type="module" src="src/Js/salesAndInventory.js"></script>
-    <!-- Bootstrap Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Chart.js -->
-     <!-- Day.js (Date Formatting Library) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.7/dayjs.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <!-- Firebase Script -->
+        <script type="module" src="src/Js/salesAndInventory.js"></script>
+        <!-- Bootstrap Bundle -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Chart.js -->
+         <!-- Day.js (Date Formatting Library) -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.7/dayjs.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>

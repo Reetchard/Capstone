@@ -1665,7 +1665,6 @@ window.ViewProductInfo = async function (productId) {
                     showToast("success", `Successfully booked a session with ${trainerData?.username || "Unknown Trainer"}!`);
     
                     // Update notifications for user
-                    showNotificationDot();
                     fetchNotifications(userId);
     
                 } catch (error) {

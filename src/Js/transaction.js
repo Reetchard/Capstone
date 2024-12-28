@@ -630,8 +630,8 @@ async function populateProductTable(transactions) {
             <td  style="color: white;" class="status-cell">${transaction.status || 'N/A'}</td>
             <td>
                 <button class="action-button approve" data-id="${transaction.id}">Approve</button>
-                <button class="action-button decline" data-id="${transaction.id}">Decline</button>
-                <button class="action-button delete" data-id="${transaction.id}">Delete</button>
+                <button class="action-button Decline" data-id="${transaction.id}">Decline</button>
+                <button class="action-button Delete" data-id="${transaction.id}">Delete</button>
             </td>
         `;
 
@@ -639,10 +639,10 @@ async function populateProductTable(transactions) {
         row.querySelector('.approve').addEventListener('click', (event) => {
             updateNotificationStatus(transaction.id, 'Approved', statusCell, event.target);
         });
-        row.querySelector('.decline').addEventListener('click', (event) => {
+        row.querySelector('.Decline').addEventListener('click', (event) => {
             updateNotificationStatus(transaction.id, 'Declined', statusCell, event.target);
         });
-        row.querySelector('.delete').addEventListener('click', async (event) => {
+        row.querySelector('.Delete').addEventListener('click', async (event) => {
             const result = await Swal.fire({
                 title: 'Are you sure?',
                 text: "You won't be able to revert this!",

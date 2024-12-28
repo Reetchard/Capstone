@@ -205,4 +205,26 @@ h1, h3 {
         opacity: 1;
         transform: translateY(0);
     }
+} table th, table td {
+    text-align: center;
+    padding: 12px;
+    vertical-align: middle;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+th {
+    background-color: #343a40 !important;
+    color: white;
+}
+
+td {
+    background-color: #222831;
+    color: white;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #2c3034;
 }

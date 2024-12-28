@@ -19,28 +19,85 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);  // Initialize auth globally
 
-// Function to update reservation status (Approved/Cancelled)
-const updateReservationStatus = async (docId, newStatus) => {
+window.updateReservationStatus = async (docId, newStatus) => {
     try {
         const reservationRef = doc(db, 'Transactions', docId);
         await updateDoc(reservationRef, {
             status: newStatus
         });
-        console.log(`Reservation status updated to ${newStatus}`);
-        await fetchDayPassReservations();  // Refresh table
+
+        // Show success toast immediately after updating
+        Toastify({
+            text: `Reservation ${newStatus.toLowerCase()} successfully!`,
+            duration: 3000,
+            gravity: "top",
+            position: "right",
+            style: {
+                background: "#28a745",
+            }
+        }).showToast();
+
+        // Refresh table or data
+        await fetchDayPassReservations();
     } catch (error) {
+        // Show error toast if update fails
+        Toastify({
+            text: "Failed to update reservation!",
+            duration: 3000,
+            gravity: "top",
+            position: "right",
+            style: {
+                background: "#d33",
+            }
+        }).showToast();
+
         console.error('Error updating status:', error);
     }
 };
 
+
 // Function to delete a reservation
-const deleteReservation = async (docId) => {
+window.deleteReservation = async (docId) => {
     try {
-        const reservationRef = doc(db, 'Transactions', docId);
-        await deleteDoc(reservationRef);
-        console.log('Reservation successfully deleted.');
-        await fetchDayPassReservations();  // Refresh table
+        // Confirm with SweetAlert
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: "This action cannot be undone!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        });
+
+        // If confirmed, proceed to delete
+        if (result.isConfirmed) {
+            const reservationRef = doc(db, 'Transactions', docId);
+            await deleteDoc(reservationRef);  // Delete from Firestore
+
+            // Show success toast
+            Toastify({
+                text: 'Reservation deleted successfully!',
+                duration: 3000,
+                gravity: 'top',
+                position: 'right',
+                style: {
+                    background: '#d33',
+                }
+            }).showToast();
+
+            // Refresh table or data
+            await fetchDayPassReservations();
+        }
     } catch (error) {
+        // Show error alert if delete fails
+        Swal.fire({
+            icon: 'error',
+            title: 'Failed to delete!',
+            text: 'Something went wrong while deleting the reservation.',
+            footer: 'Please try again later.'
+        });
+
         console.error('Error deleting reservation:', error);
     }
 };
