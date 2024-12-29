@@ -843,34 +843,30 @@ document.querySelectorAll('.notification-link[data-reset="true"]').forEach(link 
 document.addEventListener('DOMContentLoaded', listenForUpdates);
 
 
-async function fetchGymOwnerUsername() {
-    const user = auth.currentUser;
 
-    if (user) {
-        try {
-            // Reference to GymOwner document
-            const gymOwnerDocRef = doc(db, 'GymOwner', user.uid);  
-            const gymOwnerDocSnap = await getDoc(gymOwnerDocRef);
-
-            if (gymOwnerDocSnap.exists()) {
-                const username = gymOwnerDocSnap.data().username || 'Gym Owner';
-                document.querySelector('#profile-username').textContent = username;
-            } else {
-                document.querySelector('#profile-username').textContent = 'Gym Owner';
-                console.error("Gym owner document not found.");
-            }
-        } catch (error) {
-            console.error("Error fetching gym owner data:", error);
-        }
-    } else {
-        document.querySelector('#profile-username').textContent = 'Not Logged In';
-        console.error("No authenticated user.");
-    }
-}
-
-// Wait for Firebase Authentication state change
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        fetchGymOwnerUsername();
-    }
-});
+  async function fetchGymOwnerUsername() {
+      const user = auth.currentUser;  // Get the currently authenticated user
+  
+      if (user) {
+          const gymOwnerDocRef = doc(db, 'GymOwner', user.uid);  // Reference to GymOwner document
+          const gymOwnerDocSnap = await getDoc(gymOwnerDocRef);
+  
+          if (gymOwnerDocSnap.exists()) {
+              const username = gymOwnerDocSnap.data().username || 'Gym Owner';
+              document.querySelector('#profile-username').textContent = username;
+          } else {
+              document.querySelector('#profile-username').textContent = 'Gym Owner';
+              console.error("Gym owner document not found.");
+          }
+      } else {
+          document.querySelector('#profile-username').textContent = 'Not Logged In';
+          console.error("No authenticated user.");
+      }
+  }
+  
+  // Wait for Firebase Authentication state change
+  auth.onAuthStateChanged((user) => {
+      if (user) {
+          fetchGymOwnerUsername();
+      }
+  });

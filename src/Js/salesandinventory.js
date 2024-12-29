@@ -556,8 +556,11 @@ function groupTransactions(transactions) {
 // Generate PDF Report
 async function generatePDF() {
     const transactions = await fetchTransactions();
-    if (!transactions.length) {
-        alert("No transactions found.");
+    const trainerBookings = await fetchNotifications('Booking_trainer');
+    const productsFromNotif = await fetchNotifications('Products');
+
+    if (!transactions.length && !trainerBookings.length && !productsFromNotif.length) {
+        alert("No transactions or notifications found.");
         return;
     }
 
@@ -573,17 +576,12 @@ async function generatePDF() {
 
     pdf.setFontSize(8);
 
-    // Section for Products
-    if (grouped.Products.length > 0) {
-        y = addSection(pdf, 'Products', grouped.Products, y, ['productName', 'quantity', 'totalPrice', 'timestamp']);
-    }
-
     // Section for Memberships
     if (grouped.Membership.length > 0) {
         y = addSection(pdf, 'Memberships', grouped.Membership, y, ['planType', 'price', 'purchaseDate', 'status']);
     }
 
-    // Section for Trainer Bookings
+    // Section for Trainer Bookings (Transactions)
     if (grouped.Trainer_Booking.length > 0) {
         y = addSection(pdf, 'Trainer Bookings', grouped.Trainer_Booking, y, ['username', 'price', 'timestamp', 'status']);
     }
@@ -593,8 +591,45 @@ async function generatePDF() {
         y = addSection(pdf, 'Day Passes', grouped.Day_Pass, y, ['email', 'totalPrice', 'date', 'status']);
     }
 
-    pdf.save('transactions_report.pdf');
+    // Section for Booking_Trainer (Notifications)
+    if (trainerBookings.length > 0) {
+        y = addSection(pdf, 'Trainer Bookings', trainerBookings, y, ['username', 'price', 'timestamp', 'status']);
+    }
+
+    // Section for Products (Notifications)
+    if (productsFromNotif.length > 0) {
+        y = addSection(pdf, 'Products', productsFromNotif, y, ['productName', 'quantity', 'totalPrice', 'timestamp']);
+    }
+
+    pdf.save('transactions_and_notifications_report.pdf');
 }
+
+// Fetch Notifications with Specific Type
+async function fetchNotifications(type) {
+    const notifQuery = query(
+        collection(db, "Notifications"),
+        where("type", "==", type)
+    );
+
+    const querySnapshot = await getDocs(notifQuery);
+    const notifications = [];
+
+    querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        notifications.push({
+            productName: data.productName || 'N/A',
+            quantity: data.quantity || 'N/A',
+            totalPrice: data.totalPrice || 'N/A',
+            timestamp: data.timestamp || new Date(),
+            username: data.username || 'N/A',
+            price: data.price || 'N/A',
+            status: data.status || 'Pending'
+        });
+    });
+
+    return notifications;
+}
+
 
 // Format Date to MM-DD-YY with Time
 function formatDate(dateInput) {

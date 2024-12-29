@@ -4,30 +4,51 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reservation Management - Gym Management System</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <title>Day Pass Management - Gym Management System</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/conflict.css">
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-
+    <style>
+        body {
+            background-color: #F3DAD8; /* Pink background */
+        }
+        .sidebar {
+            background-color: #544B3D; /* Darker color for sidebar */
+            color: #ffffff; /* Text color for sidebar */
+            height: 100vh; /* Full height */
+            position: fixed; /* Fixed sidebar */
+        }
+        .sidebar a {
+            color: #ffffff; /* Link color */
+        }
+        .sidebar a:hover {
+            background-color: #50C878; /* Highlight on hover */
+        }
+        .main-content {
+            margin-left: 250px; /* Space for sidebar */
+            padding: 20px; /* Padding for main content */
+        }
+        .table {
+            background-color: #ffffff; /* White background for table */
+            color: #000000; /* Text color for table */
+        }
+        .table th, .table td {
+            border-color: #dddddd; /* Light gray border for table cells */
+        }
+        .card-header {
+            background-color: #50C878; /* Green for header */
+            color: #ffffff; /* Text color for header */
+        }
+    </style>
 </head>
 <body>
-<!-- Hamburger Button -->
-<div class="hamburger-container d-lg-none position-fixed" id="toggleSidebar" style="top: 20px; left: 20px; z-index: 1050;">
-    <div class="hamburger">
-        <span class="line"></span>
-        <span class="line"></span>
-        <span class="line"></span>
-    </div>
-</div>
 
 <!-- Sidebar -->
-<nav class="sidebar shadow-lg hidden">
+<nav class="sidebar shadow-lg">
     <div class="profile-container text-center mb-4">
         <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" 
              class="img-fluid rounded-circle mb-2" style="width: 100px; height: 100px;">
-        <h3 id="profile-username" class="mt-2 white-text">Loading...</h3>
+        <h3 id="profile-username" class="mt-2">Loading...</h3>
         <a href="login.html" class="btn btn-danger btn-sm mt-2">Log Out</a>
     </div>
     <ul class="nav flex-column sidebar-links">
@@ -59,9 +80,13 @@
 </nav>
 
 <!-- Main Content -->
-<div class="container mt-4">
-    <h2 class="text-center" style="color: #ffffff;">Day Pass Management</h2>
-    <!-- Reservation List -->
+<div class="main-content">
+    <div class="text-center my-4">
+        <h2 style="font-size: 3rem; color: #544B3D; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);">
+            <span style="color: #ffffff; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);">Day Pass </span>
+            <span style="color: #FF8C00; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);">Management</span>
+        </h2>
+    </div>   <!-- Reservation List -->
     <div class="card mt-4">
         <div class="card-header">
             Current Reservations
@@ -86,9 +111,9 @@
 </div>
 
 <!-- JavaScript -->
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <script type="module" src="src/Js/reservation.js"></script>
