@@ -605,7 +605,7 @@ strong:hover .custom-tooltip {
     color: #ffffff;
 }
 .chat-modal-content {
-    background-color: #1b1b1b;
+    background-color: #544B3D;
     color: #ffffff;
     transition: all 0.3s ease-in-out; /* Adds smooth transitions */
 }

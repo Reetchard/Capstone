@@ -8,6 +8,10 @@ nav ul li {
     margin: 0 15px;
     position: relative;
 }
+nav{
+    background-color: #ffa31a; /* Underline color */
+
+}
 
 nav ul li a {
     color: #FAF6F0; /* Text color */
@@ -393,7 +397,7 @@ h4 {
  body {
     font-family: "Helvitica Neue", Arial, sans-serif;
     background-color: #1b1b1b; /* Dark background */
-    color: #FAF0E6; /* Light gray text */
+    color: #F3DAD8 ; /* Light gray text */
     display: flex;
     min-height: 100vh;
 }
@@ -401,8 +405,8 @@ h4 {
 /* Sidebar Styles */
 .sidebar {
     width: 250px;
-    background-color: #1b1b1b; /* Dark gray background */
-    color: #EEEEEE; /* Light gray text */
+    background-color: #544B3D ; /* Dark gray background */
+    color: #544B3D ; /* Light gray text */
     padding: 20px;
     position: fixed;
     height: 100vh;
@@ -421,7 +425,7 @@ h4 {
 }
 
 .sidebar a:hover {
-    background-color: #444; /* Darker gray on hover */
+    background-color: #544B3D; /* Darker gray on hover */
 }
 
 /* Main Content Styles */
@@ -429,7 +433,7 @@ h4 {
     margin-left: 250px;
     padding: 20px;
     flex: 1;
-    background-color: #292929; /* Dark gray background for main content */
+    background-color: #F3DAD8 ; /* Dark gray background for main content */
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
@@ -559,7 +563,7 @@ h4 {
 }
 
 .profile-card, .trainer-card {
-    background-color: #444; /* Dark gray for cards */
+    background-color: #544B3D  ; /* Dark gray for cards */
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
     width: calc(33% - 20px);
@@ -636,7 +640,7 @@ h4 {
     padding: 30px;
     border-radius: 15px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-    background-color: #292929; /* Dark gray for modal */
+    background-color: #333  ; /* Dark gray for modal */
     color: #e0e0e0; /* Light gray text for modal */
     margin: auto;
     max-width: 1000px;
@@ -1804,7 +1808,7 @@ strong:hover .custom-tooltip {
     color: #fff;
 }
 .chat-modal-content {
-    background-color: #1b1b1b;
+    background-color: #544B3D;
     color: #ffffff;
     transition: all 0.3s ease-in-out; /* Adds smooth transitions */
 }
@@ -2275,7 +2279,7 @@ strong:hover .custom-tooltip {
     border-radius: 10px;
     box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2);
     padding: 20px;
-    background-color: #1b1b1b;
+    background-color: #544B3D ;
 }
 
 /* Modal Header */
