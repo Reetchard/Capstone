@@ -26,34 +26,48 @@ window.updateReservationStatus = async (docId, newStatus) => {
             status: newStatus
         });
 
-        // Show success toast immediately after updating
+        // Show success toast at bottom-right (smaller size)
         Toastify({
             text: `Reservation ${newStatus.toLowerCase()} successfully!`,
-            duration: 3000,
-            gravity: "top",
+            duration: 2500,
+            gravity: "bottom",
             position: "right",
+            stopOnFocus: true,
             style: {
                 background: "#28a745",
+                borderRadius: "6px",
+                boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+                padding: "8px 16px",  // Smaller padding
+                fontSize: "14px",     // Smaller font size
+                minWidth: "200px"     // Set a minimum width to avoid overflow
             }
         }).showToast();
 
-        // Refresh table or data
+        // Refresh data after update
         await fetchDayPassReservations();
     } catch (error) {
-        // Show error toast if update fails
+        // Show error toast (smaller size)
         Toastify({
             text: "Failed to update reservation!",
-            duration: 3000,
-            gravity: "top",
+            duration: 2500,
+            gravity: "bottom",
             position: "right",
+            stopOnFocus: true,
             style: {
                 background: "#d33",
+                borderRadius: "6px",
+                boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+                padding: "8px 16px",
+                fontSize: "14px",
+                minWidth: "200px"
             }
         }).showToast();
 
         console.error('Error updating status:', error);
     }
 };
+
+
 
 
 // Function to delete a reservation
