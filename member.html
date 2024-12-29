@@ -11,6 +11,103 @@
     <!-- Custom CSS -->
      <link rel="stylesheet" href="css/member.css">
      <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+     <style>
+        body {
+            background-color: #F3DAD8; /* Light pink background */
+            font-family: 'Merriweather', serif;
+        }
+            .sidebar {
+        background-color: #544B3D;
+        color: white;
+        position: fixed;
+        top: 0;
+        left: -250px;
+        width: 250px;
+        height: 100%;
+        transition: left 0.3s ease;
+        z-index: 1050;
+        overflow-y: auto;  /* Enable scrolling for long sidebars */
+    }
+        /* Sidebar Visible on Desktop (md and up) */
+@media (min-width: 768px) {
+    .sidebar {
+        left: 0;
+        width: 250px;
+        position: fixed;
+    }
+
+    .hamburger-container {
+        display: none;  /* Hide Hamburger on Desktop */
+    }
+}
+            .sidebar.show {
+            left: 0; /* Show sidebar */
+        }
+        .sidebar .nav-link {
+            color: white; /* White text for sidebar links */
+        }
+        .sidebar .nav-link:hover {
+            background-color: #444; /* Darker on hover */
+        }
+        .table {
+            background-color: #50C878; /* Emerald green for tables */
+            color: black; /* Black text for table */
+        }
+        .table thead {
+            background-color: #444; /* Darker header for tables */
+            color: white; /* White text for thead */
+        }
+        .main-content h3 {
+            color: #544B3D; /* Dark text for section headers */
+        }
+        .btn-primary {
+            background-color: #50C878; /* Button color */
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #45a049; /* Darker green on hover */
+        }
+        .card {
+            background-color: #fff; /* White cards */
+            border: 1px solid #ddd; /* Light border */
+        }
+        /* Hamburger Container */
+        .hamburger-container {
+            cursor: pointer;
+        }
+
+        /* Hamburger Lines */
+        .hamburger .line {
+            width: 35px;
+            height: 4px;
+            background-color: white;
+            margin: 7px auto;
+            display: block;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        /* Hamburger Transforms to X */
+        .hamburger.open .line:nth-child(1) {
+            transform: translateY(11px) rotate(45deg);
+        }
+
+        .hamburger.open .line:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.open .line:nth-child(3) {
+            transform: translateY(-11px) rotate(-45deg);
+        }
+        /* Sidebar Links */
+        .sidebar .nav-link {
+            color: white;
+            padding: 15px;
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: #6c5e4d;
+        }
+    </style>
 </head>
 <body>
 <!-- Hamburger Button -->

@@ -303,38 +303,35 @@
             /* Modal Styling */
             .modal-content {
                 position: relative;
-                display: -ms-flexbox;
                 display: flex;
-                -ms-flex-direction: column;
                 flex-direction: column;
                 width: 100%;
                 pointer-events: auto;
-                background-color: #444;
+                background-color: #F3DAD8; /* Light background for modal */
                 background-clip: padding-box;
-                border: 1px solid rgba(0,0,0,.2);
+                border: 1px solid rgba(0, 0, 0, 0.2);
                 border-radius: .3rem;
                 outline: 0;
             }
             
             .modal-header {
                 padding: 20px;
-                background-color: #444; /* Background color */
-                color: #ffffff; /* White text */
+                background-color: #544B3D; /* Dark background for header */
+                color: #F3DAD8; /* Light text color */
                 border-radius: 10px 10px 0 0;
             }
             
             .modal-title {
                 font-size: 1.25em;
                 font-weight: bold;
-                color: #ffffff; /* Ensure title text is white */
+                color: #F3DAD8; /* Ensure title text is light */
             }
             
             .modal-body {
                 padding: 30px;
-                background-color: #444; /* Background color */
-                color: #ffffff; /* White text */
+                background-color: #F3DAD8; /* Light background for body */
+                color: #544B3D; /* Dark text for readability */
             }
-
             /* Button styling in modal */
             .btn-block {
                 padding: 12px;
@@ -395,9 +392,9 @@
 
             /* Main Content Container */
             .container {
-                background-color: #444;
+                background-color: #544B3D; /* Dark background */
                 padding: 20px;
-                border-radius: 10px;
+                border-radius: 10px; /* Rounded corners */
                 box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
                 margin: 20px auto; /* Center align with margin */
                 width: 90%; /* Use 90% of the viewport width */
@@ -405,13 +402,13 @@
                 box-sizing: border-box;
                 overflow-x: auto; /* Ensure horizontal scrolling for small screens */
             }
-
-            /* Table Styling */
+            
             .table {
                 width: 100%;
                 border-collapse: collapse;
-                background-color: #444; /* Match container background */
+                background-color: #F3DAD8; /* Light background for table */
                 border-radius: 10px; /* Rounded corners */
+                overflow: hidden; /* Ensure rounded corners are visible */
                 overflow-x: auto; /* Enable horizontal scrolling */
                 overflow-y: auto; /* Enable vertical scrolling (optional) */
                 max-height: 500px; /* Set a maximum height for vertical scrolling */
@@ -423,8 +420,8 @@
             
             /* Table Headers */
             .table th {
-                background-color: #212529; /* Dark header background */
-                color: #fff; /* White text for headers */
+                background-color: #544B3D; /* Dark header background */
+                color: #FFF; /* Light text for headers */
                 text-align: center; /* Center text in headers */
                 padding: 15px;
                 font-weight: bold; /* Bold text */
@@ -434,8 +431,8 @@
             
             /* Table Cells */
             .table td {
-                background-color: #555; /* Slightly lighter than container */
-                color: #FAF0E6; /* Light text color */
+                background-color: #F3DAD8; /* Slightly darker for cells */
+                color: #444; /* Light text color */
                 text-align: center; /* Center text in cells */
                 padding: 12px; /* Consistent padding */
                 border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Subtle row separation */
@@ -455,10 +452,10 @@
             .table::-webkit-scrollbar-track {
                 background-color: rgba(0, 0, 0, 0.1);
             }
-
+            
             /* Zebra Striping for Rows */
             .table tbody tr:nth-child(even) {
-                background-color: #444; /* Match container for even rows */
+                background-color: #F3DAD8; /* Light background for even rows */
             }
 
             /* Hover Effect for Rows */

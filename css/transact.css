@@ -385,8 +385,8 @@ h1 {
 }
 
 .table-striped thead th {
-    background-color: #444;
-    color: #eee;
+    background-color: #544B3D;
+    color: #fff;
     padding: 8px;
     text-align: center;
     border-bottom: 2px solid #555;
@@ -395,7 +395,7 @@ h1 {
 
 .table-striped tbody tr {
     border-bottom: 1px solid #555;
-    background-color: #3b3b3b !important; /* Force unified background color for all rows */
+    background-color: #F3DAD8 !important; /* Force unified background color for all rows */
 }
 
 .table-striped tbody tr:last-child {
@@ -406,10 +406,11 @@ h1 {
     padding: 8px; /* Reduced padding for a tighter fit */
     text-align: center; /* Center align text for compact look */
     font-size: 0.9em; /* Slightly smaller font for compactness */
+    color: #000;
 }
 
 .table-striped tbody tr:hover {
-    background-color: #555; /* Row hover effect */
+    background-color: #F3DAD8; /* Row hover effect */
 }
 
 /* Action Buttons Styling */

@@ -166,14 +166,14 @@ async function populateTable(transactionType, transactions) {
 
         if (transactionType === 'membership') {
             row.innerHTML = `
-                <td style="color: white;">${username || 'N/A'}</td> <!-- Display username next to userId -->
-                <td style="color: white;">${transaction.gymName || 'N/A'}</td>
-                <td style="color: white;">${transaction.membershipDays || 'N/A'}</td>
-                <td style="color: white;">${transaction.price || 'N/A'}</td>
-                <td style="color: white;">${transaction.planType || 'N/A'}</td>
-                <td style="color: white;">${formattedPurchaseDate}</td> <!-- Use formatted purchase date -->
-                <td class="status-cell" style="color: white;">${transaction.status || 'N/A'}</td>
-                <td style="color: white;">
+                <td style="color: Black;">${username || 'N/A'}</td> <!-- Display username next to userId -->
+                <td style="color: Black;">${transaction.gymName || 'N/A'}</td>
+                <td style="color: Black;">${transaction.membershipDays || 'N/A'}</td>
+                <td style="color: Black;">${transaction.price || 'N/A'}</td>
+                <td style="color: Black;">${transaction.planType || 'N/A'}</td>
+                <td style="color: Black;">${formattedPurchaseDate}</td> <!-- Use formatted purchase date -->
+                <td class="status-cell" style="color: Black;">${transaction.status || 'N/A'}</td>
+                <td style="color: Black;">
                     <button class="action-button Accept" data-id="${transaction.id}">Accept</button>
                     <button class="action-button Decline" data-id="${transaction.id}">Decline</button>
                     <button class="action-button Delete" data-id="${transaction.id}">Delete</button>
@@ -455,13 +455,13 @@ async function populateTrainerTable(transactions) {
             : 'N/A';
 
         row.innerHTML = `
-            <td style="color: white;">${username || 'N/A'}</td>
-            <td style="color: white;">${transaction.gymName || 'N/A'}</td>
-            <td style="color: white;">${transaction.username || 'N/A'}</td>
-            <td style="color: white;">${formattedTimestamp}</td>
-            <td style="color: white;">${transaction.price || 'N/A'}</td>
-            <td style="color: white;">${transaction.notificationId || 'N/A'}</td>
-            <td style="color: white;" class="status-cell">${transaction.status || 'N/A'}</td>
+            <td style="color: Black;">${username || 'N/A'}</td>
+            <td style="color: Black;">${transaction.gymName || 'N/A'}</td>
+            <td style="color: Black;">${transaction.username || 'N/A'}</td>
+            <td style="color: Black;">${formattedTimestamp}</td>
+            <td style="color: Black;">${transaction.price || 'N/A'}</td>
+            <td style="color: Black;">${transaction.notificationId || 'N/A'}</td>
+            <td style="color: Black;" class="status-cell">${transaction.status || 'N/A'}</td>
             <td>
                 <button class="action-button Accept" data-id="${transaction.id}">Accept</button>
                 <button class="action-button Decline" data-id="${transaction.id}">Decline</button>
@@ -620,14 +620,14 @@ async function populateProductTable(transactions) {
             : 'N/A';
 
         row.innerHTML = `
-            <td style="color: white;">${username || 'N/A'}</td>
-            <td style="color: white;">${transaction.gymName || 'N/A'}</td>
-            <td style="color: white;">${transaction.productName || 'N/A'}</td>
-            <td style="color: white;">${transaction.quantity || 'N/A'}</td>
-            <td style="color: white;">${formattedTimestamp}</td>
-            <td style="color: white;">${transaction.totalPrice || 'N/A'}</td>
-            <td style="color: white;">${transaction.notificationId || 'N/A'}</td>
-            <td  style="color: white;" class="status-cell">${transaction.status || 'N/A'}</td>
+            <td style="color: Black;">${username || 'N/A'}</td>
+            <td style="color: Black;">${transaction.gymName || 'N/A'}</td>
+            <td style="color: Black;">${transaction.productName || 'N/A'}</td>
+            <td style="color: Black;">${transaction.quantity || 'N/A'}</td>
+            <td style="color: Black;">${formattedTimestamp}</td>
+            <td style="color: Black;">${transaction.totalPrice || 'N/A'}</td>
+            <td style="color: Black;">${transaction.notificationId || 'N/A'}</td>
+            <td  style="color: Black;" class="status-cell">${transaction.status || 'N/A'}</td>
             <td>
                 <button class="action-button approve" data-id="${transaction.id}">Approve</button>
                 <button class="action-button Decline" data-id="${transaction.id}">Decline</button>

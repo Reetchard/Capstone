@@ -203,7 +203,7 @@ nav ul li a:hover {
     max-width: 1000px; /* Adjust as needed */
     margin: 20px auto; /* Center the container */
     padding: 20px; /* Padding inside the card */
-    background: #444; /* Card background color */
+    background: #544B3D; /* Dark card background color */
     border-radius: 15px; /* Rounded corners */
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); /* Shadow effect */
     overflow-y: auto; /* Enables vertical scrolling */
@@ -235,7 +235,7 @@ nav ul li a:hover {
     font-weight: 700; /* Bold weight */
     margin: 0; /* Remove margin for tight spacing */
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5); /* Text shadow for emphasis */
-    color: #FFFFFF; /* White color for the main title */
+    color: #F3DAD8; /* Light color for the main title */
 }
 
 /* Specific style for the profile-text span */
@@ -245,9 +245,17 @@ nav ul li a:hover {
 }
 
 /* Table Styles */
+.table {
+    width: 100%; /* Full width */
+    border-collapse: collapse; /* Collapse borders */
+    background-color: #F3DAD8; /* Light background for table */
+    border-radius: 10px; /* Rounded corners */
+    overflow: hidden; /* Ensure rounded corners are visible */
+}
+
 .table thead {
-    background-color: #0056b3; /* Header background color */
-    color: #fff; /* Header text color */
+    background-color: #544B3D; /* Dark header background */
+    color: #F3DAD8; /* Light header text color */
     text-transform: uppercase; /* Uppercase for headers */
     font-weight: bold; /* Bold headers */
 }
@@ -256,17 +264,17 @@ nav ul li a:hover {
     padding: 16px; /* Increased padding for headers */
     text-align: center;
     font-weight: 600;
-    border-bottom: 2px solid #004494; /* Darker border for headers */
+    border-bottom: 2px solid #F3DAD8; /* Light border for headers */
 }
 
 .table td {
     padding: 16px; /* Increased padding for cells */
     text-align: center;
-    background-color: #444; /* White background for cells */
-    border: 1px solid #eee; /* Light border */
+    background-color: #F3DAD8; /* Light background for cells */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border for cells */
     border-radius: 8px; /* Rounded corners for cells */
     transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transitions */
-    color: #fff;
+    color: #544B3D; /* Dark text color */
 }
 
 .table tr {
@@ -277,9 +285,8 @@ nav ul li a:hover {
     background-color: #ffa31a; /* Background color on hover */
     transform: translateY(-2px); /* Slight lift effect */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Shadow on hover */
-    color: #1b1b1b; /* Change font color to white on hover */
+    color: #1b1b1b; /* Change font color to dark on hover */
 }
-
 /* Spinner Overlay */
 .spinner-overlay {
     position: fixed; /* Fixed positioning to cover the whole screen */
@@ -395,7 +402,7 @@ nav ul li a:hover {
 
 /* Modal Styles */
 .modal-content {
-    background: #444; /* Match the container background */
+    background: #F3DAD8; /* Light background for modal */
     border-radius: 15px; /* Rounded corners */
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); /* Shadow effect */
     z-index: 2000; /* Lower z-index than spinner overlay */
@@ -403,7 +410,7 @@ nav ul li a:hover {
 
 /* Modal Header */
 .modal-header {
-    background: #444; /* Primary color for header */
+    background: #544B3D; /* Dark header background */
     border-top-left-radius: 15px; /* Rounded corners for top */
     border-top-right-radius: 15px; /* Rounded corners for top */
     text-align: center; /* Center the title */
@@ -415,6 +422,14 @@ nav ul li a:hover {
     font-weight: bold; /* Bold title */
     margin: 0; /* Remove margin for tight spacing */
     text-align: center; /* Center title text */
+    color: #F3DAD8; /* Light text color for title */
+}
+
+/* Modal Body */
+.modal-body {
+    background: #F3DAD8; /* Light background for body */
+    color: #544B3D; /* Dark text color for readability */
+    padding: 20px; /* Padding inside modal body */
 }
 /* Loading spinner */
 .spinner-overlay {
@@ -454,14 +469,14 @@ nav ul li a:hover {
 }
 
 .form-group label {
-    color: #fff; /* Label color */
+    color: #544B3D; /* Label color */
     font-weight: bold; /* Bold labels */
 }
 
 .form-control {
     border-radius: 5px; /* Rounded input fields */
     border: 1px solid #ccc; /* Light border */
-    background: #555; /* Dark input background */
+    background: #544B3D; /* Dark input background */
     color: #fff; /* White text color */
 }
 
