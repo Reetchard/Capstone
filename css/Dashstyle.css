@@ -64,7 +64,7 @@ nav ul li a:hover {
 }
 
 .close:hover {
-    color: #ffa31a; /* Set background color to yellow on hover */
+    color: #023b6d; /* Set background color to yellow on hover */
 }
 /* Close Button */
 .modal-close {
@@ -100,15 +100,18 @@ nav ul li a:hover {
     font-size: 24px; /* Adjust the size as needed */
     font-weight: bold; /* Makes the text bold */
     text-align: center; /* Centers the text */
-    color: #e0e0e0; /* Optional: change the text color */
+    color: #1b1b1b; /* Optional: change the text color */
     margin-top: 10px; /* Optional: add some space above the title */
 }
-
+.category-header{
+    color: #333;
+}
 
 /* Gym Photo */
 .gym-modal-photo {
     width: 100%;
     height: 200px;
+    border: 2px solid #023b6d;
     object-fit: cover;
     border-radius: 10px;
     margin-bottom: 20px;
@@ -259,6 +262,28 @@ nav ul li a:hover {
     padding: 20px; /* Optional: Adjust padding as needed */
 }
 
+.center-container {
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+}
+
+.btn.btn-success {
+    color: #fff;
+    background-color: #28a745;
+    border-color: #28a745;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    transition: all 0.3s ease-in-out;
+}
+
+.btn.btn-success:hover {
+    background-color: #218838; /* Darker green on hover */
+    border-color: #1e7e34;
+    transform: scale(1.05); /* Slight enlarge on hover */
+}
+
 .gym-info-btn {
     display: block; /* Make the button a block element */
     background-color: #ffa31a; /* Original button color */
@@ -319,7 +344,7 @@ nav ul li a:hover {
     border-radius: 50%;
     object-fit: cover;
     margin-bottom: 10px;
-    border: 3px solid #ffa31a;
+    border: 3px solid #03346E;
 }
 
 .trainer-name {
@@ -374,7 +399,7 @@ nav ul li a:hover {
 }
 
 strong{
-    color:#ffa31a;
+    color:#023b6d;
 }
 .btn-custom{
     border-radius: 10px; /* Adjust this value for the desired roundness */
@@ -604,7 +629,7 @@ h4 {
 
 /* Button Styles */
 .btn-cust-secondary {
-    background: linear-gradient(135deg, #ffb74d, #ffa31a, #cc8200);
+    background: linear-gradient(135deg, #6094EA, #4a8cc7, #2e6c99);
     border-radius: 10px;
     font-size: 14px;
     display: flex;
@@ -644,8 +669,8 @@ h4 {
     padding: 30px;
     border-radius: 15px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-    background-color: #333  ; /* Dark gray for modal */
-    color: #e0e0e0; /* Light gray text for modal */
+    background-color: #f9f9f9;
+    color: #333; /* Light gray text for modal */
     margin: auto;
     max-width: 1000px;
     text-align: justify;
@@ -653,7 +678,7 @@ h4 {
 .modal-header h3 {
     text-align: center; /* Centers the text */
     font-weight: bold; /* Makes the font bold */
-    color: #ffffff; /* Changes the font color to white */
+    color: #1b1b1b; /* Changes the font color to white */
     margin: 0 auto; /* Ensures the element is centered */
 }
 
@@ -722,7 +747,7 @@ h4 {
 #modalProductName {
     text-align: center;  /* Center the text */
     font-weight: bold;   /* Make it bold */
-    color: #e0e0e0;      /* Light gray color for visibility */
+    color: #1b1b1b;      /* Light gray color for visibility */
 }
 #modalProductName {
     font-size: 25px; /* Adjust the size to be a bit larger */
@@ -736,8 +761,8 @@ h4 {
     object-fit: cover; /* Cover the element's box, maintaining aspect ratio */
     width: 200px; /* Fixed width */
     height: 200px; /* Fixed height */
-    border-radius: 10px; /* Add rounded corners */
-    border: 2px solid #ffa31a; /* Add a 2px solid yellow border */
+    border-radius: 15px; /* Add rounded corners */
+    border: 2px solid #03346E; /* Add a 2px solid yellow border */
     transform: translateX(-10px); /* Move the photo 10px to the left */
 }
 
@@ -754,7 +779,7 @@ h4 {
     width: 200px;
     height: auto;
     border-radius: 10px; /* Add rounded corners */
-    border: 2px solid #ffa31a; /* Add a 2px solid yellow border */
+    border: 2px solid #023b6d; /* Add a 2px solid yellow border */
 }
 
 
@@ -861,7 +886,7 @@ input#modalProductQuantityInput:focus {
 
 #notificationList .list-group-item {
     background-color: transparent; /* Remove the white background */
-    color: #ffffff; /* Change text color to white or your desired color */
+    color: #333; /* Change text color to white or your desired color */
     border: none; /* Remove any border if present */
     border-bottom: 1px solid #555;
     transition: color 0.3s;
@@ -870,7 +895,7 @@ input#modalProductQuantityInput:focus {
 
 #notificationList .list-group-item:hover {
     background-color: rgba(255, 255, 255, 0.1); /* Optional: Add a hover effect */
-    color: #ffa31a;
+    color: #023b6d;
 }
 .notification-modal-body {
     max-height: 400px;
@@ -976,8 +1001,8 @@ strong:hover .custom-tooltip {
 
 
 .memberships-container .card-title {
-    font-size: 1.5rem; /* Larger font for title */
-    color: #ffffff; /* White color for text */
+    font-size: 15px; /* Larger font for title */
+    color: #1b1b1b; /* White color for text */
     margin-bottom: 15px; /* Space below title */
 }
 
@@ -988,7 +1013,7 @@ strong:hover .custom-tooltip {
 
 .memberships-container .btn-custom {
     background-color: transparent; /* Transparent background */
-    color: #ffffff; /* Button text color */
+    color: #1b1b1b; /* Button text color */
     border: 2px solid #fff; /* White border */
     border-radius: 10px; /* Rounded corners */
     padding: 5px; /* Increased padding for a larger button */
@@ -1001,13 +1026,13 @@ strong:hover .custom-tooltip {
 }
 
 .memberships-container .btn-custom:hover {
-    background-color: #1b1b1b; /* Darker shade on hover */
+    background-color: #6094EA; /* Darker shade on hover */
 }
 
 .membership-status,
 .membership-history {
     background-color: transparent;
-    border: 1px solid #ffa31a;
+    border: 1px solid #023b6d;
     border-radius: 6px;
     padding: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -1065,10 +1090,12 @@ strong:hover .custom-tooltip {
 }
 
 .carousel-indicators .active {
-    background-color: #ffa31a; /* Different color for active indicator */
+    background-color: #023b6d; /* Different color for active indicator */
 }
 
-
+.modal-footer{
+    border-top: 1px solid #023b6d;
+}
 
 /* Ensure the location icon is clickable */
 #locationIcon {
@@ -1112,7 +1139,7 @@ strong:hover .custom-tooltip {
 /* Style the close button to match the modal's theme */
 #mapModal .modal-header .close {
     font-size: 1.4rem;
-    color: white;
+    color: #1b1b1b;
     opacity: 0.8;
 }
 
@@ -1209,7 +1236,7 @@ strong:hover .custom-tooltip {
 }
 
 .membership-card {
-    background: linear-gradient(135deg, #1b1b1b 0%, #4d4d4d 100%);
+    background: linear-gradient(135deg, #6EACDA 0%,  #4d4d4d 100%);
 }
 
 .membership-info{
@@ -1229,14 +1256,21 @@ strong:hover .custom-tooltip {
 }
 
 .price {
-    color: #28a745;
+    color: #f9f9f9;
 }
 
 .countdown {
     color: #1BCEDF;
 }
 #membershipStatusModal .modal-footer{
-    border-top: 1px solid #ffa31a; /* Border color set to #ffa31a */
+    border-top: 1px solid #023b6d; /* Border color set to #ffa31a */
+}
+
+.current-status-title{
+    color: #333;
+}
+.membership-history-title{
+    color: #333;
 }
 
 
@@ -1285,7 +1319,7 @@ strong:hover .custom-tooltip {
 
 /* Modal footer styles */
 .modal-footer-custom {
-    background-color: #ffa31a; 
+    background-color: #023b6d; 
     border-bottom-left-radius: 8px; 
     border-bottom-right-radius: 8px;
 }
@@ -1321,7 +1355,7 @@ strong:hover .custom-tooltip {
 }
 
 .close {
-    color: #fff;
+    color: #1b1b1b;
 }
 
 
@@ -1407,10 +1441,6 @@ strong:hover .custom-tooltip {
     border-top: 2px solid #ffa31a;
 }
 
-/* Title in Modal Header */
-.modal-title {
-    color: #ffffff; /* Light title color */
-}
 
 /* Close Button */
 .btn-close {
@@ -1419,8 +1449,8 @@ strong:hover .custom-tooltip {
 
 /* Search Input */
 #searchInput {
-    background-color: #2a2e43; /* Dark background for the search input */
-    color: #ffffff; /* Light text color for the input */
+    background-color: #f9f9f9; /* Dark background for the search input */
+    color: #333; /* Light text color for the input */
     border: 1px solid #444851; /* Dark border for the input */
 }
 
@@ -1497,7 +1527,7 @@ strong:hover .custom-tooltip {
     width: 35px; /* Set a fixed width */
     height: 35px; /* Set a fixed height */
     border-radius: 50%; /* Make it a circle */
-    border: 2px solid #ffa31a; /* Add border to make avatar stand out */
+    border: 2px solid #4154f1; /* Add border to make avatar stand out */
     object-fit: cover; /* Ensure the image covers the area without stretching */
     object-position: center; /* Center the image within the container */
 }
@@ -1507,7 +1537,7 @@ strong:hover .custom-tooltip {
     height: 40px;
     border-radius: 50%; /* Circular photo */
     margin-right: 10px;
-    border: 2px solid #ffa31a; /* Green border color (you can change this to any color you prefer) */
+    border: 2px solid #4154f1; /* Green border color (you can change this to any color you prefer) */
 }
 .inbox-user-details {
     display: flex;
@@ -1517,7 +1547,7 @@ strong:hover .custom-tooltip {
 .user-name {
     font-weight: bold;
     font-size: 16px;
-    color: #fff;
+    color: #1b1b1b;
 }
 .user-message {
     font-size: 14px;
@@ -1548,9 +1578,8 @@ strong:hover .custom-tooltip {
 #messagesContainer {
     height: 300px;
     overflow-y: auto;
-    border: 1px solid #1b1b1b;
     padding: 10px;
-    background-color: #2e3446;
+    background-color: #f9f9f9;
     border-radius: 0 0 8px 8px;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
 }
@@ -1660,12 +1689,12 @@ strong:hover .custom-tooltip {
 }
 
 .modal-footer .btn-secondary {
-    background-color: #6c757d;
+    background-color: #023b6d;
     color: #ffffff;
 }
 
 .modal-footer .btn-primary {
-    background-color: rgba(255, 204, 51, 0.8);
+    background-color: #4154f1;
     border: none;
     color: #ffffff;
 }
@@ -1692,9 +1721,9 @@ strong:hover .custom-tooltip {
 .inbox-list-container {
     height: 350px; /* Set desired height */
     width: 100%;
-    background-color: #333;
+    background-color: #f9f9f9;
     padding: 10px;
-    border-right: 1px solid #2c2c2c; /* Border for right side */
+    border: 1px solid #2c2c2c; /* Border for right side */
     padding-right: 15px; /* Additional right padding */
     border-radius: 10px;
 }
@@ -1723,14 +1752,6 @@ strong:hover .custom-tooltip {
     margin-right: 10px;
 }
 
-/* Search Input */
-#searchInput {
-    background-color: #333;
-    color: #ffffff;
-    border: none;
-    border-radius: 8px;
-    padding: 8px;
-}
 
 #searchInput::placeholder {
     color: #aaa;
@@ -1754,7 +1775,7 @@ strong:hover .custom-tooltip {
 
 #notificationDetailsModal .modal-header {
     background-color: transparent;
-    border-bottom: 1px dashed #ffa31a;
+    border-bottom: 1px dashed #4154f1;
 }
 
 #notificationDetailsModal .modal-title {
@@ -1762,11 +1783,11 @@ strong:hover .custom-tooltip {
     font-size: 1.2rem;
     text-align: center;
     width: 100%;
-    color: #ffa31a;
+    color: #1b1b1b;
 }
 
 #notificationDetailsModal .close {
-    color: #fff;
+    color: #1b1b1b;
 }
 
 #notificationDetailsModal .modal-body {
@@ -1779,13 +1800,13 @@ strong:hover .custom-tooltip {
     font-weight: bold;
     font-size: 1.8rem;
     margin-bottom: 5px;
-    color: #fff;
+    color: #1b1b1b;
 }
 
 #notificationDetailsModal .modal-body p.ref-number {
     text-align: center;
     font-size: 1.2rem;
-    color: #fff;
+    color: #1b1b1b;
     margin-bottom: 25px;
 }
 
@@ -1793,7 +1814,7 @@ strong:hover .custom-tooltip {
     font-size: 1.1rem;
     margin-bottom: 10px;
     line-height: 1.6;
-    color: #fff;
+    color: #1b1b1b;
 }
 
 #notificationDetailsModal .product-info p strong {
@@ -1802,17 +1823,17 @@ strong:hover .custom-tooltip {
     text-align: left;
 }
 #notificationDetailsModal .modal-body hr {
-    border-top: 1px dashed #ffa31a;
+    border-top: 1px dashed #4154f1;
     margin: 20px 0;
 }
 
 #notificationDetailsModal .modal-body p.footer-info {
     font-size: 0.9rem;
     text-align: center;
-    color: #fff;
+    color: #1b1b1b;
 }
 .chat-modal-content {
-    background-color: #544B3D;
+    background-color: #f9f9f9;
     color: #ffffff;
     transition: all 0.3s ease-in-out; /* Adds smooth transitions */
 }
@@ -1831,8 +1852,8 @@ strong:hover .custom-tooltip {
 }
 
 .search-input {
-    background-color: #333;
-    color: #ffffff;
+    background-color: #00a6eb;
+    color: #333;
     border: none;
     margin-bottom: 1rem;
 }
@@ -1843,13 +1864,13 @@ strong:hover .custom-tooltip {
     align-items: center;
     padding: 10px 0; /* Space above and below each item */
     color: #ffffff;
-    border-bottom: 1px solid #ffa31a; /* Separator line below each item */
+    border-bottom: 1px solid #2c2c2c; /* Separator line below each item */
     cursor: pointer;
 }
 
 .chat-messages {
     flex-grow: 1; /* Allows the chat messages container to take up available space */
-    background-color: #222; /* Dark background color for better contrast */
+    background-color: #f9f9f9; /* Dark background color for better contrast */
     border-radius: 8px; /* Rounded corners for a softer look */
     height: 405px; /* Set a fixed height for the chat messages area */
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); /* Add a shadow for depth */
@@ -1886,7 +1907,7 @@ strong:hover .custom-tooltip {
 }
 
 .message-input {
-    background-color: #333;
+    background-color: #f9f9f9;
     border-color: #333;
     border-radius: 20px;
     height: 40px; /* Set a fixed height for the input */
@@ -1897,20 +1918,19 @@ strong:hover .custom-tooltip {
     padding: 10px; /* Optional: control the padding inside the input */
 }
 .message-input:focus {
-    background-color: #333; /* Maintain dark background on focus */
-    color: #ffffff; /* Keep text color white on focus */
+    color: #333; /* Keep text color white on focus */
     outline: none; /* Remove default outline */
-    border-color: #ffa31a;
-    box-shadow: 0 0 5px #ffa31a; /* Optional: add a glow effect on focus */
+    border-color: #4154f1;
+    box-shadow: 0 0 5px #4154f1; /* Optional: add a glow effect on focus */
 }
 .message-input::placeholder {
-    color: #aaaaaa; /* Lighter color for placeholder text */
+    color: #333; /* Lighter color for placeholder text */
 }
 
 .send-button {
     background-color: transparent; /* Remove background color */
     border: none; /* Remove border */
-    color: #ffa31a; /* Set text color (optional) */
+    color: #4154f1; /* Set text color (optional) */
     margin-right: 5px;
     cursor: pointer;
 }
@@ -1950,7 +1970,7 @@ strong:hover .custom-tooltip {
 
 .overall-rating {
     font-size: 1.2em;
-    color: #ffcc00;
+    color: #4154f1;
     margin-bottom: 10px;
     animation: fadeIn 0.8s ease-in-out;
 }
@@ -1959,22 +1979,23 @@ strong:hover .custom-tooltip {
     display: flex;
     align-items: center;
     font-size: 1em;
-    color: #ffcc00;
+    color: #4154f1;
     transition: color 0.3s ease;
 }
 
 .star-rating:hover {
-    color: #ffd966;
+    color: #00a6eb;
 }
 
 .star-count {
     font-size: 0.9em;
-    color: #fffb00;
+    color: #4154f1;
     margin-left: 8px;
     transition: transform 0.2s ease;
 }
 
 .star-count:hover {
+    color: #00a6eb;
     transform: scale(1.1);
 }
 
@@ -2014,7 +2035,7 @@ strong:hover .custom-tooltip {
     transition: color 0.2s ease;
 }
 #rateStars .rate-star.selected {
-    color: #ffcc00; /* Gold color for selected stars */
+    color: #007bff; /* Gold color for selected stars */
 }
 /* Toggle link without underline and with enhanced styling */
 .toggle-ratings {
@@ -2167,12 +2188,12 @@ strong:hover .custom-tooltip {
 }
 
 #rateTrainerModal .modal-title {
-    color: #fff; /* Dark gray for title */
+    color: #1b1b1b; /* Dark gray for title */
 }
 
 /* Close button for rateTrainerModal */
 #rateTrainerModal .close {
-    color: #fff; /* Red color for close button */
+    color: #1b1b1b; /* Red color for close button */
     font-size: 1.5rem; /* Larger font for visibility */
 }
 
@@ -2182,7 +2203,7 @@ strong:hover .custom-tooltip {
 }
 
 #rateTrainerModal .modal-body p {
-    color: #fff; /* Slightly lighter text color */
+    color: #1b1b1b; /* Slightly lighter text color */
     font-size: 1.1rem; /* Slightly larger text */
 }
 
@@ -2197,13 +2218,19 @@ strong:hover .custom-tooltip {
     color: #868e96; /* Gold color for stars */
     transition: color 0.2s ease; /* Smooth transition on hover */
     transition: transform 0.2s ease, color 0.2s ease; /* Smooth transition for color and scale */
-    text-shadow: 0 0 5px rgba(255, 204, 51, 0.8); /* Glow effect */
+    text-shadow: 
+    0 0 10px rgba(65, 84, 241, 0.8), /* Stronger glow closer to the text */
+    0 0 20px rgba(65, 84, 241, 0.5); /* Softer, extended glow */
+/
 }
 
 #rateTrainerModal .rate-star:hover {
-    color: #ffca2c; /* Lighter gold on hover */
+    color: #4154f1; /* Lighter gold on hover */
     transform: scale(1.2); /* Scale up the star slightly on hover */
-    text-shadow: 0 0 10px rgba(255, 204, 51, 0.8), 0 0 20px rgba(255, 204, 51, 0.5); /* Enhanced glow on hover */
+    text-shadow: 
+    0 0 10px rgba(65, 84, 241, 0.8), /* Stronger glow closer to the text */
+    0 0 20px rgba(65, 84, 241, 0.5); /* Softer, extended glow */
+
 }
 
 /* Feedback text area for rateTrainerModal */
@@ -2226,12 +2253,11 @@ strong:hover .custom-tooltip {
     border-radius: 20px; /* Slightly larger border radius */
     border: none;
     cursor: pointer;
-    background-color: rgba(255, 204, 51, 0.8);
     transition: all 0.2s;
 }
 
 #rateTrainerModal .btn-primary:hover {
-    background-color: #ffa31a;
+    background-color: #00a6eb;
     transform: translate(2px, 2px);
     box-shadow: 0 4px 10px rgba(255, 255, 255, 0.4); /* Lighter shadow on hover */
 }
@@ -2274,8 +2300,11 @@ strong:hover .custom-tooltip {
 #mapModal{
     backdrop-filter: blur(5px); /* Add a blur effect to the background */ 
 }
+#dayPassModal{
+    backdrop-filter: blur(5px); /* Add a blur effect to the background */
+}
 #membershipPlansModal .modal-footer{
-    border-top: 1px solid #ffa31a;
+    border-top: 1px solid #023b6d;
 }
 
 /* Modal Container */
@@ -2283,18 +2312,18 @@ strong:hover .custom-tooltip {
     border-radius: 10px;
     box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2);
     padding: 20px;
-    background-color: #544B3D ;
+    background-color: #f9f9f9 ;
 }
 
 /* Modal Header */
 #bookingTrainerModal .modal-header {
-    border-bottom: 1px solid #ffa31a;
+    border-bottom: 1px solid #023b6d;
     padding-bottom: 10px;
 }
 
 #bookingTrainerModal .modal-title {
     font-size: 1.5em;
-    color: #fff;
+    color: #1b1b1b;
 }
 
 #bookingTrainerModal .btn-close {
@@ -2321,7 +2350,7 @@ strong:hover .custom-tooltip {
     border-bottom: 1px solid #ccc;
     border-radius: 0;
     font-size: 1em;
-    color: #fff;
+    color: #333;
 }
 /* Focus Style */
 #bookingTrainerModal input[type="text"]:focus,
@@ -2344,7 +2373,7 @@ strong:hover .custom-tooltip {
     padding: 10px;
     margin-top: 5px;
     background-color: transparent;
-    color: #fff; /* Set text color to white */
+    color: #333; /* Set text color to white */
     border: none;
     border-bottom: 1px solid #ccc;
     border-radius: 0;
@@ -2353,11 +2382,6 @@ strong:hover .custom-tooltip {
     -webkit-appearance: none;
 }
 
-/* Apply filter to make icon appear white */
-#bookingTrainerModal input[type="date"]::-webkit-calendar-picker-indicator {
-    filter: invert(1) brightness(2); /* Invert and adjust brightness */
-    opacity: 0.7; /* Adjust icon visibility */
-}
 
 
 /* Responsive Columns */
@@ -2384,8 +2408,8 @@ strong:hover .custom-tooltip {
 
 #bookingTrainerModal .btn-primary {
     background-color: transparent;
-    border: 2px solid #ffa31a;
-    color: white;
+    border: 2px solid #4154f1;
+    color: #1b1b1b;
     border-radius: 5px;
     padding: 8px 15px;
     transition: background-color 0.3s, border-color 0.3s; /* Smooth transition for background and border */
@@ -2395,8 +2419,8 @@ strong:hover .custom-tooltip {
 /* Hover Effects for Buttons */
 
 #bookingTrainerModal .btn-primary:hover {
-    color: #ffa31a;
-    border-color: #ffa31a; /* Keep the border color the same on hover */
+    color: #4154f1;
+    border-color: #4154f1; /* Keep the border color the same on hover */
 }
 #bookingTrainerModal{
     backdrop-filter: blur(5px); /* Add a blur effect to the background */
@@ -2406,10 +2430,10 @@ strong:hover .custom-tooltip {
 /* Modal Header */
 #membershipSuccessModal .modal-header {
     background-color: transparent;
-    border-bottom: 1px solid #ffa31a; /* Apply border to the bottom */
+    border-bottom: 1px solid #023b6d; /* Apply border to the bottom */
 }
 #membershipSuccessModal .modal-title{
-    color: #fff;
+    color: #1b1b1b;
 }
 
 /* Close Button */
@@ -2431,7 +2455,7 @@ strong:hover .custom-tooltip {
 
 #membershipSuccessModal .modal-text {
     font-size: 1.1em;
-    color: #fff;
+    color: #1b1b1b;
 }
 
 #membershipSuccessModal #gymNameSuccess {
@@ -2451,7 +2475,7 @@ strong:hover .custom-tooltip {
 /* Modal Footer */
 #membershipSuccessModal .modal-footer {
     background-color: transparent;
-    border-color: #ffa31a;
+    border-color: #023b6d;
 }
 
 /* OK Button */
@@ -2463,8 +2487,8 @@ strong:hover .custom-tooltip {
 #toggleButton {
     background-color: transparent;
     border: none;
-    border-bottom: 1px solid #ffa31a;
-    color: white; /* Set text color to white */
+    border-bottom: 1px solid #023b6d;
+    color: #333; /* Set text color to white */
     padding: 10px 20px; /* Add some padding */
     font-size: 15Spx; /* Increase font size */
     transition: background-color 0.3s, border-color 0.3s, transform 0.3s ease-in-out; /* Smooth transition for background, border, and transform */
@@ -2473,8 +2497,7 @@ strong:hover .custom-tooltip {
 /* Hover Effect for the button */
 #toggleButton:hover {
     background-color: transparent; /* Change background color on hover */
-    border-color: #ffa31a; /* Change border color on hover */
-    color: #ffa31a;
+    color: #333;
     cursor: pointer; /* Change cursor on hover */
     transform: scale(1.1); /* Slightly increase size on hover */
 }
@@ -2502,20 +2525,32 @@ strong:hover .custom-tooltip {
 
 /* Day names and date format in FullCalendar */
 #calendarModal .fc .fc-col-header-cell-cushion {
-    color: #ffa31a; /* Orange color for the day names */
+    color: #f9f9f9; /* Orange color for the day names */
     font-weight: bold;
 }
 
 /* Weekday and weekend styling */
 #calendarModal .fc-day {
-    background-color: #1b1b1b; /* Dark background for days */
+    background-color: #03346E; /* Dark background for days */
     color: #fff; /* White text */
     border: 1px solid #666; /* Lighter border for days */
 }
 
+.fc .fc-toolbar-title {
+    color: #1b1b1b;
+    font-size: 1.75em;
+    margin: 0;
+}
+.fc .fc-daygrid-day-number {
+    color: #f9f9f9;
+    position: relative;
+    z-index: 4;
+    padding: 4px;
+}
+
 /* Highlight the current day */
 #calendarModal .fc-day-today {
-    background-color: #ffa31a; /* Blue background for today */
+    background-color: #4154f1; /* Blue background for today */
     color: white;
 }
 
@@ -2549,25 +2584,24 @@ strong:hover .custom-tooltip {
 /* Modal body adjustments */
 #calendarModal .modal-body {
     padding: 0; /* Remove padding to ensure the calendar fits */
-    background-color: #333; /* Dark background for the modal */
     overflow: hidden; /* Ensure content fits within the modal */
 }
 
 /* Change color of the previous button */
 #calendarModal .fc-prev-button {
-    color: #ffa31a; /* Orange color for the previous button */
+    color: #4154f1; /* Orange color for the previous button */
     background-color: #222; /* Darker background for buttons */
 }
 
 /* Change color of the next button */
 #calendarModal .fc-next-button {
-    color: #ffa31a; /* Orange color for the next button */
+    color: #4154f1; /* Orange color for the next button */
     background-color: #222; /* Darker background for buttons */
 }
 
 /* Change color of the today button */
 #calendarModal .fc-today-button {
-    color: #ffa31a; /* Orange color for the today button */
+    color: #4154f1; /* Orange color for the today button */
     background-color: #292929; /* Dark background for the today button */
     cursor: pointer;
 }
@@ -2594,7 +2628,7 @@ strong:hover .custom-tooltip {
 }
 
 #checkReservationDate .fa-calendar-check {
-    color: #ffa31a; /* Set icon color to #ffa31a */
+    color: #03346E; /* Set icon color to #ffa31a */
 }#results-container {
     display: flex;
     flex-direction: column;

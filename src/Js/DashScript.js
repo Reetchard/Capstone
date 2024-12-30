@@ -853,7 +853,7 @@ window.ViewProductInfo = async function (productId) {
             
             // Define an array of colors for the membership cards
             const cardColors = [
-                'linear-gradient(to right, #FFA31A, #1b1b1b, #FFA31A)',  
+                'linear-gradient(to right, #6094EA, #f9f9f9, #6094EA)',  
                 'linear-gradient(to right, #184E68, #57CA85)', 
                 'linear-gradient(to right, #F02FC2, #6094EA)'
             ];
@@ -1176,7 +1176,7 @@ window.ViewProductInfo = async function (productId) {
     
             // Render HTML for the membership history
             membershipHistoryDiv.innerHTML = `
-                <div style="padding: 20px; background: linear-gradient(135deg, #1b1b1b 0%, #4d4d4d 100%); border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                <div style="padding: 20px; background: linear-gradient(135deg, #6EACDA 0%,  #4d4d4d 100%);; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
                     <h4 style="color: #ffffff; font-weight: bold;">Membership History</h4>
                     ${historyHtml}
                 </div>`;
@@ -1747,7 +1747,7 @@ async function displayTrainerRating() {
         // Display the average rating (scaled to 10.0) in the UI next to the stars
         const averageRatingElement = document.getElementById("average-rating-value");
         if (averageRatingElement) {
-            averageRatingElement.innerText = `${averageRating}/10.0`; // Display as "9.8/10.0"
+            averageRatingElement.innerText = `${averageRating}/10`; // Display as "9.8/10.0"
         }
 
     } catch (error) {
@@ -1922,8 +1922,8 @@ async function displayTrainerRating() {
                         bookedDates.push({
                             title: 'Booked',
                             start: date,
-                            color: '#ffa31a',
-                            textColor: '#000000'
+                            color: '#4154f1',
+                            textColor: '#ffa31a'
                         });
                     }
                 });
@@ -1964,7 +1964,7 @@ async function displayTrainerRating() {
                 displayEventTime: false,
                 eventContent: function(arg) {
                     let customEl = document.createElement('div');
-                    customEl.style.color = '#1b1b1b';
+                    customEl.style.color = '#f9f9f9';
                     customEl.style.fontWeight = 'bold';
                     customEl.style.textAlign = 'center';
                     customEl.textContent = arg.event.title;

@@ -172,7 +172,7 @@
                                     </div>
                                 </div>
     
-                                <div class="modal-footer">
+                                <div class="modal-footer" style="border-top: 1px solid #023b6d;">
                                     <button class="btn btn-daypass-secondary" onclick="handleDayPass('PeakPulse Gym')">
                                         <i class="fas fa-ticket-alt"></i> Day Pass Access
                                     </button>
@@ -204,13 +204,18 @@
                             </div>
                         <!-- Carousel Controls -->
                         <a class="carousel-control-prev" href="#gymProfileCarousel" role="button" data-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="carousel-control-icon" viewBox="0 0 16 16" fill="#023b6d">
+                                <path d="M11 1 10 0 3.2929 6.2929 3.2929 7.7071 10 14 11 13 4.7071 7 11 1Z"/>
+                            </svg>
                             <span class="sr-only">Previous</span>
                         </a>
                         <a class="carousel-control-next" href="#gymProfileCarousel" role="button" data-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="carousel-control-icon" viewBox="0 0 16 16" fill="#023b6d">
+                                <path d="M5 1 6 0 12.7071 6.2929 12.7071 7.7071 6 14 5 13 11.2929 7 5 1Z"/>
+                            </svg>
                             <span class="sr-only">Next</span>
                         </a>
+                        
                     </div>
                 </div>
             </div>
@@ -334,7 +339,9 @@
                     </div>
                     <p><strong>Price:</strong> <span id="dynamicPrice">Price</span></p>
                     <p>Please select a date and proceed to the gym counter to complete your payment.</p>
-                    <button type="submit" class="btn btn-success">Confirm Day Pass</button>
+                    <div class="center-container">
+                        <button type="submit" class="btn btn-success">Confirm Day Pass</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -488,7 +495,7 @@
                 <!-- Modal Header -->
                 <div class="modal-header">
                     <h3 class="modal-title">Product Information</h3>
-                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -586,13 +593,13 @@
 <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content" style="border-radius: 10px; overflow: hidden; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);">
-            <div class="modal-header" style="background-color: transparent; color: white; border-bottom: 2px solid #ffa31a;">
+            <div class="modal-header" style="background-color: transparent; color: #1b1b1b; border-bottom: 2px solid #03346E;">
                 <h5 class="modal-title" id="successModalLabel" style="font-size: 1.25rem; font-weight: bold;">🎉 Purchase Successful!</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: white;">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #1b1b1b;">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body" style="background-color: transparent; color: #fff; text-align: justify;">
+            <div class="modal-body" style="background-color: transparent; color: #1b1b1b; text-align: justify;">
                 <div style="text-align: center; margin-bottom: 15px; display: flex; align-items: center; justify-content: center;">
                     <i class="fas fa-check-circle" style="color: #28a745; font-size: 1.5rem; margin-right: 8px;"></i>
                     <p style="font-size: 1rem; margin: 0;">Quantity: <strong><span id="successQuantity"></span></strong></p>
@@ -601,7 +608,7 @@
                 <p style="font-size: 1.1rem;">You have successfully purchased <strong><span id="successProductName"></span></strong> for <strong><span id="successTotalPrice"></span></strong>.</p>
                 <p style="font-size: 1rem;">Please visit <strong><span id="successGymName"></span></strong> to claim your product and present your order list to the cashier, go to the Notification for the reciept.</p>
             </div>
-            <div class="modal-footer" style="background-color: transparent; border-top: 2px solid #ffa31a;">
+            <div class="modal-footer" style="background-color: transparent; border-top: 2px solid #03346E;">
                 <button type="button" class="btn btn-primary" data-dismiss="modal" style="background-color: #28a745; border: none;">OK</button>
             </div>
         </div>
@@ -675,7 +682,7 @@
             <div class="modal-content chat-modal-content">
                 <div class="modal-header chat-modal-header">
                     <h5 class="modal-title" id="chatModalLabel">Chat</h5>
-                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
