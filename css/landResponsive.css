@@ -16,7 +16,7 @@ body {
 
 /* Navigation */
 nav {
-    background-color: #1b1b1b;
+    background-color: #023b6d;
     padding: 10px 20px;
     position: sticky;
     top: 0;
@@ -59,7 +59,7 @@ nav ul li a {
 }
 
 nav ul li a:hover {
-    color: #ffa31a;
+    color: #faf6f0;
 }
 
 .menu-toggle {
@@ -80,7 +80,6 @@ nav ul li a:hover {
     nav ul {
         display: none;
         flex-direction: column;
-        background-color: #1b1b1b;
         position: absolute;
         top: 100%;
         right: 0;
@@ -133,7 +132,7 @@ nav ul li a:hover {
     font-size: 1.2rem;
     border-radius: 50px;
     padding: 10px 20px;
-    background-color: #ff8e00;
+    background-color: #4154f1;
     color: #fff;
     transition: background-color 0.3s ease, transform 0.2s ease;
 }

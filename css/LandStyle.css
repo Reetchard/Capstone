@@ -12,7 +12,6 @@ body {
 
 /* Navigation */
 nav {
-    background-color: #1b1b1b;
     padding: 1px 0;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Added shadow for depth */
     transition: background-color 0.3s ease;
@@ -68,7 +67,7 @@ nav ul li a {
 }
 
 nav ul li a:hover {
-    color: #ffa31a;
+    color: #6EACDA;
     transform: scale(1.1); /* Subtle grow effect on hover */
 }
 
@@ -77,7 +76,7 @@ nav ul li a::after {
     display: block;
     width: 0;
     height: 2px;
-    background-color: #ffa31a;
+    background-color: #6EACDA;
     transition: width 0.3s ease; /* Underline effect */
     position: absolute;
     left: 0;
@@ -92,11 +91,8 @@ nav ul li a:hover {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Add a soft shadow on hover */
 }
 
-nav:hover {
-    background-color: #1b1b1b; /* Slightly darken nav on hover */
-}
 .profile-text{
-    color: #ffa31a;
+    color: #6EACDA;
 }
 
 /* Hero Section */
@@ -174,14 +170,14 @@ nav:hover {
     font-size: 1.2rem;
     border-radius: 50px;
     padding: 10px 20px;
-    background-color: #ff8e00;
+    background-color: #4154f1;
     color: #fff;
     border: none;
     transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .hero-content .btn-primary:hover {
-    background-color: #ffbe33;
+    background-color: #6370f5;
     transform: scale(1.05);
 }
 
@@ -251,7 +247,7 @@ section h2:after {
     display: block;
     width: 50px;
     height: 3px;
-    background-color: #ffa31a;
+    background-color: #4154f1;
     margin: 20px auto;
 }
 
@@ -278,7 +274,7 @@ section h2:after {
 }
 
 .features .feature h3, .trainers-content .trainer h3 {
-    color: #ffa31a;
+    color: #00a6eb;
     margin-bottom: 20px;
 }
 
@@ -322,7 +318,7 @@ section h2:after {
 /* Footer */
 footer {
     padding: 20px 0;
-    background-color: #1b1b1b;
+    background-color: #03346E;
     text-align: center;
     color: #fff;
 }
@@ -645,7 +641,7 @@ p {
 
 /* Profiling Section */
 #profiling {
-    background: #1b1b1b; /* Soft gradient background */
+    background: #03346E; /* Soft gradient background */
     padding: 40px 20px; /* Add padding for spacing */
     border-radius: 10px; /* Rounded corners */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
@@ -708,7 +704,7 @@ p {
     object-fit: cover; /* Maintain aspect ratio */
     border-radius: 10px;
     margin-bottom: 15px;
-    border: 2px solid #ffbe33 ;
+    border: 2px solid #4154f1;
 }
 
 .gym-profile-card h3 {
@@ -729,7 +725,7 @@ p {
 }
 
 .btn-primary {
-    background-color: #ff8e00;
+    background-color: #4154f1;
     color: #fff;
     padding: 12px 24px; /* Increased padding for a more prominent button */
     border-radius: 30px; /* More rounded corners */
@@ -743,7 +739,7 @@ p {
 }
 
 .btn-primary:hover {
-    background-color: #ffbe33;
+    background-color: #00a6eb;
 }
 /* General Styling for Section */
 .section.bg-light {
@@ -933,7 +929,7 @@ p1 {
 }
 
 .services .service h3 {
-    color: #ffa31a;
+    color: #00a6eb;
     margin-bottom: 20px;
 }
 

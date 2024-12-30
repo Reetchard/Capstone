@@ -49,7 +49,7 @@ a:hover{
 button {
     border-radius: 20px;
     border: 1px solid #274046;
-    background-color: #274046;
+    background-color: #4154f1;
     color: #FFFFFF;
     font-size: 14px; /* Increased font size for better readability */
     font-weight: bold;
@@ -63,7 +63,7 @@ button {
     margin-top: 30px;
 }
 button:hover{
-    background-color: #4A6B72; /* Lighter shade for hover effect */
+    background-color: #6370f5; /* Lighter shade for hover effect */
     border-color: #4A6B72; /* Matching border for hover */
     transform: scale(1.05); /* Slightly enlarges the button on hover */
 }
@@ -187,8 +187,8 @@ label{
 
 .overlay {
 	background: #E6DADA;  /* fallback for old browsers */
-    background: -webkit-linear-gradient(to right, #274046, #E6DADA);  /* Chrome 10-25, Safari 5.1-6 */
-    background: linear-gradient(to right, #274046, #E6DADA); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    background: -webkit-linear-gradient(to right, #023b6d, #E6DADA);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #023b6d, #E6DADA); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 	background-repeat: no-repeat;
 	background-size: 200% 100%; /* This allows the animation to be more visible */
 	background-position: 0 0;
@@ -268,7 +268,7 @@ label{
 }
 
 footer {
-    background-color: #222;
+    background-color: #03346E;
     color: #fff;
     font-size: 14px;
     bottom: 0;

@@ -2,17 +2,17 @@
 body {
     margin: 0;
     padding: 0;
-    background: linear-gradient(135deg, #0e1419, #222);
+    background: linear-gradient(135deg, #E6DADA, #023b6d);
     font-family: 'Roboto', sans-serif;
     color: #fff;
 }
 
 header {
     text-align: center;
-    padding: 30px 0;
-    background: #0e1419;
-    color: #2ecc71;
-    font-size: 2.5rem;
+    padding: 10px 0;
+    background: #023b6d;
+    color: #f8f9fa;
+    font-size: 1rem;
     letter-spacing: 2px;
     font-weight: bold;
 }
@@ -21,11 +21,11 @@ header {
     width: 100%;
     max-width: 700px;
     margin: 40px auto;
-    background: #1c1e22;
+    background: #E6DADA;
     padding: 30px;
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-    border: 1px solid #2ecc71;
+    border: 1px solid #023b6d;
 }
 
 form {
@@ -40,7 +40,7 @@ form {
 label {
     font-size: 1.1rem;
     margin-bottom: 8px;
-    color: #2ecc71;
+    color: #1b1b1b;
 }
 
 input[type="text"],
@@ -52,9 +52,9 @@ input[type="time"] {
     font-size: 1rem;
     border: none;
     border-radius: 6px;
-    background: #333;
-    color: #fff;
-    border: 1px solid #2ecc71;
+    background: #E6DADA;
+    color: #333;
+    border: 1px solid #023b6d;
     transition: all 0.3s ease;
 }
 
@@ -68,7 +68,7 @@ input[type="time"]:focus {
 
 .custom-file-upload {
     cursor: pointer;
-    background-color: #2ecc71;
+    background-color: #4154f1;
     color: #0e1419;
     padding: 10px 20px;
     border-radius: 6px;
@@ -78,7 +78,7 @@ input[type="time"]:focus {
 }
 
 .custom-file-upload:hover {
-    background-color: #27ae60;
+    background-color: #6370f5;
     color: #fff;
 }
 
@@ -110,7 +110,7 @@ input[type="time"]:focus {
 
 button.submit-btn {
     width: 100%;
-    background-color: #2ecc71;
+    background-color: #4154f1;
     padding: 15px;
     font-size: 1.2rem;
     color: #fff;
@@ -121,7 +121,7 @@ button.submit-btn {
 }
 
 button.submit-btn:hover {
-    background-color: #27ae60;
+    background-color: #6370f5;
     cursor: pointer;
 }
 
@@ -222,11 +222,12 @@ button.submit-btn:hover {
     justify-content: center;
     align-items: center;
     background-color: #e0e0e0; /* Optional: sets a background color for better contrast */
-    border: 2px solid #ccc; /* Optional: border for styling */
+    border: 2px solid #023b6d; /* Optional: border for styling */
     border-radius: 8px; /* Optional: adds rounded corners */
 }
 
 .photo-preview img {
     width: auto;
     height: 100%;
-    object-fit: contain; /* Ensures the whole i
+    object-fit: contain;
+}
