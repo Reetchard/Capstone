@@ -42,13 +42,13 @@ h1 {
     width: 140px;
     height: 140px;
     border-radius: 50%;
-    border: 3px solid #28a745; /* Green border for a gym-themed touch */
+    border: 3px solid #023b6d; /* Green border for a gym-themed touch */
 }
 
 .change-photo-button {
     margin-top: 15px;
     padding: 10px 20px;
-    background-color: #28a745;
+    background-color: #023b6d;
     color: white;
     border: none;
     border-radius: 20px;

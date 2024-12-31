@@ -668,7 +668,7 @@ function showNotificationDetails(notification) {
                     <p><strong>Email:</strong> ${notification.customerEmail || 'N/A'}</p>
                     <p><strong>Reserve Date:</strong> ${formatDate(notification.timestamp) || 'N/A'}</p>
                 </div>
-                <hr>
+                <hr class="custom-hr">
                 <p class="footer-info">A customer has booked you a session. You can contact the customer by searching for their email or username in your messages.</p>
             `;
         } else {

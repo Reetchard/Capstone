@@ -1133,7 +1133,8 @@ strong:hover .custom-tooltip {
 }
 
 #map {
-    border-radius: 0 0 10px 10px; /* Rounded corners for the bottom of the modal */
+    border: 2px solid #4154f1;
+    border-radius: 10px; /* Rounded corners for the bottom of the modal */
 }
 
 /* Style the close button to match the modal's theme */
