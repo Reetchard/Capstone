@@ -207,11 +207,12 @@ async function fetchAccountsFromFirestore() {
 }
 
 // Sort function to prioritize "Under Review" status and then by ID
+// Sort function to prioritize "Under Review" status and then by ID
 function sortAccountsByStatusAndId() {
     const sortFunction = (a, b) => {
         // "Under Review" appears first
-        if (a.status === 'Under Review' && b.status !== 'Under Review') return -1;
-        if (a.status !== 'Under Review' && b.status === 'Under Review') return 1;
+        if (a.status === 'Under review' && b.status !== 'Under review') return -1;
+        if (a.status !== 'Under review' && b.status === 'Under review') return 1;
 
         // Sort by numeric ID (assuming the ID can be parsed as an integer)
         return parseInt(a.id) - parseInt(b.id);
@@ -221,6 +222,7 @@ function sortAccountsByStatusAndId() {
     accounts.trainers.sort(sortFunction);
     accounts.owners.sort(sortFunction);
 }
+
 
 
 window.handleSearch = function() {
@@ -290,43 +292,106 @@ function populateTables() {
 // Generate HTML row for each account
 function generateTableRow(account) {
     return `
-        <tr>
+        <tr id="account-${account.id}">
             <td>${account.id}</td>
-            <td>${account.username || 'N/A'}</td>
-            <td>${account.status || 'Active'}</td>
             <td>
-                <button class="btn btn-info btn-sm" onclick="viewDetails('${account.id}', '${account.role}')">View</button>
+                <a href="#" onclick="showAccountModal('${account.id}', '${account.username}', '${account.email || ''}', '${account.status || 'Active'}', '${account.role}')">
+                    ${account.username || 'N/A'}
+                </a>
+            </td>
+            <td class="status-cell" id="status-${account.id}">${account.status || 'Active'}</td>
+            <td>
+                <button class="btn btn-success btn-sm" onclick="approveAccount('${account.id}', '${account.role}', this)" ${account.status === 'Approved' ? 'disabled' : ''}>Approve</button>
                 <button class="btn btn-danger btn-sm" onclick="deleteAccount('${account.username}', '${account.role}', this)">Delete</button>
             </td>
         </tr>
     `;
 }
-
-
-// View account details
-window.viewDetails = function(accountId, role) {
-    let account;
-    if (role === 'Customer') {
-        account = accounts.customers.find(acc => acc.id === accountId);
-    } else if (role === 'Trainer') {
-        account = accounts.trainers.find(acc => acc.id === accountId);
-    } else if (role === 'Owner') {
-        account = accounts.owners.find(acc => acc.id === accountId);
-    }
-
-    if (account) {
-        Swal.fire({
-            title: 'Account Details',
-            html: `
-                <strong>Username:</strong> ${account.username || 'N/A'}<br>
-                <strong>Email:</strong> ${account.email || 'N/A'}<br>
-                <strong>Role:</strong> ${role}<br>
-                <strong>Status:</strong> ${account.status || 'Active'}
-            `,
-            icon: 'info'
+// Function to approve the account
+document.addEventListener('DOMContentLoaded', function() {
+    // Ensure the function is available after the DOM is loaded
+    const approveButton = document.getElementById('approve-button-1');
+    if (approveButton) {
+        approveButton.addEventListener('click', function() {
+            approveAccount(accountId); // Example usage with accountId and role
         });
     }
+});
+
+// Example approveAccount function
+function approveAccount(accountId, role, button) {
+    // Assuming you're validating the user using Firestore
+    const email = document.getElementById(`email-${accountId}`).textContent; // Get the email from the DOM
+    const username = document.getElementById(`username-${accountId}`).textContent; // Get the username
+
+    validateUser(accountId, email, username).then(isValid => {
+        if (isValid) {
+            // Update the status and disable the button
+            const statusCell = document.getElementById(`status-${accountId}`);
+            statusCell.textContent = 'Approved';
+            button.disabled = true;
+        } else {
+            alert("User validation failed. Unable to approve.");
+        }
+    }).catch(err => {
+        console.error("Error during user validation:", err);
+        alert("An error occurred while validating the user.");
+    });
 }
+
+// Firestore validation (similar to the previous example)
+function validateUser(accountId, email, username) {
+    return new Promise((resolve, reject) => {
+        const db = firebase.firestore();
+        const userRef = db.collection('Users');
+        const trainerRef = db.collection('Trainer');
+        const gymOwnerRef = db.collection('GymOwner');
+
+        Promise.all([
+            userRef.where('email', '==', email).get(),
+            userRef.where('username', '==', username).get(),
+            trainerRef.where('email', '==', email).get(),
+            trainerRef.where('username', '==', username).get(),
+            gymOwnerRef.where('email', '==', email).get(),
+            gymOwnerRef.where('username', '==', username).get()
+        ])
+        .then(([emailSnapshot, usernameSnapshot, trainerEmailSnapshot, trainerUsernameSnapshot, gymOwnerEmailSnapshot, gymOwnerUsernameSnapshot]) => {
+            if (
+                !emailSnapshot.empty || !usernameSnapshot.empty ||
+                !trainerEmailSnapshot.empty || !trainerUsernameSnapshot.empty ||
+                !gymOwnerEmailSnapshot.empty || !gymOwnerUsernameSnapshot.empty
+            ) {
+                resolve(true);
+            } else {
+                resolve(false);
+            }
+        })
+        .catch(err => {
+            reject(err);
+        });
+    });
+}
+
+
+// Function to update the account status in Firestore
+function updateAccountStatus(accountId, status) {
+    const db = firebase.firestore();
+    const accountRef = db.collection('Users').doc(accountId); // Assuming the account is in the 'Users' collection
+
+    // Update the status field
+    accountRef.update({
+        status: status
+    }).then(() => {
+        console.log(`Account ${accountId} status updated to ${status}`);
+    }).catch(err => {
+        console.error("Error updating account status:", err);
+    });
+}
+
+
+
+
+
 
 window.deleteAccount = async function(username, role, buttonElement) {
     if (!username || username === 'N/A') {
@@ -446,3 +511,43 @@ function showToast(title, message, type = 'primary') {
     const toastInstance = new bootstrap.Toast(toast);
     toastInstance.show();
 }
+document.addEventListener('DOMContentLoaded', () => {
+    // Attach event listeners to usernames
+    document.querySelectorAll('.username').forEach(label => {
+        label.addEventListener('click', async () => {
+            const username = label.dataset.username.trim(); // Get the username from the data attribute
+            await showAccountModal(username);
+        });
+    });
+});
+
+
+
+// Define the showAccountModal function// Define the showAccountModal function
+window. showAccountModal =function(accountId, username, email, status, role) {
+    // Example modal content (you can customize this based on your needs)
+    const modalContent = `
+        <div class="modal-header">
+            <h5 class="modal-title">Account Information</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <p><strong>Username:</strong> ${username}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Status:</strong> ${status}</p>
+            <p><strong>Role:</strong> ${role}</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+    `;
+
+    // Insert the modal content into the modal body element
+    const modalBody = document.getElementById('accountModalBody');
+    modalBody.innerHTML = modalContent;
+
+    // Show the modal
+    const modal = new bootstrap.Modal(document.getElementById('accountModal'));
+    modal.show();
+}
+

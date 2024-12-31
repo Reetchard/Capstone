@@ -47,7 +47,7 @@ input[type="text"],
 input[type="email"],
 input[type="tel"],
 input[type="time"] {
-    width: 100%;
+    width: 95%;
     padding: 10px 9px;
     font-size: 1rem;
     border: none;
@@ -187,21 +187,98 @@ button.submit-btn:hover {
     text-align: center;
 }
 
-/* Spinner itself */
-.spinner-border {
-    width: 3rem;
-    height: 3rem;
-    border: 0.4rem solid rgba(0, 123, 255, 0.2); /* Light border color */
-    border-top: 0.4rem solid #007bff; /* Darker border for the spinning effect */
-    border-radius: 50%; /* This makes it a circle */
+/* Full-screen overlay styling with blue background */
+.spinner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(189, 193, 197, 0.226); /* Solid blue background */
+    backdrop-filter: blur(8px); /* Apply blur effect */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+/* Spinner styling */
+.loader {
+    transform: rotateZ(45deg);
+    perspective: 1000px;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    color: #fff;
+    position: relative;
+}
+
+.loader:before,
+.loader:after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: inherit;
+    height: inherit;
+    border-radius: 50%;
+    transform: rotateX(70deg);
     animation: spin 1s linear infinite;
 }
 
-/* Optional: add some glowing effect to the spinner */
-.glowing-spinner {
-    box-shadow: 0px 0px 10px 5px rgba(0, 123, 255, 0.5);
+.loader:after {
+    color: #FF3D00;
+    transform: rotateY(70deg);
+    animation-delay: 0.4s;
 }
 
+/* Keyframes for animations */
+@keyframes rotate {
+    0% {
+        transform: translate(-50%, -50%) rotateZ(0deg);
+    }
+    100% {
+        transform: translate(-50%, -50%) rotateZ(360deg);
+    }
+}
+
+@keyframes rotateccw {
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    100% {
+        transform: translate(-50%, -50%) rotate(-360deg);
+    }
+}
+
+@keyframes spin {
+    0%,
+    100% {
+        box-shadow: 0.2em 0px 0 0px currentcolor;
+    }
+    12% {
+        box-shadow: 0.2em 0.2em 0 0 currentcolor;
+    }
+    25% {
+        box-shadow: 0 0.2em 0 0px currentcolor;
+    }
+    37% {
+        box-shadow: -0.2em 0.2em 0 0 currentcolor;
+    }
+    50% {
+        box-shadow: -0.2em 0 0 0 currentcolor;
+    }
+    62% {
+        box-shadow: -0.2em -0.2em 0 0 currentcolor;
+    }
+    75% {
+        box-shadow: 0px -0.2em 0 0 currentcolor;
+    }
+    87% {
+        box-shadow: 0.2em -0.2em 0 0 currentcolor;
+    }
+}
 /* Text beneath the spinner */
 .processing-text {
     color: #fff; /* White text color */
@@ -230,4 +307,93 @@ button.submit-btn:hover {
     width: auto;
     height: 100%;
     object-fit: contain;
+}
+/* Buttons */
+button {
+    padding: 10px 15px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Roboto', sans-serif;
+}
+
+#selectProgramsButton,
+#selectEquipmentButton,
+#selectServicesButton {
+    background-color: #4CAF50;
+    color: white;
+}
+
+#saveSelectionButton {
+    background-color: #2196F3;
+    color: white;
+}
+
+#closeModalButton {
+    background-color: #f44336;
+    color: white;
+}
+
+/* Checklist Modal */
+#checklistModal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 500px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    z-index: 1000;
+}
+
+.modal-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.checklist-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+/* Selected Items Display */
+.selected-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 10px;
+    background-color: #235cd6;
+    margin: 5px 0;
+    border-radius: 5px;
+}
+
+.remove-item-btn {
+    background: none;
+    border: none;
+    color: red;
+    font-size: 16px;
+    cursor: pointer;
+}
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #28a745; /* Green color for success */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    z-index: 9999;
+}
+.toast.show {
+    display: block;
+    opacity: 1;
 }

@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, updateDoc, getDocs, query,collection,where   } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
 // Your Firebase config
 const firebaseConfig = {
@@ -99,51 +99,62 @@ async function getNextUserId(role) {
     }
     async function signUpWithEmail(username, email, password, role, errorMessageElement, successMessageElement) {
         clearMessages(errorMessageElement, successMessageElement);
-
+    
         // Normalize username to lowercase for validation
         const normalizedUsername = username.toLowerCase();
-
+    
         let collectionName;
-
+    
         if (normalizedUsername === 'admin') {
-            // Automatically assign to Admin collection if username is 'admin'
             collectionName = 'Admin';
             role = 'admin'; // Force role to 'admin' for consistency
         } else {
-            // Define valid roles
             const validRoles = ['gymowner', 'trainer', 'user'];
-
+    
             if (!validRoles.includes(role.toLowerCase())) {
                 showMessage(errorMessageElement, '🚫 Uh-oh! That role doesn’t exist in our system. Please select "Gym Owner," "Trainer," or "User" and try again.', true);
                 return;
             }
-
+    
             collectionName = role.toLowerCase() === 'gymowner'
                 ? 'GymOwner'
                 : role.toLowerCase() === 'trainer'
                 ? 'Trainer'
                 : 'Users';
         }
-
+    
         if (!isValidEmail(email)) {
             showMessage(errorMessageElement, '📧 Hold on! That email doesn’t seem right. Double-check it and give it another go!', true);
             return;
         }
-
+    
         if (password.length < 6) {
             showMessage(errorMessageElement, '🔑 Password’s too short! You need at least 6 characters for a strong start. Let’s fix that and try again!', true);
             return;
         }
-
+    
         try {
+            // Check if the email already exists
+            const emailQuerySnapshot = await getDocs(query(collection(db, collectionName), where('email', '==', email)));
+            if (!emailQuerySnapshot.empty) {
+                showMessage(errorMessageElement, '🚫 The email is already registered. Please use a different email or log in.', true);
+                return;
+            }
+    
+            // Check if the username already exists
+            const usernameQuerySnapshot = await getDocs(query(collection(db, collectionName), where('username', '==', username)));
+            if (!usernameQuerySnapshot.empty) {
+                showMessage(errorMessageElement, '🚫 The username is already taken. Please choose a different username.', true);
+                return;
+            }
+    
             let userId;
             if (normalizedUsername !== 'admin') {
-                // Only generate a user ID for non-admin accounts
-                userId = await getNextUserId(role);
+                userId = await getNextUserId(role); // Generate user ID for non-admin accounts
             }
-
+    
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-
+    
             await setDoc(doc(db, collectionName, userCredential.user.uid), {
                 userId: normalizedUsername === 'admin' ? 'N/A' : userId, // No ID generation for admin
                 username,
@@ -152,33 +163,32 @@ async function getNextUserId(role) {
                 role,
                 status: role === 'admin' ? 'Active' : 'Under review' // Admin accounts are immediately active
             });
-
-            // Show success message after account creation
+    
             showMessage(successMessageElement, `🎉 Account created successfully for ${username}! You will be redirected shortly.`, false);
-
+    
             clearSignUpFields();
-
-            // Redirect user after a delay
+    
             setTimeout(() => {
                 redirectUser(role);
             }, 3000);
-
+    
         } catch (error) {
             console.error('Error during signup:', error);
-
+    
             let errorMsg;
             switch (error.code) {
                 case 'auth/email-already-in-use':
-                    errorMsg = `🚫 Uh-oh! The email you entered is already in use. <a href="login.html">Log in instead?</a>`;
+                    errorMsg = `🚫 Uh-oh! The email you entered is already in use.Log in instead?`;
                     break;
                 default:
                     errorMsg = `⚠️ Yikes! Something went wrong: ${error.message}. Don’t worry, we’ll help you fix it!`;
                     break;
             }
-
+    
             showMessage(errorMessageElement, errorMsg, true);
         }
     }
+    
 
 
     async function signInWithEmail(email, password, errorMessageElement, successMessageElement) {
