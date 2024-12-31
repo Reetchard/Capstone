@@ -22,39 +22,55 @@
                 </label>
                 <div id="photoPreview" class="photo-preview"></div>
             </div>
-            
+                        
             <!-- Gym Name -->
             <div class="input-container">
                 <label for="gymName">Gym Name</label>
                 <input type="text" id="gymName" placeholder="Enter Gym Name" required>
             </div>
-    
+
+            <!-- Gym Email -->
+            <div class="input-container">
+                <label for="gymemail">Gym Email</label>
+                <input type="email" id="gymemail" placeholder="Enter Gym Email" required>
+            </div>
+
             <!-- Gym Certifications -->
             <div class="input-container">
                 <label for="gymCertifications">Gym Certifications</label>
                 <input type="file" id="gymCertifications" accept="application/pdf, image/*" required>
             </div>
     
-            <!-- Other Gym Details -->
-            <div class="input-container">
-                <label for="gymemail">Gym Email</label>
-                <input type="email" id="gymemail" placeholder="Enter Gym Email" required>
-            </div>
-    
-            <div class="input-container">
-                <label for="gymEquipment">Gym Equipment</label>
-                <input type="text" id="gymEquipment" placeholder="List Gym Equipment" required>
-            </div>
+
     
             <div class="input-container">
                 <label for="gymContact">Contact Number</label>
                 <input type="tel" id="gymContact" placeholder="Enter Contact Number" required>
             </div>
-    
+            <!-- Programs Offered -->
             <div class="input-container">
-                <label for="gymPrograms">Programs Offered</label>
-                <input type="text" id="gymPrograms" placeholder="Enter Gym Programs" required>
+                <label>Programs Offered:</label>
+                <button type="button" id="selectProgramsButton">Select Programs</button>
+                <input type="hidden" id="gymPrograms" />
+                <p id="selectedProgramsDisplay"></p>
             </div>
+
+            <!-- Gym Equipment -->
+            <div class="input-container">
+                <label>Gym Equipment:</label>
+                <button type="button" id="selectEquipmentButton">Select Equipment</button>
+                <input type="hidden" id="gymEquipment" />
+                <p id="selectedEquipmentDisplay"></p>
+            </div>
+
+            <!-- Gym Services -->
+            <div class="input-container">
+                <label>Gym Services:</label>
+                <button type="button" id="selectServicesButton">Select Services</button>
+                <input type="hidden" id="gymServices" />
+                <p id="selectedServicesDisplay"></p>
+            </div>
+            
     
             <!-- Opening & Closing Times -->
             <div class="input-container time-container">
@@ -86,21 +102,60 @@
             <p id="gymOwnerFormSuccessMessage" class="form-message success-message"></p>
         </form>
     </div>
-    <!-- Spinner Modal -->
-    <div id="spinnerModal" class="modal" tabindex="-1" role="dialog" style="display: none;">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content text-center" style="background-color: transparent; border: none;">
-                <div class="modal-body">
-                    <!-- Glowing Spinner -->
-                    <div class="spinner-border text-primary glowing-spinner" role="status">
-                        <span class="sr-only"></span>
-                    </div>
-                    <p class="processing-text mt-3">Processing...</p>
-                </div>
+    <!-- Global Spinner Loader -->
+    <div id="globalSpinner" class="spinner-overlay" style="display: none;">
+        <div class="spinner-container">
+            <span class="loader"></span>
+        </div>
+    </div>
+    <!-- Modal for selecting items -->
+    <div id="checklistModal" style="display: none;">
+        <div class="modal-content">
+            <h3>Select Items</h3>
+            <div id="checklistContainer"></div>
+
+            <!-- Programs Offered -->
+            <div class="input-container">
+                <label>Programs Offered:</label>
+                <button type="button" id="selectProgramsButton">Select Programs</button>
+                <input type="hidden" id="gymPrograms" />
+                <p id="selectedProgramsDisplay"></p>
+
+                <!-- Add custom programs -->
+                <input id="customProgramInput" type="text" placeholder="Add a custom program" />
+                <button id="addProgramButton">Add Program</button>
             </div>
+
+            <!-- Gym Equipment -->
+            <div class="input-container">
+                <label>Gym Equipment:</label>
+                <button type="button" id="selectEquipmentButton">Select Equipment</button>
+                <input type="hidden" id="gymEquipment" />
+                <p id="selectedEquipmentDisplay"></p>
+
+                <!-- Add custom equipment -->
+                <input id="customEquipmentInput" type="text" placeholder="Add custom equipment" />
+                <button id="addEquipmentButton">Add Equipment</button>
+            </div>
+
+            <!-- Gym Services -->
+            <div class="input-container">
+                <label>Gym Services:</label>
+                <button type="button" id="selectServicesButton">Select Services</button>
+                <input type="hidden" id="gymServices" />
+                <p id="selectedServicesDisplay"></p>
+
+                <!-- Add custom services -->
+                <input id="customServiceInput" type="text" placeholder="Add a custom service" />
+                <button id="addServiceButton">Add Service</button>
+            </div>
+
+            <button id="saveSelectionButton">Save Selection</button>
+            <button id="closeModalButton">Close</button>
         </div>
     </div>
 
+    <div id="toast" class="toast"></div>
 
     <!-- Link to external JS file -->
     <script type="module" src="src/Js/GymForm.js"></script>

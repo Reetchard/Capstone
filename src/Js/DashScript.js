@@ -305,6 +305,7 @@ function formatTime(time) {
                 const modalGymEmail = document.getElementById('modalGymEmail');
                 const modalGymContact = document.getElementById('modalGymContact');
                 const modalPriceRate = document.getElementById('modalPriceRate');
+                const modalGymservices = document.getElementById('modalGymservices');
                 const modalGymOpeningTime = document.getElementById('modalGymOpeningTime');
                 const modalGymClosingTime = document.getElementById('modalGymClosingTime');
                 const trainersSection = document.getElementById('trainers-section');
@@ -316,6 +317,7 @@ function formatTime(time) {
                 if (modalGymLocation) modalGymLocation.innerText = gymData.gymLocation || 'N/A';
                 if (modalGymEquipment) modalGymEquipment.innerText = gymData.gymEquipment || 'N/A';
                 if (modalGymPrograms) modalGymPrograms.innerText = gymData.gymPrograms || 'N/A';
+                if (modalGymservices) modalGymservices.innerText = gymData.gymServices || 'N/A';
                 if (modalGymEmail) modalGymEmail.innerText = gymData.email || 'N/A';
                 if (modalGymContact) modalGymContact.innerText = gymData.gymContact || 'N/A';
                 if (modalPriceRate) modalPriceRate.innerText = gymData.gymPriceRate || 'N/A';
