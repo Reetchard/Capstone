@@ -369,3 +369,22 @@ onAuthStateChanged(auth, (user) => {
         fetchGymOwnerUsername();
     }
 });
+
+window. toggleDropdown =function() {
+    const dropdownMenu = document.getElementById('dropdown-menu');
+    if (dropdownMenu.style.display === 'block') {
+        dropdownMenu.style.display = 'none';
+    } else {
+        dropdownMenu.style.display = 'block';
+    }
+}
+
+// Close the dropdown if clicked outside
+window.addEventListener('click', function (e) {
+    const dropdownMenu = document.getElementById('dropdown-menu');
+    const profileUsername = document.getElementById('profile-username');
+
+    if (!profileUsername.contains(e.target) && !dropdownMenu.contains(e.target)) {
+        dropdownMenu.style.display = 'none';
+    }
+});

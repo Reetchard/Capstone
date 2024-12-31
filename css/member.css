@@ -1,23 +1,55 @@
-/* General Styling */
+/* General Styles */
 body {
-    font-family: 'Merriweather', serif; /* Updated to a more formal font */
-    background-color: #292929; /* Dark background */
-    color: #FAF0E6; /* Light gray text */
-    overflow-x: hidden;
+    background-color: #f8f9fa; /* Light background */
 }
 
-nav ul {
+header {
+    font-family: 'Roboto', sans-serif;
+    background-color: #6c63ff; /* Vibrant purple background */
+    color: white;
+    padding: 15px 20px; /* Padding for header */
+}
+
+.navheader-container {
     display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: auto;
+    width: 100%;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    font-size: 1.5rem;
+}
+
+.logo img {
+    height: 40px; /* Adjust logo size */
+    margin-right: 10px; /* Space between logo and text */
+}
+
+.profile-text {
+    color: #ffcc00; /* Different color for emphasis */
+}
+
+.hamburger-container {
+    display: none; /* Hidden initially, shown later for mobile */
+}
+
+.navheader-links {
     list-style: none;
+    display: flex; /* Flexbox layout */
+    margin: 0;
     padding: 0;
 }
 
-nav ul li {
-    margin: 0 15px;
-    position: relative;
+.navheader-links li {
+    margin-left: 20px; /* Space between links */
 }
 
-nav ul li a {
+.navheader-links a {
     color: #FAF6F0; /* Text color */
     text-decoration: none; /* Remove underline */
     font-weight: bold; /* Bold text */
@@ -25,124 +57,80 @@ nav ul li a {
     letter-spacing: 0.5px; /* Letter spacing for a modern feel */
 }
 
-nav ul li a:hover {
+.navheader-links a:hover {
     color: #ffa31a; /* Text color on hover */
     transform: scale(1.1); /* Subtle grow effect on hover */
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Soft shadow on hover */
 }
 
-nav ul li a::after {
-    content: ''; /* Create an empty element */
-    display: block; /* Display as block */
-    width: 0; /* Initial width for underline effect */
-    height: 2px; /* Height of the underline */
-    background-color: #ffa31a; /* Underline color */
-    transition: width 0.3s ease; /* Transition effect for underline */
-    position: absolute; /* Position it relative to the parent */
-    left: 0; /* Align to the left */
-    bottom: -5px; /* Position below the text */
-}
-
-nav ul li a:hover::after {
-    width: 100%; /* Full width on hover */
-}
-
+/* Sidebar Styles */
 .sidebar {
-    background-color: #1b1b1b;
-    width: 250px;
-    height: 100vh;
-    position: fixed;
+    background-color: #ffffff; /* Sidebar background color */
+    width: 250px; /* Fixed width for sidebar */
+    height: 100vh; /* Full height */
+    position: fixed; /* Fixed position */
     top: 0;
-    left: -250px; 
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
-    overflow-y: auto;
-    transition: transform 0.3s ease, left 0.3s ease;
-    z-index: 1000;
+    left: -250px; /* Initially hidden */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+    overflow-y: auto; /* Scrollable if content exceeds */
+    transition: left 0.3s ease; /* Animation for sliding */
+    z-index: 999; /* Below header */
 }
 
+/* Show Sidebar */
 .sidebar.show {
-    left: 0; /* Slide-in */
+    left: 0; /* Slide-in effect */
 }
 
-/* Sidebar on Large Screens */
-@media (min-width: 992px) {
-    .sidebar {
-        left: 0; /* Always visible on wider screens */
-    }
-
-    #toggleSidebar {
-        display: none; /* Hide hamburger button on large screens */
-    }
+/* Sidebar Links Styles */
+.sidebar-links {
+    padding: 0; /* Remove default padding */
 }
 
-/* Hamburger Button */
-.hamburger-container {
-    width: 50px;
-    height: 50px;
-    background-color: #007bff;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, background-color 0.3s ease, left 0.3s ease;
+.sidebar-links .nav-item {
+    margin: 10px 0; /* Space between items */
+    display: flex; /* Flexbox for aligning items */
+    justify-content: space-between; /* Space between text and notification */
+    align-items: center; /* Center items vertically */
 }
 
-.hamburger-container:hover {
-    background-color: #0056b3;
-    transform: scale(1.1);
-}
-
-.hamburger-container.moved {
-    left: 270px; /* Aligns with sidebar when open */
-}
-
-/* Hamburger Lines */
-.hamburger {
-    position: relative;
-    width: 30px;
-    height: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-.hamburger .line {
-    width: 100%;
-    height: 3px;
-    background-color: white;
-    border-radius: 2px;
-    transition: transform 0.3s ease, opacity 0.3s ease;
-}
-
-/* Open State Animation */
-.hamburger-container.open .line:nth-child(1) {
-    transform: translateY(9px) rotate(45deg);
-}
-
-.hamburger-container.open .line:nth-child(2) {
-    opacity: 0;
-}
-
-.hamburger-container.open .line:nth-child(3) {
-    transform: translateY(-9px) rotate(-45deg);
-}
-
-/* Sidebar Links */
 .sidebar-links .nav-link {
-    color: #ffffff;
-    padding: 10px 15px;
-    font-size: 16px;
-    border-radius: 5px;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    color: #333; /* Dark text color */
+    text-decoration: none; /* Remove underline */
+    padding: 10px 15px; /* Padding */
+    border-radius: 5px; /* Rounded corners */
+    transition: background-color 0.3s ease;
+    display: flex; /* Flexbox for icon alignment */
+    align-items: center; /* Center items vertically */
 }
 
 .sidebar-links .nav-link:hover {
-    background-color: #007bff;
-    color: #fff;
+    background-color: #f1f1f1; /* Light grey background on hover */
 }
 
+/* Icons */
+.nav-link i {
+    margin-right: 10px; /* Space between icon and text */
+    color: #020202; /* Icon color */
+}
+
+/* Hamburger Menu Styles */
+.hamburger-container {
+    display: none; /* Hidden by default */
+}
+
+@media (max-width: 768px) {
+    .hamburger-container {
+        display: block; /* Show on mobile */
+    }
+}
+
+/* Responsive Sidebar for Larger Screens */
+@media (min-width: 769px) {
+    .sidebar {
+        left: 0; /* Always show sidebar on larger screens */
+    }
+}
 /* Profile Section */
 .profile-container {
     padding: 15px;
@@ -160,9 +148,10 @@ nav ul li a:hover::after {
     margin-top: 10px;
 }
 
-/* General Styles */
+/* General Content Styles */
 .content {
     padding: 30px;
+    margin-left: 250px; /* Ensure content is not hidden behind sidebar */
 }
 
 .container-fluid {
@@ -172,50 +161,32 @@ nav ul li a:hover::after {
 
 /* Card Styles */
 .card {
-    background-color: #F3DAD8; /* Light background */
-    border: 2px solid #544B3D; /* Dark border */
+    background-color: #ffffff; /* White background for cards */
     border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     transition: transform 0.2s ease;
 }
 
 .card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
 }
 
 /* Enhanced Card Header */
 .card-header {
-    background: #544B3D; /* Dark header background */
-    color: #F3DAD8; /* Light text color */
-    padding: 24px 30px;
+    background: #6c63ff; /* Main header color */
+    color: #ffffff; /* White text color */
+    padding: 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    gap: 16px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    border-radius: 12px 12px 0 0;
-    transition: background 0.3s ease;
-}
-
-.card-header:hover {
-    background: #7A6A5C; /* Slightly lighter on hover */
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .card-header h4 {
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: 700;
     margin: 0;
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-}
-
-/* Specific style for the profile-text span */
-.card-header h4 .profile-text {
-    color: #FFA500; /* Orange highlight */
-    font-weight: bold;
 }
 
 /* Search Actions */
@@ -223,24 +194,18 @@ nav ul li a:hover::after {
     display: flex;
     align-items: center;
     gap: 16px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
 }
 
 /* Input and Buttons */
 .card-header input {
-    padding: 10px 14px;
+    padding: 10px;
     border: 1px solid #ddd;
     border-radius: 8px;
-    outline: none;
-    transition: all 0.3s ease;
-    min-width: 220px;
-    flex: 1;
+    transition: border-color 0.3s;
 }
 
 .card-header input:focus {
-    border-color: #80bdff;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    border-color: #6c63ff;
 }
 
 .card-header button {
@@ -249,102 +214,83 @@ nav ul li a:hover::after {
     border-radius: 8px;
     cursor: pointer;
     font-size: 1rem;
-    transition: background 0.3s ease, transform 0.2s ease;
-    white-space: nowrap;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    background-color: #6c63ff; /* Button color */
+    color: #ffffff; /* White text */
+    transition: background 0.3s;
 }
 
-.card-header .search-btn {
-    background-color: #F3DAD8; /* Light background */
-    color: #544B3D; /* Dark text */
-}
-
-.card-header .search-btn:hover {
-    background-color: #FFA500;
-    transform: translateY(-2px);
-}
-
-.card-header .delete-btn {
-    background-color: #E57373; /* Red shade for delete */
-    color: #fff;
-}
-
-.card-header .delete-btn:hover {
-    background-color: #C62828; /* Darker red on hover */
+.card-header button:hover {
+    background-color: #5b54e6; /* Darker shade on hover */
 }
 
 /* Responsive Search Bar */
 @media (max-width: 768px) {
     .card-header {
         flex-direction: column;
-        align-items: flex-start;
     }
 
     .card-header .search-actions {
         flex-direction: column;
         width: 100%;
     }
-
-    .card-header input {
-        width: 100%;
-        margin-bottom: 8px;
-    }
-
-    .card-header button {
-        width: 100%;
-    }
 }
 
+/* Card Body */
 .card-body {
     padding: 20px;
-    font-size: 1rem;
-    line-height: 1.5;
-    background-color: #544B3D; /* Light background for body */
-    color: #544B3D; /* Dark text for readability */
-    border-radius: 12px;
+    background-color: #f9f9f9; /* Light background for body */
 }
+
 /* Modern Table Styles */
 .table {
     width: 100%;
-    border-collapse: collapse; /* Collapse borders */
-    border-radius: 12px; /* Rounded corners for the table */
-    overflow: hidden; /* Ensure rounded corners are visible */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Light shadow for table */
+    border-collapse: collapse;
 }
 
 .table thead {
-    background-color: #544B3D; /* Header background color */
-    color: #F3DAD8; /* Header text color */
-    text-transform: uppercase; /* Uppercase for headers */
-    font-weight: bold; /* Bold headers */
+    background-color: #6c63ff; /* Header background color */
+    color: #ffffff; /* Header text color */
+}
+
+.table th, .table td {
+    padding: 16px;
+    text-align: center;
 }
 
 .table th {
-    padding: 16px; /* Increased padding for headers */
-    text-align: center;
-    font-weight: 600;
-    border-bottom: 2px solid #F3DAD8; /* Light border for headers */
+    border-bottom: 2px solid #ddd;
 }
 
 .table td {
-    padding: 16px; /* Increased padding for cells */
-    text-align: center;
-    background-color: #F3DAD8; /* Light background for cells */
-    border: 1px solid #eee; /* Light border */
-    border-radius: 8px; /* Rounded corners for cells */
-    transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transitions */
-    color: #544B3D; /* Dark text color */
+    background-color: #ffffff; /* Light background for cells */
+    border: 1px solid #ddd;
+    transition: background-color 0.3s;
 }
 
-.table tr {
-    transition: background-color 0.3s ease;
+.table tr:hover td {
+    background-color: #e6e6e6; /* Light grey on hover */
 }
 
+/* Additional Styles for Progress and Stats */
+.progress {
+    background-color: #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    height: 20px;
+}
+
+.progress-bar {
+    background-color: #6c63ff; /* Progress bar color */
+    height: 100%;
+    transition: width 0.4s;
+}
+
+/* Table Row Hover Effect */
 .table tr:hover td {
     background-color: #ffa31a; /* Background color on hover */
     transform: translateY(-2px); /* Slight lift effect */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Shadow on hover */
-    color: #1b1b1b; /* Change font color to a dark color on hover */
+    color: #1b1b1b; /* Change font color to dark */
 }
 
 /* Scrollbar Styles for Mobile */
@@ -365,6 +311,7 @@ nav ul li a:hover::after {
 .table-responsive::-webkit-scrollbar-thumb:hover {
     background: #555; /* Darker thumb color on hover */
 }
+
 /* Smooth Transitions */
 button,
 input,
@@ -399,37 +346,15 @@ input,
         display: none; /* Hide hamburger button on large screens */
     }
 }
+
+/* Responsive Adjustments */
 @media (max-width: 768px) {
-    .card-body {
-        padding: 15px; /* Adjust padding for smaller screens */
+    .modal-dialog {
+        max-width: 90%; /* Make the modal smaller on smaller screens */
     }
 
-    .container {
-        overflow-x: auto; /* Enable horizontal scrolling */
-    }
-
-    /* Custom scrollbar styles for mobile */
-    .container::-webkit-scrollbar {
-        height: 6px; /* Height of the horizontal scrollbar */
-    }
- 
-    .table th, .table td {
-        padding: 10px; /* Reduced padding for table cells */
-        font-size: 0.9rem; /* Smaller font size for table */
-    }
-
-    .btn-primary, .btn-success {
-        padding: 10px; /* Reduced padding for buttons */
-    }
-}
-
-@media (max-width: 576px) {
-    .container {
-        padding: 8px; /* Further reduced padding for very small screens */
-    }
-
-    .table th, .table td {
-        font-size: 0.8rem; /* Smaller font size for very small screens */
+    .modal-body {
+        padding: 20px; /* Less padding for smaller screens */
     }
 }
 
@@ -465,15 +390,16 @@ input,
 /* Modal Body Styling */
 .modal-body {
     padding: 30px; /* Add extra padding inside the modal */
-    background-color: #1b1b1b;
+    background-color: #1b1b1b; /* Dark background */
     font-family: Arial, sans-serif; /* Use a clean font */
 }
 
+/* Image Styling */
 .img-fluid {
     max-width: 150px; /* Max width for the profile image */
     height: auto; /* Maintain aspect ratio */
     border-radius: 50%; /* Make the image round */
-    border: 2px solid #007bff; /* Add border matching the header */
+    border: 2px solid #007bff; /* Border matching the header */
     margin-bottom: 20px; /* Space below the image */
 }
 
@@ -486,10 +412,10 @@ input,
 .form-control {
     border-radius: 5px; /* Rounded borders for inputs */
     border: 1px solid #ddd; /* Light gray border */
-    padding: 10px; /* Add padding inside the inputs */
+    padding: 10px; /* Padding for inputs */
     font-size: 1rem; /* Standard font size */
     background-color: #f9f9f9; /* Slightly gray background for inputs */
-    color: #333; /* Darker text color */
+    color: #333; /* Dark text color */
     transition: all 0.3s ease; /* Smooth transition for focus effect */
 }
 
@@ -514,7 +440,53 @@ input,
     background-color: #5a6268; /* Darker gray on hover */
 }
 
-/* Responsive Adjustments */
+/* Badge Styles */
+.badge {
+    font-size: 0.75rem;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+/* Notification Dot */
+.notification-dot {
+    display: none; /* Hidden by default */
+    height: 10px;
+    width: 10px;
+    background-color: red; /* Red color for notification */
+    border-radius: 50%; /* Circular dot */
+    position: absolute; /* Position relative to parent */
+    top: 5px;  /* Adjust to position at the top */
+    right: 7px;  /* Position it near the text */
+}
+
+/* Custom Scrollbar Styles */
+.table-responsive::-webkit-scrollbar {
+    height: 8px; /* Height of the horizontal scrollbar */
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Background of the scrollbar track */
+    border-radius: 10px; /* Rounded corners for the track */
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #333; /* Color of the scrollbar thumb */
+    border-radius: 10px; /* Rounded corners for the thumb */
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Darker thumb color on hover */
+}
+
+/* Smooth Transitions */
+button,
+input,
+.table td,
+.card {
+    transition: all 0.3s ease-in-out;
+}
+
+/* Adjustments for Smaller Screens */
 @media (max-width: 768px) {
     .modal-dialog {
         max-width: 90%; /* Make the modal smaller on smaller screens */
@@ -523,27 +495,35 @@ input,
     .modal-body {
         padding: 20px; /* Less padding for smaller screens */
     }
-}
-.badge {
-    font-size: 0.75rem;
-    margin-left: 10px;
-    vertical-align: middle;
-}.notification-dot {
-    display: none;
-    height: 10px;
-    width: 10px;
-    background-color: red;
-    border-radius: 50%;
-    position: absolute;
-    top: 5px;  /* Adjust to position at the top */
-    right: 7px;  /* Adjust to position it near the text */
+
+    .table th, .table td {
+        padding: 10px; /* Reduced padding for table cells */
+        font-size: 0.9rem; /* Smaller font size for table */
+    }
+
+    .btn-primary, .btn-success {
+        padding: 10px; /* Reduced padding for buttons */
+    }
 }
 
+/* Adjustments for Very Small Screens */
+@media (max-width: 576px) {
+    .container {
+        padding: 8px; /* Further reduced padding for very small screens */
+    }
 
-/* Adjust badge position */
-.sidebar-links .nav-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    .table th, .table td {
+        font-size: 0.8rem; /* Smaller font size for very small screens */
+    }
 }
 
+/* Responsive Content Margins */
+@media (min-width: 992px) {
+    .content {
+        margin-left: 250px; /* Content margin for sidebar */
+    }
+
+    #toggleSidebar {
+        display: none; /* Hide hamburger button on large screens */
+    }
+}

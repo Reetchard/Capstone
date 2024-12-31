@@ -9,151 +9,409 @@
     <!-- FontAwesome CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS -->
-     <link rel="stylesheet" href="css/member.css">
-     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
-     <style>
-        body {
-            background-color: #F3DAD8; /* Light pink background */
-            font-family: 'Merriweather', serif;
-        }
-            .sidebar {
-        background-color: #544B3D;
-        color: white;
-        position: fixed;
-        top: 0;
-        left: -250px;
-        width: 250px;
-        height: 100%;
-        transition: left 0.3s ease;
-        z-index: 1050;
-        overflow-y: auto;  /* Enable scrolling for long sidebars */
-    }
-        /* Sidebar Visible on Desktop (md and up) */
-@media (min-width: 768px) {
-    .sidebar {
-        left: 0;
-        width: 250px;
-        position: fixed;
-    }
+    <link rel="stylesheet" href="css/member.css">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+/* General Reset */
+body {
+    font-family: 'Merriweather', serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
 
-    .hamburger-container {
-        display: none;  /* Hide Hamburger on Desktop */
+/* Navbar Styling */
+.navbar {
+    background-color: #6c63ff;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 70px; /* Reduced height */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.logo {
+    font-size: 1.5rem;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-img {
+    height: 40px; /* Adjusted size for better proportions */
+    animation: logo-glow 3s infinite ease-in-out;
+}
+
+/* Glowing Effect for Logo */
+@keyframes logo-glow {
+    0%, 100% {
+        filter: drop-shadow(0 0 5px #ffb84d);
+    }
+    50% {
+        filter: drop-shadow(0 0 15px #ffb84d);
     }
 }
-            .sidebar.show {
-            left: 0; /* Show sidebar */
-        }
-        .sidebar .nav-link {
-            color: white; /* White text for sidebar links */
-        }
-        .sidebar .nav-link:hover {
-            background-color: #444; /* Darker on hover */
-        }
-        .table {
-            background-color: #50C878; /* Emerald green for tables */
-            color: black; /* Black text for table */
-        }
-        .table thead {
-            background-color: #444; /* Darker header for tables */
-            color: white; /* White text for thead */
-        }
-        .main-content h3 {
-            color: #544B3D; /* Dark text for section headers */
-        }
-        .btn-primary {
-            background-color: #50C878; /* Button color */
-            border: none;
-        }
-        .btn-primary:hover {
-            background-color: #45a049; /* Darker green on hover */
-        }
-        .card {
-            background-color: #fff; /* White cards */
-            border: 1px solid #ddd; /* Light border */
-        }
-        /* Hamburger Container */
-        .hamburger-container {
-            cursor: pointer;
-        }
 
-        /* Hamburger Lines */
-        .hamburger .line {
-            width: 35px;
-            height: 4px;
-            background-color: white;
-            margin: 7px auto;
-            display: block;
-            border-radius: 4px;
-            transition: all 0.3s ease;
-        }
-        /* Hamburger Transforms to X */
-        .hamburger.open .line:nth-child(1) {
-            transform: translateY(11px) rotate(45deg);
-        }
+/* Navbar Item Hover Effect */
+.nav-link i {
+    font-size: 1.5rem; /* Set the icon size */
+    transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), color 0.3s ease; /* Smooth transition */
+    transform-origin: center; /* Ensure the icon scales from the center */
+}
 
-        .hamburger.open .line:nth-child(2) {
-            opacity: 0;
-        }
+.nav-item:hover .nav-link i {
+    transform: scale(1.4) rotateY(10deg) rotateX(-5deg); /* 3D zoom effect with rotation */
+    color: #ffb84d; /* Change the icon color */
+}
 
-        .hamburger.open .line:nth-child(3) {
-            transform: translateY(-11px) rotate(-45deg);
-        }
-        /* Sidebar Links */
-        .sidebar .nav-link {
-            color: white;
-            padding: 15px;
-        }
+/* Navbar Item Name with Smooth Hover Animation */
+.nav-item-name {
+    position: absolute;
+    top: -40px; /* Start position above the nav-item */
+    left: 50%; /* Center horizontally relative to nav-item */
+    transform: translate(-50%, 0); /* Center position */
+    opacity: 0; /* Initially hidden */
+    background-color: #ffb84d; /* Background color for the name tag */
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: #fff; /* Text color */
+    font-size: 0.85rem;
+    white-space: nowrap; /* Prevents text wrapping */
+    transition: opacity 0.3s ease, top 0.3s ease, transform 0.3s ease; /* Smooth transition */
+}
 
-        .sidebar .nav-link:hover {
-            background-color: #6c5e4d;
-        }
+.nav-item:hover .nav-item-name {
+    opacity: 1; /* Fully visible on hover */
+    top: 50px; /* Slides down below the icon */
+    transform: translate(-50%, -20px); /* Smooth vertical slide */
+}
+
+
+/* Navbar Item Zoom Effect */
+.nav-link i {
+    font-size: 1.5rem; /* Increase size of the icon */
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.nav-item:hover .nav-link i {
+    transform: scale(1.3); /* Zoom effect on hover */
+    color: #ffb84d; /* Change icon color on hover */
+}
+
+.navbar-nav {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-item {
+    margin: 0 15px;
+    position: relative;
+    opacity: 0;
+    transform: translateY(-20px);
+    animation: nav-item-slide-in 0.8s forwards;
+}
+
+.nav-item:nth-child(1) {
+    animation-delay: 0.2s;
+}
+
+.nav-item:nth-child(2) {
+    animation-delay: 0.4s;
+}
+
+.nav-item:nth-child(3) {
+    animation-delay: 0.6s;
+}
+
+.nav-item:nth-child(4) {
+    animation-delay: 0.8s;
+}
+
+.nav-item:nth-child(5) {
+    animation-delay: 1s;
+}
+
+@keyframes nav-item-slide-in {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.nav-item {
+    position: relative;
+}
+
+.nav-item-name {
+    position: absolute;
+    top: -40px; /* Position above the icon */
+    left: 50%;
+    transform: translate(-50%, 0); /* Center horizontally */
+    opacity: 0; /* Initially hidden */
+    background-color: #ffb84d;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    transition: all 0.3s ease; /* Smooth transition for sliding and opacity */
+}
+
+.nav-item:hover .nav-item-name {
+    opacity: 1; /* Fully visible on hover */
+    top: 40px; /* Slide down below the icon */
+}
+
+/* Profile Section with Pulse Animation */
+.profile-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: profile-pulse 2s infinite ease-in-out;
+}
+
+@keyframes profile-pulse {
+    0%, 100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 5px white);
+    }
+    50% {
+        transform: scale(1.05);
+        filter: drop-shadow(0 0 15px #ffb84d);
+    }
+}
+
+#profile-picture {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid white;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+#profile-picture:hover {
+    transform: scale(1.2);
+    border-color: #ffb84d;
+}
+
+#profile-username {
+    color: white;
+    font-size: 0.9rem;
+    font-weight: bold;
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+#profile-username:hover {
+    color: #ffb84d;
+}
+
+/* Navbar Bottom Line Animation */
+.navbar::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: -100%;
+    height: 4px;
+    width: 100%;
+    background: linear-gradient(90deg, #ffb84d, #ff4d4d);
+    animation: navbar-line-slide 2s infinite;
+}
+
+@keyframes navbar-line-slide {
+    0% {
+        left: -100%;
+    }
+    50% {
+        left: 0;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar-nav {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .profile-container {
+        display: none; /* Hide on smaller screens */
+    }
+}
+
+/* Dropdown Menu */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* Dropdown Styling */
+.dropdown {
+    position: relative; /* Ensure the dropdown is positioned relative to this container */
+    z-index: 20; /* Higher z-index to ensure it's above other elements */
+}
+
+.dropdown-menu {
+    display: none; /* Initially hidden */
+    position: absolute;
+    top: 100%; /* Position below the username */
+    left: 0;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 30; /* Ensure it's above other animations */
+    text-align: left;
+    min-width: 120px;
+    animation: dropdown-slide-in-right 0.3s ease; /* Slide-in from the right */
+}
+
+.dropdown-menu a {
+    display: block;
+    padding: 5px 10px;
+    text-decoration: none;
+    color: #fff;
+    background-color: #dc3545; /* Log Out button color */
+    border-radius: 3px;
+    text-align: center;
+}
+
+.dropdown-menu a:hover {
+    background-color: #bd2130; /* Darker shade on hover */
+}
+
+/* Animation for sliding in from the right */
+@keyframes dropdown-slide-in-right {
+    from {
+        opacity: 0;
+        transform: translateX(-50px); /* Start from the right */
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0); /* Move to the original position */
+    }
+}
+
+/* Logo Positioning */
+.logo {
+    font-size: 1.5rem;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: flex-start; /* Align logo to the left */
+    margin: 0; /* Remove any default margin */
+    padding: 0; /* Ensure there's no extra padding */
+}
+
+.logo-img {
+    height: 40px; /* Adjusted size for better proportions */
+    animation: logo-glow 3s infinite ease-in-out;
+}
+
+/* Glowing Effect for Logo */
+@keyframes logo-glow {
+    0%, 100% {
+        filter: drop-shadow(0 0 5px #ffb84d);
+    }
+    50% {
+        filter: drop-shadow(0 0 15px #ffb84d);
+    }
+}
+
+
     </style>
 </head>
 <body>
-<!-- Hamburger Button -->
-<div class="hamburger-container d-lg-none position-fixed" id="toggleSidebar" style="top: 20px; left: 20px; z-index: 1050;">
-    <div class="hamburger">
-        <span class="line"></span>
-        <span class="line"></span>
-        <span class="line"></span>
-    </div>
-</div>
-
-<!-- Sidebar -->
-<nav class="sidebar shadow-lg hidden">
-    <div class="profile-container text-center mb-4">
-        <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" 
-             class="img-fluid rounded-circle mb-2" style="width: 100px; height: 100px;">
-        <h3 id="profile-username" class="mt-2 white-text">Loading...</h3>
-        <a href="login.html" class="btn btn-danger btn-sm mt-2">Log Out</a>
-    </div>
-    <ul class="nav flex-column sidebar-links">
-        <li class="nav-item">
-            <a class="nav-link" href="ManageServices.html"><i class="fas fa-id-card"></i> Manage Services/Promotions</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="member.html"><i class="fas fa-users"></i> Manage Members</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="trainer-info.html"><i class="fas fa-dumbbell"></i> Manage Trainer Profile</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="Products.html"><i class="fas fa-box"></i> Manage Products</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="membership.html"><i class="fas fa-id-card"></i> Manage Memberships</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="Transactions.html"><i class="fas fa-credit-card"></i> Manage Transactions</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="DayPass.html"><i class="fas fa-calendar-alt"></i> Manage Day Pass</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="salesandinventory.html"><i class="fas fa-clipboard-list"></i> Sales and Inventory</a>
-        </li>
-    </ul>
-</nav>
+    <header>
+        <nav class="navbar navbar-expand-lg">
+            <div class="container-fluid">
+                <!-- Logo -->
+                <h1 class="logo">
+                    <img src="framework/img/peak1.png" alt="PeakPulse">PEAK <span class="profile-text">PULSE</span>
+                </h1>
+                
+                <!-- Nav items -->
+                <div class="navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ml-auto">
+                        <!-- Sidebar Links -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="ManageServices.html">
+                                <i class="fas fa-id-card"></i>
+                                <span class="nav-item-name">Manage Services/Promotions</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="member.html">
+                                <i class="fas fa-users"></i>
+                                <span class="nav-item-name">Manage Members</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="trainer-info.html">
+                                <i class="fas fa-dumbbell"></i>
+                                <span class="nav-item-name">Manage Trainer Profile</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="Products.html">
+                                <i class="fas fa-box"></i>
+                                <span class="nav-item-name">Manage Products</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="membership.html">
+                                <i class="fas fa-id-card"></i>
+                                <span class="nav-item-name">Manage Memberships</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="Transactions.html">
+                                <i class="fas fa-credit-card"></i>
+                                <span class="nav-item-name">Manage Transactions</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="DayPass.html">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span class="nav-item-name">Manage Day Pass</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="salesandinventory.html">
+                                <i class="fas fa-clipboard-list"></i>
+                                <span class="nav-item-name">Sales and Inventory</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+    
+                <!-- Profile info (Right side) -->
+                <div class="profile-container">
+                    <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" 
+                         class="img-fluid rounded-circle">
+                    <div class="dropdown">
+                        <span id="profile-username" class="dropdown-toggle ml-2" onclick="toggleDropdown()">Gym Owner</span>
+                        <div id="dropdown-menu" class="dropdown-menu">
+                            <a href="login.html" class="btn btn-danger btn-sm">Log Out</a>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </nav>
+    </header>
+    
+    
 <!-- Manage Members Section -->
 <div class="content">
     <div class="container-fluid">

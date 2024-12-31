@@ -340,40 +340,72 @@ document.addEventListener('DOMContentLoaded', () => {
     
 
 
-    // Show the modal with the appropriate checklist
-    function showModal(selectionType) {
-        currentSelectionType = selectionType;
+// Show the modal with the appropriate checklist
+function showModal(selectionType) {
+    currentSelectionType = selectionType;
 
-        let items = [];
-        let selectedItems = [];
-        // Hide all custom add inputs first
-        document.getElementById('customProgramInput').style.display = "none";
-        document.getElementById('addProgramButton').style.display = "none";
-        document.getElementById('customEquipmentInput').style.display = "none";
-        document.getElementById('addEquipmentButton').style.display = "none";
-        document.getElementById('customServiceInput').style.display = "none";
-        document.getElementById('addServiceButton').style.display = "none";
+    let items = [];
+    let selectedItems = [];
+    // Hide all custom add inputs first
+    document.getElementById('customProgramInput').style.display = "none";
+    document.getElementById('addProgramButton').style.display = "none";
+    document.getElementById('customEquipmentInput').style.display = "none";
+    document.getElementById('addEquipmentButton').style.display = "none";
+    document.getElementById('customServiceInput').style.display = "none";
+    document.getElementById('addServiceButton').style.display = "none";
 
-        if (selectionType === "programs") {
-            items = programs;
-            selectedItems = gymProgramsInput.value.split(",").filter((val) => val);
-            document.getElementById('customProgramInput').style.display = "inline-block";
-            document.getElementById('addProgramButton').style.display = "inline-block";
-        } else if (selectionType === "equipment") {
-            items = equipment;
-            selectedItems = gymEquipmentInput.value.split(",").filter((val) => val);
-            document.getElementById('customEquipmentInput').style.display = "inline-block";
-            document.getElementById('addEquipmentButton').style.display = "inline-block";
-        } else if (selectionType === "services") {
-            items = services;
-            selectedItems = gymServicesInput.value.split(",").filter((val) => val);
-            document.getElementById('customServiceInput').style.display = "inline-block";
-            document.getElementById('addServiceButton').style.display = "inline-block";
-        }
-
-        populateChecklist(items, selectedItems);
-        checklistModal.style.display = "flex";
+    // Logic for selecting the relevant items
+    if (selectionType === "programs") {
+        items = programs;
+        selectedItems = gymProgramsInput.value.split(",").filter((val) => val);
+        document.getElementById('customProgramInput').style.display = "inline-block";
+        document.getElementById('addProgramButton').style.display = "inline-block";
+    } else if (selectionType === "equipment") {
+        items = equipment;
+        selectedItems = gymEquipmentInput.value.split(",").filter((val) => val);
+        document.getElementById('customEquipmentInput').style.display = "inline-block";
+        document.getElementById('addEquipmentButton').style.display = "inline-block";
+    } else if (selectionType === "services") {
+        items = services;
+        selectedItems = gymServicesInput.value.split(",").filter((val) => val);
+        document.getElementById('customServiceInput').style.display = "inline-block";
+        document.getElementById('addServiceButton').style.display = "inline-block";
     }
+
+    // Attach event listeners for adding custom items
+    if (selectionType === "programs") {
+        document.getElementById('addProgramButton').addEventListener('click', () => {
+            const newItem = document.getElementById('customProgramInput').value.trim();
+            if (newItem && !items.includes(newItem)) {
+                programs.push(newItem); // Add the custom program to the programs list
+                gymProgramsInput.value = [...selectedItems, newItem].join(",");
+                populateChecklist(programs, [...selectedItems, newItem]); // Re-populate the checklist
+            }
+        });
+    } else if (selectionType === "equipment") {
+        document.getElementById('addEquipmentButton').addEventListener('click', () => {
+            const newItem = document.getElementById('customEquipmentInput').value.trim();
+            if (newItem && !items.includes(newItem)) {
+                equipment.push(newItem); // Add the custom equipment to the equipment list
+                gymEquipmentInput.value = [...selectedItems, newItem].join(",");
+                populateChecklist(equipment, [...selectedItems, newItem]); // Re-populate the checklist
+            }
+        });
+    } else if (selectionType === "services") {
+        document.getElementById('addServiceButton').addEventListener('click', () => {
+            const newItem = document.getElementById('customServiceInput').value.trim();
+            if (newItem && !items.includes(newItem)) {
+                services.push(newItem); // Add the custom service to the services list
+                gymServicesInput.value = [...selectedItems, newItem].join(",");
+                populateChecklist(services, [...selectedItems, newItem]); // Re-populate the checklist
+            }
+        });
+    }
+
+    populateChecklist(items, selectedItems); // Populate checklist with selected items
+    checklistModal.style.display = "flex"; // Show the modal
+}
+
 
     // Save the selected items
     saveSelectionButton.addEventListener("click", () => {
