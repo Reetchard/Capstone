@@ -350,6 +350,7 @@ async function fetchGymOwnerUsername() {
             if (gymOwnerDocSnap.exists()) {
                 const username = gymOwnerDocSnap.data().username || 'Gym Owner';
                 document.querySelector('#profile-username').textContent = username;
+                document.querySelector('#profile-username-mobile').textContent = username;
             } else {
                 document.querySelector('#profile-username').textContent = 'Gym Owner';
                 console.error("Gym owner document not found.");

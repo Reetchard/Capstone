@@ -1,22 +1,55 @@
-/* General Styling */
+/* General Styles */
 body {
-    font-family: "Helvitica Neue", Arial, sans-serif;
-    background-color: #1b1b1b; /* Dark background */
-    color: #FAF0E6;
-    overflow-x: hidden;
+    background-color: #f8f9fa; /* Light background */
 }
-nav ul {
+
+header {
+    font-family: 'Roboto', sans-serif;
+    background-color: #6c63ff; /* Vibrant purple background */
+    color: white;
+    padding: 15px 20px; /* Padding for header */
+}
+
+.navheader-container {
     display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: auto;
+    width: 100%;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    font-size: 1.5rem;
+}
+
+.logo img {
+    height: 40px; /* Adjust logo size */
+    margin-right: 10px; /* Space between logo and text */
+}
+
+.profile-text {
+    color: #ffcc00; /* Different color for emphasis */
+}
+
+.hamburger-container {
+    display: none; /* Hidden initially, shown later for mobile */
+}
+
+.navheader-links {
     list-style: none;
+    display: flex; /* Flexbox layout */
+    margin: 0;
     padding: 0;
 }
 
-nav ul li {
-    margin: 0 15px;
-    position: relative;
+.navheader-links li {
+    margin-left: 20px; /* Space between links */
 }
 
-nav ul li a {
+.navheader-links a {
     color: #FAF6F0; /* Text color */
     text-decoration: none; /* Remove underline */
     font-weight: bold; /* Bold text */
@@ -24,127 +57,80 @@ nav ul li a {
     letter-spacing: 0.5px; /* Letter spacing for a modern feel */
 }
 
-nav ul li a:hover {
+.navheader-links a:hover {
     color: #ffa31a; /* Text color on hover */
     transform: scale(1.1); /* Subtle grow effect on hover */
-}
-
-nav ul li a::after {
-    content: ''; /* Create an empty element */
-    display: block; /* Display as block */
-    width: 0; /* Initial width for underline effect */
-    height: 2px; /* Height of the underline */
-    background-color: #ffa31a; /* Underline color */
-    transition: width 0.3s ease; /* Transition effect for underline */
-    position: absolute; /* Position it relative to the parent */
-    left: 0; /* Align to the left */
-    bottom: -5px; /* Position below the text */
-}
-
-nav ul li a:hover::after {
-    width: 100%; /* Full width on hover */
-}
-
-nav ul li a:hover {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Soft shadow on hover */
 }
-/* Sidebar */
+
+/* Sidebar Styles */
 .sidebar {
-    width: 250px;
-    height: 100vh;
-    position: fixed;
+    background-color: #ffffff; /* Sidebar background color */
+    width: 250px; /* Fixed width for sidebar */
+    height: 100vh; /* Full height */
+    position: fixed; /* Fixed position */
     top: 0;
-    left: -250px; /* Hidden initially */
-    background-color: #1b1b1b;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    overflow-y: auto;
-    transition: transform 0.3s ease, left 0.3s ease;
-    z-index: 1000;
+    left: -250px; /* Initially hidden */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+    overflow-y: auto; /* Scrollable if content exceeds */
+    transition: left 0.3s ease; /* Animation for sliding */
+    z-index: 999; /* Below header */
 }
 
+/* Show Sidebar */
 .sidebar.show {
-    left: 0; /* Slide-in */
+    left: 0; /* Slide-in effect */
 }
 
-/* Sidebar on Large Screens */
-@media (min-width: 992px) {
-    .sidebar {
-        left: 0; /* Always visible on wider screens */
-    }
-
-    #toggleSidebar {
-        display: none; /* Hide hamburger button on large screens */
-    }
+/* Sidebar Links Styles */
+.sidebar-links {
+    padding: 0; /* Remove default padding */
 }
 
-/* Hamburger Button */
-.hamburger-container {
-    width: 50px;
-    height: 50px;
-    background-color: #007bff;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, background-color 0.3s ease, left 0.3s ease;
+.sidebar-links .nav-item {
+    margin: 10px 0; /* Space between items */
+    display: flex; /* Flexbox for aligning items */
+    justify-content: space-between; /* Space between text and notification */
+    align-items: center; /* Center items vertically */
 }
 
-.hamburger-container:hover {
-    background-color: #0056b3;
-    transform: scale(1.1);
-}
-
-.hamburger-container.moved {
-    left: 270px; /* Aligns with sidebar when open */
-}
-
-/* Hamburger Lines */
-.hamburger {
-    position: relative;
-    width: 30px;
-    height: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-.hamburger .line {
-    width: 100%;
-    height: 3px;
-    background-color: white;
-    border-radius: 2px;
-    transition: transform 0.3s ease, opacity 0.3s ease;
-}
-
-/* Open State Animation */
-.hamburger-container.open .line:nth-child(1) {
-    transform: translateY(9px) rotate(45deg);
-}
-
-.hamburger-container.open .line:nth-child(2) {
-    opacity: 0;
-}
-
-.hamburger-container.open .line:nth-child(3) {
-    transform: translateY(-9px) rotate(-45deg);
-}
-
-/* Sidebar Links */
 .sidebar-links .nav-link {
-    color: #ffffff;
-    padding: 10px 15px;
-    font-size: 16px;
-    border-radius: 5px;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    color: #fff; /* Dark text color */
+    text-decoration: none; /* Remove underline */
+    padding: 10px 15px; /* Padding */
+    border-radius: 5px; /* Rounded corners */
+    transition: background-color 0.3s ease;
+    display: flex; /* Flexbox for icon alignment */
+    align-items: center; /* Center items vertically */
 }
 
 .sidebar-links .nav-link:hover {
-    background-color: #007bff;
-    color: #fff;
+    background-color: #f1f1f1; /* Light grey background on hover */
 }
 
+/* Icons */
+.nav-link i {
+    margin-right: 10px; /* Space between icon and text */
+    color: #020202; /* Icon color */
+}
+
+/* Hamburger Menu Styles */
+.hamburger-container {
+    display: none; /* Hidden by default */
+}
+
+@media (max-width: 768px) {
+    .hamburger-container {
+        display: block; /* Show on mobile */
+    }
+}
+
+/* Responsive Sidebar for Larger Screens */
+@media (min-width: 769px) {
+    .sidebar {
+        left: 0; /* Always show sidebar on larger screens */
+    }
+}
 /* Profile Section */
 .profile-container {
     padding: 15px;
@@ -161,6 +147,144 @@ nav ul li a:hover {
     font-size: 18px;
     margin-top: 10px;
 }
+/* General Content Styles */
+/* General Content Styles */
+/* Main Content Container */
+.content {
+    padding: 40px;
+    margin-left: 250px; /* Space for sidebar */
+    margin-top: 50px; /* Space between navbar and content */
+    margin-right: 10px; /* Space between navbar and content */
+    background-color: #ffffff; /* Clean white background */
+    border-radius: 16px; /* More rounded corners */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Enhanced shadow */
+}
+
+/* Fluid Container */
+.container-fluid {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Card Styles */
+.card {
+    background-color: #ffffff; /* White background */
+    border-radius: 16px; /* More rounded corners */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Softer shadow */
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
+    margin-bottom: 40px; /* Space between cards */
+    overflow: hidden; /* Ensure elements don't overflow */
+    position: relative; /* Position for the badge */
+}
+
+.card:hover {
+    transform: translateY(-6px); /* Lift effect */
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15); /* Deeper shadow on hover */
+}
+
+/* Enhanced Card Header */
+.card-header {
+    background: #6c63ff; /* Main header color */
+    color: #ffffff; /* White text color */
+    padding: 20px; /* Padding */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3); /* Thicker border */
+}
+
+.card-header h4 {
+    font-size: 1.6rem; /* Larger font size */
+    font-weight: 500; /* Medium weight */
+    margin: 0;
+}
+
+/* Card Body */
+.card-body {
+    padding: 25px; /* More padding for body */
+    background-color: #f8f9fa; /* Light background for body */
+}
+
+.card-body p {
+    font-size: 1rem; /* Consistent font size */
+    color: #fff; /* Softer dark color */
+}
+
+/* Card Footer */
+
+.status-badge {
+    padding: 5px 10px; /* Badge padding */
+    font-size: 0.8em; /* Font size for the badge */
+    border-radius: 12px; /* Rounded badge */
+}
+
+.card-img-top {
+    width: 100px; /* Set a fixed width */
+    height: 100px; /* Set a fixed height */
+    object-fit: cover; /* Maintain aspect ratio while covering the area */
+    border-radius: 50%; /* Make the image circular */
+    border: 3px solid #28a745; /* Green border for visibility */
+    margin-top: 20px; /* Space from the top */
+    display: block; /* Ensure it behaves like a block element */
+}
+
+.card-footer {
+    padding: 10px 0; /* Padding for footer */
+}
+
+.card-footer a {
+    text-decoration: none; /* No underline */
+    color: #007bff; /* Link color */
+    font-weight: bold; /* Bold text */
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column; /* Stack items vertically on mobile */
+        align-items: flex-start; /* Align items to the left */
+        padding: 15px; /* More padding for touch targets */
+    }
+
+    .navbar .icon {
+        display: none; /* Hide icons on mobile */
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 10px; /* Adjust padding for mobile */
+    }
+    .card {
+        padding: 15px; /* Reduce card padding */
+        width: 90%; /* Make card width responsive */
+        max-width: none; /* Remove max-width for mobile */
+    }
+    .card-headerfirst {
+        flex-direction: column; /* Stack items vertically on small screens */
+        align-items: flex-start; /* Align items to the start */
+    }
+    .card-headerfirst {
+        padding: 10px; /* Adjust header padding */
+    }
+}
+    .card-headerfirst h2 {
+        text-align: center; /* Center text on small screens */
+        width: 100%; /* Make sure it takes full width */
+    }
+
+    .card-body p {
+        font-size: 0.9rem; /* Smaller font size for body text */
+    }
+
+    .status-badge {
+        font-size: 0.7em; /* Smaller badge font size */
+    }
+
+    .card-img-top {
+        width: 80px; /* Smaller image on mobile */
+        height: 80px; /* Maintain aspect ratio */
+    }
 
 /* Responsive Behavior */
 @media (max-width: 991.98px) {
@@ -176,6 +300,27 @@ nav ul li a:hover {
         margin-left: 0;
     }
 }
+@media (max-width: 576px) {
+    .card {
+        padding: 10px; /* Further reduce padding */
+    }
+
+    .card-headerfirst {
+        padding: 10px; /* Adjust header padding */
+    }
+
+    .card-headerfirst h2 {
+        font-size: 1.5rem; /* Adjust font size for smaller screens */
+    }
+
+    .card-body {
+        padding: 15px; /* Adjust body padding */
+    }
+
+    .card-footer {
+        padding: 8px 0; /* Adjust footer padding */
+    }
+}
 
 
 @media (min-width: 992px) {
@@ -188,33 +333,44 @@ nav ul li a:hover {
     }
 }
 /* Card Styles */
+.container {
+    display: grid; /* Use grid layout */
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Responsive columns */
+    gap: 20px; /* Space between cards */
+    padding: 20px;
+}
+
+/* Optional: Customize scrollbar for WebKit browsers */
 .card {
     background-color: #f8f9fa; /* Card background color */
     padding: 20px; /* Inner padding for the card */
     border-radius: 8px; /* Rounded corners */
-    margin: 0 auto; /* Center the card if needed */
-    max-width: 800px; /* Increased maximum width of the card */
-    width: 100%; /* Allow card to take the full width of the container */
-    margin-left: 260px; /* Adjusted margin to account for the sidebar */
-    margin-right: 20px; /* Right margin */
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Shadow for depth */
+    text-align: center; /* Center text */
 }
 
-.card-header {
-    background-color: #343a40;
-    color: #0f0f0f;
-    border-bottom: none;
-    border-radius: 8px 8px 0 0;
-    padding: 25px;
+.card-headerfirst {
+    background-color: #6f42c1; /* Purple background */
+    color: #f8c74e; /* Gold text color */
+    border-radius: 8px 8px 0 0; /* Rounded top corners */
+    padding: 15px; /* Padding for the header */
+    display: flex; /* Flexbox for alignment */
+    justify-content: center; /* Center all items horizontally */
+    align-items: center; /* Center items vertically */
+    position: relative; /* Position for absolute elements if needed */
+    width: 100%; /* Ensure it spans full width */
 }
 
-.card-body {
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #fff;
-    overflow-x: auto; /* Enable horizontal scrolling if needed */
+.card-headerfirst h2 {
+    margin: 0; /* Remove default margin */
+    text-align: center; /* Center the text */
+    flex-grow: 1; /* Allow the title to take up available space */
 }
+
+.profile-text {
+    font-weight: bold; /* Optional: make profile text bold */
+}
+
 
 /* Table Styles */
 .table {
@@ -223,6 +379,7 @@ nav ul li a:hover {
     width: 100%; /* Full width for the table */
     border-collapse: collapse; /* Collapse borders */
 }
+
 .table tbody {
     display: flex; /* Use flexbox for tbody */
     flex-direction: column; /* Stack rows vertically */
@@ -230,13 +387,16 @@ nav ul li a:hover {
     overflow-y: auto; /* Enable vertical scrolling if needed */
     max-height: 400px; /* Limit height for scrolling */
 }
-.table th, .table td {
+
+.table th,
+.table td {
     text-align: left; /* Align text to the left */
     padding: 12px; /* Padding for table cells */
     border-bottom: 1px solid #dee2e6; /* Bottom border for rows */
     overflow: hidden; /* Hide overflow content */
     text-overflow: ellipsis; /* Add ellipsis for overflowing text */
 }
+
 .table th {
     background-color: #343a40; /* Dark background for better contrast */
     color: #ffffff; /* White text color for better readability */
@@ -253,7 +413,6 @@ nav ul li a:hover {
 .table th:not(:first-child) {
     width: auto; /* Allow other columns to adjust */
 }
-
 
 
 /* Button Styles */
@@ -695,22 +854,32 @@ body {
 
 /* Card Styles */
 .card {
-    border-radius: 10px;
+    background-color: #ffffff; /* White background */
+    border-radius: 16px; /* More rounded corners */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Softer shadow */
     overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
+    margin-bottom: 40px; /* Space between cards */
 }
 
-.card-header {
-    background: linear-gradient(45deg, #ffa31a, #1b1b1b);
-    color: white;
-    font-weight: bold;
-    text-align: center;
-    padding: 20px;
-    border-bottom: 3px solid #117a8b;
+.card:hover {
+    transform: translateY(-6px); /* Lift effect */
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15); /* Deeper shadow on hover */
+}
+.card-headerfirst {
+    background: #6c63ff; /* Main header color */
+    color: #ffffff; /* White text color */
+    padding: 20px; /* Padding */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3); /* Thicker border */
 }
 
-.card-body {
-    background-color: #1f1f1f;
-    color: white;
+.card-header h4 {
+    font-size: 1.6rem; /* Larger font size */
+    font-weight: 500; /* Medium weight */
+    margin: 0;
 }
 
 /* Input and Button Styles */
@@ -849,4 +1018,92 @@ button.btn-danger:hover {
 
 .h3{
     color: #ffffff;
+}
+
+* Profile Container Styles */
+.profile-container-mobile {
+    margin-top: auto; /* Pushes the profile container to the bottom */
+    display: flex; /* Flexbox for layout */
+    align-items: center; /* Center items vertically */
+}
+/* Dropdown Menu Styles */
+.dropdown-menu {
+    display: none; /* Hide dropdown menu by default */
+    position: absolute; /* Position absolutely within the dropdown */
+    background-color: white; /* Background color for dropdown */
+    color: black; /* Text color for dropdown */
+    border-radius: 5px; /* Rounded corners */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Shadow for dropdown */
+    z-index: 1001; /* Ensure it appears above other content */
+}
+
+.dropdown:hover .dropdown-menu {
+    display: block; /* Show dropdown on hover */
+}
+/* Profile Section */
+.profile-container-mobile {
+    padding: 15px;
+    border-bottom: 2px solid #ddd;
+}
+
+.profile-container-mobile img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+}
+
+.profile-container-mobile h3 {
+    font-size: 18px;
+    margin-top: 10px;
+}
+.profile-container-mobile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: profile-pulse 2s infinite ease-in-out;
+}
+#profile-picture {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid white;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+#profile-picture-mobile:hover {
+    transform: scale(1.2);
+    border-color: #ffb84d;
+}
+
+#profile-username-mobile {
+    color: white;
+    font-size: 0.9rem;
+    font-weight: bold;
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+#profile-username:hover {
+    color: #ffb84d;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%; /* Full width on mobile */
+        position: relative; /* Change to relative for mobile */
+    }
+}
+
+/* Responsive Styles for Mobile */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%; /* Full width on mobile */
+        position: relative; /* Change to relative for mobile */
+    }
+    
+    #profile-picture {
+        width: 80; /* Smaller width for mobile */
+        height: 50px; /* Smaller height for mobile */
+    }
 }

@@ -774,3 +774,90 @@ input,
         display: none; /* Hide hamburger button on large screens */
     }
 }
+/* Profile Container Styles */
+.profile-container-mobile {
+    margin-top: auto; /* Pushes the profile container to the bottom */
+    display: flex; /* Flexbox for layout */
+    align-items: center; /* Center items vertically */
+}
+/* Dropdown Menu Styles */
+.dropdown-menu {
+    display: none; /* Hide dropdown menu by default */
+    position: absolute; /* Position absolutely within the dropdown */
+    background-color: white; /* Background color for dropdown */
+    color: black; /* Text color for dropdown */
+    border-radius: 5px; /* Rounded corners */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Shadow for dropdown */
+    z-index: 1001; /* Ensure it appears above other content */
+}
+
+.dropdown:hover .dropdown-menu {
+    display: block; /* Show dropdown on hover */
+}
+/* Profile Section */
+.profile-container-mobile {
+    padding: 15px;
+    border-bottom: 2px solid #ddd;
+}
+
+.profile-container-mobile img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+}
+
+.profile-container-mobile h3 {
+    font-size: 18px;
+    margin-top: 10px;
+}
+.profile-container-mobile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: profile-pulse 2s infinite ease-in-out;
+}
+#profile-picture {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid white;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+#profile-picture-mobile:hover {
+    transform: scale(1.2);
+    border-color: #ffb84d;
+}
+
+#profile-username-mobile {
+    color: white;
+    font-size: 0.9rem;
+    font-weight: bold;
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+#profile-username:hover {
+    color: #ffb84d;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%; /* Full width on mobile */
+        position: relative; /* Change to relative for mobile */
+    }
+}
+
+/* Responsive Styles for Mobile */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%; /* Full width on mobile */
+        position: relative; /* Change to relative for mobile */
+    }
+    
+    #profile-picture {
+        width: 80; /* Smaller width for mobile */
+        height: 50px; /* Smaller height for mobile */
+    }
+}

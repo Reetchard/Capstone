@@ -9,6 +9,18 @@ header {
     color: white;
     padding: 15px 20px; /* Padding for header */
 }
+@media (max-width: 768px) {
+    .main-content {
+        display: flex; /* Use flexbox for layout */
+        flex-direction: column; /* Stack items vertically */
+        align-items: flex-start; /* Align items to the left */
+    }
+
+    #downloadReportBtn {
+        margin-top: 20px; /* Add space above the button */
+        align-self: flex-start; /* Align the button to the left */
+    }
+}
 
 .navheader-container {
     display: flex;
@@ -30,22 +42,8 @@ header {
     margin-right: 10px; /* Space between logo and text */
 }
 
-.main-content h1 {
-    font-size: 2rem; /* Larger font size */
-    font-weight: 700; /* Bold weight */
-    margin: 0; /* Remove margin for tight spacing */
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5); /* Text shadow for emphasis */
-    color: #574bfa; /* White color for the main title */
-}
-
-/* Specific style for the profile-text span */
 .profile-text {
-    color: #FFA500; /* Orange color for the highlighted text */
-    font-weight: bold; /* Ensure the highlighted text is bold */
-}
-.container h5 .profile-text {
-    color: #FFA500; /* Orange color for the highlighted text */
-    font-weight: bold; /* Ensure the highlighted text is bold */
+    color: #ffcc00; /* Different color for emphasis */
 }
 
 .hamburger-container {
@@ -164,27 +162,16 @@ header {
 /* General Content Styles */
 /* General Content Styles */
 /* Main Content Container */
-.container {
+.content {
     padding: 40px;
-    margin-left: 250px;
-    margin-top: 50px; 
-    max-width: 1400px;
-    margin-right: 10px; 
-    background-color: #ffffff; 
-    border-radius: 16px; 
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); 
-    overflow-y: auto; 
-    max-height: 90vh; 
-    }
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .container {
-        margin: 20px; /* Add equal margin on all sides for mobile */
-        width: auto; /* Allow the container to take full width on smaller screens */
-        padding: 20px; /* Reduce padding on mobile for a more compact look */
-    }
+    margin-left: 250px; /* Space for sidebar */
+    margin-top: 50px; /* Space between navbar and content */
+    margin-right: 10px; /* Space between navbar and content */
+    background-color: #ffffff; /* Clean white background */
+    border-radius: 16px; /* More rounded corners */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Enhanced shadow */
 }
+
 /* Fluid Container */
 .container-fluid {
     max-width: 1200px;
@@ -243,37 +230,32 @@ header {
 }
 
 /* Modern Table Styles */
-/* Table Styles */
 .table {
-    width: 100%; /* Full width of the container */
-    border-collapse: collapse; /* Merge borders */
-    margin-top: 20px; /* Space above the table */
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on touch devices */
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px; /* Space above table */
 }
 
-/* Table Headers */
-.table th {
+.table thead {
     background-color: #6c63ff; /* Header background color */
-    color: #FFF; /* Light text for headers */
-    text-align: center; /* Center text in headers */
-    padding: 15px; /* Padding for headers */
-    font-weight: 600; /* Medium weight */
-    text-transform: uppercase; /* Make headers uppercase */
-    letter-spacing: 1px; /* Add spacing between letters */
-  
+    color: #ffffff; /* Header text color */
 }
 
-/* Table Cells */
-.table td {
-    text-align: center; /* Center text in cells */
-    padding: 12px; /* Consistent padding */
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* Subtle row separation */
-    overflow: hidden; /* Prevent overflow of text */
-    text-overflow: ellipsis; /* Show ellipsis for overflow text */
-    white-space: nowrap; /* Prevent text wrapping */
-    background-color: #ffffff; /* Uniform background color for all rows */
-   
+.table th, .table td {
+    padding: 16px; /* Consistent padding */
+    text-align: center;
+    border: 1px solid #ddd; /* Light border */
 }
+
+.table th {
+    border-bottom: 2px solid #ddd; /* Thicker border */
+}
+
+.table td {
+    background-color: #ffffff; /* Light background for cells */
+    transition: background-color 0.3s; /* Smooth hover transition */
+}
+
 .table tr:hover td {
     background-color: #e0e0e0; /* Light grey on hover */
 }
@@ -291,18 +273,10 @@ header {
     height: 100%;
     transition: width 0.4s, background-color 0.4s; /* Smooth transitions */
 }
-/* Scrollbar Styles for Table */
-.table-responsive {
-    max-height: 400px; /* Set a maximum height for the table */
-    overflow-y: auto; /* Enable vertical scrolling */
-    overflow-x: hidden; /* Prevent horizontal scrolling */
-    border: 1px solid #ddd; /* Optional: Add a border around the scrollable area */
-    border-radius: 16px; /* Match the card's border radius */
-}
 
-/* Custom Scrollbar Styles for Table */
+/* Scrollbar Styles for Mobile */
 .table-responsive::-webkit-scrollbar {
-    width: 2px; /* Width of the vertical scrollbar */
+    height: 8px; /* Height of horizontal scrollbar */
 }
 
 .table-responsive::-webkit-scrollbar-track {
@@ -311,7 +285,7 @@ header {
 }
 
 .table-responsive::-webkit-scrollbar-thumb {
-    background: #888; /* Color of the scrollbar thumb */
+    background: #333; /* Color of scrollbar thumb */
     border-radius: 10px; /* Rounded corners */
 }
 
@@ -319,54 +293,11 @@ header {
     background: #555; /* Darker on hover */
 }
 
-/* Custom Scrollbar Styles for Container */
-/* Scrollbar Styles for the Container */
-.container::-webkit-scrollbar {
-    height: 8px; /* Height of the horizontal scrollbar */
-}
-
-.container::-webkit-scrollbar-track {
-    background: #f1f1f1; /* Background of the scrollbar track */
-    border-radius: 10px; /* Rounded corners for the track */
-}
-
-.container::-webkit-scrollbar-thumb {
-    background: #333; /* Color of the scrollbar thumb */
-    border-radius: 10px; /* Rounded corners for the thumb */
-}
-
-.container::-webkit-scrollbar-thumb:hover {
-    background: #555; /* Darker thumb color on hover */
-}
-
-
 /* Responsive Design Adjustments */
 @media (max-width: 768px) {
-    .container {
-        margin-left: 10px; /* Adjust margins for smaller screens */
-        margin-right: 10px; /* Uniform margins */
-        padding: 20px; /* Adjust padding for mobile */
-        overflow-y: auto; /* Ensure vertical scrolling is enabled */
-        max-height: 80vh; /* Adjust max height for mobile */
-    }
-
-    /* Thinner scrollbar for mobile */
-    .container::-webkit-scrollbar {
-        width: 1px; /* Set width to 1px for thinner scrollbar on mobile */
-    }
-    
-    .container::-webkit-scrollbar-track {
-        background: #f1f1f1; /* Background of scrollbar track */
-        border-radius: 10px; /* Rounded corners */
-    }
-    
-    .container::-webkit-scrollbar-thumb {
-        background: #888; /* Color of the scrollbar thumb */
-        border-radius: 10px; /* Rounded corners */
-    }
-    
-    .container::-webkit-scrollbar-thumb:hover {
-        background: #555; /* Darker on hover */
+    .content {
+        margin-left: 0; /* Full width for mobile */
+        padding: 20px; /* Adjust padding */
     }
 
     .card-header {
@@ -406,6 +337,7 @@ header {
         overflow-x: auto; /* Enable horizontal scrolling */
     }
 }
+
 /* Smooth Transitions */
 button,
 input,
@@ -469,7 +401,7 @@ input,
 
 /* Scrollbar Styles for Mobile */
 .table-responsive::-webkit-scrollbar {
-    height: px; /* Height of the horizontal scrollbar */
+    height: 8px; /* Height of the horizontal scrollbar */
 }
 
 .table-responsive::-webkit-scrollbar-track {
@@ -547,6 +479,7 @@ input,
 
 .modal-title {
     font-size: 1.5rem; /* Bigger font size for the title */
+    font-weight: bold; /* Make the title bold */
 }
 
 /* Modal Body Styling */
@@ -579,22 +512,19 @@ input,
 .modal-footer .btn:hover {
     background-color: #5a54d1; /* Darken button on hover */
 }
+
 .btn-close {
     background: none; /* Remove default background */
     border: none; /* Remove border */
     font-size: 1.25rem; /* Increase the close button size */
     color: white; /* Close button color */
     opacity: 0.6; /* Slightly transparent */
-    width: 50px; /* Set a fixed width */
-    height: 50px; /* Set a fixed height */
-    display: flex; /* Center content */
-    align-items: center; /* Vertically center */
-    justify-content: center; /* Horizontally center */
 }
 
 .btn-close:hover {
-    opacity: 1; /* Fully opaque on hover */
+    opacity: 1; /* Make the close button fully opaque on hover */
 }
+
 
 
 /* Image Styling */
@@ -634,64 +564,15 @@ input,
     background-color: #6c757d; /* Gray color for the close button */
     color: white; /* White text color */
     border: none; /* Remove border */
-    padding: 10px; /* Add uniform padding */
+    padding: 10px 20px; /* Add padding for the button */
     border-radius: 5px; /* Rounded corners */
     transition: background-color 0.3s; /* Smooth transition for hover effect */
-    width: 120px; /* Set a fixed width */
-    height: 50px; /* Set a fixed height to match */
-    display: flex; /* Center content */
-    align-items: center; /* Vertically center */
-    justify-content: center; /* Horizontally center */
 }
 
 .btn-secondary:hover {
     background-color: #5a6268; /* Darker gray on hover */
 }
-.button-container {
-    display: flex; /* Use flexbox for horizontal alignment */
-    gap: 5px; /* Space between buttons */
-}
 
-.button-container button {
-    flex: 1; /* Allow buttons to grow equally */
-    height: 30px; /* Set a smaller fixed height for all buttons */
-    display: flex; /* Center content */
-    align-items: center; /* Vertically center the content */
-    justify-content: center; /* Horizontally center the content */
-    font-size: 0.8rem; /* Smaller font size */
-    padding: 0 10px; /* Adjust padding for smaller buttons */
-}
-
-/* Style for specific button types (optional) */
-.btn-warning {
-    background-color: #ffc107; /* Warning color */
-    color: white;
-    border: none;
-}
-
-.btn-success {
-    background-color: #28a745; /* Success color */
-    color: white;
-    border: none;
-}
-
-.btn-danger {
-    background-color: #dc3545; /* Danger color */
-    color: white;
-    border: none;
-}
-
-.button-container button:hover {
-    opacity: 0.8; /* Slightly transparent on hover */
-}
-
-/* Responsive Adjustments (if needed) */
-@media (max-width: 768px) {
-    .button-container button {
-        height: 30px; /* Ensure height remains small on mobile */
-        font-size: 0.8rem; /* Keep font size small */
-    }
-}
 /* Badge Styles */
 .badge {
     font-size: 0.75rem;
@@ -796,4 +677,91 @@ input,
     transform: translate(50%, -50%);  /* Perfect top-right positioning */
     box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
     font-weight: bold;
+}
+/* Profile Container Styles */
+.profile-container-mobile {
+    margin-top: auto; /* Pushes the profile container to the bottom */
+    display: flex; /* Flexbox for layout */
+    align-items: center; /* Center items vertically */
+}
+/* Dropdown Menu Styles */
+.dropdown-menu {
+    display: none; /* Hide dropdown menu by default */
+    position: absolute; /* Position absolutely within the dropdown */
+    background-color: white; /* Background color for dropdown */
+    color: black; /* Text color for dropdown */
+    border-radius: 5px; /* Rounded corners */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Shadow for dropdown */
+    z-index: 1001; /* Ensure it appears above other content */
+}
+
+.dropdown:hover .dropdown-menu {
+    display: block; /* Show dropdown on hover */
+}
+/* Profile Section */
+.profile-container-mobile {
+    padding: 15px;
+    border-bottom: 2px solid #ddd;
+}
+
+.profile-container-mobile img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+}
+
+.profile-container-mobile h3 {
+    font-size: 18px;
+    margin-top: 10px;
+}
+.profile-container-mobile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: profile-pulse 2s infinite ease-in-out;
+}
+#profile-picture {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid white;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+#profile-picture-mobile:hover {
+    transform: scale(1.2);
+    border-color: #ffb84d;
+}
+
+#profile-username-mobile {
+    color: white;
+    font-size: 0.9rem;
+    font-weight: bold;
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+#profile-username:hover {
+    color: #ffb84d;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%; /* Full width on mobile */
+        position: relative; /* Change to relative for mobile */
+    }
+}
+
+/* Responsive Styles for Mobile */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%; /* Full width on mobile */
+        position: relative; /* Change to relative for mobile */
+    }
+    
+    #profile-picture {
+        width: 80; /* Smaller width for mobile */
+        height: 50px; /* Smaller height for mobile */
+    }
 }

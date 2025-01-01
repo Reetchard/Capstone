@@ -854,6 +854,7 @@ document.addEventListener("DOMContentLoaded", function () {
           if (gymOwnerDocSnap.exists()) {
               const username = gymOwnerDocSnap.data().username || 'Gym Owner';
               document.querySelector('#profile-username').textContent = username;
+              document.querySelector('#profile-username-mobile').textContent = username;
           } else {
               document.querySelector('#profile-username').textContent = 'Gym Owner';
               console.error("Gym owner document not found.");
@@ -884,4 +885,38 @@ document.addEventListener('click', (event) => {
     if (!sidebar.contains(event.target) && !hamburger.contains(event.target)) {
         sidebar.classList.remove('visible');
     }
+});
+window. toggleDropdown =function() {
+    const dropdownMenu = document.getElementById('dropdown-menu');
+    if (dropdownMenu.style.display === 'block') {
+        dropdownMenu.style.display = 'none';
+    } else {
+        dropdownMenu.style.display = 'block';
+    }
+}
+
+// Close the dropdown if clicked outside
+window.addEventListener('click', function (e) {
+    const dropdownMenu = document.getElementById('dropdown-menu');
+    const profileUsername = document.getElementById('profile-username');
+
+    if (!profileUsername.contains(e.target) && !dropdownMenu.contains(e.target)) {
+        dropdownMenu.style.display = 'none';
+    }
+});
+document.addEventListener('DOMContentLoaded', function () {
+    const sidebar = document.querySelector('.sidebar');
+    const toggleSidebar = document.getElementById('toggleSidebar');
+
+    // Toggle Sidebar Visibility on Mobile
+    toggleSidebar.addEventListener('click', () => {
+        sidebar.classList.toggle('show');
+    });
+
+    // Close Sidebar When Clicking Outside on Mobile
+    document.addEventListener('click', (e) => {
+        if (!sidebar.contains(e.target) && !toggleSidebar.contains(e.target) && sidebar.classList.contains('show')) {
+            sidebar.classList.remove('show');
+        }
+    });
 });
