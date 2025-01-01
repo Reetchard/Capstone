@@ -1007,7 +1007,7 @@ strong:hover .custom-tooltip {
 }
 
 .memberships-container .card-text {
-    color: #d1d1d1; /* Light gray for description text */
+    color: #333; /* Light gray for description text */
     margin-bottom: 10px; /* Space below each text */
 }
 

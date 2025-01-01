@@ -39,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <td>${userData.gymLocation || 'Not Available'}</td>
                         <td>${userData.gymContact || 'Not Available'}</td>
                         <td>${userData.gymPrograms || 'N/A'}</td>
+                        <td>${userData.gymServices || 'N/A'}</td>
                         <td>${userData.gymOpeningTime || 'N/A'}</td>
                         <td>${userData.gymClosingTime || 'N/A'}</td>
                         <td>
@@ -87,6 +88,7 @@ async function fetchGymProfiles(filterName = null) {
                 <td>${gym.gymContact || 'Not Available'}</td>
                 <td>${gym.gymPrograms || 'N/A'}</td>
                 <td>${gym.gymEquipment || 'N/A'}</td>
+                <td>${gym.gymServices || 'N/A'}</td>
                 <td>${gym.gymPriceRate || 'N/A'}</td>                
                 <td>${gym.gymOpeningTime || 'N/A'}</td>
                 <td>${gym.gymClosingTime || 'N/A'}</td>
@@ -118,6 +120,7 @@ let currentGymId = null;
                 document.getElementById('gymContact').value = gym.gymContact || '';
                 document.getElementById('gymPrograms').value = gym.gymPrograms || '';
                 document.getElementById('gymEquipment').value = gym.gymEquipment || '';
+                document.getElementById('gymServices').value = gym.gymServices || '';
                 document.getElementById('gymPriceRate').value = gym.gymPriceRate || '';
                 document.getElementById('gymOpeningTime').value = gym.gymOpeningTime || '';
                 document.getElementById('gymClosingTime').value = gym.gymClosingTime || '';
@@ -136,6 +139,7 @@ let currentGymId = null;
                 gymContact: document.getElementById('gymContact').value,
                 gymPrograms: document.getElementById('gymPrograms').value,
                 gymEquipment:document.getElementById('gymEquipment').value,
+                gymServices:document.getElementById('gymServices').value,
                 gymPriceRate:document.getElementById('gymPriceRate').value,
                 gymOpeningTime: document.getElementById('gymOpeningTime').value,
                 gymClosingTime: document.getElementById('gymClosingTime').value,
