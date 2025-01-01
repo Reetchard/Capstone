@@ -380,7 +380,7 @@
                         <th>ID</th>
                         <th>Title</th>
                         <th>Description</th>
-                        <th>Type</th>
+                        <th>Gym Name</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -409,14 +409,9 @@
                                 <textarea class="form-control" id="itemDescription" rows="3" required></textarea>
                             </div>
                             <div class="form-group">
-                                <label for="promotionType">Promotion Type</label>
-                                <select class="form-control" id="promotionType" required>
-                                    <option value="">Select Type</option>
-                                    <option value="GymProfile">Gym Profile</option>
-                                    <option value="Products">Products</option>
-                                    <option value="Programs">Programs</option>
-                                </select>
-                            </div>
+                                <label for="gymName">Gym Name</label>
+                                <input type="text" class="form-control" id="gymName" required>
+                            </div>                            
                             <button type="submit" class="btn btn-primary">Save</button>
                         </form>
                     </div>

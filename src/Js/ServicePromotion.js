@@ -165,9 +165,9 @@ let currentGymId = null;
     
                     const title = document.getElementById('itemTitle').value.trim();
                     const description = document.getElementById('itemDescription').value.trim();
-                    const type = document.getElementById('promotionType').value;
+                    const gymName = document.getElementById('gymName').value.trim();
     
-                    if (!title || !description || !type) {
+                    if (!title || !description || !gymName) {
                         showToast("Please fill in all fields.");
                         return;
                     }
@@ -177,7 +177,7 @@ let currentGymId = null;
                         await updateDoc(docRef, {
                             title,
                             description,
-                            type
+                            gymName
                         });
                         showToast('Promotion updated successfully!');
                         editMode = false;
@@ -187,7 +187,7 @@ let currentGymId = null;
                             PromotionId: productIdCounter++, // Incrementing Product ID
                             title,
                             description,
-                            type
+                            gymName 
                         };
                         await addDoc(collection(db, 'Promotions'), promotion);
                         showToast('Promotion added successfully!');
@@ -215,9 +215,13 @@ let currentGymId = null;
 window.addPromotion = function() {
     const modalTitle = document.getElementById('modalTitle');
     const manageForm = document.getElementById('manageForm');
-    if (modalTitle && manageForm) {
+    const gymNameField = document.getElementById('gymName');
+    const gymOwnerUsername = document.querySelector('#profile-username').textContent;
+    if (modalTitle && manageForm && gymNameField) {
         modalTitle.textContent = "Add New Promotion";
         manageForm.reset();
+        gymNameField.value = gymOwnerUsername; // Auto-fill with gym owner username
+        gymNameField.disabled = true; // Optional: Make it non-editable
         editMode = false;
         editId = null;
         $('#manageModal').modal('show');
@@ -255,7 +259,7 @@ async function renderTable() {
                 <td>${promotion.PromotionId}</td>
                 <td>${promotion.title}</td>
                 <td>${promotion.description}</td>
-                <td>${promotion.type}</td>
+                <td>${promotion.gymName}</td>
                 <td>
                     <button class="btn btn-warning btn-sm" onclick="editPromotion('${doc.id}')">Edit</button>
                     <button class="btn btn-danger btn-sm" onclick="deletePromotion('${doc.id}')">Delete</button>
@@ -269,19 +273,24 @@ async function renderTable() {
 async function editPromotion(docId) {
     const docRef = doc(db, 'Promotions', docId);
     const docSnap = await getDoc(docRef);
+    const gymNameField = document.getElementById('gymName');
+    const gymOwnerUsername = document.querySelector('#profile-username').textContent;
+
     if (docSnap.exists()) {
         const promotion = docSnap.data();
         const modalTitle = document.getElementById('modalTitle');
         const itemTitle = document.getElementById('itemTitle');
         const itemDescription = document.getElementById('itemDescription');
-        const itemType = document.getElementById('promotionType');
-        if (modalTitle && itemTitle && itemDescription && itemType) {
+        if (modalTitle && itemTitle && itemDescription && gymNameField) {
             modalTitle.textContent = "Edit Promotion";
             itemTitle.value = promotion.title;
             itemDescription.value = promotion.description;
-            itemType.value = promotion.type;
+            gymNameField.value = promotion.gymName || gymOwnerUsername;
+            gymNameField.disabled = true;
+
             editMode = true;
             editId = docId;
+
             $('#manageModal').modal('show');
         }
     }
@@ -355,7 +364,7 @@ async function filterPromotionsByTitle(title) {
     if (tableBody) {
         tableBody.innerHTML = '';
 
-        const q = query(collection(db, 'Promotions'), where('title', '==', title));
+        const q = query(collection(db, 'Promotions'), where('gymName', '==', gymName));
         const snapshot = await getDocs(q);
 
         snapshot.forEach((doc) => {
@@ -364,7 +373,7 @@ async function filterPromotionsByTitle(title) {
                 <td>${promotion.PromotionId}</td>
                 <td>${promotion.title}</td>
                 <td>${promotion.description}</td>
-                <td>${promotion.type}</td>
+                <td>${promotion.gymName}</td> 
                 <td>
                     <button class="btn btn-warning btn-sm" onclick="editPromotion('${doc.id}')">Edit</button>
                     <button class="btn btn-danger btn-sm" onclick="deletePromotion('${doc.id}')">Delete</button>
