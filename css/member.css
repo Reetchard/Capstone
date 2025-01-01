@@ -95,7 +95,7 @@ header {
 }
 
 .sidebar-links .nav-link {
-    color: #333; /* Dark text color */
+    color: #fff; /* Dark text color */
     text-decoration: none; /* Remove underline */
     padding: 10px 15px; /* Padding */
     border-radius: 5px; /* Rounded corners */
@@ -147,13 +147,20 @@ header {
     font-size: 18px;
     margin-top: 10px;
 }
-
 /* General Content Styles */
+/* General Content Styles */
+/* Main Content Container */
 .content {
-    padding: 30px;
-    margin-left: 250px; /* Ensure content is not hidden behind sidebar */
+    padding: 40px;
+    margin-left: 250px; /* Space for sidebar */
+    margin-top: 50px; /* Space between navbar and content */
+    margin-right: 10px; /* Space between navbar and content */
+    background-color: #ffffff; /* Clean white background */
+    border-radius: 16px; /* More rounded corners */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Enhanced shadow */
 }
 
+/* Fluid Container */
 .container-fluid {
     max-width: 1200px;
     margin: 0 auto;
@@ -161,90 +168,60 @@ header {
 
 /* Card Styles */
 .card {
-    background-color: #ffffff; /* White background for cards */
-    border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff; /* White background */
+    border-radius: 16px; /* More rounded corners */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Softer shadow */
     overflow: hidden;
-    transition: transform 0.2s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
+    margin-bottom: 40px; /* Space between cards */
 }
 
 .card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-6px); /* Lift effect */
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15); /* Deeper shadow on hover */
 }
 
 /* Enhanced Card Header */
 .card-header {
     background: #6c63ff; /* Main header color */
     color: #ffffff; /* White text color */
-    padding: 24px;
+    padding: 20px; /* Padding */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3); /* Thicker border */
 }
 
 .card-header h4 {
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-size: 1.6rem; /* Larger font size */
+    font-weight: 500; /* Medium weight */
     margin: 0;
-}
-
-/* Search Actions */
-.card-header .search-actions {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-/* Input and Buttons */
-.card-header input {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    transition: border-color 0.3s;
-}
-
-.card-header input:focus {
-    border-color: #6c63ff;
-}
-
-.card-header button {
-    padding: 10px 16px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1rem;
-    background-color: #6c63ff; /* Button color */
-    color: #ffffff; /* White text */
-    transition: background 0.3s;
-}
-
-.card-header button:hover {
-    background-color: #5b54e6; /* Darker shade on hover */
-}
-
-/* Responsive Search Bar */
-@media (max-width: 768px) {
-    .card-header {
-        flex-direction: column;
-    }
-
-    .card-header .search-actions {
-        flex-direction: column;
-        width: 100%;
-    }
 }
 
 /* Card Body */
 .card-body {
-    padding: 20px;
+    padding: 25px; /* More padding for body */
     background-color: #f9f9f9; /* Light background for body */
+}
+
+.card-body p {
+    font-size: 1rem; /* Consistent font size */
+    color: #555; /* Softer dark color */
+}
+
+/* Card Footer */
+.card-footer {
+    padding: 15px; /* Increased padding */
+    background-color: #ffffff; /* White background */
+    text-align: right; /* Align footer content to the right */
+    border-top: 1px solid #ddd; /* Light border */
 }
 
 /* Modern Table Styles */
 .table {
     width: 100%;
     border-collapse: collapse;
+    margin-top: 20px; /* Space above table */
 }
 
 .table thead {
@@ -253,22 +230,147 @@ header {
 }
 
 .table th, .table td {
-    padding: 16px;
+    padding: 16px; /* Consistent padding */
     text-align: center;
+    border: 1px solid #ddd; /* Light border */
 }
 
 .table th {
-    border-bottom: 2px solid #ddd;
+    border-bottom: 2px solid #ddd; /* Thicker border */
 }
 
 .table td {
     background-color: #ffffff; /* Light background for cells */
-    border: 1px solid #ddd;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s; /* Smooth hover transition */
 }
 
 .table tr:hover td {
-    background-color: #e6e6e6; /* Light grey on hover */
+    background-color: #e0e0e0; /* Light grey on hover */
+}
+
+/* Progress Bar Styles */
+.progress {
+    background-color: #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    height: 24px; /* Taller progress bar */
+}
+
+.progress-bar {
+    background-color: #6c63ff; /* Progress bar color */
+    height: 100%;
+    transition: width 0.4s, background-color 0.4s; /* Smooth transitions */
+}
+
+/* Scrollbar Styles for Mobile */
+.table-responsive::-webkit-scrollbar {
+    height: 8px; /* Height of horizontal scrollbar */
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Background of scrollbar track */
+    border-radius: 10px; /* Rounded corners */
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #333; /* Color of scrollbar thumb */
+    border-radius: 10px; /* Rounded corners */
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Darker on hover */
+}
+
+/* Responsive Design Adjustments */
+@media (max-width: 768px) {
+    .content {
+        margin-left: 0; /* Full width for mobile */
+        padding: 20px; /* Adjust padding */
+    }
+
+    .card-header {
+        flex-direction: column; /* Stack elements */
+        align-items: flex-start; /* Align left */
+    }
+
+    .card-body {
+        padding: 15px; /* Adjust padding */
+    }
+
+    .modal-dialog {
+        max-width: 90%; /* Make the modal smaller on smaller screens */
+    }
+
+    .modal-header, .modal-footer {
+        padding: 12px; /* Less padding for smaller screens */
+    }
+
+    .modal-title {
+        font-size: 1.5rem; /* Adjust title size */
+    }
+
+    .navbar-collapse {
+        display: none; /* Hide desktop navbar items on mobile */
+    }
+
+    .sidebar {
+        display: block; /* Show sidebar */
+    }
+
+    .navbar-nav {
+        display: none; /* Hide navbar items by default */
+    }
+
+    .table-responsive {
+        overflow-x: auto; /* Enable horizontal scrolling */
+    }
+}
+
+/* Smooth Transitions */
+button,
+input,
+.table td,
+.card {
+    transition: all 0.3s ease-in-out;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px; /* Space above the table */
+    border-radius: 8px; /* Rounded corners for the table */
+    overflow: hidden; /* Ensure rounded corners work */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Soft shadow for the table */
+}
+
+.table thead {
+    background-color: #6c63ff; /* Header background color */
+    color: #ffffff; /* Header text color */
+}
+
+.table th, .table td {
+    padding: 16px; /* Padding for table cells */
+    text-align: center; /* Center text */
+}
+
+/* Thicker Border for Header */
+.table th {
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3); /* Thicker border */
+}
+
+/* Cell Styles */
+.table td {
+    background-color: #ffffff; /* Light background for cells */
+    border: 1px solid #ddd; /* Light border */
+    transition: background-color 0.3s, transform 0.2s; /* Smooth transitions */
+}
+
+/* Hover Effects */
+.table tr:hover td {
+    background-color: #ffa31a; /* Light grey on hover */
+    transform: translateY(-2px); /* Slight lift effect */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Shadow on hover */
+    color: #333; /* Change font color to dark */
 }
 
 /* Additional Styles for Progress and Stats */
@@ -276,21 +378,13 @@ header {
     background-color: #e0e0e0;
     border-radius: 8px;
     overflow: hidden;
-    height: 20px;
+    height: 24px; /* Slightly taller progress bar */
 }
 
 .progress-bar {
     background-color: #6c63ff; /* Progress bar color */
     height: 100%;
-    transition: width 0.4s;
-}
-
-/* Table Row Hover Effect */
-.table tr:hover td {
-    background-color: #ffa31a; /* Background color on hover */
-    transform: translateY(-2px); /* Slight lift effect */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Shadow on hover */
-    color: #1b1b1b; /* Change font color to dark */
+    transition: width 0.4s, background-color 0.4s; /* Smooth transitions */
 }
 
 /* Scrollbar Styles for Mobile */
@@ -335,7 +429,6 @@ input,
         height: 6px; /* Height of the horizontal scrollbar */
     }
 }
-
 /* Adjustments for larger screens */
 @media (min-width: 992px) {
     .content {
@@ -362,17 +455,50 @@ input,
 .modal-content {
     border-radius: 10px; /* Rounded corners for the modal */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow around the modal */
+    background-color: #f8f9fa; /* Light background to match the overall theme */
+    color: #333; /* Dark text color for readability */
 }
 
 .modal-header {
-    background-color: #1b1b1b; /* Primary color for the header */
+    background-color: #6c63ff; /* Primary color for the header */
     color: white; /* White text color */
-    border-bottom: 1px solid #ddd; /* Light gray border */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3); /* Light border for separation */
 }
 
 .modal-title {
     font-size: 1.5rem; /* Bigger font size for the title */
     font-weight: bold; /* Make the title bold */
+}
+
+/* Modal Body Styling */
+.modal-body {
+    padding: 30px; /* Add extra padding inside the modal */
+    background-color: #f8f9fa; /* Light background for modal body */
+    font-family: Arial, sans-serif; /* Use a clean font */
+    color: #333; /* Dark text for better readability */
+}
+
+/* Modal Footer Styling */
+.modal-footer {
+    background-color: #f8f9fa; /* Light background for footer */
+    border-top: 1px solid #ddd; /* Light gray border */
+    padding: 15px; /* Padding for the footer */
+    display: flex; /* Use flexbox for alignment */
+    justify-content: flex-end; /* Align buttons to the right */
+}
+
+/* Button Styles in Modal */
+.modal-footer .btn {
+    background-color: #6c63ff; /* Button background color */
+    color: white; /* Button text color */
+    border: none; /* Remove border */
+    padding: 10px 20px; /* Padding for buttons */
+    border-radius: 5px; /* Rounded corners for buttons */
+    transition: background-color 0.3s; /* Smooth transition */
+}
+
+.modal-footer .btn:hover {
+    background-color: #5a54d1; /* Darken button on hover */
 }
 
 .btn-close {
@@ -387,12 +513,7 @@ input,
     opacity: 1; /* Make the close button fully opaque on hover */
 }
 
-/* Modal Body Styling */
-.modal-body {
-    padding: 30px; /* Add extra padding inside the modal */
-    background-color: #1b1b1b; /* Dark background */
-    font-family: Arial, sans-serif; /* Use a clean font */
-}
+
 
 /* Image Styling */
 .img-fluid {

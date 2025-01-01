@@ -263,31 +263,32 @@
 <body>
     <div class="container mt-5">
         <h1 class="text-center mb-5">Gym Management</h1>
-
-        <!-- Manage Gym Details Section -->
         <div class="mb-5">
             <h2>Manage Gym Details And Services</h2>
-            <table class="table table-dark table-bordered mt-3">
-                <thead>
-                    <tr>
-                        <th>Profile Photo</th>                       
-                        <th>Certifications</th>
-                        <th>Gym Name</th>
-                        <th>Location</th>
-                        <th>Contact</th>
-                        <th>Programs</th>
-                        <th>Equipment</th>
-                        <th>Price Rate</th>
-                        <th>Opening Time</th>
-                        <th>Closing Time</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="gymDetailsTable">
-                    <!-- Data will be populated dynamically -->
-                </tbody>
-            </table>
+            <div class="table-responsive"> <!-- Wrap the table with this div -->
+                <table class="table table-dark table-bordered mt-3">
+                    <thead>
+                        <tr>
+                            <th>Profile Photo</th>                       
+                            <th>Certifications</th>
+                            <th>Gym Name</th>
+                            <th>Location</th>
+                            <th>Contact</th>
+                            <th>Programs</th>
+                            <th>Equipment</th>
+                            <th>Price Rate</th>
+                            <th>Opening Time</th>
+                            <th>Closing Time</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gymDetailsTable">
+                        <!-- Data will be populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
         </div>
+        
         <div class="modal fade" id="imageModal" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">

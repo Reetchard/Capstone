@@ -290,54 +290,96 @@ function populateTables() {
 }
 
 // Generate HTML row for each account
+
 function generateTableRow(account) {
     return `
-        <tr id="account-${account.id}">
-            <td>${account.id}</td>
+        <tr id="account-${account.userId}">
+            <td>${account.userId}</td>
             <td>
-                <a href="#" onclick="showAccountModal('${account.id}', '${account.username}', '${account.email || ''}', '${account.status || 'Active'}', '${account.role}')">
+                <a href="#" onclick="showAccountModal('${account.userId}', '${account.username}', '${account.email || ''}', '${account.status || 'Active'}', '${account.role}')">
                     ${account.username || 'N/A'}
                 </a>
             </td>
-            <td class="status-cell" id="status-${account.id}">${account.status || 'Active'}</td>
+            <td class="status-cell" id="status-${account.userId}">${account.status || 'Active'}</td>
             <td>
-                <button class="btn btn-success btn-sm" onclick="approveAccount('${account.id}', '${account.role}', this)" ${account.status === 'Approved' ? 'disabled' : ''}>Approve</button>
+                <button class="btn btn-success btn-sm" onclick="approveAccount('${account.username}', '${account.role}', this)" ${account.status === 'Approved' ? 'disabled' : ''}>Approve</button>
                 <button class="btn btn-danger btn-sm" onclick="deleteAccount('${account.username}', '${account.role}', this)">Delete</button>
             </td>
         </tr>
     `;
 }
-// Function to approve the account
-document.addEventListener('DOMContentLoaded', function() {
-    // Ensure the function is available after the DOM is loaded
-    const approveButton = document.getElementById('approve-button-1');
-    if (approveButton) {
-        approveButton.addEventListener('click', function() {
-            approveAccount(accountId); // Example usage with accountId and role
-        });
+
+window.approveAccount = async function (username, role, buttonElement) {
+    let collectionName;
+    if (role === 'user') {
+        collectionName = 'Users';
+    } else if (role === 'trainer') {
+        collectionName = 'Trainer';
+    } else if (role === 'gymowner') {
+        collectionName = 'GymOwner';
+    } else {
+        console.error('Invalid role:', role);
+        return;
     }
+
+    try {
+        // Get the Firestore collection reference
+        const colRef = collection(db, collectionName);
+
+        // Query to find the document with the matching username
+        const q = query(colRef, where("username", "==", username));
+
+        // Get the query snapshot
+        const querySnapshot = await getDocs(q);
+
+        // Check if a document exists with that username
+        if (querySnapshot.empty) {
+            console.error(`No document found for username: ${username}`);
+            alert(`Cannot approve account: No user found with username ${username}.`);
+            return;
+        }
+
+        // Get the first document (assuming unique usernames)
+        const docSnap = querySnapshot.docs[0];
+        const docRef = doc(db, collectionName, docSnap.id);
+
+        // Update the document's status to "Approved"
+        await updateDoc(docRef, { status: 'Approved' });
+        console.log(`Account with username ${username} in collection ${collectionName} approved.`);
+
+        // Update the DOM table (status and button)
+        const statusCell = document.getElementById(`status-${docSnap.id}`);
+        if (statusCell) {
+            statusCell.textContent = 'Approved';  // Update the status in the table
+        }
+
+        // Disable the Approve button to prevent further clicks
+        if (buttonElement) {
+            buttonElement.disabled = true;
+            buttonElement.textContent = 'Approved'; // Optionally change button text
+        }
+
+    } catch (error) {
+        console.error("Error updating account status:", error);
+        alert("Failed to approve the account. Please try again.");
+    }
+};
+
+
+// Add event listener for dynamically handling button clicks
+document.addEventListener('DOMContentLoaded', function () {
+    // Find all approve buttons and add the event listener
+    const approveButtons = document.querySelectorAll('.approve-btn');
+    approveButtons.forEach(button => {
+        button.addEventListener('click', function (event) {
+            const username = button.getAttribute('data-username');
+            const role = button.getAttribute('data-role');
+            approveAccount(username, role, button);
+        });
+    });
 });
 
-// Example approveAccount function
-function approveAccount(accountId, role, button) {
-    // Assuming you're validating the user using Firestore
-    const email = document.getElementById(`email-${accountId}`).textContent; // Get the email from the DOM
-    const username = document.getElementById(`username-${accountId}`).textContent; // Get the username
 
-    validateUser(accountId, email, username).then(isValid => {
-        if (isValid) {
-            // Update the status and disable the button
-            const statusCell = document.getElementById(`status-${accountId}`);
-            statusCell.textContent = 'Approved';
-            button.disabled = true;
-        } else {
-            alert("User validation failed. Unable to approve.");
-        }
-    }).catch(err => {
-        console.error("Error during user validation:", err);
-        alert("An error occurred while validating the user.");
-    });
-}
 
 // Firestore validation (similar to the previous example)
 function validateUser(accountId, email, username) {
@@ -372,21 +414,6 @@ function validateUser(accountId, email, username) {
     });
 }
 
-
-// Function to update the account status in Firestore
-function updateAccountStatus(accountId, status) {
-    const db = firebase.firestore();
-    const accountRef = db.collection('Users').doc(accountId); // Assuming the account is in the 'Users' collection
-
-    // Update the status field
-    accountRef.update({
-        status: status
-    }).then(() => {
-        console.log(`Account ${accountId} status updated to ${status}`);
-    }).catch(err => {
-        console.error("Error updating account status:", err);
-    });
-}
 
 
 

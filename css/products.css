@@ -1,21 +1,69 @@
-/* General Styling */
+/* General Styles */
 body {
-    overflow-x: hidden; /* Prevent horizontal scroll */
-    font-family: 'Merriweather', serif; /* Apply Merriweather font */
+    background-color: #f8f9fa; /* Light background */
 }
 
-nav ul {
+header {
+    font-family: 'Roboto', sans-serif;
+    background-color: #6c63ff; /* Vibrant purple background */
+    color: white;
+    padding: 15px 20px; /* Padding for header */
+}
+
+.navheader-container {
     display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: auto;
+    width: 100%;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    font-size: 1.5rem;
+}
+
+.logo img {
+    height: 40px; /* Adjust logo size */
+    margin-right: 10px; /* Space between logo and text */
+}
+
+.container h1 {
+    font-size: 2rem; /* Larger font size */
+    font-weight: 700; /* Bold weight */
+    margin: 0; /* Remove margin for tight spacing */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5); /* Text shadow for emphasis */
+    color: #574bfa; /* White color for the main title */
+}
+
+/* Specific style for the profile-text span */
+.profile-text {
+    color: #FFA500; /* Orange color for the highlighted text */
+    font-weight: bold; /* Ensure the highlighted text is bold */
+}
+.container h5 .profile-text {
+    color: #FFA500; /* Orange color for the highlighted text */
+    font-weight: bold; /* Ensure the highlighted text is bold */
+}
+
+.hamburger-container {
+    display: none; /* Hidden initially, shown later for mobile */
+}
+
+.navheader-links {
     list-style: none;
+    display: flex; /* Flexbox layout */
+    margin: 0;
     padding: 0;
 }
 
-nav ul li {
-    margin: 0 15px;
-    position: relative;
+.navheader-links li {
+    margin-left: 20px; /* Space between links */
 }
 
-nav ul li a {
+.navheader-links a {
     color: #FAF6F0; /* Text color */
     text-decoration: none; /* Remove underline */
     font-weight: bold; /* Bold text */
@@ -23,128 +71,80 @@ nav ul li a {
     letter-spacing: 0.5px; /* Letter spacing for a modern feel */
 }
 
-nav ul li a:hover {
+.navheader-links a:hover {
     color: #ffa31a; /* Text color on hover */
     transform: scale(1.1); /* Subtle grow effect on hover */
-}
-
-nav ul li a::after {
-    content: ''; /* Create an empty element */
-    display: block; /* Display as block */
-    width: 0; /* Initial width for underline effect */
-    height: 2px; /* Height of the underline */
-    background-color: #ffa31a; /* Underline color */
-    transition: width 0.3s ease; /* Transition effect for underline */
-    position: absolute; /* Position it relative to the parent */
-    left: 0; /* Align to the left */
-    bottom: -5px; /* Position below the text */
-}
-
-nav ul li a:hover::after {
-    width: 100%; /* Full width on hover */
-}
-
-nav ul li a:hover {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Soft shadow on hover */
 }
 
-/* Sidebar */
+/* Sidebar Styles */
 .sidebar {
-    width: 250px;
-    height: 100vh;
-    position: fixed;
+    background-color: #ffffff; /* Sidebar background color */
+    width: 250px; /* Fixed width for sidebar */
+    height: 100vh; /* Full height */
+    position: fixed; /* Fixed position */
     top: 0;
-    left: -250px; /* Hidden initially */
-    background-color: #1b1b1b;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    overflow-y: auto;
-    transition: transform 0.3s ease, left 0.3s ease;
-    z-index: 1000;
+    left: -250px; /* Initially hidden */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+    overflow-y: auto; /* Scrollable if content exceeds */
+    transition: left 0.3s ease; /* Animation for sliding */
+    z-index: 999; /* Below header */
 }
 
+/* Show Sidebar */
 .sidebar.show {
-    left: 0; /* Slide-in */
+    left: 0; /* Slide-in effect */
 }
 
-/* Sidebar on Large Screens */
-@media (min-width: 992px) {
-    .sidebar {
-        left: 0; /* Always visible on wider screens */
-    }
-
-    #toggleSidebar {
-        display: none; /* Hide hamburger button on large screens */
-    }
+/* Sidebar Links Styles */
+.sidebar-links {
+    padding: 0; /* Remove default padding */
 }
 
-/* Hamburger Button */
-.hamburger-container {
-    width: 50px;
-    height: 50px;
-    background-color: #007bff;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, background-color 0.3s ease, left 0.3s ease;
+.sidebar-links .nav-item {
+    margin: 10px 0; /* Space between items */
+    display: flex; /* Flexbox for aligning items */
+    justify-content: space-between; /* Space between text and notification */
+    align-items: center; /* Center items vertically */
 }
 
-.hamburger-container:hover {
-    background-color: #0056b3;
-    transform: scale(1.1);
-}
-
-.hamburger-container.moved {
-    left: 270px; /* Aligns with sidebar when open */
-}
-
-/* Hamburger Lines */
-.hamburger {
-    position: relative;
-    width: 30px;
-    height: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-.hamburger .line {
-    width: 100%;
-    height: 3px;
-    background-color: white;
-    border-radius: 2px;
-    transition: transform 0.3s ease, opacity 0.3s ease;
-}
-
-/* Open State Animation */
-.hamburger-container.open .line:nth-child(1) {
-    transform: translateY(9px) rotate(45deg);
-}
-
-.hamburger-container.open .line:nth-child(2) {
-    opacity: 0;
-}
-
-.hamburger-container.open .line:nth-child(3) {
-    transform: translateY(-9px) rotate(-45deg);
-}
-
-/* Sidebar Links */
 .sidebar-links .nav-link {
-    color: #ffffff;
-    padding: 10px 15px;
-    font-size: 16px;
-    border-radius: 5px;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    color: #fff; /* Dark text color */
+    text-decoration: none; /* Remove underline */
+    padding: 10px 15px; /* Padding */
+    border-radius: 5px; /* Rounded corners */
+    transition: background-color 0.3s ease;
+    display: flex; /* Flexbox for icon alignment */
+    align-items: center; /* Center items vertically */
 }
 
 .sidebar-links .nav-link:hover {
-    background-color: #007bff;
-    color: #fff;
+    background-color: #f1f1f1; /* Light grey background on hover */
 }
 
+/* Icons */
+.nav-link i {
+    margin-right: 10px; /* Space between icon and text */
+    color: #020202; /* Icon color */
+}
+
+/* Hamburger Menu Styles */
+.hamburger-container {
+    display: none; /* Hidden by default */
+}
+
+@media (max-width: 768px) {
+    .hamburger-container {
+        display: block; /* Show on mobile */
+    }
+}
+
+/* Responsive Sidebar for Larger Screens */
+@media (min-width: 769px) {
+    .sidebar {
+        left: 0; /* Always show sidebar on larger screens */
+    }
+}
 /* Profile Section */
 .profile-container {
     padding: 15px;
@@ -161,58 +161,162 @@ nav ul li a:hover {
     font-size: 18px;
     margin-top: 10px;
 }
-
-/* Responsive Behavior */
-@media (max-width: 991.98px) {
-    .sidebar {
-        transform: translateX(-100%);
-    }
-
-    .sidebar.show {
-        transform: translateX(0);
-    }
-
-    .content {
-        margin-left: 0;
-    }
-}
-
-@media (min-width: 992px) {
-    .content {
-        margin-left: 250px;
-    }
-
-    #toggleSidebar {
-        display: none;
-    }
-}
-
-/* Modal transition */
-.modal-dialog {
-    transition: transform 0.3s ease;
-}
-
-.modal-dialog.show {
-    transform: translateY(0);
-}
-
-/* Loading spinner */
-
-/* Card and table styling */
+/* General Content Styles */
+/* General Content Styles */
+/* Main Content Container */
 .container {
-    max-width: 1000px; /* Adjust as needed */
-    margin: 20px auto; /* Center the container */
-    padding: 20px; /* Padding inside the card */
-    background: #544B3D; /* Dark card background color */
-    border-radius: 15px; /* Rounded corners */
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); /* Shadow effect */
-    overflow-y: auto; /* Enables vertical scrolling */
-    max-height: 500px; /* Set a maximum height for the container */
+    padding: 40px;
+    margin-left: 250px;
+    margin-top: 50px; 
+    max-width: 1400px;
+    margin-right: 10px; 
+    background-color: #ffffff; 
+    border-radius: 16px; 
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); 
+    overflow-y: auto; 
+    max-height: 90vh; 
+    }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        margin: 20px; /* Add equal margin on all sides for mobile */
+        width: auto; /* Allow the container to take full width on smaller screens */
+        padding: 20px; /* Reduce padding on mobile for a more compact look */
+    }
+}
+/* Fluid Container */
+.container-fluid {
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-/* Custom Scrollbar for the Container */
+/* Card Styles */
+.card {
+    background-color: #ffffff; /* White background */
+    border-radius: 16px; /* More rounded corners */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Softer shadow */
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
+    margin-bottom: 40px; /* Space between cards */
+}
+
+.card:hover {
+    transform: translateY(-6px); /* Lift effect */
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15); /* Deeper shadow on hover */
+}
+
+/* Enhanced Card Header */
+.card-header {
+    background: #6c63ff; /* Main header color */
+    color: #ffffff; /* White text color */
+    padding: 20px; /* Padding */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3); /* Thicker border */
+}
+
+.card-header h4 {
+    font-size: 1.6rem; /* Larger font size */
+    font-weight: 500; /* Medium weight */
+    margin: 0;
+}
+
+/* Card Body */
+.card-body {
+    padding: 25px; /* More padding for body */
+    background-color: #f9f9f9; /* Light background for body */
+}
+
+.card-body p {
+    font-size: 1rem; /* Consistent font size */
+    color: #555; /* Softer dark color */
+}
+
+/* Card Footer */
+.card-footer {
+    padding: 15px; /* Increased padding */
+    background-color: #ffffff; /* White background */
+    text-align: right; /* Align footer content to the right */
+    border-top: 1px solid #ddd; /* Light border */
+}
+
+/* Modern Table Styles */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px; /* Space above table */
+}
+
+.table thead {
+    background-color: #6c63ff; /* Header background color */
+    color: #ffffff; /* Header text color */
+}
+
+.table th, .table td {
+    padding: 16px; /* Consistent padding */
+    text-align: center;
+    border: 1px solid #ddd; /* Light border */
+}
+
+.table th {
+    border-bottom: 2px solid #ddd; /* Thicker border */
+}
+
+.table td {
+    background-color: #ffffff; /* Light background for cells */
+    transition: background-color 0.3s; /* Smooth hover transition */
+}
+
+.table tr:hover td {
+    background-color: #e0e0e0; /* Light grey on hover */
+}
+
+/* Progress Bar Styles */
+.progress {
+    background-color: #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    height: 24px; /* Taller progress bar */
+}
+
+.progress-bar {
+    background-color: #6c63ff; /* Progress bar color */
+    height: 100%;
+    transition: width 0.4s, background-color 0.4s; /* Smooth transitions */
+}
+/* Scrollbar Styles for Table */
+.table-responsive {
+    max-height: 400px; /* Set a maximum height for the table */
+    overflow-y: auto; /* Enable vertical scrolling */
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+    border: 1px solid #ddd; /* Optional: Add a border around the scrollable area */
+    border-radius: 16px; /* Match the card's border radius */
+}
+
+/* Custom Scrollbar Styles for Table */
+.table-responsive::-webkit-scrollbar {
+    width: 2px; /* Width of the vertical scrollbar */
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Background of scrollbar track */
+    border-radius: 10px; /* Rounded corners */
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #888; /* Color of the scrollbar thumb */
+    border-radius: 10px; /* Rounded corners */
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Darker on hover */
+}
+
+/* Custom Scrollbar Styles for Container */
+/* Scrollbar Styles for the Container */
 .container::-webkit-scrollbar {
-    width: 8px; /* Width of the vertical scrollbar */
     height: 8px; /* Height of the horizontal scrollbar */
 }
 
@@ -230,417 +334,443 @@ nav ul li a:hover {
     background: #555; /* Darker thumb color on hover */
 }
 
-.container h1 {
-    font-size: 2rem; /* Larger font size */
-    font-weight: 700; /* Bold weight */
-    margin: 0; /* Remove margin for tight spacing */
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5); /* Text shadow for emphasis */
-    color: #F3DAD8; /* Light color for the main title */
+
+/* Responsive Design Adjustments */
+@media (max-width: 768px) {
+    .container {
+        margin-left: 10px; /* Adjust margins for smaller screens */
+        margin-right: 10px; /* Uniform margins */
+        padding: 20px; /* Adjust padding for mobile */
+        overflow-y: auto; /* Ensure vertical scrolling is enabled */
+        max-height: 80vh; /* Adjust max height for mobile */
+    }
+
+    /* Thinner scrollbar for mobile */
+    .container::-webkit-scrollbar {
+        width: 1px; /* Set width to 1px for thinner scrollbar on mobile */
+    }
+    
+    .container::-webkit-scrollbar-track {
+        background: #f1f1f1; /* Background of scrollbar track */
+        border-radius: 10px; /* Rounded corners */
+    }
+    
+    .container::-webkit-scrollbar-thumb {
+        background: #888; /* Color of the scrollbar thumb */
+        border-radius: 10px; /* Rounded corners */
+    }
+    
+    .container::-webkit-scrollbar-thumb:hover {
+        background: #555; /* Darker on hover */
+    }
+
+    .card-header {
+        flex-direction: column; /* Stack elements */
+        align-items: flex-start; /* Align left */
+    }
+
+    .card-body {
+        padding: 15px; /* Adjust padding */
+    }
+
+    .modal-dialog {
+        max-width: 90%; /* Make the modal smaller on smaller screens */
+    }
+
+    .modal-header, .modal-footer {
+        padding: 12px; /* Less padding for smaller screens */
+    }
+
+    .modal-title {
+        font-size: 1.5rem; /* Adjust title size */
+    }
+
+    .navbar-collapse {
+        display: none; /* Hide desktop navbar items on mobile */
+    }
+
+    .sidebar {
+        display: block; /* Show sidebar */
+    }
+
+    .navbar-nav {
+        display: none; /* Hide navbar items by default */
+    }
+
+    .table-responsive {
+        overflow-x: auto; /* Enable horizontal scrolling */
+    }
+}
+/* Smooth Transitions */
+button,
+input,
+.table td,
+.card {
+    transition: all 0.3s ease-in-out;
 }
 
-/* Specific style for the profile-text span */
-.container h1 .profile-text {
-    color: #FFA500; /* Orange color for the highlighted text */
-    font-weight: bold; /* Ensure the highlighted text is bold */
-}
-
-/* Table Styles */
 .table {
-    width: 100%; /* Full width */
-    border-collapse: collapse; /* Collapse borders */
-    background-color: #F3DAD8; /* Light background for table */
-    border-radius: 10px; /* Rounded corners */
-    overflow: hidden; /* Ensure rounded corners are visible */
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px; /* Space above the table */
+    border-radius: 8px; /* Rounded corners for the table */
+    overflow: hidden; /* Ensure rounded corners work */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Soft shadow for the table */
 }
 
 .table thead {
-    background-color: #544B3D; /* Dark header background */
-    color: #F3DAD8; /* Light header text color */
-    text-transform: uppercase; /* Uppercase for headers */
-    font-weight: bold; /* Bold headers */
+    background-color: #6c63ff; /* Header background color */
+    color: #ffffff; /* Header text color */
 }
 
+.table th, .table td {
+    padding: 16px; /* Padding for table cells */
+    text-align: center; /* Center text */
+}
+
+/* Thicker Border for Header */
 .table th {
-    padding: 16px; /* Increased padding for headers */
-    text-align: center;
-    font-weight: 600;
-    border-bottom: 2px solid #F3DAD8; /* Light border for headers */
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3); /* Thicker border */
 }
 
+/* Cell Styles */
 .table td {
-    padding: 16px; /* Increased padding for cells */
-    text-align: center;
-    background-color: #F3DAD8; /* Light background for cells */
-    border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border for cells */
-    border-radius: 8px; /* Rounded corners for cells */
-    transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transitions */
-    color: #544B3D; /* Dark text color */
+    background-color: #ffffff; /* Light background for cells */
+    border: 1px solid #ddd; /* Light border */
+    transition: background-color 0.3s, transform 0.2s; /* Smooth transitions */
 }
 
-.table tr {
-    transition: background-color 0.3s ease;
-}
-
+/* Hover Effects */
 .table tr:hover td {
-    background-color: #ffa31a; /* Background color on hover */
+    background-color: #ffa31a; /* Light grey on hover */
     transform: translateY(-2px); /* Slight lift effect */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Shadow on hover */
-    color: #1b1b1b; /* Change font color to dark on hover */
+    color: #333; /* Change font color to dark */
 }
-/* Spinner Overlay */
-.spinner-overlay {
-    position: fixed; /* Fixed positioning to cover the whole screen */
-    top: 0;
-    left: 0;
-    width: 100%;
+
+/* Additional Styles for Progress and Stats */
+.progress {
+    background-color: #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    height: 24px; /* Slightly taller progress bar */
+}
+
+.progress-bar {
+    background-color: #6c63ff; /* Progress bar color */
     height: 100%;
-    background-color: rgba(255, 255, 255, 0.7); /* Semi-transparent background */
-    display: none; /* Initially hidden */
-    align-items: center;
-    justify-content: center;
-    z-index: 2000; /* Higher z-index to cover the modal */
+    transition: width 0.4s, background-color 0.4s; /* Smooth transitions */
 }
 
-/* Spinner */
-.spinner {
-    border: 4px solid rgba(0, 0, 0, 0.1);
-    border-left-color: #28a745; /* Green color for the spinner */
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    animation: spin 1s linear infinite; /* Spin animation */
+/* Scrollbar Styles for Mobile */
+.table-responsive::-webkit-scrollbar {
+    height: px; /* Height of the horizontal scrollbar */
 }
 
-/* Keyframes for spinner */
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Background of the scrollbar track */
+    border-radius: 10px; /* Rounded corners for the track */
 }
 
-/* General Button Styles */
-.btn {
-    border: none; /* No border */
-    border-radius: 5px; /* Rounded corners */
-    padding: 8px 16px; /* Consistent padding for all buttons */
-    font-size: 0.9rem; /* Font size */
-    color: #fff; /* Text color */
-    cursor: pointer; /* Pointer cursor on hover */
-    transition: background-color 0.3s, transform 0.3s; /* Transition effects */
-    margin: 0 5px; /* Space between buttons */
-    min-width: 100px; /* Set a minimum width */
-    height: 40px; /* Set a fixed height */
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #333; /* Color of the scrollbar thumb */
+    border-radius: 10px; /* Rounded corners for the thumb */
 }
 
-/* Specific Button Colors */
-.btn-warning {
-    background-color: #007bff; /* Yellow color */
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Darker thumb color on hover */
 }
 
-.btn-warning:hover {
-    background-color: #e0a800; /* Darker yellow on hover */
-    transform: translateY(-2px); /* Lift effect on hover */
+/* Smooth Transitions */
+button,
+input,
+.table td,
+.card {
+    transition: all 0.3s ease-in-out;
 }
 
-.btn-success {
-    background-color: #28a745; /* Green color */
-}
-
-.btn-success:hover {
-    background-color: #218838; /* Darker green on hover */
-    transform: translateY(-2px); /* Lift effect on hover */
-}
-
-.btn-danger {
-    background-color: #dc3545; /* Red color */
-}
-
-.btn-danger:hover {
-    background-color: #c82333; /* Darker red on hover */
-    transform: translateY(-2px); /* Lift effect on hover */
-}
-
-/* Small Button Size */
-.btn-sm {
-    font-size: 0.8rem; /* Smaller font size */
-}
-
-/* Icon Spacing */
-.btn i {
-    margin-right: 5px; /* Space between icon and text */
-}
-
-.spinner-overlay {
-    position: fixed; /* Fixed positioning to cover the whole screen */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(255, 255, 255, 0.7); /* Semi-transparent background */
-    display: none; /* Initially hidden */
-    align-items: center;
-    justify-content: center;
-    z-index: 3000; /* Higher z-index to ensure it is on top */
-}
-
-/* Spinner */
-.spinner {
-    border: 4px solid rgba(0, 0, 0, 0.1);
-    border-left-color: #28a745; /* Green color for the spinner */
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    animation: spin 1s linear infinite; /* Spin animation */
-}
-
-/* Keyframes for spinner */
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-/* Modal Styles */
-.modal-content {
-    background: #F3DAD8; /* Light background for modal */
-    border-radius: 15px; /* Rounded corners */
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); /* Shadow effect */
-    z-index: 2000; /* Lower z-index than spinner overlay */
-}
-
-/* Modal Header */
-.modal-header {
-    background: #544B3D; /* Dark header background */
-    border-top-left-radius: 15px; /* Rounded corners for top */
-    border-top-right-radius: 15px; /* Rounded corners for top */
-    text-align: center; /* Center the title */
-    width: 100%; /* Ensure full width for centering */
-}
-
-.modal-title {
-    font-size: 1.5rem; /* Title font size */
-    font-weight: bold; /* Bold title */
-    margin: 0; /* Remove margin for tight spacing */
-    text-align: center; /* Center title text */
-    color: #F3DAD8; /* Light text color for title */
-}
-
-/* Modal Body */
-.modal-body {
-    background: #F3DAD8; /* Light background for body */
-    color: #544B3D; /* Dark text color for readability */
-    padding: 20px; /* Padding inside modal body */
-}
-/* Loading spinner */
-.spinner-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(255, 255, 255, 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-
-.spinner {
-    border: 4px solid rgba(0, 0, 0, 0.1);
-    border-left-color: #28a745;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-.close {
-    color: #fff; /* Close button color */
-}
-
-.modal-body {
-    padding: 20px; /* Padding inside the modal body */
-}
-
-.form-group label {
-    color: #544B3D; /* Label color */
-    font-weight: bold; /* Bold labels */
-}
-
-.form-control {
-    border-radius: 5px; /* Rounded input fields */
-    border: 1px solid #ccc; /* Light border */
-    background: #544B3D; /* Dark input background */
-    color: #fff; /* White text color */
-}
-
-.form-control::placeholder {
-    color: #ccc; /* Placeholder text color */
-}
-
-.form-control:focus {
-    background: #ccc; /* Darker background on focus */
-    border-color: #007bff; /* Border color on focus */
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Shadow on focus */
-}
-
-.btn-success {
-    background-color: #28a745; /* Green button color */
-    border: none; /* No border */
-    border-radius: 5px; /* Rounded button */
-}
-
-.btn-success:hover {
-    background-color: #218838; /* Darker green on hover */
-}
-
-/* Spinner styling */
-.loader {
-    transform: rotateZ(45deg);
-    perspective: 1000px;
-    border-radius: 50%;
-    width: 48px;
-    height: 48px;
-    color: #fff;
-    position: relative;
-}
-
-.loader:before,
-.loader:after {
-    content: '';
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: inherit;
-    height: inherit;
-    border-radius: 50%;
-    transform: rotateX(70deg);
-    animation: spin 1s linear infinite;
-}
-
-.loader:after {
-    color: #FF3D00;
-    transform: rotateY(70deg);
-    animation-delay: 0.4s;
-}
-
-/* Keyframes for animations */
-@keyframes rotate {
-    0% {
-        transform: translate(-50%, -50%) rotateZ(0deg);
-    }
-    100% {
-        transform: translate(-50%, -50%) rotateZ(360deg);
-    }
-}
-
-@keyframes rotateccw {
-    0% {
-        transform: translate(-50%, -50%) rotate(0deg);
-    }
-    100% {
-        transform: translate(-50%, -50%) rotate(-360deg);
-    }
-}
-
-@keyframes spin {
-    0%,
-    100% {
-        box-shadow: 0.2em 0px 0 0px currentcolor;
-    }
-    12% {
-        box-shadow: 0.2em 0.2em 0 0 currentcolor;
-    }
-    25% {
-        box-shadow: 0 0.2em 0 0px currentcolor;
-    }
-    37% {
-        box-shadow: -0.2em 0.2em 0 0 currentcolor;
-    }
-    50% {
-        box-shadow: -0.2em 0 0 0 currentcolor;
-    }
-    62% {
-        box-shadow: -0.2em -0.2em 0 0 currentcolor;
-    }
-    75% {
-        box-shadow: 0px -0.2em 0 0 currentcolor;
-    }
-    87% {
-        box-shadow: 0.2em -0.2em 0 0 currentcolor;
-    }
-}
-
-/* Responsive Styles */
+/* Responsive Behavior */
 @media (max-width: 768px) {
     .card-body {
         padding: 15px; /* Adjust padding for smaller screens */
     }
 
-    .container {
+    .table-responsive {
         overflow-x: auto; /* Enable horizontal scrolling */
-        padding: 10px; /* Adjust padding for better fit */
-        max-width: 100%; /* Ensure the container takes full width */
     }
 
     /* Custom scrollbar styles for mobile */
-    .container::-webkit-scrollbar {
+    .table-responsive::-webkit-scrollbar {
         height: 6px; /* Height of the horizontal scrollbar */
     }
+}
+/* Adjustments for larger screens */
+@media (min-width: 992px) {
+    .content {
+        margin-left: 250px; /* Content margin for sidebar */
+    }
 
-    .table {
-        width: 100%; /* Ensure the table takes full width */
-        border-collapse: collapse; /* Remove gaps between cells */
+    #toggleSidebar {
+        display: none; /* Hide hamburger button on large screens */
+    }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .modal-dialog {
+        max-width: 90%; /* Make the modal smaller on smaller screens */
+    }
+
+    .modal-body {
+        padding: 20px; /* Less padding for smaller screens */
+    }
+}
+
+/* Modal Custom Styling */
+.modal-content {
+    border-radius: 10px; /* Rounded corners for the modal */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow around the modal */
+    background-color: #f8f9fa; /* Light background to match the overall theme */
+    color: #333; /* Dark text color for readability */
+}
+
+.modal-header {
+    background-color: #6c63ff; /* Primary color for the header */
+    color: white; /* White text color */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3); /* Light border for separation */
+}
+
+.modal-title {
+    font-size: 1.5rem; /* Bigger font size for the title */
+}
+
+/* Modal Body Styling */
+.modal-body {
+    padding: 30px; /* Add extra padding inside the modal */
+    background-color: #f8f9fa; /* Light background for modal body */
+    font-family: Arial, sans-serif; /* Use a clean font */
+    color: #333; /* Dark text for better readability */
+}
+
+/* Modal Footer Styling */
+.modal-footer {
+    background-color: #f8f9fa; /* Light background for footer */
+    border-top: 1px solid #ddd; /* Light gray border */
+    padding: 15px; /* Padding for the footer */
+    display: flex; /* Use flexbox for alignment */
+    justify-content: flex-end; /* Align buttons to the right */
+}
+
+/* Button Styles in Modal */
+.modal-footer .btn {
+    background-color: #6c63ff; /* Button background color */
+    color: white; /* Button text color */
+    border: none; /* Remove border */
+    padding: 10px 20px; /* Padding for buttons */
+    border-radius: 5px; /* Rounded corners for buttons */
+    transition: background-color 0.3s; /* Smooth transition */
+}
+
+.modal-footer .btn:hover {
+    background-color: #5a54d1; /* Darken button on hover */
+}
+.btn-close {
+    background: none; /* Remove default background */
+    border: none; /* Remove border */
+    font-size: 1.25rem; /* Increase the close button size */
+    color: white; /* Close button color */
+    opacity: 0.6; /* Slightly transparent */
+    width: 50px; /* Set a fixed width */
+    height: 50px; /* Set a fixed height */
+    display: flex; /* Center content */
+    align-items: center; /* Vertically center */
+    justify-content: center; /* Horizontally center */
+}
+
+.btn-close:hover {
+    opacity: 1; /* Fully opaque on hover */
+}
+
+
+/* Image Styling */
+.img-fluid {
+    max-width: 150px; /* Max width for the profile image */
+    height: auto; /* Maintain aspect ratio */
+    border-radius: 50%; /* Make the image round */
+    border: 2px solid #007bff; /* Border matching the header */
+    margin-bottom: 20px; /* Space below the image */
+}
+
+/* Form Controls Styling */
+.form-label {
+    font-weight: bold; /* Make labels bold */
+    font-size: 1rem; /* Slightly larger font for labels */
+}
+
+.form-control {
+    border-radius: 5px; /* Rounded borders for inputs */
+    border: 1px solid #ddd; /* Light gray border */
+    padding: 10px; /* Padding for inputs */
+    font-size: 1rem; /* Standard font size */
+    background-color: #f9f9f9; /* Slightly gray background for inputs */
+    color: #333; /* Dark text color */
+    transition: all 0.3s ease; /* Smooth transition for focus effect */
+}
+
+/* Input Focus Styling */
+.form-control:focus {
+    border-color: #007bff; /* Blue border on focus */
+    background-color: #fff; /* White background on focus */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Light blue glow on focus */
+}
+
+/* Button Styling */
+.btn-secondary {
+    background-color: #6c757d; /* Gray color for the close button */
+    color: white; /* White text color */
+    border: none; /* Remove border */
+    padding: 10px; /* Add uniform padding */
+    border-radius: 5px; /* Rounded corners */
+    transition: background-color 0.3s; /* Smooth transition for hover effect */
+    width: 120px; /* Set a fixed width */
+    height: 50px; /* Set a fixed height to match */
+    display: flex; /* Center content */
+    align-items: center; /* Vertically center */
+    justify-content: center; /* Horizontally center */
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268; /* Darker gray on hover */
+}
+.button-container {
+    display: flex; /* Use flexbox for horizontal alignment */
+    gap: 5px; /* Space between buttons */
+}
+
+.button-container button {
+    flex: 1; /* Allow buttons to grow equally */
+    height: 30px; /* Set a smaller fixed height for all buttons */
+    display: flex; /* Center content */
+    align-items: center; /* Vertically center the content */
+    justify-content: center; /* Horizontally center the content */
+    font-size: 0.8rem; /* Smaller font size */
+    padding: 0 10px; /* Adjust padding for smaller buttons */
+}
+
+/* Style for specific button types (optional) */
+.btn-warning {
+    background-color: #ffc107; /* Warning color */
+    color: white;
+    border: none;
+}
+
+.btn-success {
+    background-color: #28a745; /* Success color */
+    color: white;
+    border: none;
+}
+
+.btn-danger {
+    background-color: #dc3545; /* Danger color */
+    color: white;
+    border: none;
+}
+
+.button-container button:hover {
+    opacity: 0.8; /* Slightly transparent on hover */
+}
+
+/* Responsive Adjustments (if needed) */
+@media (max-width: 768px) {
+    .button-container button {
+        height: 30px; /* Ensure height remains small on mobile */
+        font-size: 0.8rem; /* Keep font size small */
+    }
+}
+/* Badge Styles */
+.badge {
+    font-size: 0.75rem;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+/* Notification Dot */
+.notification-dot {
+    display: none; /* Hidden by default */
+    height: 10px;
+    width: 10px;
+    background-color: red; /* Red color for notification */
+    border-radius: 50%; /* Circular dot */
+    position: absolute; /* Position relative to parent */
+    top: 5px;  /* Adjust to position at the top */
+    right: 7px;  /* Position it near the text */
+}
+
+/* Custom Scrollbar Styles */
+.table-responsive::-webkit-scrollbar {
+    height: 8px; /* Height of the horizontal scrollbar */
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Background of the scrollbar track */
+    border-radius: 10px; /* Rounded corners for the track */
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #333; /* Color of the scrollbar thumb */
+    border-radius: 10px; /* Rounded corners for the thumb */
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Darker thumb color on hover */
+}
+
+/* Smooth Transitions */
+button,
+input,
+.table td,
+.card {
+    transition: all 0.3s ease-in-out;
+}
+
+/* Adjustments for Smaller Screens */
+@media (max-width: 768px) {
+    .modal-dialog {
+        max-width: 90%; /* Make the modal smaller on smaller screens */
+    }
+
+    .modal-body {
+        padding: 20px; /* Less padding for smaller screens */
     }
 
     .table th, .table td {
         padding: 10px; /* Reduced padding for table cells */
         font-size: 0.9rem; /* Smaller font size for table */
-        word-wrap: break-word; /* Allow word wrapping for long text */
     }
 
-    .btn-primary, .btn-success, .btn-danger, .btn-warning {
+    .btn-primary, .btn-success {
         padding: 10px; /* Reduced padding for buttons */
-        width: 100%; /* Full width for buttons */
     }
 }
 
+/* Adjustments for Very Small Screens */
 @media (max-width: 576px) {
     .container {
         padding: 8px; /* Further reduced padding for very small screens */
-        max-width: 100%; /* Ensure the container takes full width */
     }
 
     .table th, .table td {
         font-size: 0.8rem; /* Smaller font size for very small screens */
     }
-}@media (max-width: 768px) {
-    .modal-content {
-        width: 90%; /* Adjust modal width for smaller screens */
+}
+
+/* Responsive Content Margins */
+@media (min-width: 992px) {
+    .content {
+        margin-left: 250px; /* Content margin for sidebar */
     }
-}.notification-dot {
-    display: none;
-    height: 10px;
-    width: 10px;
-    background-color: red;
-    border-radius: 50%;
-    position: absolute;
-    top: 5px;  /* Adjust to position at the top */
-    right: 7px;  /* Adjust to position it near the text */
+
+    #toggleSidebar {
+        display: none; /* Hide hamburger button on large screens */
+    }
 }
-
-
-/* Adjust badge position */
-.sidebar-links .nav-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
