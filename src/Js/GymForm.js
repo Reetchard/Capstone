@@ -261,33 +261,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to populate the checklist with price input
     function populateChecklist(items, selectedItems) {
-        checklistContainer.innerHTML = "";
+        checklistContainer.innerHTML = ""; // Clear current checklist items
+    
         items.forEach((item) => {
             const isChecked = selectedItems.includes(item);
             const currentPrice = priceData[item] || "100"; // Default price to 100 if not set
+            
+            // Check if the current selection is 'services' to determine whether to show the price selector
+            const isServiceItem = currentSelectionType === "services"; // Show price selector only for services
+            
             checklistContainer.innerHTML += `
                 <div class="checklist-item">
                     <input type="checkbox" value="${item}" ${isChecked ? "checked" : ""} />
                     <label>${item}</label>
-                    <span>
-                        <select class="price-selector" data-item="${item}">
-                            <option value="100" ${currentPrice == "100" ? "selected" : ""}>100</option>
-                            <option value="150" ${currentPrice == "150" ? "selected" : ""}>150</option>
-                            <option value="200" ${currentPrice == "200" ? "selected" : ""}>200</option>
-                            <option value="custom" ${currentPrice && !["100", "150", "200"].includes(currentPrice) ? "selected" : ""}>Custom</option>
-                        </select>
-                        <input type="number" class="custom-price" data-item="${item}" value="${currentPrice && !["100", "150", "200"].includes(currentPrice) ? currentPrice : ""}" placeholder="Enter custom price" style="${currentPrice && !["100", "150", "200"].includes(currentPrice) ? "display:inline-block" : "display:none"}" />
-                    </span>
+                    ${isServiceItem ? ` <!-- Show price selector for services -->
+                        <span>
+                            <select class="price-selector" data-item="${item}">
+                                <option value="100" ${currentPrice == "100" ? "selected" : ""}>100</option>
+                                <option value="150" ${currentPrice == "150" ? "selected" : ""}>150</option>
+                                <option value="200" ${currentPrice == "200" ? "selected" : ""}>200</option>
+                                <option value="custom" ${currentPrice && !["100", "150", "200"].includes(currentPrice) ? "selected" : ""}>Custom</option>
+                            </select>
+                            <input type="number" class="custom-price" data-item="${item}" value="${currentPrice && !["100", "150", "200"].includes(currentPrice) ? currentPrice : ""}" placeholder="Enter custom price" style="${currentPrice && !["100", "150", "200"].includes(currentPrice) ? "display:inline-block" : "display:none"}" />
+                        </span>
+                    ` : ''} <!-- No price selector for programs and equipment -->
                 </div>
             `;
         });
-
-        // Add event listeners for price selection
+    
+        // Add event listeners for price selection (only for services)
         checklistContainer.querySelectorAll(".price-selector").forEach((selector) => {
             selector.addEventListener("change", (e) => {
                 const item = e.target.getAttribute("data-item");
                 const value = e.target.value;
-
+    
                 if (value === "custom") {
                     const customInput = checklistContainer.querySelector(`.custom-price[data-item="${item}"]`);
                     customInput.style.display = "inline-block";
@@ -299,8 +306,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         });
-
-        // Add event listeners for custom price input
+    
+        // Add event listeners for custom price input (only for services)
         checklistContainer.querySelectorAll(".custom-price").forEach((input) => {
             input.addEventListener("input", (e) => {
                 const item = e.target.getAttribute("data-item");
@@ -309,102 +316,103 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
-
+    
+        
     // Function to update the total price in the gymPriceRate input
     function updatePriceRate() {
         let totalPrice = 0;
-    
+
         // Calculate total price for selected programs, equipment, and services
         const selectedPrograms = gymProgramsInput.value.split(",").filter((val) => val);
         const selectedEquipment = gymEquipmentInput.value.split(",").filter((val) => val);
         const selectedServices = gymServicesInput.value.split(",").filter((val) => val);
-    
-        // Add up the prices for selected programs
+
+        // For programs and equipment, no price is added (set to 0 for total calculation)
         selectedPrograms.forEach((program) => {
-            totalPrice += parseFloat(priceData[program] || 100); // Default to 100 if no price set
+            // We skip adding the price for programs
         });
-    
-        // Add up the prices for selected equipment
+
         selectedEquipment.forEach((equipmentItem) => {
-            totalPrice += parseFloat(priceData[equipmentItem] || 100); // Default to 100 if no price set
+            // We skip adding the price for equipment
         });
-    
+
         // Add up the prices for selected services
         selectedServices.forEach((service) => {
-            totalPrice += parseFloat(priceData[service] || 100); // Default to 100 if no price set
+            totalPrice += parseFloat(priceData[service] || "100"); // Default to 100 if no price set
         });
-    
+
         // Update the gymPriceRate field with the total price, formatted with commas
         gymPriceRate.value = totalPrice.toFixed(2).toLocaleString(); // Display the price as a fixed decimal with commas
     }
+
     
 
 
-// Show the modal with the appropriate checklist
-function showModal(selectionType) {
-    currentSelectionType = selectionType;
+    // Show the modal with the appropriate checklist
+    function showModal(selectionType) {
+        currentSelectionType = selectionType;
 
-    let items = [];
-    let selectedItems = [];
-    // Hide all custom add inputs first
-    document.getElementById('customProgramInput').style.display = "none";
-    document.getElementById('addProgramButton').style.display = "none";
-    document.getElementById('customEquipmentInput').style.display = "none";
-    document.getElementById('addEquipmentButton').style.display = "none";
-    document.getElementById('customServiceInput').style.display = "none";
-    document.getElementById('addServiceButton').style.display = "none";
+        let items = [];
+        let selectedItems = [];
+        // Hide all custom add inputs first
+        document.getElementById('customProgramInput').style.display = "none";
+        document.getElementById('addProgramButton').style.display = "none";
+        document.getElementById('customEquipmentInput').style.display = "none";
+        document.getElementById('addEquipmentButton').style.display = "none";
+        document.getElementById('customServiceInput').style.display = "none";
+        document.getElementById('addServiceButton').style.display = "none";
 
-    // Logic for selecting the relevant items
-    if (selectionType === "programs") {
-        items = programs;
-        selectedItems = gymProgramsInput.value.split(",").filter((val) => val);
-        document.getElementById('customProgramInput').style.display = "inline-block";
-        document.getElementById('addProgramButton').style.display = "inline-block";
-    } else if (selectionType === "equipment") {
-        items = equipment;
-        selectedItems = gymEquipmentInput.value.split(",").filter((val) => val);
-        document.getElementById('customEquipmentInput').style.display = "inline-block";
-        document.getElementById('addEquipmentButton').style.display = "inline-block";
-    } else if (selectionType === "services") {
-        items = services;
-        selectedItems = gymServicesInput.value.split(",").filter((val) => val);
-        document.getElementById('customServiceInput').style.display = "inline-block";
-        document.getElementById('addServiceButton').style.display = "inline-block";
+        // Logic for selecting the relevant items
+        if (selectionType === "programs") {
+            items = programs;
+            selectedItems = gymProgramsInput.value.split(",").filter((val) => val);
+            document.getElementById('customProgramInput').style.display = "inline-block";
+            document.getElementById('addProgramButton').style.display = "inline-block";
+        } else if (selectionType === "equipment") {
+            items = equipment;
+            selectedItems = gymEquipmentInput.value.split(",").filter((val) => val);
+            document.getElementById('customEquipmentInput').style.display = "inline-block";
+            document.getElementById('addEquipmentButton').style.display = "inline-block";
+        } else if (selectionType === "services") {
+            items = services;
+            selectedItems = gymServicesInput.value.split(",").filter((val) => val);
+            document.getElementById('customServiceInput').style.display = "inline-block";
+            document.getElementById('addServiceButton').style.display = "inline-block";
+        }
+
+        // Attach event listeners for adding custom items
+        if (selectionType === "programs") {
+            document.getElementById('addProgramButton').addEventListener('click', () => {
+                const newItem = document.getElementById('customProgramInput').value.trim();
+                if (newItem && !items.includes(newItem)) {
+                    programs.push(newItem); // Add the custom program to the programs list
+                    gymProgramsInput.value = [...selectedItems, newItem].join(",");
+                    populateChecklist(programs, [...selectedItems, newItem]); // Re-populate the checklist
+                }
+            });
+        } else if (selectionType === "equipment") {
+            document.getElementById('addEquipmentButton').addEventListener('click', () => {
+                const newItem = document.getElementById('customEquipmentInput').value.trim();
+                if (newItem && !items.includes(newItem)) {
+                    equipment.push(newItem); // Add the custom equipment to the equipment list
+                    gymEquipmentInput.value = [...selectedItems, newItem].join(",");
+                    populateChecklist(equipment, [...selectedItems, newItem]); // Re-populate the checklist
+                }
+            });
+        } else if (selectionType === "services") {
+            document.getElementById('addServiceButton').addEventListener('click', () => {
+                const newItem = document.getElementById('customServiceInput').value.trim();
+                if (newItem && !items.includes(newItem)) {
+                    services.push(newItem); // Add the custom service to the services list
+                    gymServicesInput.value = [...selectedItems, newItem].join(",");
+                    populateChecklist(services, [...selectedItems, newItem]); // Re-populate the checklist
+                }
+            });
+        }
+
+        populateChecklist(items, selectedItems); // Populate checklist with selected items
+        checklistModal.style.display = "flex"; // Show the modal
     }
-
-    // Attach event listeners for adding custom items
-    if (selectionType === "programs") {
-        document.getElementById('addProgramButton').addEventListener('click', () => {
-            const newItem = document.getElementById('customProgramInput').value.trim();
-            if (newItem && !items.includes(newItem)) {
-                programs.push(newItem); // Add the custom program to the programs list
-                gymProgramsInput.value = [...selectedItems, newItem].join(",");
-                populateChecklist(programs, [...selectedItems, newItem]); // Re-populate the checklist
-            }
-        });
-    } else if (selectionType === "equipment") {
-        document.getElementById('addEquipmentButton').addEventListener('click', () => {
-            const newItem = document.getElementById('customEquipmentInput').value.trim();
-            if (newItem && !items.includes(newItem)) {
-                equipment.push(newItem); // Add the custom equipment to the equipment list
-                gymEquipmentInput.value = [...selectedItems, newItem].join(",");
-                populateChecklist(equipment, [...selectedItems, newItem]); // Re-populate the checklist
-            }
-        });
-    } else if (selectionType === "services") {
-        document.getElementById('addServiceButton').addEventListener('click', () => {
-            const newItem = document.getElementById('customServiceInput').value.trim();
-            if (newItem && !items.includes(newItem)) {
-                services.push(newItem); // Add the custom service to the services list
-                gymServicesInput.value = [...selectedItems, newItem].join(",");
-                populateChecklist(services, [...selectedItems, newItem]); // Re-populate the checklist
-            }
-        });
-    }
-
-    populateChecklist(items, selectedItems); // Populate checklist with selected items
-    checklistModal.style.display = "flex"; // Show the modal
-}
 
 
     // Save the selected items
@@ -434,20 +442,25 @@ function showModal(selectionType) {
         checklistModal.style.display = "none";
     });
 
-    // Function to update the display with remove functionality and price
     function updateDisplay(displayElement, items) {
         displayElement.innerHTML = "";
         items.forEach((item) => {
-            // Retrieve the price or default to 100 if not set
-            const price = parseFloat(priceData[item] || "100");
+            // Check if the item is a gym service to display the price
+            const isServiceItem = services.includes(item);
     
-            // Format price with two decimals and commas
-            const formattedPrice = price.toFixed(2).toLocaleString();
+            // Retrieve the price or default to 100 if not set, only for services
+            const price = isServiceItem ? parseFloat(priceData[item] || "100") : null;
+        
+            // Format price with two decimals and commas if it's a service item
+            const formattedPrice = price ? price.toFixed(2).toLocaleString() : '';
     
             const itemElement = document.createElement("div");
             itemElement.classList.add("selected-item");
-            itemElement.innerHTML = `${item} - Price: ${formattedPrice} 
+    
+            // Only show price for services, programs, and equipment won't show the price
+            itemElement.innerHTML = `${item}${isServiceItem ? ` - Price: ${formattedPrice}` : ''} 
                 <button class="remove-item" data-item="${item}">Remove</button>`;
+            
             displayElement.appendChild(itemElement);
         });
     

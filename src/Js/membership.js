@@ -1,6 +1,6 @@
 // Initialize Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js";
-import { getFirestore, collection, setDoc, deleteDoc, doc, getDoc, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-firestore.js"; // Add onSnapshot here
+import { getFirestore, collection, setDoc, deleteDoc, doc, getDoc, query, where, onSnapshot, getDocs, updateDoc,runTransaction } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-auth.js";
 
 // Firebase configuration
@@ -19,339 +19,50 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// Show spinner and message customization function
-function toggleSpinner(isLoading, message = 'Processing...') {
-    if (isLoading) {
-        $('#spinnerModal').show(); // Show the modal containing the spinner
-        $('.processing-text').text(message); // Update the processing message
-    } else {
-        $('#spinnerModal').hide(); // Hide the modal
-        $('.processing-text').text(''); // Clear the message
-    }
+// Declare gymName globally to use in the application
+let gymName = "";
+
+// ✅ Toast Notification Setup (Single Toast Container)
+if (!document.getElementById('toast-container')) {
+    const toastContainer = document.createElement('div');
+    toastContainer.id = 'toast-container';
+    toastContainer.style.position = 'fixed';
+    toastContainer.style.bottom = '20px';
+    toastContainer.style.right = '20px';
+    toastContainer.style.zIndex = '1050';
+    document.body.appendChild(toastContainer);
 }
 
-// Function to show customized messages
-function toggleMessage(isVisible, message = '') {
-    if (isVisible) {
-        $('#messageContainer').text(message).show();  // Show the message with content
-    } else {
-        $('#messageContainer').hide();  // Hide the message
-    }
+// ✅ Toast Function (Single Toast at a Time)
+function showToast(message, type) {
+    const toastContainer = document.getElementById('toast-container');
+    toastContainer.innerHTML = `
+        <div class="toast align-items-center text-white bg-${type} border-0 show" role="alert">
+            <div class="d-flex">
+                <div class="toast-body">${message}</div>
+                <button type="button" class="ml-2 mb-1 close text-white" data-dismiss="toast">&times;</button>
+            </div>
+        </div>
+    `;
+    const toast = toastContainer.querySelector('.toast');
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000); // Auto-hide after 3 seconds
 }
 
-// Function to show custom confirmation modal and handle the response
-function showCustomConfirmation(message, onConfirm) {
-    // Set the custom confirmation message
-    $('#confirmationMessage').text(message);
-
-    // Show the confirmation modal
-    $('#confirmationModal').modal('show');
-
-    // Handle the Yes button click
-    $('#confirmYes').off('click').on('click', function() {
-        // Hide the modal
-        $('#confirmationModal').modal('hide');
-        
-        // Execute the confirmation callback if provided
-        if (typeof onConfirm === 'function') {
-            onConfirm();
-        }
-    });
-}
-
-// Populate the edit form when an edit button is clicked
-$('#plansTableBody').on('click', '.edit-button', async function () {
-    const planId = $(this).data('id');
-
-    try {
-        toggleSpinner(true, 'Loading membership plan data for editing...');
-
-        const planRef = doc(db, 'MembershipPlans', planId);
-        const planDoc = await getDoc(planRef);
-
-        if (planDoc.exists()) {
-            const planData = planDoc.data();
-
-            $('#editPlanId').val(planId);
-            $('#membershipType').val(planData.membershipType);
-            $('#editPlanPrice').val(planData.price);
-            $('#editPlanDescription').val(planData.description);  // Fill textarea with plan description
-            $('#accessLevel').val(planData.accessLevel);
-            $('#allowedClasses').val(planData.allowedClasses);
-            $('#guestPasses').val(planData.guestPasses);
-            $('#membershipDays').val(planData.membershipDays);
-
-            toggleSpinner(false);
-            $('#membershipModal').modal('show');
-        } else {
-            toggleSpinner(false);
-            toggleMessage('danger', 'Failed to retrieve membership plan data for editing.');
-        }
-    } catch (error) {
-        toggleSpinner(false);
-        toggleMessage('danger', 'Error retrieving plan for editing: ' + error.message);
-    }
-});
-
-
-// Fetch and display updated data on landing page
-$(document).ready(function () {
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            const userEmail = user.email;
-            if (!userEmail) {
-                toggleMessage(true, 'Failed to retrieve user email. Please log in again.');
-                return;
-            }
-
-            try {
-                const userId = user.uid;
-
-                if (!userId) {
-                    toggleMessage(true, 'User ID not found. Please log in again.');
-                    return;
-                }
-
-                // Fetch gym owner's details to get the gymName from the Users collection
-                const userDocRef = doc(db, 'GymOwner', userId);
-                const userDoc = await getDoc(userDocRef);
-
-                if (userDoc.exists()) {
-                    const gymOwnerData = userDoc.data();
-                    const gymName = gymOwnerData.gymName;
-
-                    const membershipPlansRef = collection(db, 'MembershipPlans');
-                    const userPlansQuery = query(
-                        membershipPlansRef,
-                        where('ownerId', '==', userId),
-                        where('gymName', '==', gymName)
-                    );
-
-                    // Listen for real-time updates
-                    onSnapshot(userPlansQuery, (snapshot) => {
-                        $('#plansTableBody').empty();
-                        snapshot.forEach((doc) => {
-                            const plan = doc.data();
-                            const id = `${plan.membershipType}-${plan.ownerEmail.replace(/[@.]/g, '_')}`;
-
-                            const newRow = $(`
-                                <tr id="${id}">
-                                    <td>${plan.membershipType}</td>
-                                    <td>₱${plan.price}</td>
-                                    <td>${plan.description}</td>
-                                    <td>${plan.accessLevel}</td>
-                                    <td>${plan.allowedClasses}</td>
-                                    <td>${plan.guestPasses}</td>
-                                    <td>${plan.membershipDays}</td>
-                                    <td>
-                                        <button class="btn btn-primary edit-button" data-id="${id}">Edit</button>
-                                        <button class="btn btn-danger delete-button" data-id="${id}">Delete</button>
-                                    </td>
-                                </tr>
-                            `);
-
-                            $('#plansTableBody').append(newRow);
-                        });
-
-                        // Attach event handlers to Edit and Delete buttons after rows are added
-                        attachButtonHandlers();
-                    });
-                } else {
-                    toggleMessage(true, 'Failed to retrieve gym owner data.');
-                }
-            } catch (error) {
-                toggleMessage(true, 'Failed to retrieve membership plans. Please try again.');
-                console.error('Error fetching membership plans:', error.message);
-            }
-        } else {
-            toggleMessage(true, 'You must be logged in to view membership plans.');
-        }
-    });
-
-    function attachButtonHandlers() {
-        // Event delegation for edit button functionality
-        $('#plansTableBody').on('click', '.edit-button', async function () {
-            const planId = $(this).data('id');
-
-            try {
-                toggleSpinner(true, 'Loading membership plan data for editing...');
-
-                const planRef = doc(db, 'MembershipPlans', planId);
-                const planDoc = await getDoc(planRef);
-
-                if (planDoc.exists()) {
-                    const planData = planDoc.data();
-
-                    $('#editPlanId').val(planId);
-                    $('#membershipType').val(planData.membershipType);
-                    $('#editPlanPrice').val(planData.price);
-                    $('editPlanDescription').setContent(planData.description);
-                    $('#accessLevel').val(planData.accessLevel);
-                    $('#allowedClasses').val(planData.allowedClasses);
-                    $('#guestPasses').val(planData.guestPasses);
-                    $('#membershipDays').val(planData.membershipDays);
-
-                    toggleSpinner(false);
-                    $('#membershipModal').modal('show');
-                } else {
-                    toggleSpinner(false);
-                    toggleMessage('danger', 'Failed to retrieve membership plan data for editing.');
-                }
-            } catch (error) {
-                toggleSpinner(false);
-                toggleMessage('danger', 'Error retrieving plan for editing: ' + error.message);
-            }
-        });
-    }
-});
-
-// Handle form submission for adding or updating a plan
-$('#editPlanForm').on('submit', async function (e) {
-    e.preventDefault();
-
-    const id = $('#editPlanId').val();
-    const membershipType = $('#membershipType').val();
-    const price = $('#editPlanPrice').val();
-    const description = $('#editPlanDescription').val();  // Fetch value directly from textarea
-    const accessLevel = $('#accessLevel').val();
-    const allowedClasses = $('#allowedClasses').val();
-    const guestPasses = $('#guestPasses').val();
-    const membershipDays = $('#membershipDays').val();
-
-    const user = auth.currentUser;
-    const userEmail = user ? user.email : null;
-    const userId = user ? user.uid : null;
-
-    if (!userId) {
-        toggleMessage(true, 'User ID is missing.');
-        return;
-    }
-
-    try {
-        toggleSpinner(true, 'Saving membership plan...');
-
-        const userDocRef = doc(db, 'GymOwner', userId);
-        const userDoc = await getDoc(userDocRef);
-
-        if (!userDoc.exists()) {
-            toggleSpinner(false);
-            toggleMessage(true, 'Gym owner details not found.');
-            return;
-        }
-
-        const gymOwnerData = userDoc.data();
-        const gymName = gymOwnerData.gymName;
-
-        const docName = `${membershipType}-${userEmail.replace(/[@.]/g, '_')}`;
-
-        await setDoc(doc(db, 'MembershipPlans', docName), {
-            membershipType,
-            price,
-            description,  // Save the description directly from textarea
-            accessLevel,
-            allowedClasses,
-            guestPasses,
-            membershipDays,
-            ownerEmail: userEmail,
-            ownerId: userId,
-            gymName: gymName
-        });
-
-        toggleSpinner(false);
-        toggleMessage(true, 'Plan saved successfully.');
-
-        $('#editPlanForm')[0].reset();
-        $('#editPlanDescription').val('');  // Clear textarea after submission
-        $('#membershipModal').modal('hide');
-    } catch (error) {
-        toggleSpinner(false);
-        toggleMessage(true, 'An error occurred while saving the plan: ' + error.message);
-    }
-});
-
-document.addEventListener('DOMContentLoaded', function () {
-    const sidebar = document.querySelector('.sidebar');
-    const toggleSidebar = document.getElementById('toggleSidebar');
-
-    // Toggle Sidebar Visibility on Mobile
-    toggleSidebar.addEventListener('click', () => {
-        sidebar.classList.toggle('show');
-    });
-
-    // Close Sidebar When Clicking Outside on Mobile
-    document.addEventListener('click', (e) => {
-        if (!sidebar.contains(e.target) && !toggleSidebar.contains(e.target) && sidebar.classList.contains('show')) {
-            sidebar.classList.remove('show');
-        }
-    });
-});
-let newTransactions = false;
-let newDayPass = false;
-
-function listenForUpdates() {
-    const transactionsRef = collection(db, "Transactions");
-
-    // Listen for all transactions
-    onSnapshot(transactionsRef, (snapshot) => {
-        snapshot.docChanges().forEach((change) => {
-            if (change.type === "added") {
-                const transactionType = change.doc.data().type;
-
-                switch (transactionType) {
-                    case "Day Pass":
-                        showNotificationDot('daypass-dot');
-                        newDayPass = true;
-                        break;
-                    default:
-                        showNotificationDot('transactions-dot');
-                        newTransactions = true;
-                        break;
-                }
-            }
-        });
-    });
-}
-
-// Show notification dot
-function showNotificationDot(dotId) {
-    const dot = document.getElementById(dotId);
-    if (dot) {
-        dot.style.display = 'inline-block';
-    }
-}
-
-// Hide notification dot and reset when viewed
-function resetDot() {
-    document.getElementById('transactions-dot').style.display = 'none';
-    document.getElementById('daypass-dot').style.display = 'none';
-
-    newTransactions = false;
-    newDayPass = false;
-
-    console.log("Notification dots reset.");
-}
-
-// Attach click listener to reset dots on link click
-document.querySelectorAll('.notification-link[data-reset="true"]').forEach(link => {
-    link.addEventListener('click', resetDot);
-});
-
-// Call listenForUpdates when DOM is loaded
-document.addEventListener('DOMContentLoaded', listenForUpdates);
-
+// ✅ Fetch Gym Owner Username
 async function fetchGymOwnerUsername() {
     const user = auth.currentUser;
 
     if (user) {
         try {
-            // Reference to GymOwner document
             const gymOwnerDocRef = doc(db, 'GymOwner', user.uid);  
             const gymOwnerDocSnap = await getDoc(gymOwnerDocRef);
 
             if (gymOwnerDocSnap.exists()) {
-                const username = gymOwnerDocSnap.data().username || 'Gym Owner';
-                document.querySelector('#profile-username').textContent = username;
-                document.querySelector('#profile-username-mobile').textContent = username;
+                gymName = gymOwnerDocSnap.data().gymName;
+                document.querySelector('#profile-username').textContent = gymName || 'Gym Owner';
+                document.querySelector('#profile-username-mobile').textContent = gymName || 'Gym Owner';
             } else {
                 document.querySelector('#profile-username').textContent = 'Gym Owner';
                 console.error("Gym owner document not found.");
@@ -365,9 +76,294 @@ async function fetchGymOwnerUsername() {
     }
 }
 
-// Wait for Firebase Authentication state change
+// ✅ Auth State Change Listener
 onAuthStateChanged(auth, (user) => {
     if (user) {
         fetchGymOwnerUsername();
+        fetchPlansForGymOwner(user.uid);
+    }
+});
+
+async function fetchPlansForGymOwner(userId) {
+    try {
+        const plansQuery = query(collection(db, 'MembershipPlans'), where('ownerId', '==', userId));
+        const querySnapshot = await getDocs(plansQuery);
+
+        const plans = [];
+        querySnapshot.forEach((doc) => {
+            plans.push({ id: doc.id, ...doc.data() });
+        });
+
+        displayPlans(plans);
+    } catch (error) {
+        console.error("Error fetching plans:", error);
+        showToast('Error: Failed to fetch membership plans.', 'danger');
+    }
+}
+
+
+// ✅ Add Membership Plan with Sequential planId
+document.getElementById('AddPlanForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const membershipType = document.getElementById('membershipType').value;
+    const price = document.getElementById('editPlanPrice').value;
+    const description = document.getElementById('editPlanDescription').value;
+    const accessLevel = document.getElementById('accessLevel').value;
+    const allowedClasses = document.getElementById('allowedClasses').value;
+    const guestPasses = document.getElementById('guestPasses').value;
+    const membershipDays = document.getElementById('membershipDays').value;
+
+    try {
+        showSpinner(); // Show spinner during the save process
+
+        // ✅ Validate Required Fields
+        if (!membershipType || !price || !description) {
+            showToast('Error: Membership Type, Price, and Description are required fields.', 'danger');
+            hideSpinner();
+            return;
+        }
+
+        // ✅ Check for Duplicate Plans
+        const plansQuery = query(
+            collection(db, 'MembershipPlans'),
+            where('membershipType', '==', membershipType),
+            where('price', '==', price),
+            where('ownerId', '==', auth.currentUser.uid)
+        );
+
+        const querySnapshot = await getDocs(plansQuery);
+
+        if (!querySnapshot.empty) {
+            showToast('Error: Duplicate membership plan detected!', 'danger');
+            hideSpinner();
+            return;
+        }
+
+        // ✅ Fetch and Increment Counter
+        const counterRef = doc(db, 'Counters', 'MembershipPlans');
+        let planId = 1; // Default if the counter does not exist
+
+        await runTransaction(db, async (transaction) => {
+            const counterDoc = await transaction.get(counterRef);
+
+            if (counterDoc.exists()) {
+                planId = counterDoc.data().lastId + 1; // Increment counter
+            }
+
+            // Update counter in Firestore
+            transaction.set(counterRef, { lastId: planId }, { merge: true });
+        });
+
+        console.log(`Generated planId: ${planId}`);
+
+        // ✅ Add New Membership Plan with Sequential planId
+        await setDoc(doc(db, 'MembershipPlans', planId.toString()), {
+            planId: planId,
+            ownerId: auth.currentUser.uid,
+            membershipType,
+            price,
+            description,
+            accessLevel,
+            allowedClasses,
+            guestPasses,
+            membershipDays,
+            gymName: gymName
+        });
+
+        showToast('Success: Membership plan added!', 'success');
+        document.getElementById('AddPlanForm').reset();
+        $('#membershipModal').modal('hide');
+        fetchPlansForGymOwner(auth.currentUser.uid);
+    } catch (error) {
+        console.error('Error adding membership plan:', error);
+        showToast('Error: Failed to add membership plan.', 'danger');
+    } finally {
+        hideSpinner(); // Always hide spinner
+    }
+});
+
+
+// ✅ Display Membership Plans
+function displayPlans(plans) {
+    const tableBody = document.getElementById("plansTableBody");
+    tableBody.innerHTML = ""; // Clear existing rows
+
+    plans.forEach(plan => {
+        if (plan.gymName === gymName) { // Only show plans for the current gym
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${plan.membershipType}</td>
+                <td>${plan.price}</td>
+                <td>${plan.description}</td>
+                <td>${plan.accessLevel}</td>
+                <td>${plan.allowedClasses}</td>
+                <td>${plan.guestPasses}</td>
+                <td>${plan.membershipDays}</td>
+                <td>
+                    <button class="btn btn-warning btn-sm" onclick="editPlan('${plan.id}')">Edit</button>
+                    <button class="btn btn-danger btn-sm" onclick="deletePlan('${plan.id}')">Delete</button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        }
+    });
+}
+
+
+// ✅ Clear Form Button
+document.getElementById('clearPlanButton').addEventListener('click', function () {
+    document.getElementById('AddPlanForm').reset();
+});
+
+
+function showSpinner() {
+    document.getElementById('spinner').style.display = 'block';
+}
+
+function hideSpinner() {
+    document.getElementById('spinner').style.display = 'none';
+}
+
+
+
+// Function to Delete a Plan with Toast Confirmation
+window.deletePlan = async function (planId) {
+    if (!planId) {
+        showToast('Error: Invalid plan ID provided.', 'danger');
+        console.error("Invalid planId:", planId);
+        return;
+    }
+
+    console.log("Deleting plan with ID:", planId); // Debugging log
+
+    try {
+        // Show Confirmation Toast
+        showConfirmationToast(
+            'Are you sure you want to delete this membership plan?', 
+            async () => {
+                // Reference the specific plan in Firestore
+                const planDocRef = doc(db, 'MembershipPlans', planId);
+                await deleteDoc(planDocRef);
+
+                // Show Success Toast
+                showToast('Success: Membership plan deleted successfully!', 'success');
+                console.log("Plan deleted successfully:", planId);
+
+                // Refresh the membership plans list
+                fetchPlansForGymOwner(auth.currentUser.uid);
+            }
+        );
+    } catch (error) {
+        console.error("Error deleting plan:", error);
+        showToast('Error: Failed to delete membership plan.', 'danger');
+    }
+};
+// Toast Confirmation Function
+function showConfirmationToast(message, onConfirm) {
+    const toastContainer = document.getElementById('toast-container');
+    toastContainer.innerHTML = `
+        <div class="toast align-items-center text-white bg-warning border-0 show" role="alert">
+            <div class="d-flex flex-column p-2">
+                <div class="toast-body">${message}</div>
+                <div class="d-flex justify-content-end gap-2 mt-2">
+                    <button class="btn btn-sm btn-danger" id="confirmDeleteBtn">Yes</button>
+                    <button class="btn btn-sm btn-secondary" id="cancelDeleteBtn">No</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const toast = toastContainer.querySelector('.toast');
+    document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
+        toast.classList.remove('show');
+        await onConfirm(); // Execute the delete logic
+    });
+
+    document.getElementById('cancelDeleteBtn').addEventListener('click', () => {
+        toast.classList.remove('show'); // Close the toast
+        showToast('Action canceled.', 'info');
+    });
+
+    setTimeout(() => {
+        if (toast.classList.contains('show')) {
+            toast.classList.remove('show'); // Auto-hide toast after 10 seconds
+        }
+    }, 10000);
+}
+
+// ✅ Fetch Plan Details and Populate Edit Modal
+window.editPlan = async function (planId) {
+    try {
+        const planDocRef = doc(db, 'MembershipPlans', planId);
+        const planDocSnap = await getDoc(planDocRef);
+
+        if (planDocSnap.exists()) {
+            const planData = planDocSnap.data();
+
+            // Populate modal fields with existing data
+            document.getElementById('editPlanId').value = planId;
+            document.getElementById('editMembershipType').value = planData.membershipType || '';
+            document.getElementById('editPlanPrice').value = planData.price || '';
+            document.getElementById('editPlanDescription').value = planData.description || '';
+            document.getElementById('editAccessLevel').value = planData.accessLevel || '';
+            document.getElementById('editAllowedClasses').value = planData.allowedClasses || '';
+            document.getElementById('editGuestPasses').value = planData.guestPasses || '';
+            document.getElementById('editMembershipDays').value = planData.membershipDays || '';
+
+            $('#editPlanModal').modal('show'); // Open the modal
+        } else {
+            console.error('Plan not found');
+            showToast('Error: Plan not found.', 'danger');
+        }
+    } catch (error) {
+        console.error('Error fetching plan details:', error);
+        showToast('Error: Failed to fetch plan details.', 'danger');
+    }
+};
+
+// ✅ Update Membership Plan
+document.getElementById('editPlanForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const planId = document.getElementById('editPlanId').value;
+    const membershipType = document.getElementById('editMembershipType').value;
+    const price = document.getElementById('editPlanPrice').value;
+    const description = document.getElementById('editPlanDescription').value;
+    const accessLevel = document.getElementById('editAccessLevel').value;
+    const allowedClasses = document.getElementById('editAllowedClasses').value;
+    const guestPasses = document.getElementById('editGuestPasses').value;
+    const membershipDays = document.getElementById('editMembershipDays').value;
+
+    try {
+        showSpinner();
+
+        if (!membershipType || !price || !description) {
+            showToast('Error: Membership Type, Price, and Description are required.', 'danger');
+            hideSpinner();
+            return;
+        }
+
+        const planDocRef = doc(db, 'MembershipPlans', planId);
+
+        await updateDoc(planDocRef, {
+            membershipType,
+            price,
+            description,
+            accessLevel,
+            allowedClasses,
+            guestPasses,
+            membershipDays,
+            gymName: gymName
+        });
+
+        showToast('Success: Membership plan updated!', 'success');
+        $('#editPlanModal').modal('hide');
+        fetchPlansForGymOwner(auth.currentUser.uid);
+    } catch (error) {
+        console.error('Error updating plan:', error);
+        showToast('Error: Failed to update membership plan.', 'danger');
+    } finally {
+        hideSpinner();
     }
 });

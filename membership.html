@@ -10,7 +10,24 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    
     <style>
+        /* Ensure toast container is on top and doesn't overlap content */
+.toast-container {
+    z-index: 1055;
+}
+
+/* Add spacing between multiple toasts */
+.toast {
+    margin-bottom: 10px;
+}
+
+        .toast-body {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #f00000;
+}
+
         /* General Reset */
       body {
           font-family: 'Merriweather', serif;
@@ -591,13 +608,13 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header  text-white">
-                    <h5 class="modal-title" id="membershipModalLabel">Add / Edit Membership Plan</h5>
+                    <h5 class="modal-title" id="membershipModalLabel">Add Membership Plan</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form id="editPlanForm">
+                    <form id="AddPlanForm">
                         <input type="hidden" id="editPlanId">
                         <div class="form-group">
                             <label for="membershipType">Membership Type:</label>
@@ -638,10 +655,96 @@
             </div>
         </div>
     </div>
+    <!-- Edit Membership Plan Modal -->
+<div class="modal fade" id="editPlanModal" tabindex="-1" role="dialog" aria-labelledby="editPlanModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editPlanModalLabel">Edit Membership Plan</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="editPlanForm">
+            <input type="hidden" id="editPlanId">
+            <div class="form-group">
+              <label>Membership Type</label>
+              <input type="text" id="editMembershipType" class="form-control" disabled>
+            </div>
+            <div class="form-group">
+              <label>Price</label>
+              <input type="number" id="editPlanPrice" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label>Description</label>
+              <textarea id="editPlanDescription" class="form-control" required></textarea>
+            </div>
+            <div class="form-group">
+              <label>Access Level</label>
+              <input type="text" id="editAccessLevel" class="form-control">
+            </div>
+            <div class="form-group">
+              <label>Allowed Classes</label>
+              <input type="number" id="editAllowedClasses" class="form-control">
+            </div>
+            <div class="form-group">
+              <label>Guest Passes</label>
+              <input type="number" id="editGuestPasses" class="form-control">
+            </div>
+            <div class="form-group">
+              <label>Membership Days</label>
+              <input type="number" id="editMembershipDays" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+    
+    <!-- Toast Container (Top-Right Corner) -->
+    <div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1055;">
+        <!-- Success Toast -->
+        <div id="successToast" class="toast align-items-center text-white bg-success border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    Success message placeholder.
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+
+
+
+    <!-- Confirmation Toast -->
+    <div id="confirmationToast" class="toast align-items-center text-white bg-warning border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                Are you sure you want to delete this membership plan?
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="d-flex justify-content-end p-2">
+            <button id="confirmDelete" class="btn btn-light btn-sm me-2">Yes</button>
+            <button id="cancelDelete" class="btn btn-light btn-sm">No</button>
+        </div>
+    </div>
+</div>
+
+    <!-- Global Spinner Loader -->
+    <div id="spinner" class="spinner-overlay" style="display: none;">
+        <div class="spinner-container">
+            <span class="loader"></span>
+        </div>
+    </div>
 
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Bootstrap JS (for toast functionality) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.tiny.cloud/1/iku9q3yr6f4yw9tjsxrkkufhwzdxdskma2hatd6t2quztkwb/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
     <script type="module" src="src/Js/membership.js"></script>
 </body>

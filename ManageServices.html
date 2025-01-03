@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/img.css">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
     <!-- FontAwesome CSS -->
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
@@ -12,6 +15,261 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <title>Manage Services and Promotions</title>
     <style>
+        
+   .toast {
+    /* Background overlay for the modal */
+#checklistModal {
+    display: none; /* Initially hidden */
+    position: fixed; /* Fixed positioning to stay in place */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    z-index: 999; /* Behind the modal but on top of other content */
+}
+
+/* Modal content centered on the screen */
+#checklistModal .modal-content {
+    position: absolute;
+    top: 50%; /* Vertically center */
+    left: 50%; /* Horizontally center */
+    transform: translate(-50%, -50%); /* Adjust positioning to center the modal */
+    background-color: white;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow effect */
+    border-radius: 8px;
+    max-width: 80%;
+    max-height: 80%;
+    overflow-y: auto; /* Allow scrolling if content overflows */
+    z-index: 1000; /* On top of the overlay */
+}
+
+.modal-content h3 {
+    margin-top: 0;
+}
+
+.input-container {
+    margin-bottom: 15px;
+}
+
+.button-row {
+    margin-top: 10px;
+}
+
+#checklistContainer {
+    margin-bottom: 20px;
+}
+
+button {
+    margin: 5px;
+}
+
+/* Optional: Style for the selected items list */
+.selected-item {
+    background-color: #f0f0f0;
+    padding: 5px;
+    margin-right: 5px;
+    border-radius: 5px;
+}
+
+  visibility: hidden;
+  min-width: 250px;
+  margin-left: -125px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 2px;
+  padding: 16px;
+  position: fixed;
+  z-index: 1;
+  left: 50%;
+  bottom: 30px;
+  font-size: 17px;
+}
+
+.toast.show {
+  visibility: visible;
+  animation: fadeInOut 4s ease-in-out;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    bottom: 0;
+  }
+  50% {
+    opacity: 1;
+    bottom: 30px;
+  }
+  100% {
+    opacity: 0;
+    bottom: 0;
+  }
+}
+     /* Modal Background */
+/* Modal Background */
+#checklistModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    transition: opacity 0.3s ease;
+}
+
+/* Modal Content Styling */
+.modal-content {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 10px;
+    width: 600px;
+    max-width: 100%;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+}
+
+/* Modal Title */
+h3 {
+    text-align: center;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* Flexbox Layout for Inputs */
+.input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+/* Label Styling */
+label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+/* Button Row Styling */
+.button-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap; /* Allow buttons to wrap into two rows */
+}
+
+/* Button Styling */
+button {
+    padding: 8px 15px;
+    font-size: 12px; /* Smaller font size for buttons */
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    background-color: #007bff;
+    color: white;
+    font-weight: 500;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+/* Button Hover Effects */
+button:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(2px);
+}
+
+/* Custom Input Field Styling */
+.custom-input {
+    width: calc(100% - 20px);
+    padding: 10px;
+    font-size: 14px;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+    color: #333;
+    transition: border-color 0.3s ease;
+}
+
+/* Custom Input Focus Styling */
+.custom-input:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+/* Paragraph Display for Selected Programs, Equipment, and Services */
+p {
+    font-size: 14px;
+    color: #666;
+    padding: 5px 0;
+}
+
+/* Footer Buttons (Save and Close) */
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+#saveSelectionButton {
+    background-color: #28a745;
+    color: white;
+    padding: 12px 24px;
+    font-size: 16px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+#saveSelectionButton:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+}
+
+#closeModalButton {
+    background-color: #dc3545;
+    color: white;
+    padding: 12px 24px;
+    font-size: 16px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+#closeModalButton:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+}
+
+/* Modal transition animation */
+#checklistModal.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+#checklistModal.hide {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Style for when modal is showing */
+#checklistModal.show .modal-content {
+    transform: scale(1);
+}
+
+#checklistModal.hide .modal-content {
+    transform: scale(0.9);
+}
+
+
         /* General Reset */
       body {
           font-family: 'Merriweather', serif;
@@ -584,6 +842,7 @@
             </div>
         </div>
         
+        
         <div class="modal fade" id="imageModal" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -600,7 +859,7 @@
             </div>
         </div>  
         
-                <!-- Edit Modal -->
+    <!-- Edit Modal -->
                 <div class="modal fade" id="editGymModal" tabindex="-1" role="dialog">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
@@ -632,18 +891,31 @@
                                         <label for="gymContact">Contact</label>
                                         <input type="text" class="form-control" id="gymContact" required>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="gymPrograms">Programs</label>
-                                        <input type="text" class="form-control" id="gymPrograms">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="gymEquipment">Equipment</label>
-                                        <input type="text" class="form-control" id="gymEquipment">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="gymServices">Services</label>
-                                        <input type="text" class="form-control" id="gymServices">
-                                    </div>
+
+            <!-- Programs Offered -->
+                                <div class="input-container">
+                                    <label>Programs Offered:</label>
+                                    <button type="button" id="selectProgramsButton">Select Programs</button>
+                                    <input type="hidden" id="gymPrograms" />
+                                    <p id="selectedProgramsDisplay"></p>
+                                </div>
+
+                                <!-- Gym Equipment -->
+                                <div class="input-container">
+                                    <label>Gym Equipment:</label>
+                                    <button type="button" id="selectEquipmentButton">Select Equipment</button>
+                                    <input type="hidden" id="gymEquipment" />
+                                    <p id="selectedEquipmentDisplay"></p>
+                                </div>
+
+                                <!-- Gym Services -->
+                                <div class="input-container">
+                                    <label>Gym Services:</label>
+                                    <button type="button" id="selectServicesButton">Select Services</button>
+                                    <input type="hidden" id="gymServices" />
+                                    <p id="selectedServicesDisplay"></p>
+                                </div>          
+
                                     <div class="form-group">
                                         <label for="gymPriceRate">Price Rate</label>
                                         <input type="number" class="form-control" id="gymPriceRate">
@@ -662,8 +934,55 @@
                         </div>
                     </div>
                 </div>
-
-
+                <div id="checklistModal" style="display: none;">
+                    <div class="modal-content">
+                        <h3>Select Items</h3>
+                        <div id="checklistContainer"></div>
+                
+                        <!-- Programs Offered -->
+                        <div class="input-container">
+                            <label>Programs Offered:</label>
+                            <div class="button-row">
+                                <button id="addProgramButton">Add Program</button>
+                            </div>
+                            <input type="hidden" id="gymPrograms" />
+                            <p id="selectedProgramsDisplay"></p>
+                
+                            <!-- Add custom programs -->
+                            <input id="customProgramInput" type="text" placeholder="Add a custom program" />
+                        </div>
+                
+                        <!-- Gym Equipment -->
+                        <div class="input-container">
+                            <label>Gym Equipment:</label>
+                            <div class="button-row">
+                                <button id="addEquipmentButton">Add Equipment</button>
+                            </div>
+                            <input type="hidden" id="gymEquipment" />
+                            <p id="selectedEquipmentDisplay"></p>
+                
+                            <!-- Add custom equipment -->
+                            <input id="customEquipmentInput" type="text" placeholder="Add custom equipment" />
+                        </div>
+                
+                        <!-- Gym Services -->
+                        <div class="input-container">
+                            <label>Gym Services:</label>
+                            <div class="button-row">
+                                <button id="addServiceButton">Add Service</button>
+                            </div>
+                            <input type="hidden" id="gymServices" />
+                            <p id="selectedServicesDisplay"></p>
+                
+                            <!-- Add custom services -->
+                            <input id="customServiceInput" type="text" placeholder="Add a custom service" />
+                        </div>
+                
+                        <button id="saveSelectionButton">Save Selection</button>
+                        <button id="closeModalButton">Close</button>
+                    </div>
+                </div>
+                
         <!-- Manage Promotions Section -->
         <div class="mb-5">
             <h2>Manage Promotions</h2>
@@ -684,38 +1003,48 @@
             </table>
         </div>
         
-        <!-- Modal for Adding/Editing Promotions and Services -->
-        <div class="modal fade" id="manageModal" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modalTitle">Manage Item</h5>
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="manageForm">
-                            <div class="form-group">
-                                <label for="itemTitle">Title</label>
-                                <input type="text" class="form-control" id="itemTitle" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="itemDescription">Description</label>
-                                <textarea class="form-control" id="itemDescription" rows="3" required></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label for="gymName">Gym Name</label>
-                                <input type="text" class="form-control" id="gymName" required>
-                            </div>                            
-                            <button type="submit" class="btn btn-primary">Save</button>
-                        </form>
-                    </div>
+    <!-- Modal for Adding/Editing Promotions and Services -->
+    <div class="modal fade" id="manageModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Manage Item</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="manageForm">
+                        <div class="form-group">
+                            <label for="itemTitle">Title</label>
+                            <input type="text" class="form-control" id="itemTitle" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="itemDescription">Description</label>
+                            <textarea class="form-control" id="itemDescription" rows="3" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="gymName">Gym Name</label>
+                            <!-- Make the gymName field readonly -->
+                            <input type="text" class="form-control" id="GymName" required readonly>
+                        </div>                            
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </form>
                 </div>
             </div>
         </div>
+    </div>
+
+            
+        <div id="toast" class="toast">
+            <span id="toastMessage"></span>
+        </div>
+        
         <div id="toast-container" class="toast-container"></div>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="module" src="src/Js/ServicePromotion.js"></script>
