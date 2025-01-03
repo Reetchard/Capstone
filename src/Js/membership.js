@@ -101,13 +101,12 @@ async function fetchPlansForGymOwner(userId) {
     }
 }
 
-
-// ✅ Add Membership Plan with Sequential planId
+// ✅ Add Membership Plan with Price Formatting
 document.getElementById('AddPlanForm').addEventListener('submit', async function (e) {
     e.preventDefault();
 
     const membershipType = document.getElementById('membershipType').value;
-    const price = document.getElementById('editPlanPrice').value;
+    const price = parseFloat(document.getElementById('editPlanPrice').value.replace(/,/g, '')).toFixed(2);
     const description = document.getElementById('editPlanDescription').value;
     const accessLevel = document.getElementById('accessLevel').value;
     const allowedClasses = document.getElementById('allowedClasses').value;
@@ -117,47 +116,26 @@ document.getElementById('AddPlanForm').addEventListener('submit', async function
     try {
         showSpinner(); // Show spinner during the save process
 
-        // ✅ Validate Required Fields
         if (!membershipType || !price || !description) {
             showToast('Error: Membership Type, Price, and Description are required fields.', 'danger');
             hideSpinner();
             return;
         }
 
-        // ✅ Check for Duplicate Plans
-        const plansQuery = query(
-            collection(db, 'MembershipPlans'),
-            where('membershipType', '==', membershipType),
-            where('price', '==', price),
-            where('ownerId', '==', auth.currentUser.uid)
-        );
-
-        const querySnapshot = await getDocs(plansQuery);
-
-        if (!querySnapshot.empty) {
-            showToast('Error: Duplicate membership plan detected!', 'danger');
-            hideSpinner();
-            return;
-        }
-
-        // ✅ Fetch and Increment Counter
+        // ✅ Add New Membership Plan
         const counterRef = doc(db, 'Counters', 'MembershipPlans');
-        let planId = 1; // Default if the counter does not exist
+        let planId = 1;
 
         await runTransaction(db, async (transaction) => {
             const counterDoc = await transaction.get(counterRef);
 
             if (counterDoc.exists()) {
-                planId = counterDoc.data().lastId + 1; // Increment counter
+                planId = counterDoc.data().lastId + 1;
             }
 
-            // Update counter in Firestore
             transaction.set(counterRef, { lastId: planId }, { merge: true });
         });
 
-        console.log(`Generated planId: ${planId}`);
-
-        // ✅ Add New Membership Plan with Sequential planId
         await setDoc(doc(db, 'MembershipPlans', planId.toString()), {
             planId: planId,
             ownerId: auth.currentUser.uid,
@@ -179,12 +157,12 @@ document.getElementById('AddPlanForm').addEventListener('submit', async function
         console.error('Error adding membership plan:', error);
         showToast('Error: Failed to add membership plan.', 'danger');
     } finally {
-        hideSpinner(); // Always hide spinner
+        hideSpinner();
     }
 });
 
 
-// ✅ Display Membership Plans
+// ✅ Display Membership Plans with Peso Sign and Commas
 function displayPlans(plans) {
     const tableBody = document.getElementById("plansTableBody");
     tableBody.innerHTML = ""; // Clear existing rows
@@ -194,7 +172,7 @@ function displayPlans(plans) {
             const row = document.createElement("tr");
             row.innerHTML = `
                 <td>${plan.membershipType}</td>
-                <td>${plan.price}</td>
+                <td>${formatNumber(plan.price)}</td>
                 <td>${plan.description}</td>
                 <td>${plan.accessLevel}</td>
                 <td>${plan.allowedClasses}</td>
@@ -207,6 +185,15 @@ function displayPlans(plans) {
             `;
             tableBody.appendChild(row);
         }
+    });
+}
+
+// ✅ Utility Function to Format Numbers with Peso Sign and Commas
+function formatNumber(value) {
+    return parseFloat(value).toLocaleString('en-PH', {
+        style: 'currency',
+        currency: 'PHP',
+        minimumFractionDigits: 2
     });
 }
 
@@ -292,7 +279,7 @@ function showConfirmationToast(message, onConfirm) {
     }, 10000);
 }
 
-// ✅ Fetch Plan Details and Populate Edit Modal
+// ✅ Fetch Plan Details and Populate Edit Modal with Formatted Price
 window.editPlan = async function (planId) {
     try {
         const planDocRef = doc(db, 'MembershipPlans', planId);
@@ -304,7 +291,7 @@ window.editPlan = async function (planId) {
             // Populate modal fields with existing data
             document.getElementById('editPlanId').value = planId;
             document.getElementById('editMembershipType').value = planData.membershipType || '';
-            document.getElementById('editPlanPrice').value = planData.price || '';
+            document.getElementById('editPlanPrice').value = parseFloat(planData.price).toFixed(2) || '';
             document.getElementById('editPlanDescription').value = planData.description || '';
             document.getElementById('editAccessLevel').value = planData.accessLevel || '';
             document.getElementById('editAllowedClasses').value = planData.allowedClasses || '';
@@ -321,6 +308,7 @@ window.editPlan = async function (planId) {
         showToast('Error: Failed to fetch plan details.', 'danger');
     }
 };
+
 
 // ✅ Update Membership Plan
 document.getElementById('editPlanForm').addEventListener('submit', async function (e) {
@@ -365,5 +353,15 @@ document.getElementById('editPlanForm').addEventListener('submit', async functio
         showToast('Error: Failed to update membership plan.', 'danger');
     } finally {
         hideSpinner();
+    }
+});
+// ✅ Live Price Formatting on Input
+document.getElementById('editPlanPrice').addEventListener('input', (e) => {
+    let value = e.target.value.replace(/,/g, '');
+    if (!isNaN(value) && value !== '') {
+        e.target.value = parseFloat(value).toLocaleString('en-PH', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
     }
 });

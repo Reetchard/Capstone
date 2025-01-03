@@ -16,6 +16,27 @@
     <style>
         
    .toast {
+    .selected-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    margin: 5px 0;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.selected-item .remove-item {
+    color: white;
+    background-color: #dc3545;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
     /* Background overlay for the modal */
 #checklistModal {
     display: none; /* Initially hidden */
@@ -814,7 +835,7 @@ p {
     <div class="container mt-5">
         <h1 class="text-center mb-5">Gym Management</h1>
         <div class="mb-5">
-            <h2>Manage Gym Details And Services</h2>
+            <h2>Manage Services , Programs , Equipments</h2>
             <div class="table-responsive"> <!-- Wrap the table with this div -->
                 <table class="table-bordered mt-3">
                     <thead>
@@ -862,69 +883,40 @@ p {
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title">Edit Gym Details</h5>
+                                <h5 class="modal-title">Edit Services , Programs , Equipments</h5>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
                             <div class="modal-body">
                                 <form id="editGymForm">
-                                    <div class="form-group">
-                                        <label for="gymPhoto">Gym Profile Photo</label>
-                                        <input type="text" class="form-control" id="gymPhoto">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="gymCertifications">Certifications</label>
-                                        <input type="text" class="form-control" id="gymCertifications">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="gymName">Gym Name</label>
-                                        <input type="text" class="form-control" id="gymName" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="gymLocation">Location</label>
-                                        <input type="text" class="form-control" id="gymLocation" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="gymContact">Contact</label>
-                                        <input type="text" class="form-control" id="gymContact" required>
+           <!-- Programs Offered -->
+                                    <div class="input-container">
+                                        <label>Programs Offered:</label>
+                                        <button type="button" id="selectProgramsButton">Select Programs</button>
+                                        <input type="hidden" id="gymPrograms" />
+                                        <div id="selectedProgramsDisplay"></div> <!-- Display selected programs here -->
                                     </div>
 
-            <!-- Programs Offered -->
-                                <div class="input-container">
-                                    <label>Programs Offered:</label>
-                                    <button type="button" id="selectProgramsButton">Select Programs</button>
-                                    <input type="hidden" id="gymPrograms" />
-                                    <p id="selectedProgramsDisplay"></p>
-                                </div>
+                                    <!-- Gym Equipment -->
+                                    <div class="input-container">
+                                        <label>Gym Equipment:</label>
+                                        <button type="button" id="selectEquipmentButton">Select Equipment</button>
+                                        <input type="hidden" id="gymEquipment" />
+                                        <div id="selectedEquipmentDisplay"></div> <!-- Display selected equipment here -->
+                                    </div>
 
-                                <!-- Gym Equipment -->
-                                <div class="input-container">
-                                    <label>Gym Equipment:</label>
-                                    <button type="button" id="selectEquipmentButton">Select Equipment</button>
-                                    <input type="hidden" id="gymEquipment" />
-                                    <p id="selectedEquipmentDisplay"></p>
-                                </div>
-
-                                <!-- Gym Services -->
-                                <div class="input-container">
-                                    <label>Gym Services:</label>
-                                    <button type="button" id="selectServicesButton">Select Services</button>
-                                    <input type="hidden" id="gymServices" />
-                                    <p id="selectedServicesDisplay"></p>
-                                </div>          
+                                    <!-- Gym Services -->
+                                    <div class="input-container">
+                                        <label>Gym Services:</label>
+                                        <button type="button" id="selectServicesButton">Select Services</button>
+                                        <input type="hidden" id="gymServices" />
+                                        <div id="selectedServicesDisplay"></div> <!-- Display selected services here -->
+                                    </div>
 
                                     <div class="form-group">
                                         <label for="gymPriceRate">Price Rate</label>
                                         <input type="number" class="form-control" id="gymPriceRate">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="gymOpeningTime">Opening Time</label>
-                                        <input type="time" class="form-control" id="gymOpeningTime">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="gymClosingTime">Closing Time</label>
-                                        <input type="time" class="form-control" id="gymClosingTime">
                                     </div>
                                     <button type="submit" class="btn btn-primary">Save Changes</button>
                                 </form>
