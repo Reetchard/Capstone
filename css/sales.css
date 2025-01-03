@@ -30,6 +30,27 @@ header {
     margin: auto;
     width: 100%;
 }
+nav h1.logo {
+    font-family:'Roboto','sans-serif';
+    font-weight: bolder;
+    color: #FAF6F0;
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    letter-spacing: 1px; /* Slight spacing for a modern look */
+}
+
+nav h1 img {
+    width: 60px;
+    margin-right: 5px;
+    transition: transform 0.3s ease;
+    vertical-align: middle;
+}
+
+nav h1 img:hover {
+    transform: rotate(360deg); /* Rotate logo on hover for interactivity */
+}
+
 
 .logo {
     display: flex;
