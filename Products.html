@@ -7,11 +7,12 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/products.css">
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         /* General Reset */
       body {
-          font-family: 'Merriweather', serif;
+          font-family: 'Roboto', sans-serif;
           background-color: #f8f9fa;
           margin: 0;
           padding: 0;
@@ -19,7 +20,7 @@
       
       /* Navbar Styling */
       .navbar {
-          background-color: #6c63ff;
+          background-color: #023b6d;
           padding: 0 20px;
           display: flex;
           align-items: center;
@@ -31,8 +32,9 @@
       }
       
       .logo {
-          font-family: 'Merriweather', serif;
+          font-family: 'Roboto', sans-serif;
           font-size: 1.5rem;
+          font-weight: bolder;
           color: white;
           display: flex;
           align-items: center;
@@ -40,17 +42,23 @@
       }
       
       .logo-img {
+          width: 60px;
+          margin-right: 5px;
           height: 40px; /* Adjusted size for better proportions */
           animation: logo-glow 3s infinite ease-in-out;
+          transition: transform 0.3s ease;
+          vertical-align: middle;
       }
-      
+      .logo-img img:hover {
+    transform: rotate(360deg); /* Rotate logo on hover for interactivity */
+        }
       /* Glowing Effect for Logo */
       @keyframes logo-glow {
           0%, 100% {
-              filter: drop-shadow(0 0 5px #ffb84d);
+              filter: drop-shadow(0 0 5px #6EACDA);
           }
           50% {
-              filter: drop-shadow(0 0 15px #ffb84d);
+              filter: drop-shadow(0 0 15px #6EACDA);
           }
       }
       
@@ -64,7 +72,7 @@
       
       .nav-item:hover .nav-link i {
           transform: scale(1.4) rotateY(10deg) rotateX(-5deg); /* 3D zoom effect with rotation */
-          color: #ffb84d; /* Change the icon color on hover */
+          color: #6EACDA; /* Change the icon color on hover */
       }
       
       /* Navbar Item Name with Smooth Hover Animation */
@@ -74,7 +82,7 @@
           left: 50%; /* Center horizontally relative to nav-item */
           transform: translate(-50%, 0); /* Center position */
           opacity: 0; /* Initially hidden */
-          background-color: #ffb84d; /* Background color for the name tag */
+          background-color: #6EACDA; /* Background color for the name tag */
           padding: 5px 10px;
           border-radius: 5px;
           color: #fff; /* Text color */
@@ -88,6 +96,10 @@
           top: 50px; /* Slides down below the icon */
           transform: translate(-50%, -20px); /* Smooth vertical slide */
       }
+      nav .nav-item li a:hover {
+        color: #6EACDA;
+        transform: scale(1.1); /* Subtle grow effect on hover */
+    }
       
       /* Navbar Item Zoom Effect */
       .nav-link i {
@@ -98,7 +110,7 @@
       
       .nav-item:hover .nav-link i {
           transform: scale(1.3); /* Zoom effect on hover */
-          color: #ffb84d; /* Change icon color on hover */
+          color: #6EACDA; /* Change icon color on hover */
       }
       
       .navbar-nav {
@@ -154,7 +166,7 @@
           left: 50%;
           transform: translate(-50%, 0); /* Center horizontally */
           opacity: 0; /* Initially hidden */
-          background-color: #ffb84d;
+          background-color: #6EACDA;
           color: white;
           padding: 5px 10px;
           border-radius: 5px;
@@ -209,18 +221,6 @@
       
       #profile-username:hover {
           color: #ffb84d;
-      }
-      
-      /* Navbar Bottom Line Animation */
-      .navbar::after {
-          content: '';
-          position: absolute;
-          bottom: 0;
-          left: -100%;
-          height: 4px;
-          width: 100%;
-          background: linear-gradient(90deg, #ffb84d, #ff4d4d);
-          animation: navbar-line-slide 2s infinite;
       }
       
       @keyframes navbar-line-slide {
@@ -313,7 +313,7 @@
           left: -250px; /* Hidden by default */
           width: 250px;
           height: 100%;
-          background-color: #6c63ff;
+          background-color: #023b6d;
           box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
           transition: left 0.3s ease;
           z-index: 999;
@@ -402,155 +402,154 @@
       }
           </style>
       </head>
-      
       <body>
-          <header>
-              <nav class="navbar navbar-expand-lg">
-                  <div class="container-fluid">
-                      <!-- Logo -->
-                      <h1 class="logo">
-                          <img src="framework/img/peak1.png" alt="PeakPulse">PEAK<span class="profile-text">PULSE</span>
-                      </h1>
-                      
-                      <!-- Nav items -->
-                      <div class="navbar-collapse" id="navbarNav">
-                          <ul class="navbar-nav ml-auto">
-                              <!-- Sidebar Links -->
-                              <li class="nav-item">
-                                  <a class="nav-link" href="ManageServices.html">
-                                      <i class="fas fa-id-card"></i>
-                                      <span class="nav-item-name">Manage Services/Promotions</span>
-                                  </a>
-                              </li>
-                              <li class="nav-item">
-                                  <a class="nav-link" href="member.html">
-                                      <i class="fas fa-users"></i>
-                                      <span class="nav-item-name">Manage Members</span>
-                                  </a>
-                              </li>
-                              <li class="nav-item">
-                                  <a class="nav-link" href="trainer-info.html">
-                                      <i class="fas fa-dumbbell"></i>
-                                      <span class="nav-item-name">Manage Trainer Profile</span>
-                                  </a>
-                              </li>
-                              <li class="nav-item">
-                                  <a class="nav-link" href="Products.html">
-                                      <i class="fas fa-box"></i>
-                                      <span class="nav-item-name">Manage Products</span>
-                                  </a>
-                              </li>
-                              <li class="nav-item">
-                                  <a class="nav-link" href="membership.html">
-                                      <i class="fas fa-id-card"></i>
-                                      <span class="nav-item-name">Manage Memberships</span>
-                                  </a>
-                              </li>
-                              <li class="nav-item">
-                                  <a class="nav-link" href="Transactions.html">
-                                      <i class="fas fa-credit-card"></i>
-                                      <span class="nav-item-name">Manage Transactions</span>
-                                  </a>
-                              </li>
-                              <li class="nav-item">
-                                  <a class="nav-link" href="DayPass.html">
-                                      <i class="fas fa-calendar-alt"></i>
-                                      <span class="nav-item-name">Manage Day Pass</span>
-                                  </a>
-                              </li>
-                              <li class="nav-item">
-                                  <a class="nav-link" href="salesandinventory.html">
-                                      <i class="fas fa-clipboard-list"></i>
-                                      <span class="nav-item-name">Sales and Inventory</span>
-                                  </a>
-                              </li>
-                          </ul>
-                      </div>
-              
-                      <!-- Profile info (Right side) -->
-                      <div class="profile-container">
-                          <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" 
-                               class="img-fluid rounded-circle">
-                          <div class="dropdown">
-                              <span id="profile-username" class="dropdown-toggle ml-2" onclick="toggleDropdown()">Gym Owner</span>
-                              <div id="dropdown-menu" class="dropdown-menu">
-                                  <a href="login.html" class="btn btn-danger btn-sm">Log Out</a>
-                              </div>
-                          </div>
-                      </div>
-                  </div>
-                  <div class="hamburger-container position-fixed" id="toggleSidebar" style="top: 20px; left: 20px; z-index: 1050;">
-                      <div class="hamburger">
-                          <span class="line"></span>
-                          <span class="line"></span>
-                          <span class="line"></span>
-                      </div>
-                  </div>
-              </nav>
-              <div class="sidebar" id="sidebar">
-                <div class="profile-container-mobile">
-                    <img id="profile-picture-mobile" src="framework/img/Profile.png" alt="Profile Picture" 
-                         class="img-fluid rounded-circle">
-                    <div class="dropdown">
-                        <span id="profile-username-mobile" class="dropdown-toggle ml-2" onclick="toggleDropdown()">Gym Owner</span>
-                        <div id="dropdown-menu" class="dropdown-menu">
-                            <a href="login.html" class="btn btn-danger btn-sm">Log Out</a>
+        <header>
+            <nav class="navbar navbar-expand-lg">
+                <div class="container-fluid">
+                    <!-- Logo -->
+                    <h1 class="logo">
+                        <img src="framework/img/peak1.png" alt="PeakPulse">PEAK<span class="profile-text">PULSE</span>
+                    </h1>
+                    
+                    <!-- Nav items -->
+                    <div class="navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav ml-auto">
+                            <!-- Sidebar Links -->
+                            <li class="nav-item">
+                                <a class="nav-link" href="ManageServices.html">
+                                    <i class="fas fa-id-card"></i>
+                                    <span class="nav-item-name">Manage Services/Promotions</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="member.html">
+                                    <i class="fas fa-users"></i>
+                                    <span class="nav-item-name">Manage Members</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="trainer-info.html">
+                                    <i class="fas fa-dumbbell"></i>
+                                    <span class="nav-item-name">Manage Trainer Profile</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="Products.html">
+                                    <i class="fas fa-box"></i>
+                                    <span class="nav-item-name">Manage Products</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="membership.html">
+                                    <i class="fas fa-id-card"></i>
+                                    <span class="nav-item-name">Manage Memberships</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="Transactions.html">
+                                    <i class="fas fa-credit-card"></i>
+                                    <span class="nav-item-name">Manage Transactions</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="DayPass.html">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span class="nav-item-name">Manage Day Pass</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="salesandinventory.html">
+                                    <i class="fas fa-clipboard-list"></i>
+                                    <span class="nav-item-name">Sales and Inventory</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+            
+                    <!-- Profile info (Right side) -->
+                    <div class="profile-container">
+                        <img id="profile-picture" src="framework/img/Profile.png" alt="Profile Picture" 
+                             class="img-fluid rounded-circle">
+                        <div class="dropdown">
+                            <span id="profile-username" class="dropdown-toggle ml-2" onclick="toggleDropdown()">Gym Owner</span>
+                            <div id="dropdown-menu" class="dropdown-menu">
+                                <a href="login.html" class="btn btn-danger btn-sm">Log Out</a>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <ul class="sidenav-nav">
-                    <li class="sidenav-item">
-                        <a class="sidenav-link" href="ManageServices.html">
-                            <i class="fas fa-id-card"></i>
-                            <span class="sidenav-item-name">Manage Services/Promotions</span>
-                        </a>
-                    </li>
-                    <li class="sidenav-item">
-                        <a class="sidenav-link" href="member.html">
-                            <i class="fas fa-users"></i>
-                            <span class="sidenav-item-name">Manage Members</span>
-                        </a>
-                    </li>
-                    <li class="sidenav-item">
-                        <a class="sidenav-link" href="trainer-info.html">
-                            <i class="fas fa-dumbbell"></i>
-                            <span class="sidenav-item-name">Manage Trainer Profile</span>
-                        </a>
-                    </li>
-                    <li class="sidenav-item">
-                        <a class="sidenav-link" href="Products.html">
-                            <i class="fas fa-box"></i>
-                            <span class="sidenav-item-name">Manage Products</span>
-                        </a>
-                    </li>
-                    <li class="sidenav-item">
-                        <a class="sidenav-link" href="membership.html">
-                            <i class="fas fa-id-card"></i>
-                            <span class="sidenav-item-name">Manage Memberships</span>
-                        </a>
-                    </li>
-                    <li class="sidenav-item">
-                        <a class="sidenav-link" href="Transactions.html">
-                            <i class="fas fa-credit-card"></i>
-                            <span class="sidenav-item-name">Manage Transactions</span>
-                        </a>
-                    </li>
-                    <li class="sidenav-item">
-                        <a class="sidenav-link" href="DayPass.html">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span class="sidenav-item-name">Manage Day Pass</span>
-                        </a>
-                    </li>
-                    <li class="sidenav-item">
-                        <a class="sidenav-link" href="salesandinventory.html">
-                            <i class="fas fa-clipboard-list"></i>
-                            <span class="sidenav-item-name">Sales and Inventory</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-      </nav>
-          </header>
+                <div class="hamburger-container position-fixed" id="toggleSidebar" style="top: 20px; left: 20px; z-index: 1050;">
+                    <div class="hamburger">
+                        <span class="line"></span>
+                        <span class="line"></span>
+                        <span class="line"></span>
+                    </div>
+                </div>
+            </nav>
+            <div class="sidebar" id="sidebar">
+              <div class="profile-container-mobile">
+                  <img id="profile-picture-mobile" src="framework/img/Profile.png" alt="Profile Picture" 
+                       class="img-fluid rounded-circle">
+                  <div class="dropdown">
+                      <span id="profile-username-mobile" class="dropdown-toggle ml-2" onclick="toggleDropdown()">Gym Owner</span>
+                      <div id="dropdown-menu" class="dropdown-menu">
+                          <a href="login.html" class="btn btn-danger btn-sm">Log Out</a>
+                      </div>
+                  </div>
+              </div>
+              <ul class="sidenav-nav">
+                  <li class="sidenav-item">
+                      <a class="sidenav-link" href="ManageServices.html">
+                          <i class="fas fa-id-card"></i>
+                          <span class="sidenav-item-name">Manage Services/Promotions</span>
+                      </a>
+                  </li>
+                  <li class="sidenav-item">
+                      <a class="sidenav-link" href="member.html">
+                          <i class="fas fa-users"></i>
+                          <span class="sidenav-item-name">Manage Members</span>
+                      </a>
+                  </li>
+                  <li class="sidenav-item">
+                      <a class="sidenav-link" href="trainer-info.html">
+                          <i class="fas fa-dumbbell"></i>
+                          <span class="sidenav-item-name">Manage Trainer Profile</span>
+                      </a>
+                  </li>
+                  <li class="sidenav-item">
+                      <a class="sidenav-link" href="Products.html">
+                          <i class="fas fa-box"></i>
+                          <span class="sidenav-item-name">Manage Products</span>
+                      </a>
+                  </li>
+                  <li class="sidenav-item">
+                      <a class="sidenav-link" href="membership.html">
+                          <i class="fas fa-id-card"></i>
+                          <span class="sidenav-item-name">Manage Memberships</span>
+                      </a>
+                  </li>
+                  <li class="sidenav-item">
+                      <a class="sidenav-link" href="Transactions.html">
+                          <i class="fas fa-credit-card"></i>
+                          <span class="sidenav-item-name">Manage Transactions</span>
+                      </a>
+                  </li>
+                  <li class="sidenav-item">
+                      <a class="sidenav-link" href="DayPass.html">
+                          <i class="fas fa-calendar-alt"></i>
+                          <span class="sidenav-item-name">Manage Day Pass</span>
+                      </a>
+                  </li>
+                  <li class="sidenav-item">
+                      <a class="sidenav-link" href="salesandinventory.html">
+                          <i class="fas fa-clipboard-list"></i>
+                          <span class="sidenav-item-name">Sales and Inventory</span>
+                      </a>
+                  </li>
+              </ul>
+          </div>
+    </nav>
+        </header>
     
     <div class="container">
     <h1 class="mb-4 text-center">Manage <span class="profile-text">Products</span></h1>

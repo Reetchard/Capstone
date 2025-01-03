@@ -10,8 +10,7 @@ body {
     min-height: 100vh; /* Ensure the body covers the full height of the viewport */
 }
 header {
-    font-family: 'Roboto', sans-serif;
-    background-color: #6c63ff; /* Vibrant purple background */
+    background-color: #023b6d; /* Vibrant purple background */
     color: white;
     padding: 15px 20px; /* Padding for header */
 }
@@ -23,6 +22,26 @@ header {
     max-width: 1200px;
     margin: auto;
     width: 100%;
+}
+nav h1.logo {
+    font-family:'Roboto','sans-serif';
+    font-weight: bolder;
+    color: #FAF6F0;
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    letter-spacing: 1px; /* Slight spacing for a modern look */
+}
+
+nav h1 img {
+    width: 60px;
+    margin-right: 5px;
+    transition: transform 0.3s ease;
+    vertical-align: middle;
+}
+
+nav h1 img:hover {
+    transform: rotate(360deg); /* Rotate logo on hover for interactivity */
 }
 
 .logo {
@@ -37,7 +56,7 @@ header {
 }
 
 .profile-text {
-    color: #ffcc00; /* Different color for emphasis */
+    color: #6EACDA; /* Different color for emphasis */
 }
 
 .hamburger-container {
@@ -189,7 +208,7 @@ header {
 
 /* Enhanced Card Header */
 .card-header {
-    background: #6c63ff; /* Main header color */
+    background: #023b6d; /* Main header color */
     color: #ffffff; /* White text color */
     padding: 20px; /* Padding */
     display: flex;
@@ -231,7 +250,7 @@ header {
 }
 
 .table thead {
-    background-color: #6c63ff; /* Header background color */
+    background-color: #023b6d; /* Header background color */
     color: #ffffff; /* Header text color */
 }
 
@@ -263,7 +282,7 @@ header {
 }
 
 .progress-bar {
-    background-color: #6c63ff; /* Progress bar color */
+    background-color: #023b6d; /* Progress bar color */
     height: 100%;
     transition: width 0.4s, background-color 0.4s; /* Smooth transitions */
 }
@@ -350,7 +369,7 @@ input,
 }
 
 .table thead {
-    background-color: #6c63ff; /* Header background color */
+    background-color: #023b6d; /* Header background color */
     color: #ffffff; /* Header text color */
 }
 
@@ -373,10 +392,10 @@ input,
 
 /* Hover Effects */
 .table tr:hover td {
-    background-color: #ffa31a; /* Light grey on hover */
+    background-color: #6EACDA; /* Light grey on hover */
     transform: translateY(-2px); /* Slight lift effect */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Shadow on hover */
-    color: #333; /* Change font color to dark */
+    color: #fff; /* Change font color to dark */
 }
 
 /* Additional Styles for Progress and Stats */
@@ -388,7 +407,7 @@ input,
 }
 
 .progress-bar {
-    background-color: #6c63ff; /* Progress bar color */
+    background-color: #023b6d; /* Progress bar color */
     height: 100%;
     transition: width 0.4s, background-color 0.4s; /* Smooth transitions */
 }
@@ -466,7 +485,7 @@ input,
 }
 
 .modal-header {
-    background-color: #6c63ff; /* Primary color for the header */
+    background-color: #023b6d; /* Primary color for the header */
     color: white; /* White text color */
     border-bottom: 1px solid rgba(255, 255, 255, 0.3); /* Light border for separation */
 }
@@ -495,7 +514,7 @@ input,
 
 /* Button Styles in Modal */        
 .modal-footer .btn {
-    background-color: #6c63ff; /* Button background color */
+    background-color: #023b63; /* Button background color */
     color: white; /* Button text color */
     border: none; /* Remove border */
     padding: 10px 20px; /* Padding for buttons */
@@ -818,19 +837,19 @@ h1 {
     font-size: 1rem;
     font-weight: 600;
     color: #fff;
-    background-color: #6c63ff;
-    border: 2px solid #ff8800;
+    background-color: #023b6d;
+    border: 2px solid #6EACDA;
     border-radius: 25px;
     transition: background-color 0.3s ease-in-out, transform 0.2s;
 }
 
 #transactionTabs button:hover {
-    background-color: #ff8800;
+    background-color: #6EACDA;
     transform: scale(1.05);
 }
 
 #transactionTabs button:focus {
-    background-color: #ff8800;
+    background-color: #6EACDA;
     outline: none;
 }
 
@@ -995,7 +1014,7 @@ h1 {
 }
 
 .table-striped thead th {
-    background-color: #6c63ff;
+    background-color: #023b6d;
     color: #fff;
     padding: 8px;
     text-align: center;
@@ -1020,7 +1039,7 @@ h1 {
 }
 
 .table-striped tbody tr:hover {
-    background-color: #F3DAD8; /* Row hover effect */
+    background-color: #6EACDA; /* Row hover effect */
 }
 
 /* Action Buttons Styling */

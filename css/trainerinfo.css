@@ -4,8 +4,7 @@ body {
 }
 
 header {
-    font-family: 'Roboto', sans-serif;
-    background-color: #6c63ff; /* Vibrant purple background */
+    background-color: #023b6d; /* Vibrant purple background */
     color: white;
     padding: 15px 20px; /* Padding for header */
 }
@@ -17,6 +16,26 @@ header {
     max-width: 1200px;
     margin: auto;
     width: 100%;
+}
+nav h1.logo {
+    font-family:'Roboto','sans-serif';
+    font-weight: bolder;
+    color: #FAF6F0;
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    letter-spacing: 1px; /* Slight spacing for a modern look */
+}
+
+nav h1 img {
+    width: 60px;
+    margin-right: 5px;
+    transition: transform 0.3s ease;
+    vertical-align: middle;
+}
+
+nav h1 img:hover {
+    transform: rotate(360deg); /* Rotate logo on hover for interactivity */
 }
 
 .logo {
@@ -31,7 +50,7 @@ header {
 }
 
 .profile-text {
-    color: #ffcc00; /* Different color for emphasis */
+    color: #6EACDA; /* Different color for emphasis */
 }
 
 .hamburger-container {
@@ -185,7 +204,7 @@ header {
 
 /* Enhanced Card Header */
 .card-header {
-    background: #6c63ff; /* Main header color */
+    background: #023b6d; /* Main header color */
     color: #ffffff; /* White text color */
     padding: 20px; /* Padding */
     display: flex;
@@ -867,7 +886,7 @@ body {
     box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15); /* Deeper shadow on hover */
 }
 .card-headerfirst {
-    background: #6c63ff; /* Main header color */
+    background: #023b6d; /* Main header color */
     color: #ffffff; /* White text color */
     padding: 20px; /* Padding */
     display: flex;
@@ -1020,7 +1039,7 @@ button.btn-danger:hover {
     color: #ffffff;
 }
 
-* Profile Container Styles */
+/* Profile Container Styles */
 .profile-container-mobile {
     margin-top: auto; /* Pushes the profile container to the bottom */
     display: flex; /* Flexbox for layout */

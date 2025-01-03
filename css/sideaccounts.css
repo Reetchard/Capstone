@@ -5,11 +5,30 @@ body {
 
 header {
     font-family: 'Roboto', sans-serif;
-    background-color: #6c63ff; /* Vibrant purple background */
+    background-color: #023b6d; /* Vibrant purple background */
     color: white;
     padding: 15px 20px; /* Padding for header */
 }
+nav h1.logo {
+    font-family:'Roboto','sans-serif';
+    font-weight: bolder;
+    color: #FAF6F0;
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    letter-spacing: 1px; /* Slight spacing for a modern look */
+}
 
+nav h1 img {
+    width: 60px;
+    margin-right: 5px;
+    transition: transform 0.3s ease;
+    vertical-align: middle;
+}
+
+nav h1 img:hover {
+    transform: rotate(360deg); /* Rotate logo on hover for interactivity */
+}
 .navheader-container {
     display: flex;
     align-items: center;
@@ -31,7 +50,7 @@ header {
 }
 
 .profile-text {
-    color: #ffcc00; /* Different color for emphasis */
+    color: #6EACDA; /* Different color for emphasis */
 }
 
 .hamburger-container {
@@ -183,7 +202,7 @@ header {
 
 /* Enhanced Card Header */
 .card-header {
-    background: #6c63ff; /* Main header color */
+    background: #023b6d; /* Main header color */
     color: #ffffff; /* White text color */
     padding: 20px; /* Padding */
     display: flex;
@@ -225,7 +244,7 @@ header {
 }
 
 .table thead {
-    background-color: #6c63ff; /* Header background color */
+    background-color: #023b6d; /* Header background color */
     color: #ffffff; /* Header text color */
 }
 
@@ -257,7 +276,7 @@ header {
 }
 
 .progress-bar {
-    background-color: #6c63ff; /* Progress bar color */
+    background-color: #023b6d; /* Progress bar color */
     height: 100%;
     transition: width 0.4s, background-color 0.4s; /* Smooth transitions */
 }
@@ -344,7 +363,7 @@ input,
 }
 
 .table thead {
-    background-color: #6c63ff; /* Header background color */
+    background-color: #023b6d; /* Header background color */
     color: #ffffff; /* Header text color */
 }
 
@@ -382,7 +401,7 @@ input,
 }
 
 .progress-bar {
-    background-color: #6c63ff; /* Progress bar color */
+    background-color: #023b6d; /* Progress bar color */
     height: 100%;
     transition: width 0.4s, background-color 0.4s; /* Smooth transitions */
 }
@@ -460,7 +479,7 @@ input,
 }
 
 .modal-header {
-    background-color: #6c63ff; /* Primary color for the header */
+    background-color: #023b6d; /* Primary color for the header */
     color: white; /* White text color */
     border-bottom: 1px solid rgba(255, 255, 255, 0.3); /* Light border for separation */
 }
@@ -489,7 +508,7 @@ input,
 
 /* Button Styles in Modal */
 .modal-footer .btn {
-    background-color: #6c63ff; /* Button background color */
+    background-color: #023b6d; /* Button background color */
     color: white; /* Button text color */
     border: none; /* Remove border */
     padding: 10px 20px; /* Padding for buttons */
