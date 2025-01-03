@@ -70,7 +70,7 @@ function renderTrainerCard(trainer, trainerId) {
         </div>
         <img src="${trainer.TrainerPhoto || 'default-image.jpg'}" class="card-img-top rounded-circle border border-success" alt="Trainer Photo">
         <div class="card-body text-center">
-            <a href="#" class="text-white font-weight-bold trainer-name">${trainer.username || 'N/A'}</a>
+            <a href="#" class="font-weight-bold trainer-name">${trainer.username || 'N/A'}</a>
             <div class="mt-3">
                 <!-- Toggle Switch -->
                 <label class="toggle-switch">

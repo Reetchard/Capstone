@@ -5,7 +5,7 @@ body {
 
 header {
     font-family: 'Roboto', sans-serif;
-    background-color: #6c63ff; /* Vibrant purple background */
+    background-color: #023b6d; /* Vibrant purple background */
     color: white;
     padding: 15px 20px; /* Padding for header */
 }
@@ -17,6 +17,26 @@ header {
     max-width: 1200px;
     margin: auto;
     width: 100%;
+}
+nav h1.logo {
+    font-family:'Roboto','sans-serif';
+    font-weight: bolder;
+    color: #FAF6F0;
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    letter-spacing: 1px; /* Slight spacing for a modern look */
+}
+
+nav h1 img {
+    width: 60px;
+    margin-right: 5px;
+    transition: transform 0.3s ease;
+    vertical-align: middle;
+}
+
+nav h1 img:hover {
+    transform: rotate(360deg); /* Rotate logo on hover for interactivity */
 }
 
 .logo {
@@ -31,7 +51,7 @@ header {
 }
 
 .profile-text {
-    color: #ffcc00; /* Different color for emphasis */
+    color: #6EACDA; /* Different color for emphasis */
 }
 
 .hamburger-container {
@@ -66,7 +86,7 @@ header {
 /* Sidebar Styles */
 .sidebar {
     width: 250px; /* Fixed width for the sidebar */
-    background-color: #6c63ff; /* Optional background color */
+    background-color: #023b6d; /* Optional background color */
     color: white; /* Optional text color */
     min-height: 100vh; /* Ensure sidebar takes full height */
     flex-shrink: 0; /* Prevent sidebar from shrinking */
@@ -221,7 +241,7 @@ header {
             
             /* Enhanced Card Header */
             .card-header {
-                background: #6c63ff; /* Main header color */
+                background: #023b6d; /* Main header color */
                 color: #ffffff; /* White text color */
                 padding: 24px; /* Adequate padding */
                 display: flex;
@@ -259,7 +279,7 @@ header {
             
             /* Button Styles */
             .button {
-                background-color: #6c63ff; /* Button color */
+                background-color: #023b6d; /* Button color */
                 color: #ffffff; /* White text color */
                 border: none; /* Remove default border */
                 border-radius: 8px; /* Rounded corners */
@@ -335,13 +355,12 @@ header {
                 font-weight: 700; /* Bold weight */
                 margin: 0; /* Remove margin for tight spacing */
                 text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5); /* Text shadow for emphasis */
-                color: #574bfa; /* White color for the main title */
+                color: #023b6d; /* White color for the main title */
             }
 
             /* Specific style for the profile-text span */
             .container h1 .profile-text {
-                color: #FFA500; /* Orange color for the highlighted text */
-                font-weight: bold; /* Ensure the highlighted text is bold */
+                color: #6EACDA; /* Orange color for the highlighted text */
             }
             /* Membership Card Styles */
             .membership-card {
@@ -448,7 +467,7 @@ header {
 }
 
 .modal-header {
-    background-color: #6c63ff; /* Primary color for the header */
+    background-color: #023b6d; /* Primary color for the header */
     color: white; /* White text color */
     border-bottom: 1px solid rgba(255, 255, 255, 0.3); /* Light border for separation */
 }
@@ -476,7 +495,7 @@ header {
 
 /* Button Styles in Modal */
 .modal-footer .btn {
-    background-color: #6c63ff; /* Button background color */
+    background-color: #023b6d; /* Button background color */
     color: white; /* Button text color */
     border: none; /* Remove border */
     padding: 10px 20px; /* Padding for buttons */
@@ -598,7 +617,7 @@ header {
 
 /* Table Headers */
 .table th {
-    background-color: #6c63ff; /* Header background color */
+    background-color: #023b6d; /* Header background color */
     color: #FFF; /* Light text for headers */
     text-align: center; /* Center text in headers */
     padding: 15px; /* Padding for headers */
