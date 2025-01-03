@@ -107,16 +107,40 @@ window.showImage = (src) => {
 }
 let currentGymId = null;
 
-    window.editGymDetails = async (id) => {
+  // 📌 Open Modal for Editing Gym Details
+window.editGymDetails = async function (id) {
+    try {
         const docRef = doc(db, 'GymOwner', id);
         const docSnap = await getDoc(docRef);
+
         if (docSnap.exists()) {
-            const gym = docSnap.data();
-            // Store the gym id in a global variable for later use
-            currentGymId = id;
+            const gymData = docSnap.data();
+
+            // Display selected programs, equipment, and services
+            document.getElementById('selectedProgramsDisplay').innerText = gymData.gymPrograms?.join('') || 'No Programs Selected';
+            document.getElementById('selectedEquipmentDisplay').innerText = gymData.gymEquipment?.join('') || 'No Equipment Selected';
+            document.getElementById('selectedServicesDisplay').innerText = gymData.gymServices?.join('') || 'No Services Selected';
+
+            // Populate hidden input fields
+            document.getElementById('gymPrograms').value = gymData.gymPrograms?.join(' ') || '';
+            document.getElementById('gymEquipment').value = gymData.gymEquipment?.join(' ') || '';
+            document.getElementById('gymServices').value = gymData.gymServices?.join(' ') || '';
+
+            // Populate the Price Rate textbox
+            document.getElementById('gymPriceRate').value = gymData.gymPriceRate ? parseFloat(gymData.gymPriceRate).toFixed(2) : '0.00';
+
+            // Show modal
             $('#editGymModal').modal('show');
+        } else {
+            console.error("Gym document not found.");
+            showToast('Gym details not found.', 'danger');
         }
-    };
+    } catch (error) {
+        console.error("Error fetching gym details:", error);
+        showToast('Failed to load gym details.', 'danger');
+    }
+};
+
 
     // Save changes to Firestore when the form is submitted
     document.getElementById('editGymForm').addEventListener('submit', async (e) => {
@@ -133,9 +157,9 @@ let currentGymId = null;
             gymName: document.getElementById('gymName').value,
             gymLocation: document.getElementById('gymLocation').value,
             gymContact: document.getElementById('gymContact').value,
-            gymPrograms: document.getElementById('gymPrograms').value.split(',').map(item => item.trim()), // Convert comma-separated string to array
-            gymEquipment: document.getElementById('gymEquipment').value.split(',').map(item => item.trim()), // Convert comma-separated string to array
-            gymServices: document.getElementById('gymServices').value.split(',').map(item => item.trim()), // Convert comma-separated string to array
+            gymPrograms: document.getElementById('gymPrograms').value.split('').map(item => item.trim()), // Convert comma-separated string to array
+            gymEquipment: document.getElementById('gymEquipment').value.split('').map(item => item.trim()), // Convert comma-separated string to array
+            gymServices: document.getElementById('gymServices').value.split('').map(item => item.trim()), // Convert comma-separated string to array
             gymPriceRate: document.getElementById('gymPriceRate').value,
             gymOpeningTime: document.getElementById('gymOpeningTime').value,
             gymClosingTime: document.getElementById('gymClosingTime').value
