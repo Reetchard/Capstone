@@ -503,6 +503,25 @@ nav h1 img:hover {
     transition: background-color 0.3s; /* Smooth transition */
 }
 
+.custom-btn-warning,
+  .custom-btn-danger {
+    background-color: transparent; /* Transparent background */
+    border: 1px solid #023b6d;
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth hover transition */
+  }
+
+  /* Warning Button Hover */
+  .custom-btn-warning:hover {
+    background-color: #ffc107; /* Bootstrap warning yellow */
+    color: black; /* Adjust text/icon color if needed */
+  }
+
+  /* Danger Button Hover */
+  .custom-btn-danger:hover {
+    background-color: #dc3545; /* Bootstrap danger red */
+    color: white; /* Adjust text/icon color if needed */
+  }
+
 .modal-footer .btn:hover {
     background-color: #5a54d1; /* Darken button on hover */
 }

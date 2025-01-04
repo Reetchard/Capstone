@@ -179,6 +179,10 @@ nav h1 img:hover {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Enhanced shadow */
 }
 
+.trainer-name{
+    color: #023b6d;
+}
+
 /* Fluid Container */
 .container-fluid {
     max-width: 1200px;
@@ -1019,11 +1023,11 @@ button.btn-danger:hover {
 
 .feedback-card .feedback-text {
     font-style: italic;
-    color: #adb5bd;
+    color: #333;
 }
 
 .feedback-card .feedback-date {
-    color: #6c757d;
+    color: #333;
 }
 
 .feedback-card .action-btn {

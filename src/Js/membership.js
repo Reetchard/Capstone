@@ -179,8 +179,12 @@ function displayPlans(plans) {
                 <td>${plan.guestPasses}</td>
                 <td>${plan.membershipDays}</td>
                 <td>
-                    <button class="btn btn-warning btn-sm" onclick="editPlan('${plan.id}')">Edit</button>
-                    <button class="btn btn-danger btn-sm" onclick="deletePlan('${plan.id}')">Delete</button>
+                    <button class="btn custom-btn-warning btn-sm" onclick="editPlan('${plan.id}')">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn custom-btn-danger btn-sm" onclick="deletePlan('${plan.id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
                 </td>
             `;
             tableBody.appendChild(row);

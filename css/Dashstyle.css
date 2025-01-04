@@ -45,6 +45,17 @@ nav ul li a:hover::after {
 nav ul li a:hover {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Soft shadow on hover */
 }
+.badge-warning{
+    background-color: #6EACDA;
+}
+
+#membershipSuccessModal #gymNameSuccess {
+    color: #023b6d;
+}
+
+#membershipSuccessModal .processing-text {
+    color: #333;
+}
 
 /* General Modal Styles */
 .gym-modal-content {

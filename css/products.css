@@ -259,6 +259,34 @@ nav h1 img:hover {
     border-top: 1px solid #ddd; /* Light border */
 }
 
+/* Base styles for custom buttons */
+.custom-btn-warning,
+.custom-btn-success,
+.custom-btn-danger {
+  background-color: transparent; /* Transparent background */
+  border: 1px solid #023b6d; /* Remove border */
+  color: inherit; /* Use default text/icon color */
+  transition: background-color 0.3s ease, color 0.3s ease; /* Smooth hover transition */
+}
+
+/* Warning Button Hover */
+.custom-btn-warning:hover {
+  background-color: #ffc107; /* Bootstrap warning yellow */
+  color: black; /* Text/icon color on hover */
+}
+
+/* Success Button Hover */
+.custom-btn-success:hover {
+  background-color: #28a745; /* Bootstrap success green */
+  color: white; /* Text/icon color on hover */
+}
+
+/* Danger Button Hover */
+.custom-btn-danger:hover {
+  background-color: #dc3545; /* Bootstrap danger red */
+  color: white; /* Text/icon color on hover */
+}
+
 /* Modern Table Styles */
 .table {
     width: 100%;

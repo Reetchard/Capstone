@@ -382,7 +382,7 @@ async function loadFeedbacks() {
                     <p class="feedback-date"><small>${date}</small></p>
                     <div class="text-end action-btn">
                         <button class="btn btn-danger btn-sm" onclick="deleteFeedback('${feedbackDoc.id}')">
-                            <i class="fas fa-trash-alt"></i> Delete
+                            <i class="fas fa-trash-alt"></i> 
                         </button>
                     </div>
                 </div>

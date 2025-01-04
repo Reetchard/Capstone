@@ -268,9 +268,9 @@ document.addEventListener("DOMContentLoaded", function () {
             <td class="status-cell">${status}</td>
             <td class="actions">
                   <div class="button-container">
-                <button class="btn btn-warning btn-sm edit-btn" data-id="${docId}"> <i class="fas fa-edit"> </i> Edit </button>
-                <button class="btn btn-success btn-sm approve-btn" data-id="${docId}"> <i class="fas fa-check"> </i>Approve </button>
-                <button class="btn btn-danger btn-sm remove-btn" data-id="${docId}">   <i class="fas fa-trash">  </i> Remove </button>
+                <button class="btn custom-btn-warning btn-sm edit-btn" data-id="${docId}"> <i class="fas fa-edit"> </i> </button>
+                <button class="btn custom-btn-success btn-sm approve-btn" data-id="${docId}"> <i class="fas fa-check"> </i> </button>
+                <button class="btn custom-btn-danger btn-sm remove-btn" data-id="${docId}">   <i class="fas fa-trash">  </i> </button>
                  </button>
                   </div>
             </td>

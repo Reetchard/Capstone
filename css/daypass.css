@@ -133,6 +133,37 @@ nav h1 img:hover {
     color: #020202; /* Icon color */
 }
 
+ /* Default Transparent Style */
+ .custom-btn-success,
+ .custom-btn-warning,
+ .custom-btn-danger {
+   background-color: transparent;
+   border: 1px solid #023b6d;
+   color: inherit;
+   transition: background-color 0.3s, border-color 0.3s;
+ }
+
+ /* Success Button */
+ .custom-btn-success:hover {
+   background-color: #28a745; /* Bootstrap success green */
+   border-color: #28a745;
+   color: white;
+ }
+
+ /* Warning Button */
+ .custom-btn-warning:hover {
+   background-color: #ffc107; /* Bootstrap warning yellow */
+   border-color: #ffc107;
+   color: black;
+ }
+
+ /* Danger Button */
+ .custom-btn-danger:hover {
+   background-color: #dc3545; /* Bootstrap danger red */
+   border-color: #dc3545;
+   color: white;
+ }
+
 /* Hamburger Menu Styles */
 .hamburger-container {
     display: none; /* Hidden by default */

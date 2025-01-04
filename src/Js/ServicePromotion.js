@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <td>${userData.gymOpeningTime || 'N/A'}</td>
                         <td>${userData.gymClosingTime || 'N/A'}</td>
                         <td>
-                            <button class="btn btn-warning" onclick="editGymDetails('${userId}')">Edit</button>
+                            <button class="btn custom-btn-warning" onclick="editGymDetails('${userId}')"><i class="fas fa-edit"></i></button>
                         </td>
                     `;
                     gymDetailsTable.appendChild(gymRow);
@@ -92,7 +92,7 @@ async function fetchGymProfiles(filterName = null) {
                 <td>${gym.gymOpeningTime || 'N/A'}</td>
                 <td>${gym.gymClosingTime || 'N/A'}</td>
                 <td>
-                    <button class="btn btn-warning" onclick="editGymDetails('${gym.id}')">Edit</button>
+                    <button class="btn custom-btn-warning" onclick="editGymDetails('${gym.id}')"><i class="fas fa-edit"></i></button>
                 </td>
             `;
             gymDetailsTable.appendChild(gymRow);
@@ -319,8 +319,8 @@ async function renderTable(gymName) {
                     <td>${promotion.description}</td>
                     <td>${promotion.gymName}</td>
                     <td>
-                        <button class="btn btn-warning btn-sm" onclick="editPromotion('${doc.id}')">Edit</button>
-                        <button class="btn btn-danger btn-sm" onclick="deletePromotion('${doc.id}')">Delete</button>
+                        <button class="btn custom-btn-warning btn-sm" onclick="editPromotion('${doc.id}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn custom-btn-danger btn-sm" onclick="deletePromotion('${doc.id}')"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>`;
                 tableBody.innerHTML += row;
@@ -829,7 +829,7 @@ function showModal(selectionType) {
                                         <td>${gym.gymOpeningTime || 'N/A'}</td>
                                         <td>${gym.gymClosingTime || 'N/A'}</td>
                                         <td>
-                                            <button class="btn btn-warning" onclick="editGymDetails('${gym.id}')">Edit</button>
+                                            <button class="btn custom-btn-warning" onclick="editGymDetails('${gym.id}')"><i class="fas fa-edit"></i></button>
                                         </td>
                                     `;
                                     gymDetailsTable.appendChild(gymRow);

@@ -65,7 +65,7 @@ async function displayMemberInfo() {
                     <td>₱${parseFloat(transaction.price || 0).toFixed(2)}</td>
                     <td>${new Date(transaction.purchaseDate).toLocaleString()}</td>
                     <td>${transaction.status || 'N/A'}</td>
-                    <td><button class="btn btn-info btn-sm" onclick="viewMemberDetails('${doc.id}')">View</button></td>
+                    <td><button class="btn btn-info btn-sm" onclick="viewMemberDetails('${doc.id}')"> <i class="fas fa-eye"></i></button></td>
                 `;
                 MemberInfoBody.appendChild(row);
             }

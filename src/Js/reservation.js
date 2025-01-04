@@ -143,9 +143,15 @@ const fetchDayPassReservations = async () => {
                     <td>${timestamp}</td>
                     <td>${status}</td>
                     <td>
-                        <button onclick="updateReservationStatus('${docId}', 'Approved')" class="btn btn-success btn-sm mt-1">Approve</button>
-                        <button onclick="updateReservationStatus('${docId}', 'Cancelled')" class="btn btn-warning btn-sm mt-1">Decline</button>
-                        <button onclick="deleteReservation('${docId}')" class="btn btn-danger btn-sm mt-1">Delete</button>
+                        <button onclick="updateReservationStatus('${docId}', 'Approved')" class="btn custom-btn-success btn-sm mt-1">
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <button onclick="updateReservationStatus('${docId}', 'Cancelled')" class="btn custom-btn-warning btn-sm mt-1">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <button onclick="deleteReservation('${docId}')" class="btn custom-btn-danger btn-sm mt-1">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </td>
                 </tr>`;
 

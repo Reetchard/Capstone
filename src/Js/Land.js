@@ -165,7 +165,8 @@ async function loadPromotions() {
         const serviceElement = `
             <div class="service">
                 <div class="overlay">
-                    <h3>${promotion.gymName}</h3>
+                    <h3 class="promotion-title">${promotion.gymName}</h3>
+                    <h1 class="promotion-title">${promotion.title}</h1>
                     <p>${promotion.description}</p>
                 </div>
             </div>`;

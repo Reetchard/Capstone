@@ -83,6 +83,12 @@ nav h1 img:hover {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Soft shadow on hover */
 }
 
+.btn-info {
+    background-color: transparent;
+    border: 1px solid #023b6d;
+  }
+
+
 /* Sidebar Styles */
 .sidebar {
     background-color: #ffffff; /* Sidebar background color */
