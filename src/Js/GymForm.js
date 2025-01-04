@@ -41,6 +41,7 @@ window.addEventListener('load', async () => {
     const errorMessage = document.getElementById("gymOwnerFormErrorMessage");
     const successMessage = document.getElementById("gymOwnerFormSuccessMessage");
     const photoPreview = document.getElementById("photoPreview");
+    const PriceRate = document.getElementById("PriceRate");
 
     // Display selected photo in the preview container
     gymPhotoInput.addEventListener("change", (event) => {
@@ -165,6 +166,7 @@ window.addEventListener('load', async () => {
                 gymClosingTime: gymClosingTime.value,
                 gymLocation: gymLocation.value,
                 gymPriceRate: priceRateValue, // Save price rate as a decimal
+                PriceRate : PriceRate,
                 status: "Under review"
             }, { merge: true });
     

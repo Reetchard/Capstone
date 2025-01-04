@@ -2527,24 +2527,43 @@ async function displayTrainerRating() {
                         `;
                     } 
                     else if (notification.type === "Day Pass") {
+                        // Ensure both price and gymprice are valid numbers, defaulting to 0 if not valid
+                        const price = parseFloat(notification.price) || 0;  // Default to 0 if not a valid number
+                    
+                        // Remove peso sign and any other non-numeric characters from gymprice, then parse it to float
+                        const gymPrice = parseFloat(notification.gymprice.replace(/[^\d.-]/g, '')) || 0;  // Remove non-numeric characters
+                    
+                        // Log values for debugging
+                        console.log("Price: ", price);
+                        console.log("Gym Price: ", gymPrice);
+                    
+                        // Calculate total price
+                        const totalPrice = price + gymPrice;
+                    
+                        // Log the totalPrice for debugging
+                        console.log("Total Price: ", totalPrice);
+                    
+                        // Prepare notification content
                         notificationContent = `
                             <p class="gym-name">${notification.gymName || 'N/A'}</p>
                             <p class="ref-number"><strong>Ref. No:</strong> ${notification.notificationId || 'N/A'}</p>
                             <div class="day-pass-info">
                                 <p><strong>Date:</strong> ${formatDate(notification.Date) || 'N/A'}</p>
-                                <p><strong>Price:</strong> ${formatPrice(notification.price)}</p>
+                                <p><strong>Total Price:</strong> ${formatPrice(totalPrice)}</p> <!-- Total Price Displayed here -->
                                 <p><strong>Status:</strong> ${notification.status || 'N/A'}</p>
                             </div>
                             <hr>
                             <p class="footer-info">Present this receipt to the Gym reception.</p>
                         `;
+                        
                         cancelButton = `
                             <div class="modal-footer">
                                 <button class="btn btn-danger" id="cancelDayPassButton">Cancel Day Pass</button>
                             </div>
                         `;
-                
-                    } else {
+                    }
+                    
+                     else {
                         notificationContent = `<p>No details available for this notification type.</p>`;
                     }
                 
@@ -3465,72 +3484,29 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-window.handleDayPass = async function () {
-    // Get the modalGymName dynamically from the HTML element
-    const modalGymName = document.getElementById("modalGymName").innerText.trim();
-    console.log("Modal Gym Name:", modalGymName); // Debugging
+document.getElementById('dayPassForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-    // Check for a valid gym name
-    if (!modalGymName) {
-        console.error("Error: modalGymName is undefined or empty.");
-        alert("Error: Gym name is not available.");
+    const calendarDate = document.getElementById('calendarDate').value.trim();
+    const email = document.getElementById('email').value.trim();
+
+    if (!calendarDate || !email || selectedServices.length === 0) {
         return;
     }
 
     try {
-        // Reference the GymOwner collection
-        const gymOwnerRef = collection(db, "GymOwner");
+        await addDoc(collection(db, 'DayPasses'), {
+            calendarDate,
+            email,
+            selectedServices,
+            totalPrice: totalServicePrice.toFixed(2),
+            status: 'Pending'
+        });
 
-        // Query Firestore where gymName matches modalGymName
-        const q = query(gymOwnerRef, where("gymName", "==", modalGymName));
-        const querySnapshot = await getDocs(q);
-
-        // Check if data is returned
-        if (!querySnapshot.empty) {
-            const gymData = querySnapshot.docs[0].data();
-
-            // Update price dynamically in the modal
-            document.getElementById("dynamicPrice").innerText = `₱${gymData.gymPriceRate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-
-            // Initialize Flatpickr Calendar
-            flatpickr("#calendarDate", {
-                dateFormat: "Y-m-d",
-                minDate: "today"
-            });
-
-            // Show the Day Pass Modal
-            $('#dayPassModal').modal('show');
-        } else {
-            alert("Gym details not found. Please try again.");
-        }
+        $('#dayPassModal').modal('hide');
     } catch (error) {
-        console.error("Error fetching gym data:", error);
-        alert("An error occurred while fetching gym details. Please try again later.");
-    }
-};
-
-// Handle Day Pass Form Submission
-document.getElementById("dayPassForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    // Get user input
-    const email = document.getElementById("email").value;
-    const selectedDate = document.getElementById("calendarDate").value;
-    const price = document.getElementById("dynamicPrice").innerText;
-
-    if (email && selectedDate) {
-        // Populate the confirmation modal with details
-        document.getElementById("confirmPrice").innerText = price;
-        document.getElementById("confirmDate").innerText = selectedDate;
-        document.getElementById("confirmEmail").innerText = email;
-
-        // Show the confirmation modal
-        $('#confirmationModal').modal('show');
-    } else {
-        alert("Please fill in all the required fields.");
     }
 });
-
 
 document.addEventListener("DOMContentLoaded", async function () {
     const userId = await getCurrentUserId();
@@ -3550,106 +3526,216 @@ document.addEventListener("DOMContentLoaded", async function () {
                 emailField.value = userEmail;
                 emailField.setAttribute("readonly", true);  // Make email field non-editable
             } else {
-                console.error("User document not found.");
-                Swal.fire({
-                    icon: 'error',
-                    title: 'User Not Found',
-                    text: 'Your user profile could not be found. Please contact support.'
-                });
+
             }
         } catch (error) {
-            console.error("Error fetching user data:", error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Failed to retrieve your email. Please refresh and try again.'
-            });
         }
     } else {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Not Logged In',
-            text: 'Please log in to continue.'
+    }
+});
+document.addEventListener("DOMContentLoaded", async function () {
+    const dayPassForm = document.getElementById("dayPassForm");
+    
+    if (dayPassForm) {
+        dayPassForm.addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const email = document.getElementById("email").value;
+            const selectedDate = document.getElementById("calendarDate").value;
+            const price = document.getElementById("dynamicPrice").innerText;
+            const gymName = document.getElementById("modalGymName").innerText;
+            const gymprice = document.getElementById("GymPriceRate").innerText;
+
+            const userId = await getCurrentUserId();
+
+            try {
+                // Clean price (remove any non-numeric characters, like the peso sign)
+                const cleanPrice = parseFloat(price.replace(/[^0-9.]/g, '')) || 0;
+            
+                // Clean gym price (remove peso sign and any non-numeric characters)
+                const cleanGymPrice = parseFloat(gymprice.replace(/[^\d.-]/g, '')) || 0;
+            
+                // Calculate total price
+                const totalPrice = cleanPrice + cleanGymPrice;
+            
+                // Prepare the notification message with the total price
+                const newNotification = {
+                    message: `Day Pass Access for ${gymName} on ${selectedDate} at  ₱${cleanGymPrice.toLocaleString()}. Services:₱${cleanPrice.toLocaleString()}. Total: ₱${totalPrice.toLocaleString()}.`,
+                    type: 'Day Pass',
+                    email: email,
+                    status: 'Pending',
+                    price: cleanPrice,
+                    Date: selectedDate,
+                    read: false,
+                    gymName: gymName,
+                    gymprice: gymprice,  // keep original gymprice for reference
+                    notificationId: Date.now().toString(),
+                    timestamp: new Date().toISOString(),
+                    userId: userId
+                };
+            
+                // Add the notification to Firestore (or wherever you're storing it)
+                await addDoc(collection(db, 'Notifications'), newNotification);
+
+                // Update the notification count on the UI
+                notificationCount++;
+                document.getElementById('notification-count').innerText = notificationCount;
+
+                const newTransaction = {
+                    type: 'Day Pass',
+                    userId: userId,
+                    gymName: gymName,
+                    email: email,
+                    date: selectedDate,
+                    totalPrice: cleanPrice.toFixed(2),
+                    gymprice: gymprice,
+                    status: 'Pending',
+                    timestamp: new Date().toISOString()
+                };
+
+                await addDoc(collection(db, 'Transactions'), newTransaction);
+                await fetchNotifications(userId);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Day Pass Confirmed!',
+                    html: `
+                        <p><strong>Gym Name:</strong> ${gymName}</p>
+                        <p><strong>Service Rate:</strong> ₱${cleanPrice.toLocaleString()}</p>
+                        <p><strong>Gym Rate:</strong> ${gymprice.toLocaleString()}</p>                        
+                        <p><strong>Date:</strong> ${selectedDate}</p>
+                        <p><strong>Email:</strong> ${email}</p>
+                    `,
+                    confirmButtonText: 'Okay',
+                });
+
+                $('#dayPassModal').modal('hide');
+            } catch (error) {
+                console.error('Error creating Day Pass:', error);
+            }
         });
+    } else {
+        console.log('DayPassForm element not found.');
     }
 });
 
-// Handle form submission
-document.getElementById("dayPassForm").addEventListener("submit", async function (e) {
-    e.preventDefault();
 
-    const email = document.getElementById("email").value;
-    const selectedDate = document.getElementById("calendarDate").value;
-    const price = document.getElementById("dynamicPrice").innerText;
-    const gymName = document.getElementById("modalGymName").innerText;
 
-    const userId = await getCurrentUserId();
+let selectedServices = [];
+let totalServicePrice = 0;
 
-    if (!userId) {
-        Swal.fire({
-            icon: 'error',
-            title: 'User Not Authenticated',
-            text: 'Please log in to confirm your day pass.'
-        });
+window.handleDayPass = async function () {
+    const modalGymName = document.getElementById("modalGymName").innerText.trim();
+
+    if (!modalGymName) {
         return;
     }
 
     try {
-        const cleanPrice = parseFloat(price.replace(/[^0-9.]/g, '')) || 0;
+        const gymOwnerRef = collection(db, "GymOwner");
+        const q = query(gymOwnerRef, where("gymName", "==", modalGymName));
+        const querySnapshot = await getDocs(q);
 
-        const newNotification = {
-            message: `Day Pass Access for ${gymName} on ${selectedDate} at ${price.toLocaleString()}.`,
-            type: 'Day Pass',
-            email: email,
-            status: 'Pending Status',
-            price: price,
-            Date: selectedDate,
-            read: false,
-            gymName: gymName,
-            notificationId: Date.now().toString(),
-            timestamp: new Date().toISOString(),
-            userId: userId
-        };
+        if (!querySnapshot.empty) {
+            const gymData = querySnapshot.docs[0].data();
 
-        await addDoc(collection(db, 'Notifications'), newNotification);
+            // Update Price Rate
+            document.getElementById("dynamicPrice").innerText =  `₱${gymData.gymPriceRate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById("GymPriceRate").innerText = `₱${gymData.PriceRate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            // Display Services
+            displayAvailableServices(gymData.gymServices);
 
-        // Update the notification count on the UI
-        notificationCount++;
-        document.getElementById('notification-count').innerText = notificationCount;
+            // Initialize Flatpickr for Calendar Date
+            flatpickr("#calendarDate", {
+                dateFormat: "Y-m-d",
+                minDate: "today"
+            });
 
-        const newTransaction = {
-            type: 'Day Pass',
-            userId: userId,
-            gymName: gymName,
-            email: email,
-            date: selectedDate,
-            totalPrice: cleanPrice >= 1000 ? cleanPrice.toLocaleString() : cleanPrice.toString(),
-            status: 'Pending Status',
-            timestamp: new Date().toISOString()
-        };
+            $('#dayPassModal').modal('show');
+        } else {
+            alert("Gym details not found. Please try again.");
+        }
+    } catch (error) {
+    }
+};
 
-        await addDoc(collection(db, 'Transactions'), newTransaction);
-        await fetchNotifications(userId);
 
-        Swal.fire({
-            icon: 'success',
-            title: 'Day Pass Access!',
-            html: `
-                <p><strong>Gym Name:</strong> ${gymName}</p>
-                <p><strong>Price:</strong> ${price.toLocaleString()}</p>
-                <p><strong>Date:</strong> ${selectedDate}</p>
-                <p><strong>Email:</strong> ${email}</p>
-            `,
-            confirmButtonText: 'Okay',
+// 📝 Display Services in Day Pass Modal
+function displayAvailableServices(services = []) {
+    const servicesContainer = document.getElementById('availableServicesList');
+    servicesContainer.innerHTML = ''; // Clear previous services
+
+    // Filter out invalid or empty services
+    const validServices = services.filter(service => service && service.trim() !== '');
+
+    if (validServices.length === 0) {
+        servicesContainer.innerHTML = '<p>No services available.</p>';
+        return;
+    }
+
+    validServices.forEach((service, index) => {
+        const serviceItem = document.createElement('div');
+        serviceItem.classList.add('d-flex', 'align-items-center', 'justify-content-between', 'p-1', 'border-bottom');
+
+        serviceItem.innerHTML = `
+            <div>
+                <input type="checkbox" class="service-checkbox" data-price="100" id="service-${index}" value="${service}">
+                <label for="service-${index}" class="ml-2">${service} - ₱100.00</label>
+            </div>
+        `;
+        servicesContainer.appendChild(serviceItem);
+    });
+
+    // Attach event listener after rendering services
+    document.querySelectorAll('.service-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', handleServiceSelection);
+    });
+}
+
+// 📝 Handle Checkbox Selection and Update Total Price
+function handleServiceSelection() {
+    selectedServices = [];
+    totalServicePrice = 0;
+
+    document.querySelectorAll('.service-checkbox:checked').forEach(checkbox => {
+        selectedServices.push(checkbox.value);
+        totalServicePrice += parseFloat(checkbox.dataset.price) || 0;
+    });
+
+    document.getElementById('dynamicPrice').innerText = `₱${totalServicePrice.toFixed(2)}`;
+}
+
+// 📝 Remove Service from the List
+function removeService(serviceName) {
+    const checkboxes = document.querySelectorAll('.service-checkbox');
+    checkboxes.forEach(checkbox => {
+        if (checkbox.value === serviceName) {
+            checkbox.checked = false;
+            checkbox.closest('div').remove();
+        }
+    });
+    handleServiceSelection();
+}
+
+// 📝 Handle Day Pass Form Submission
+document.getElementById("dayPassForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const calendarDate = document.getElementById('calendarDate').value.trim();
+    const email = document.getElementById('email').value.trim();
+
+    try {
+        await addDoc(collection(db, 'DayPasses'), {
+            calendarDate,
+            email,
+            selectedServices,
+            totalPrice: totalServicePrice.toFixed(2),
+            status: 'Pending'
         });
 
         $('#dayPassModal').modal('hide');
+        selectedServices = [];
+        totalServicePrice = 0;
     } catch (error) {
-        console.error('Firestore Error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Confirmation Failed',
-            text: 'An error occurred. Please try confirming your day pass again.',
-        });
     }
 });

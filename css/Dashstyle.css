@@ -2741,3 +2741,11 @@ strong:hover .custom-tooltip {
     transform: translate(50%, -50%);
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
 }
+#selectedServicesList span {
+    margin: 2px;
+}
+
+#servicesTotalPrice {
+    font-weight: bold;
+    font-size: 1.1em;
+}

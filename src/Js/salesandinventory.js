@@ -134,110 +134,195 @@ document.getElementById("inventoryOverviewCard").addEventListener("click", async
     }
 });
 
-// Function to Load Inventory Details
-async function loadInventoryDetails(gymName) {
-    const inventoryTableBody = document.getElementById("inventoryTableBody");
-    const totalInventoryElement = document.getElementById("totalInventory");
 
-    inventoryTableBody.innerHTML = ""; // Clear existing rows
-
-    try {
-        const productsQuery = query(collection(db, "Products"), where("gymName", "==", gymName));
-        const productsSnapshot = await getDocs(productsQuery);
-
-        if (productsSnapshot.empty) {
-            inventoryTableBody.innerHTML = '<tr><td colspan="4">No products available</td></tr>';
-            totalInventoryElement.textContent = "0 Items";
-            localStorage.setItem('totalInventory', 0);  // Store total inventory as 0 in localStorage
-            return;
-        }
-
-        let totalProducts = 0;
-
-        productsSnapshot.forEach((doc) => {
-            const data = doc.data();
-            totalProducts++;
-
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                <td><img src="${data.photoURL || 'https://via.placeholder.com/100'}" alt="${data.name}" style="width: 100px; height: auto;"></td>
-                <td>${data.name || "N/A"}</td>
-                <td>${data.category || "N/A"}</td>
-                <td>${data.description || "N/A"}</td>
-            `;
-            inventoryTableBody.appendChild(row);
-        });
-
-        // Store the updated total inventory count in localStorage
-        localStorage.setItem('totalInventory', totalProducts);
-
-        // Update total inventory count in the UI
-        totalInventoryElement.textContent = `${totalProducts} Items`;
-    } catch (error) {
-        console.error("Error fetching inventory details:", error);
-        alert("Failed to load inventory details.");
+// 📊 Generic Function to Load Pending Data
+const loadPendingData = async (collectionName, tableBodyId, criteria, typeFilter) => {
+    const tableBody = document.getElementById(tableBodyId);
+    if (!tableBody) {
+        console.error(`❌ Table body with ID '${tableBodyId}' not found.`);
+        return 0;
     }
-}
 
-
-
-const loadPendingSales = async () => {
-    const pendingSalesTableBody = document.getElementById('pendingSalesTableBody');
-    const pendingSalesElement = document.getElementById('pendingSales');
-    let totalPendingSales = 0;
-
-    pendingSalesTableBody.innerHTML = ''; // Clear any existing rows
+    tableBody.innerHTML = ''; // Clear the table body
+    let totalPending = 0;
 
     try {
-        // Fetch transactions from the 'Transactions' collection
-        const transactionsSnapshot = await getDocs(collection(db, 'Transactions'));
+        const currentGymName = await validateUser();
+        const snapshot = await getDocs(collection(db, collectionName));
 
-        transactionsSnapshot.forEach((doc) => {
+        snapshot.forEach(doc => {
             const data = doc.data();
-
-            // Filter for transactions with status "pending"
-            if (data.status === 'Pending') {
-                // Safely parse and calculate total sales for pending transactions
-                const totalPriceString = typeof data.totalPrice === 'string' ? data.totalPrice : '₱0';
-                const sanitizedPrice = totalPriceString.replace(/[^\d.]/g, ''); // Remove non-numeric characters
-                const parsedPrice = parseFloat(sanitizedPrice);
-
-                // Ensure parsedPrice is valid
-                const validPrice = isNaN(parsedPrice) ? 0 : parsedPrice;
-                totalPendingSales += validPrice;
-
-                // Create a row for each pending transaction
+            if (
+                data.status === 'Pending' && 
+                data.type === typeFilter && 
+                data.gymName === currentGymName
+            ) {
                 const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${data.productName || 'N/A'}</td>
-                    <td>${data.quantity || 'N/A'}</td>
-                    <td>${formatCurrency(validPrice)}</td>
-                    <td>${formatTimestamp(data.timestamp)}</td>
-                    <td>${data.status || 'N/A'}</td>
-                `;
-                pendingSalesTableBody.appendChild(row);
+                row.innerHTML = criteria(data);
+                tableBody.appendChild(row);
+                totalPending += parseFloat(data.price || data.totalPrice || 0);
             }
         });
 
-        // Update the pending sales total value
-        pendingSalesElement.textContent = formatCurrency(totalPendingSales);
+        return totalPending;
     } catch (error) {
-        console.error('Error fetching pending sales:', error);
-        alert('Failed to load pending sales.');
+        console.error(`❌ Error fetching ${collectionName}:`, error);
+        alert(error.message);
+        return 0;
+    }
+};
+
+// 📊 Load Data for Each Tab and Update Totals
+const loadPendingSales = async () => {
+    const totalPendingSales = await loadPendingData(
+        'Transactions',
+        'pendingSalesTableBody',
+        (data) => `
+            <td>${data.productName || 'N/A'}</td>
+            <td>${data.quantity || 'N/A'}</td>
+            <td>${formatCurrency(data.totalPrice || 0)}</td>
+            <td>${formatTimestamp(data.purchaseDate)}</td>
+            <td>${data.status || 'N/A'}</td>
+        `,
+        'Products'
+    );
+    document.getElementById('sales-tab').innerHTML = `Product Sales (${formatCurrency(totalPendingSales)})`;
+};
+
+const loadPendingBookings = async () => {
+    const totalPendingBookings = await loadPendingData(
+        'Transactions',
+        'pendingBookingsTableBody',
+        (data) => `
+            <td>${data.bookingId || 'N/A'}</td>
+            <td>${data.customerName || 'N/A'}</td>
+            <td>${formatTimestamp(data.purchaseDate)}</td>
+            <td>${data.service || 'N/A'}</td>
+            <td>${data.status || 'N/A'}</td>
+        `,
+        'Booking_trainer'
+    );
+    document.getElementById('bookings-tab').innerHTML = `Trainer Bookings (${formatCurrency(totalPendingBookings)})`;
+};
+
+const loadPendingMemberships = async () => {
+    const totalPendingMemberships = await loadPendingData(
+        'Transactions',
+        'pendingMembershipsTableBody',
+        (data) => `
+            <td>${data.planId || 'N/A'}</td>
+            <td>${data.planType || 'N/A'}</td>
+            <td>${data.membershipDays || 'N/A'} days</td>
+            <td>${formatTimestamp(data.purchaseDate)}</td>
+            <td>${data.status || 'N/A'}</td>
+        `,
+        'membership'
+    );
+    document.getElementById('memberships-tab').innerHTML = `Memberships (${formatCurrency(totalPendingMemberships)})`;
+};
+
+const loadPendingDayPasses = async () => {
+    const totalPendingDayPasses = await loadPendingData(
+        'Transactions',
+        'pendingDayPassesTableBody',
+        (data) => `
+            <td>${data.userId || 'N/A'}</td>
+            <td>${data.email || 'N/A'}</td>
+            <td>${formatCurrency(data.totalPrice || 0)}</td>
+            <td>${formatTimestamp(data.date)}</td>
+            <td>${data.status || 'N/A'}</td>
+        `,
+        'Day Pass'
+    );
+    document.getElementById('daypasses-tab').innerHTML = `Day Passes (${formatCurrency(totalPendingDayPasses)})`;
+};
+
+// 📊 Update Pending Sales Card Total
+const updatePendingSalesCard = async () => {
+    try {
+        const totalPendingSales = (
+            await Promise.all([
+                loadPendingSales(),
+                loadPendingBookings(),
+                loadPendingMemberships(),
+                loadPendingDayPasses()
+            ])
+        ).reduce((sum, value) => sum + (isNaN(value) ? 0 : value), 0); // Validate each value
+
+        const salesAmountElement = document.getElementById('pendingSalesAmount');
+        if (salesAmountElement) {
+            salesAmountElement.textContent = formatCurrency(totalPendingSales || 0); // Fallback to 0
+        } else {
+            console.error('❌ Sales amount card element not found!');
+        }
+    } catch (error) {
+        console.error('❌ Error updating pending sales card:', error);
+        const salesAmountElement = document.getElementById('pendingSalesAmount');
+        if (salesAmountElement) {
+            salesAmountElement.textContent = '₱0.00'; // Fallback to 0 on error
+        }
     }
 };
 
 
-// Authenticate the user and load the pending sales
+// 🛡️ Validate User and Gym Ownership
+const validateUser = async () => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) throw new Error('❌ User not authenticated.');
+
+    const gymOwnerDoc = await getDoc(doc(db, 'GymOwner', currentUser.uid));
+    if (!gymOwnerDoc.exists()) throw new Error('❌ Gym owner details not found.');
+
+    return gymOwnerDoc.data().gymName;
+};
+
+// 🛠️ Initialize the Application after Authentication
+const initializeAppAfterAuth = async () => {
+    try {
+        await updatePendingSalesCard();
+
+        // Add Event Listeners for Modal
+        const modalElement = document.getElementById('pendingModal');
+        if (modalElement) {
+            const modalInstance = bootstrap.Modal.getOrCreateInstance(modalElement);
+
+            // Sales Overview Card Event Listener
+            const salesOverviewCard = document.getElementById('SalesOverviewCard');
+            if (salesOverviewCard) {
+                salesOverviewCard.addEventListener('click', async () => {
+                    modalInstance.show();
+                    await loadPendingSales();
+                    await updatePendingSalesCard();
+                });
+            }
+
+            // Modal Show Event
+            modalElement.addEventListener('shown.bs.modal', async () => {
+                await loadPendingSales();
+                await loadPendingBookings();
+                await loadPendingMemberships();
+                await loadPendingDayPasses();
+                await updatePendingSalesCard();
+            });
+        } else {
+            console.error('❌ Modal element not found!');
+        }
+    } catch (error) {
+        console.error('❌ Error during initialization:', error);
+    }
+};
+
+// 🛠️ Listen for Authentication Changes
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        // Optionally, load pending sales on initial load if needed
-        loadPendingSales();
+        console.log('🟢 User authenticated, initializing app...');
+        initializeAppAfterAuth();
     } else {
-        alert('You must be logged in to view this page.');
-        window.location.href = 'login.html'; // Redirect if not logged in
+        console.warn('🔴 User not authenticated, redirecting...');
+        window.location.href = 'login.html';
     }
 });
+
 
 // Add Event Listener to the Pending Sales Card (open the modal)
 document.getElementById("SalesOverviewCard").addEventListener("click", () => {

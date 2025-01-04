@@ -321,8 +321,6 @@
         </div>
     </div>
 </div>
-
-    
 <!-- Day Pass Modal -->
 <div id="dayPassModal" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
@@ -343,8 +341,16 @@
                         <label for="email">Your Email:</label>
                         <input type="email" class="form-control" id="email" placeholder="Enter your email" required>
                     </div>
-                    <p><strong>Price:</strong> <span id="dynamicPrice">Price</span></p>
-                    <p>Please select a date and proceed to the gym counter to complete your payment.</p>
+                    
+                    <!-- Gym Services Display Section -->
+                    <div class="form-group">
+                        <label><strong>Available Services:</strong></label>
+                        <div id="availableServicesList" class="border rounded p-2" style="max-height: 200px; overflow-y: auto;"></div>
+                    </div>
+
+                    <p><strong>Service Rate:</strong><span id="dynamicPrice">0.00</span></p>
+                    <p><strong>Gym Rate:</strong><span id="GymPriceRate">0.00</span></p>
+                    <p>Please select services, a date, and proceed to the gym counter to complete your payment.</p>
                     <div class="center-container">
                         <button type="submit" class="btn btn-success">Confirm Day Pass</button>
                     </div>
@@ -353,6 +359,7 @@
         </div>
     </div>
 </div>
+
 
 
 <!-- Booking Confirmation Modal -->
@@ -772,6 +779,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

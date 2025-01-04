@@ -577,17 +577,18 @@
             </div>
         </div>
 
-        <!-- Pending Sales -->
+        <!-- Pending Sales Card -->
         <div class="col-md-4">
             <div class="card shadow-sm" id="SalesOverviewCard" style="cursor: pointer;">
                 <div class="card-body">
                     <h5 class="modal-title">Pending <span class="profile-text">Sales</span></h5>
-                    <p class="card-text fs-5 fw-bold text-warning" id="pendingSales">₱0.00</p>
+                    <p class="card-text fs-5 fw-bold text-warning" id="pendingSalesAmount">₱0.00</p>
                     <canvas id="pendingSalesChart" height="200"></canvas>
                     <small class="text-muted" style="color: red;">Sales awaiting approval</small>
                 </div>
             </div>
         </div>
+
 
         <!-- Inventory Summary -->
         <div class="col-md-4">
@@ -684,31 +685,105 @@
     </div>
 
 </div>
-<!-- Pending Sales -->
-<div class="modal fade" id="pendingSalesModal" tabindex="-1" aria-labelledby="pendingSalesModalLabel" aria-hidden="true">
+ <!-- Pending Modal -->
+<div class="modal fade" id="pendingModal" tabindex="-1" aria-labelledby="pendingModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="pendingSalesModalLabel">Pending Sales</h5>
+                <h5 class="modal-title" id="pendingModalLabel">Pending Items</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <table class="table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th>Product Name</th>
-                            <th>Quantity</th>
-                            <th>Total Price</th>
-                            <th>Timestamp</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="pendingSalesTableBody"></tbody>
-                </table>
+                <!-- Tabs Navigation -->
+                <ul class="nav nav-tabs" id="pendingTabs" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active" id="sales-tab" data-bs-toggle="tab" data-bs-target="#sales"
+                            type="button" role="tab" aria-controls="sales" aria-selected="true">Product Sales</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="bookings-tab" data-bs-toggle="tab" data-bs-target="#bookings"
+                            type="button" role="tab" aria-controls="bookings" aria-selected="false">Bookings</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="memberships-tab" data-bs-toggle="tab" data-bs-target="#memberships"
+                            type="button" role="tab" aria-controls="memberships" aria-selected="false">Memberships</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="daypasses-tab" data-bs-toggle="tab" data-bs-target="#daypasses"
+                            type="button" role="tab" aria-controls="daypasses" aria-selected="false">Day Passes</button>
+                    </li>
+                </ul>
+
+                <!-- Tabs Content -->
+                <div class="tab-content mt-3">
+                    <!-- Sales Tab -->
+                    <div class="tab-pane fade show active" id="sales" role="tabpanel" aria-labelledby="sales-tab">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Product Name</th>
+                                    <th>Quantity</th>
+                                    <th>Total Price</th>
+                                    <th>Timestamp</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pendingSalesTableBody"></tbody>
+                        </table>
+                    </div>
+                    <!-- Bookings Tab -->
+                    <div class="tab-pane fade" id="bookings" role="tabpanel" aria-labelledby="bookings-tab">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Booking ID</th>
+                                    <th>Customer Name</th>
+                                    <th>Booking Date</th>
+                                    <th>Service</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pendingBookingsTableBody"></tbody>
+                        </table>
+                    </div>
+                    <!-- Memberships Tab -->
+                    <div class="tab-pane fade" id="memberships" role="tabpanel" aria-labelledby="memberships-tab">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Membership ID</th>
+                                    <th>Member Name</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pendingMembershipsTableBody"></tbody>
+                        </table>
+                    </div>
+                    <!-- Day Passes Tab -->
+                    <div class="tab-pane fade" id="daypasses" role="tabpanel" aria-labelledby="daypasses-tab">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Pass ID</th>
+                                    <th>Customer email</th>
+                                    <th>Price</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pendingDayPassesTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+
+
     <!-- Modal for Sales Details -->
     <div class="modal fade" id="salesModal" tabindex="-1" aria-labelledby="salesModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -737,11 +812,11 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <!-- Firebase Script -->
         <script type="module" src="src/Js/salesAndInventory.js"></script>
         <!-- Bootstrap Bundle -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
         <!-- Chart.js -->
          <!-- Day.js (Date Formatting Library) -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.7/dayjs.min.js"></script>
