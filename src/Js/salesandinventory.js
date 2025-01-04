@@ -134,8 +134,6 @@ document.getElementById("inventoryOverviewCard").addEventListener("click", async
     }
 });
 
-
-// 📊 Generic Function to Load Pending Data
 const loadPendingData = async (collectionName, tableBodyId, criteria, typeFilter) => {
     const tableBody = document.getElementById(tableBodyId);
     if (!tableBody) {
@@ -160,7 +158,16 @@ const loadPendingData = async (collectionName, tableBodyId, criteria, typeFilter
                 const row = document.createElement('tr');
                 row.innerHTML = criteria(data);
                 tableBody.appendChild(row);
-                totalPending += parseFloat(data.price || data.totalPrice || 0);
+
+                // Clean the price or totalPrice to remove non-numeric characters (e.g., peso sign)
+                const cleanPrice = parseFloat((data.price || data.totalPrice || '0').replace(/[^\d.-]/g, '')) || 0;
+
+                // Only add valid numbers to totalPending
+                if (!isNaN(cleanPrice)) {
+                    totalPending += cleanPrice;
+                } else {
+                    console.warn(`❌ Invalid price or totalPrice value: ${data.price || data.totalPrice}`);
+                }
             }
         });
 
@@ -172,22 +179,36 @@ const loadPendingData = async (collectionName, tableBodyId, criteria, typeFilter
     }
 };
 
-// 📊 Load Data for Each Tab and Update Totals
+
+
 const loadPendingSales = async () => {
     const totalPendingSales = await loadPendingData(
         'Transactions',
         'pendingSalesTableBody',
-        (data) => `
-            <td>${data.productName || 'N/A'}</td>
-            <td>${data.quantity || 'N/A'}</td>
-            <td>${formatCurrency(data.totalPrice || 0)}</td>
-            <td>${formatTimestamp(data.purchaseDate)}</td>
-            <td>${data.status || 'N/A'}</td>
-        `,
+        (data) => {
+            // Clean the totalPrice to remove the peso sign and convert to a number
+            const cleanTotalPrice = parseFloat(data.totalPrice.replace(/[^\d.-]/g, '')) || 0;
+
+            return `
+               <td>${data.userId || 'N/A'}</td>
+                <td>${data.productName || 'N/A'}</td>
+                <td>${data.quantity || 'N/A'}</td>
+                <td>${formatCurrency(cleanTotalPrice)}</td>
+                <td>${data.status || 'N/A'}</td>
+            `;
+        },
         'Products'
     );
-    document.getElementById('sales-tab').innerHTML = `Product Sales (${formatCurrency(totalPendingSales)})`;
+
+    // Make sure to update the 'sales-tab' correctly
+    const salesTab = document.getElementById('sales-tab');
+    if (salesTab) {
+        salesTab.innerHTML = `Product Sales (${formatCurrency(totalPendingSales)})`;
+    } else {
+        console.error("❌ 'sales-tab' element not found.");
+    }
 };
+
 
 const loadPendingBookings = async () => {
     const totalPendingBookings = await loadPendingData(
@@ -210,8 +231,9 @@ const loadPendingMemberships = async () => {
         'Transactions',
         'pendingMembershipsTableBody',
         (data) => `
-            <td>${data.planId || 'N/A'}</td>
+            <td>${data.userId || 'N/A'}</td>
             <td>${data.planType || 'N/A'}</td>
+             <td>${data.price || 'N/A'}</td>
             <td>${data.membershipDays || 'N/A'} days</td>
             <td>${formatTimestamp(data.purchaseDate)}</td>
             <td>${data.status || 'N/A'}</td>

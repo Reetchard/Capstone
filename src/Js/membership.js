@@ -122,6 +122,21 @@ document.getElementById('AddPlanForm').addEventListener('submit', async function
             return;
         }
 
+        // ✅ Check if Membership Type already exists
+        const membershipQuery = query(
+            collection(db, 'MembershipPlans'),
+            where('membershipType', '==', membershipType),
+            where('gymName', '==', gymName)
+        );
+
+        const querySnapshot = await getDocs(membershipQuery);
+
+        if (!querySnapshot.empty) {
+            showToast('Error: A Membership Plan with this type already exists.', 'danger');
+            hideSpinner();
+            return;
+        }
+
         // ✅ Add New Membership Plan
         const counterRef = doc(db, 'Counters', 'MembershipPlans');
         let planId = 1;
@@ -160,6 +175,7 @@ document.getElementById('AddPlanForm').addEventListener('submit', async function
         hideSpinner();
     }
 });
+
 
 
 // ✅ Display Membership Plans with Peso Sign and Commas
