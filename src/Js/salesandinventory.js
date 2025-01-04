@@ -151,7 +151,7 @@ const loadPendingData = async (collectionName, tableBodyId, criteria, typeFilter
         snapshot.forEach(doc => {
             const data = doc.data();
             if (
-                data.status === 'Pending' && 
+                data.status === 'Pending', 'Pending Owner Approval'&& 
                 data.type === typeFilter && 
                 data.gymName === currentGymName
             ) {
@@ -212,13 +212,13 @@ const loadPendingSales = async () => {
 
 const loadPendingBookings = async () => {
     const totalPendingBookings = await loadPendingData(
-        'Transactions',
+        'Notifications',  // Change the collection name to 'Notifications'
         'pendingBookingsTableBody',
         (data) => `
-            <td>${data.bookingId || 'N/A'}</td>
-            <td>${data.customerName || 'N/A'}</td>
-            <td>${formatTimestamp(data.purchaseDate)}</td>
-            <td>${data.service || 'N/A'}</td>
+            <td>${data.userId || 'N/A'}</td>
+            <td>${data.username || 'N/A'}</td>
+            <td>${formatTimestamp(data.bookingDate)}</td>
+            <td>${data.price || 'N/A'}</td>            
             <td>${data.status || 'N/A'}</td>
         `,
         'Booking_trainer'
@@ -262,6 +262,7 @@ const loadPendingDayPasses = async () => {
 // 📊 Update Pending Sales Card Total
 const updatePendingSalesCard = async () => {
     try {
+        // Fetch the totals from each section concurrently
         const totalPendingSales = (
             await Promise.all([
                 loadPendingSales(),
@@ -269,23 +270,29 @@ const updatePendingSalesCard = async () => {
                 loadPendingMemberships(),
                 loadPendingDayPasses()
             ])
-        ).reduce((sum, value) => sum + (isNaN(value) ? 0 : value), 0); // Validate each value
+        ).reduce((sum, value) => sum + (isNaN(value) ? 0 : value), 0); // Sum up all the totals
 
+        console.log("Total Pending Sales:", totalPendingSales);  // Debugging step
+
+        // Get the sales amount element to display the result
         const salesAmountElement = document.getElementById('pendingSalesAmount');
         if (salesAmountElement) {
-            salesAmountElement.textContent = formatCurrency(totalPendingSales || 0); // Fallback to 0
+            // Format the total and update the element's text content
+            salesAmountElement.textContent = formatCurrency(totalPendingSales); // Format and display the total amount
         } else {
             console.error('❌ Sales amount card element not found!');
         }
     } catch (error) {
         console.error('❌ Error updating pending sales card:', error);
+
+        // Handle any errors by resetting the displayed value to zero
         const salesAmountElement = document.getElementById('pendingSalesAmount');
         if (salesAmountElement) {
             salesAmountElement.textContent = '₱0.00'; // Fallback to 0 on error
         }
     }
 };
-
+ 
 
 // 🛡️ Validate User and Gym Ownership
 const validateUser = async () => {
