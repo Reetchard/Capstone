@@ -132,7 +132,7 @@ const fetchDayPassReservations = async () => {
             querySnapshot.forEach((docItem) => {
                 const docId = docItem.id;
                 const data = docItem.data();
-                const { userId, email, date, totalPrice, timestamp, status } = data;
+                const { userId, email, date, totalPrice, status } = data;
 
                 // Create a new table row
                 const row = `<tr>
@@ -140,7 +140,6 @@ const fetchDayPassReservations = async () => {
                     <td>${email}</td>
                     <td>${date}</td>
                     <td>${totalPrice}</td>
-                    <td>${timestamp}</td>
                     <td>${status}</td>
                     <td>
                         <button onclick="updateReservationStatus('${docId}', 'Approved')" class="btn custom-btn-success btn-sm mt-1">

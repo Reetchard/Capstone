@@ -91,7 +91,7 @@ nav h1 img:hover {
 }
 
 .navheader-links a:hover {
-    color: #ffa31a; /* Text color on hover */
+    color: #6EACDA; /* Text color on hover */
     transform: scale(1.1); /* Subtle grow effect on hover */
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Soft shadow on hover */
 }
@@ -138,7 +138,7 @@ nav h1 img:hover {
 }
 
 .sidebar-links .nav-link:hover {
-    background-color: #f1f1f1; /* Light grey background on hover */
+    background-color: #6EACDA; /* Light grey background on hover */
 }
 
 /* Icons */
@@ -400,7 +400,7 @@ input,
 
 /* Hover Effects */
 .table tr:hover td {
-    background-color: #ffa31a; /* Light grey on hover */
+    background-color: #6EACDA; /* Light grey on hover */
     transform: translateY(-2px); /* Slight lift effect */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Shadow on hover */
     color: #333; /* Change font color to dark */
@@ -751,7 +751,7 @@ input,
 
 #profile-picture-mobile:hover {
     transform: scale(1.2);
-    border-color: #ffb84d;
+    border-color: #6EACDA;
 }
 
 #profile-username-mobile {
@@ -763,7 +763,7 @@ input,
 }
 
 #profile-username:hover {
-    color: #ffb84d;
+    color: #6EACDA;
 }
 
 /* Responsive Styles */

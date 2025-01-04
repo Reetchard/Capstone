@@ -88,7 +88,6 @@ nav h1 img:hover {
     border: 1px solid #023b6d;
   }
 
-
 /* Sidebar Styles */
 .sidebar {
     background-color: #ffffff; /* Sidebar background color */
@@ -393,7 +392,7 @@ input,
 
 /* Hover Effects */
 .table tr:hover td {
-    background-color: #ffa31a; /* Light grey on hover */
+    background-color: #6EACDA; /* Light grey on hover */
     transform: translateY(-2px); /* Slight lift effect */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Shadow on hover */
     color: #333; /* Change font color to dark */
