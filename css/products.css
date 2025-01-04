@@ -183,9 +183,10 @@ nav h1 img:hover {
 /* Main Content Container */
 .container {
     padding: 40px;
-    margin-left: 250px;
+    margin-left: 100px;
     margin-top: 50px; 
-    max-width: 1400px;
+    max-width: 1000px;
+    width: 100%;
     margin-right: 10px; 
     background-color: #ffffff; 
     border-radius: 16px; 
