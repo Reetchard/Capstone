@@ -841,40 +841,40 @@ window.ViewProductInfo = async function (productId) {
     
 
     document.getElementById('membershipPlansBtn').addEventListener('click', function() {
+        // Hide any open modals before showing the new one
+        $('.modal').modal('hide'); // Hides all open modals
+    
         const gymProfileName = document.getElementById('modalGymName').innerText;
         showMembershipPlans(gymProfileName);
     });
+    
     // Function to fetch and display the membership plans
     window.showMembershipPlans = async function(gymProfileName) {
         try {
-            // Hide any currently open modals before showing the new one
-            $('.modal').modal('hide');
-    
+            // Clear and prepare the membership plans section
             const membershipPlansSection = document.getElementById('membershipPlansSection');
             membershipPlansSection.innerHTML = ''; 
             
-            // Define an array of colors for the membership cards
             const cardColors = [
                 'linear-gradient(to right, #6094EA, #f9f9f9, #6094EA)',  
                 'linear-gradient(to right, #184E68, #57CA85)', 
                 'linear-gradient(to right, #F02FC2, #6094EA)'
             ];
-        
-            // Fetch membership plans where gymName matches gymProfileName
+    
             const membershipPlansQuery = query(
                 collection(db, 'MembershipPlans'),
                 where('gymName', '==', gymProfileName)
             );
-        
+            
             const membershipPlansSnapshot = await getDocs(membershipPlansQuery);
-        
+    
             if (!membershipPlansSnapshot.empty) {
                 let colorIndex = 0;
                 membershipPlansSnapshot.forEach(doc => {
                     const planData = doc.data();
                     const backgroundColor = cardColors[colorIndex % cardColors.length];
                     colorIndex++;
-        
+    
                     const planCard = `
                         <div class="plan-card card mb-3" style="background: ${backgroundColor};">
                             <div class="card-body">
@@ -885,14 +885,13 @@ window.ViewProductInfo = async function (productId) {
                             </div>
                         </div>
                     `;
-        
-                    // Append the plan card to the membership plans section
+    
                     membershipPlansSection.innerHTML += planCard;
                 });
             } else {
                 membershipPlansSection.innerHTML = '<p>No membership plans found for this gym.</p>';
             }
-        
+    
             // Show the membership plans modal using Bootstrap 5's JavaScript API
             const membershipPlansModal = new bootstrap.Modal(document.getElementById('membershipPlansModal'), { backdrop: 'static', keyboard: false });
             membershipPlansModal.show();
@@ -903,15 +902,19 @@ window.ViewProductInfo = async function (productId) {
     
     window.confirmPlanPurchase = function(planType, price, membershipDays, planId) {
         console.log('confirmPlanPurchase triggered for:', planType, price, planId, membershipDays);
+    
+        // Hide any open modals before showing the confirmation modal
+        $('.modal').modal('hide'); // This hides any open modals
+    
         // Set the selected plan details in the confirmation modal
         document.getElementById('selectedPlanType').innerText = planType;
         document.getElementById('selectedPlanPrice').innerText = price;
     
-        // Show the confirmation modal using Bootstrap 5's JavaScript API with focus disabled
+        // Show the confirmation modal
         const confirmPurchaseModal = new bootstrap.Modal(document.getElementById('confirmPurchaseModal'), {
             backdrop: 'static',
             keyboard: false,
-            focus: false // Disable focus trap to avoid conflicts
+            focus: false
         });
     
         confirmPurchaseModal.show();
@@ -930,6 +933,8 @@ window.ViewProductInfo = async function (productId) {
                 // Call the purchasePlan function to save the transaction
                 await purchasePlan(planId, planType, price, membershipDays, userId, gymName);
                 await displayMembershipNotificationDot();
+    
+                // Hide the confirmation modal before showing the success modal
                 confirmPurchaseModal.hide();
     
                 // Success modal content
@@ -938,10 +943,10 @@ window.ViewProductInfo = async function (productId) {
                         <div class="modal-dialog modal-dialog-centered" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title"> Membership Purchase Successful!</h5>
+                                    <h5 class="modal-title">Membership Purchase Successful!</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                      <span aria-hidden="true">&times;</span>
-                                </button>
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
                                 </div>
                                 <div class="modal-body text-center">
                                     <div class="icon-container">
@@ -968,11 +973,11 @@ window.ViewProductInfo = async function (productId) {
                 // Inject success modal into the body (if not already present)
                 document.body.insertAdjacentHTML('beforeend', successModalContent);
     
-                // Show the success modal with focus disabled
+                // Show the success modal
                 const membershipSuccessModal = new bootstrap.Modal(document.getElementById('membershipSuccessModal'), {
                     backdrop: 'static',
                     keyboard: false,
-                    focus: false // Disable focus trap to prevent recursion
+                    focus: false
                 });
     
                 membershipSuccessModal.show();
@@ -987,13 +992,14 @@ window.ViewProductInfo = async function (productId) {
                 console.error('Error during membership purchase:', error.message);
                 alert('There was an error: ' + error.message);
     
-                confirmPurchaseModal.hide();
-    
+                confirmPurchaseModal.hide(); // Hide the confirmation modal on error
                 const errorModal = new bootstrap.Modal(document.getElementById('errorModal'), { backdrop: 'static', keyboard: false });
                 errorModal.show();
             }
         };
     };
+    
+    
     
 
     async function purchasePlan(planId, planType, price, membershipDays, userId, gymName) {
@@ -2844,15 +2850,16 @@ async function displayTrainerRating() {
             // Fetch trainers when the page loads
     });
 
-
-    window. closeMembershipPlansModal = function() {
-        const modal = document.getElementById('membershipPlansModal');
-        if (modal) {
-            modal.style.display = 'none';
+    window.closeMembershipPlansModal = function() {
+        const modalElement = document.getElementById('membershipPlansModal');
+        if (modalElement) {
+            const modal = new bootstrap.Modal(modalElement);
+            modal.hide();  // Use Bootstrap's modal API to hide the modal
         } else {
             console.error('Membership Plans modal element not found');
         }
-    }
+    };
+    
     
 // Example function to send a message
 window.sendMessage = function () {
