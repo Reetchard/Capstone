@@ -3558,18 +3558,12 @@ document.addEventListener("DOMContentLoaded", async function () {
             const userId = await getCurrentUserId();
 
             try {
-                // Clean price (remove any non-numeric characters, like the peso sign)
                 const cleanPrice = parseFloat(price.replace(/[^0-9.]/g, '')) || 0;
-            
-                // Clean gym price (remove peso sign and any non-numeric characters)
                 const cleanGymPrice = parseFloat(gymprice.replace(/[^\d.-]/g, '')) || 0;
-            
-                // Calculate total price
                 const totalPrice = cleanPrice + cleanGymPrice;
-            
-                // Prepare the notification message with the total price
+
                 const newNotification = {
-                    message: `Day Pass Access for ${gymName} on ${selectedDate} at  ₱${cleanGymPrice.toLocaleString()}. Services:₱${cleanPrice.toLocaleString()}. Total: ₱${totalPrice.toLocaleString()}.`,
+                    message: `Day Pass Access for ${gymName} on ${selectedDate} at  ₱${cleanGymPrice.toLocaleString()}. Services: ₱${cleanPrice.toLocaleString()}. Total: ₱${totalPrice.toLocaleString()}.`,
                     type: 'Day Pass',
                     email: email,
                     status: 'Pending',
@@ -3577,18 +3571,13 @@ document.addEventListener("DOMContentLoaded", async function () {
                     Date: selectedDate,
                     read: false,
                     gymName: gymName,
-                    gymprice: gymprice,  // keep original gymprice for reference
+                    gymprice: cleanGymPrice,
                     notificationId: Date.now().toString(),
                     timestamp: new Date().toISOString(),
                     userId: userId
                 };
-            
-                // Add the notification to Firestore (or wherever you're storing it)
-                await addDoc(collection(db, 'Notifications'), newNotification);
 
-                // Update the notification count on the UI
-                notificationCount++;
-                document.getElementById('notification-count').innerText = notificationCount;
+                await addDoc(collection(db, 'Notifications'), newNotification);
 
                 const newTransaction = {
                     type: 'Day Pass',
@@ -3597,7 +3586,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                     email: email,
                     date: selectedDate,
                     totalPrice: cleanPrice.toFixed(2),
-                    gymprice: gymprice,
+                    gymprice: cleanGymPrice,
                     status: 'Pending',
                     timestamp: new Date().toISOString()
                 };
@@ -3611,7 +3600,8 @@ document.addEventListener("DOMContentLoaded", async function () {
                     html: `
                         <p><strong>Gym Name:</strong> ${gymName}</p>
                         <p><strong>Service Rate:</strong> ₱${cleanPrice.toLocaleString()}</p>
-                        <p><strong>Gym Rate:</strong> ${gymprice.toLocaleString()}</p>                        
+                        <p><strong>Gym Rate:</strong> ₱${cleanGymPrice.toLocaleString()}</p>  
+                        <p><strong>Total Price:</strong> ₱${totalPrice.toLocaleString()}</p>                      
                         <p><strong>Date:</strong> ${selectedDate}</p>
                         <p><strong>Email:</strong> ${email}</p>
                     `,
@@ -3623,12 +3613,8 @@ document.addEventListener("DOMContentLoaded", async function () {
                 console.error('Error creating Day Pass:', error);
             }
         });
-    } else {
-        console.log('DayPassForm element not found.');
     }
 });
-
-
 
 let selectedServices = [];
 let totalServicePrice = 0;
@@ -3648,27 +3634,23 @@ window.handleDayPass = async function () {
         if (!querySnapshot.empty) {
             const gymData = querySnapshot.docs[0].data();
 
-            // Check if gymPriceRate and PriceRate exist, else set default values
-            const gymPriceRate = gymData.gymPriceRate || 0;  // Default to 0 if undefined
+            const gymPriceRate = gymData.gymPriceRate || 0;
             const gymPriceRateFormatted = gymPriceRate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            
-            const PriceRate = gymData.PriceRate || 0;  // Default to 0 if undefined
-            const PriceRateFormatted = PriceRate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-            // Update Price Rate UI elements
-            document.getElementById("dynamicPrice").innerText = `₱${gymPriceRateFormatted}`;
-            document.getElementById("GymPriceRate").innerText = `₱${PriceRateFormatted}`;
-            
-            // Display Services
+            const servicePriceRate = gymData.PriceRate || 0;
+            const servicePriceRateFormatted = servicePriceRate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+            document.getElementById("GymPriceRate").innerText = `₱${gymPriceRateFormatted}`;
+            document.getElementById("dynamicPrice").innerText = `₱${servicePriceRateFormatted}`;
+            updateTotalPrice(); // Update total price dynamically
+
             displayAvailableServices(gymData.gymServices);
 
-            // Initialize Flatpickr for Calendar Date
             flatpickr("#calendarDate", {
                 dateFormat: "Y-m-d",
                 minDate: "today"
             });
 
-            // Bootstrap 5 way to show modal
             const dayPassModal = new bootstrap.Modal(document.getElementById('dayPassModal'));
             dayPassModal.show();
         } else {
@@ -3679,15 +3661,10 @@ window.handleDayPass = async function () {
     }
 };
 
-
-
-
-// 📝 Display Services in Day Pass Modal
 function displayAvailableServices(services = []) {
     const servicesContainer = document.getElementById('availableServicesList');
-    servicesContainer.innerHTML = ''; // Clear previous services
+    servicesContainer.innerHTML = '';
 
-    // Filter out invalid or empty services
     const validServices = services.filter(service => service && service.trim() !== '');
 
     if (validServices.length === 0) {
@@ -3708,13 +3685,11 @@ function displayAvailableServices(services = []) {
         servicesContainer.appendChild(serviceItem);
     });
 
-    // Attach event listener after rendering services
     document.querySelectorAll('.service-checkbox').forEach(checkbox => {
         checkbox.addEventListener('change', handleServiceSelection);
     });
 }
 
-// 📝 Handle Checkbox Selection and Update Total Price
 function handleServiceSelection() {
     selectedServices = [];
     totalServicePrice = 0;
@@ -3725,39 +3700,13 @@ function handleServiceSelection() {
     });
 
     document.getElementById('dynamicPrice').innerText = `₱${totalServicePrice.toFixed(2)}`;
+    updateTotalPrice(); // Update total price dynamically
 }
 
-// 📝 Remove Service from the List
-function removeService(serviceName) {
-    const checkboxes = document.querySelectorAll('.service-checkbox');
-    checkboxes.forEach(checkbox => {
-        if (checkbox.value === serviceName) {
-            checkbox.checked = false;
-            checkbox.closest('div').remove();
-        }
-    });
-    handleServiceSelection();
+function updateTotalPrice() {
+    const serviceRate = parseFloat(document.getElementById('dynamicPrice').innerText.replace(/[^\d.-]/g, '')) || 0;
+    const gymRate = parseFloat(document.getElementById('GymPriceRate').innerText.replace(/[^\d.-]/g, '')) || 0;
+    const totalPrice = serviceRate + gymRate;
+
+    document.getElementById('TotalPrice').innerText = `₱${totalPrice.toFixed(2)}`;
 }
-
-// 📝 Handle Day Pass Form Submission
-document.getElementById("dayPassForm").addEventListener("submit", async function (e) {
-    e.preventDefault();
-
-    const calendarDate = document.getElementById('calendarDate').value.trim();
-    const email = document.getElementById('email').value.trim();
-
-    try {
-        await addDoc(collection(db, 'DayPasses'), {
-            calendarDate,
-            email,
-            selectedServices,
-            totalPrice: totalServicePrice.toFixed(2),
-            status: 'Pending'
-        });
-
-        $('#dayPassModal').modal('hide');
-        selectedServices = [];
-        totalServicePrice = 0;
-    } catch (error) {
-    }
-});
