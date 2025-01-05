@@ -97,97 +97,158 @@ async function getNextUserId(role) {
         throw new Error('Failed to generate new ID.');
     }
     }
-    async function signUpWithEmail(username, email, password, role, errorMessageElement, successMessageElement) {
-        clearMessages(errorMessageElement, successMessageElement);
-    
-        // Normalize username to lowercase for validation
-        const normalizedUsername = username.toLowerCase();
-    
-        let collectionName;
-    
-        if (normalizedUsername === 'admin') {
-            collectionName = 'Admin';
-            role = 'admin'; // Force role to 'admin' for consistency
-        } else {
-            const validRoles = ['gymowner', 'trainer', 'user'];
-    
-            if (!validRoles.includes(role.toLowerCase())) {
-                showMessage(errorMessageElement, '🚫 Uh-oh! That role doesn’t exist in our system. Please select "Gym Owner," "Trainer," or "User" and try again.', true);
-                return;
-            }
-    
-            collectionName = role.toLowerCase() === 'gymowner'
-                ? 'GymOwner'
-                : role.toLowerCase() === 'trainer'
-                ? 'Trainer'
-                : 'Users';
-        }
-    
-        if (!isValidEmail(email)) {
-            showMessage(errorMessageElement, '📧 Hold on! That email doesn’t seem right. Double-check it and give it another go!', true);
-            return;
-        }
-    
-        if (password.length < 6) {
-            showMessage(errorMessageElement, '🔑 Password’s too short! You need at least 6 characters for a strong start. Let’s fix that and try again!', true);
-            return;
-        }
-    
-        try {
-            // Check if the email already exists
-            const emailQuerySnapshot = await getDocs(query(collection(db, collectionName), where('email', '==', email)));
-            if (!emailQuerySnapshot.empty) {
-                showMessage(errorMessageElement, '🚫 The email is already registered. Please use a different email or log in.', true);
-                return;
-            }
-    
-            // Check if the username already exists
-            const usernameQuerySnapshot = await getDocs(query(collection(db, collectionName), where('username', '==', username)));
-            if (!usernameQuerySnapshot.empty) {
-                showMessage(errorMessageElement, '🚫 The username is already taken. Please choose a different username.', true);
-                return;
-            }
-    
-            let userId;
-            if (normalizedUsername !== 'admin') {
-                userId = await getNextUserId(role); // Generate user ID for non-admin accounts
-            }
-    
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    
-            await setDoc(doc(db, collectionName, userCredential.user.uid), {
-                userId: normalizedUsername === 'admin' ? 'N/A' : userId, // No ID generation for admin
-                username,
-                email,
-                password,
-                role,
-                status: role === 'admin' ? 'Active' : 'Under review' // Admin accounts are immediately active
+// Function to generate a sequential notification ID using Firestore counter
+async function generateNotificationId() {
+    const counterDocRef = doc(db, 'Settings', 'notificationCounter');
+
+    try {
+        // Fetch the current counter value from Firestore
+        const counterDoc = await getDoc(counterDocRef);
+        
+        if (counterDoc.exists()) {
+            // Get the current counter value
+            let counter = counterDoc.data().counter;
+
+            // Increment the counter
+            const newNotificationId = counter;
+
+            // Update the counter in Firestore (increment by 1 for the next notification)
+            await updateDoc(counterDocRef, {
+                counter: counter + 1,
             });
-    
-            showMessage(successMessageElement, `🎉 Account created successfully for ${username}! You will be redirected shortly.`, false);
-    
-            clearSignUpFields();
-    
-            setTimeout(() => {
-                redirectUser(role);
-            }, 3000);
-    
+
+            return newNotificationId;
+        } else {
+            // If the document doesn't exist, create it with a counter value of 1
+            await setDoc(counterDocRef, { counter: 2 });  // Set counter to 2 for the next notification
+            return 1;  // The first notification ID is 1
+        }
+    } catch (error) {
+        console.error("Error generating notification ID:", error);
+        return null; // Return null in case of error
+    }
+}
+
+// Main function for sign-up, creating a new user, and generating a notification
+async function signUpWithEmail(username, email, password, role, errorMessageElement, successMessageElement) {
+    clearMessages(errorMessageElement, successMessageElement);
+
+    // Normalize username to lowercase for validation
+    const normalizedUsername = username.toLowerCase();
+
+    let collectionName;
+
+    if (normalizedUsername === 'admin') {
+        collectionName = 'Admin';
+        role = 'admin'; // Force role to 'admin' for consistency
+    } else {
+        const validRoles = ['gymowner', 'trainer', 'user'];
+
+        if (!validRoles.includes(role.toLowerCase())) {
+            showMessage(errorMessageElement, '🚫 Uh-oh! That role doesn’t exist in our system. Please select "Gym Owner," "Trainer," or "User" and try again.', true);
+            return;
+        }
+
+        collectionName = role.toLowerCase() === 'gymowner'
+            ? 'GymOwner'
+            : role.toLowerCase() === 'trainer'
+            ? 'Trainer'
+            : 'Users';
+    }
+
+    if (!isValidEmail(email)) {
+        showMessage(errorMessageElement, '📧 Hold on! That email doesn’t seem right. Double-check it and give it another go!', true);
+        return;
+    }
+
+    if (password.length < 6) {
+        showMessage(errorMessageElement, '🔑 Password’s too short! You need at least 6 characters for a strong start. Let’s fix that and try again!', true);
+        return;
+    }
+
+    try {
+        // Check if the email already exists
+        const emailQuerySnapshot = await getDocs(query(collection(db, collectionName), where('email', '==', email)));
+        if (!emailQuerySnapshot.empty) {
+            showMessage(errorMessageElement, '🚫 The email is already registered. Please use a different email or log in.', true);
+            return;
+        }
+
+        // Check if the username already exists
+        const usernameQuerySnapshot = await getDocs(query(collection(db, collectionName), where('username', '==', username)));
+        if (!usernameQuerySnapshot.empty) {
+            showMessage(errorMessageElement, '🚫 The username is already taken. Please choose a different username.', true);
+            return;
+        }
+
+        let userId;
+        if (normalizedUsername !== 'admin') {
+            userId = await getNextUserId(role); // Generate user ID for non-admin accounts
+        }
+
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+        await setDoc(doc(db, collectionName, userCredential.user.uid), {
+            userId: normalizedUsername === 'admin' ? 'N/A' : userId, // No ID generation for admin
+            username,
+            email,
+            password,
+            role,
+            status: role === 'admin' ? 'Active' : 'Under review' // Admin accounts are immediately active
+        });
+
+        showMessage(successMessageElement, `🎉 Account created successfully for ${username}! You will be redirected shortly.`, false);
+
+        clearSignUpFields();
+
+        setTimeout(() => {
+            redirectUser(role);
+        }, 3000);
+
+        // Create and save notification in AccountNotifications collection
+        await saveNotificationToAccountNotification(userCredential.user.uid, username);
+
+    } catch (error) {
+        console.error('Error during signup:', error);
+
+        let errorMsg;
+        switch (error.code) {
+            case 'auth/email-already-in-use':
+                errorMsg = `🚫 Uh-oh! The email you entered is already in use. Log in instead?`;
+                break;
+            default:
+                errorMsg = `⚠️ Yikes! Something went wrong: ${error.message}. Don’t worry, we’ll help you fix it!`;
+                break;
+        }
+
+        showMessage(errorMessageElement, errorMsg, true);
+    }
+}
+
+// Function to create and save notification to AccountNotifications collection
+async function saveNotificationToAccountNotification(userId, username) {
+    const notificationId = await generateNotificationId();  // Get a sequential notification ID
+
+    if (notificationId !== null) {
+        // Prepare the notification data
+        const notificationData = {
+            notificationId: notificationId,
+            message: `A new user "${username}" is created and approval is needed.`,
+            userId: userId,  // Include the user ID for reference
+            timestamp: new Date().toISOString(),
+            read: 'Unread'  // 'Unread' means the approval is still required
+        };
+
+        try {
+            // Save the notification to the Firestore AccountNotifications collection
+            await setDoc(doc(db, 'AccountNotifications', `notif_${notificationId}`), notificationData);
+            console.log('Notification saved successfully.');
         } catch (error) {
-            console.error('Error during signup:', error);
-    
-            let errorMsg;
-            switch (error.code) {
-                case 'auth/email-already-in-use':
-                    errorMsg = `🚫 Uh-oh! The email you entered is already in use.Log in instead?`;
-                    break;
-                default:
-                    errorMsg = `⚠️ Yikes! Something went wrong: ${error.message}. Don’t worry, we’ll help you fix it!`;
-                    break;
-            }
-    
-            showMessage(errorMessageElement, errorMsg, true);
+            console.error('Error saving notification:', error);
         }
     }
+}
+
     
 
 

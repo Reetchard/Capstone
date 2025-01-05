@@ -215,7 +215,7 @@ function formatNumber(value) {
         currency: 'PHP',
         minimumFractionDigits: 2
     });
-}
+}   
 
 
 // ✅ Clear Form Button

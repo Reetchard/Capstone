@@ -1181,7 +1181,6 @@ document.getElementById("addServiceButton").addEventListener("click", async () =
     }
 });
 
-// 📌 Add or Update Promotion
 document.getElementById('manageForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -1196,6 +1195,13 @@ document.getElementById('manageForm').addEventListener('submit', async (e) => {
     }
 
     try {
+        // Validate if promotion with the same title and description already exists
+        const isValid = await validatePromotion(title, description, gymName);
+        if (!isValid) {
+            showToast('Promotion with the same title and description already exists.', 'danger');
+            return; // Don't proceed if promotion already exists
+        }
+
         let promotionData = {
             title,
             description,
@@ -1233,6 +1239,51 @@ document.getElementById('manageForm').addEventListener('submit', async (e) => {
         showToast('Failed to save promotion. Please try again.', 'danger');
     }
 });
+
+/// Function to check if a promotion with the same title, description, and gymName already exists
+async function validatePromotion(title, description, gymName) {
+    try {
+        // Get Firestore instance
+        const db = getFirestore();
+
+        // Query Firestore Promotions collection to check for matching title, description, and gymName
+        const promotionsRef = collection(db, 'Promotions');
+        const q = query(
+            promotionsRef,
+            where('title', '==', title),
+            where('description', '==', description),
+            where('gymName', '==', gymName)
+        );
+
+        const promotionsSnapshot = await getDocs(q);
+
+        if (!promotionsSnapshot.empty) {
+            console.log("Promotion with this title, description, and gymName already exists.");
+            // Show SweetAlert error message
+            Swal.fire({
+                icon: 'error',
+                title: 'Duplicate Promotion',
+                text: 'Promotion with this title, description, and gym name already exists.',
+                confirmButtonText: 'OK'
+            });
+            return false;  // Promotion already exists
+        }
+        return true;  // No promotion with the same title, description, and gymName
+    } catch (error) {
+        console.error("Error checking promotion title, description, and gymName:", error);
+        // Show SweetAlert error message for any unexpected error
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An error occurred while checking promotion data. Please try again.',
+            confirmButtonText: 'OK'
+        });
+        return false;  // If there's an error, assume the title, description, and gymName are not valid
+    }
+}
+
+
+
 function addPromotionRow(id, promotionData) {
     const promotionsTable = document.getElementById('promotionsTable');
     const row = document.createElement('tr');

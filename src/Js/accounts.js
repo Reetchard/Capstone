@@ -308,7 +308,6 @@ function generateTableRow(account) {
         </tr>
     `;
 }
-
 window.approveAccount = async function (username, role, buttonElement) {
     let collectionName;
     if (role === 'user') {
@@ -347,7 +346,7 @@ window.approveAccount = async function (username, role, buttonElement) {
         await updateDoc(docRef, { status: 'Approved' });
         console.log(`Account with username ${username} in collection ${collectionName} approved.`);
 
-        // Update the DOM table (status and button)
+        // Directly update the table row's status in the DOM
         const statusCell = document.getElementById(`status-${docSnap.id}`);
         if (statusCell) {
             statusCell.textContent = 'Approved';  // Update the status in the table
@@ -359,11 +358,15 @@ window.approveAccount = async function (username, role, buttonElement) {
             buttonElement.textContent = 'Approved'; // Optionally change button text
         }
 
+        // No need to refresh the entire table; only update this specific row
     } catch (error) {
         console.error("Error updating account status:", error);
         alert("Failed to approve the account. Please try again.");
     }
 };
+
+
+
 
 
 // Add event listener for dynamically handling button clicks
@@ -382,7 +385,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 // Firestore validation (similar to the previous example)
-function validateUser(accountId, email, username) {
+window. validateUser = function(accountId, email, username) {
     return new Promise((resolve, reject) => {
         const db = firebase.firestore();
         const userRef = db.collection('Users');

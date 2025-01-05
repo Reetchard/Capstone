@@ -227,21 +227,34 @@ const loadPendingBookings = async () => {
 };
 
 const loadPendingMemberships = async () => {
+    // Fetch the transactions and filter out the Approved and Accepted ones
     const totalPendingMemberships = await loadPendingData(
         'Transactions',
         'pendingMembershipsTableBody',
-        (data) => `
-            <td>${data.userId || 'N/A'}</td>
-            <td>${data.planType || 'N/A'}</td>
-             <td>${data.price || 'N/A'}</td>
-            <td>${data.membershipDays || 'N/A'} days</td>
-            <td>${formatTimestamp(data.purchaseDate)}</td>
-            <td>${data.status || 'N/A'}</td>
-        `,
+        (data) => {
+            // Filter out transactions with "Approved" or "Accepted" status
+            if (data.status === 'Approved' || data.status === 'Accepted') {
+                return ''; // Return empty string to skip this row
+            }
+
+            // Otherwise, display the row for pending membership
+            return `
+                <td>${data.userId || 'N/A'}</td>
+                <td>${data.planType || 'N/A'}</td>
+                <td>${data.price || 'N/A'}</td>
+                <td>${data.membershipDays || 'N/A'} days</td>
+                <td>${formatTimestamp(data.purchaseDate)}</td>
+                <td>${data.status || 'N/A'}</td>
+            `;
+        },
         'membership'
     );
+
+    // Now totalPendingMemberships will not include "Approved" or "Accepted" transactions
     document.getElementById('memberships-tab').innerHTML = `Memberships (${formatCurrency(totalPendingMemberships)})`;
 };
+
+
 
 const loadPendingDayPasses = async () => {
     const totalPendingDayPasses = await loadPendingData(
@@ -431,7 +444,67 @@ async function loadSalesDetails(gymName) {
         alert("Failed to load sales details.");
     }
 }
+async function loadInventoryDetails() {
+    console.log('Loading inventory details...');
 
+    // Fetch the currently logged-in user data (e.g., user from Firebase Authentication)
+    const user = auth.currentUser;
+    if (!user) {
+        console.log('No user is logged in.');
+        return;
+    }
+
+    const userId = user.uid;  // Get user ID
+
+    // Fetch gymName from the GymOwner collection where the userId matches
+    try {
+        const gymOwnerDocRef = doc(db, 'GymOwner', userId);
+        const gymOwnerSnapshot = await getDoc(gymOwnerDocRef);
+
+        if (!gymOwnerSnapshot.exists()) {
+            console.log('No gym found for this user.');
+            return;
+        }
+
+        const gymName = gymOwnerSnapshot.data().gymName;
+        console.log('Gym Name:', gymName);  // Log gym name for debugging
+
+        if (!gymName) {
+            console.log('Gym name is not found.');
+            return;
+        }
+
+        // Fetch inventory items from the Products collection where gymName matches the logged-in user's gym
+        const productsQuery = query(collection(db, 'Products'), where('gymName', '==', gymName));
+        const productsSnapshot = await getDocs(productsQuery);
+
+        if (productsSnapshot.empty) {
+            console.log('No products found for this gym.');
+            return;
+        }
+
+        // Process the fetched data
+        let totalItems = 0;
+        productsSnapshot.forEach(doc => {
+            const data = doc.data();
+            console.log(data); // Log individual product details (for debugging)
+
+            // Assuming the 'quantity' field exists in the product document
+            totalItems += data.quantity || 0; // Sum up the quantity of all products
+        });
+
+        // Update the total inventory count in the UI
+        const totalInventory = document.getElementById('totalInventory');
+        totalInventory.textContent = `${totalItems} Items`;  // Display the total inventory count
+
+    } catch (error) {
+        console.error('Error fetching gym name or inventory data:', error);
+    }
+}
+
+// Add event listener to the inventory card
+const inventoryCard = document.getElementById('inventoryOverviewCard');
+inventoryCard.addEventListener('click', loadInventoryDetails);
 async function getCurrentGymOwnerDetails() {
     try {
         const currentUser = auth.currentUser;

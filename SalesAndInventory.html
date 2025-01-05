@@ -812,6 +812,29 @@
             </div>
         </div>
     </div>
+    <!-- Modal for Product Details -->
+<div class="modal fade" id="productDetailsModal" tabindex="-1" aria-labelledby="productDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="productDetailsModalLabel">Product Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Product Image -->
+                <img id="productImage" src="" alt="Product Image" class="img-fluid mb-3" style="max-height: 200px;">
+                
+                <!-- Product Details -->
+                <p><strong>Quantity:</strong> <span id="productQuantity">N/A</span></p>
+                <p><strong>Price:</strong> <span id="productPrice">₱0.00</span></p>
+                <p><strong>Date Added:</strong> <span id="productDateAdded">N/A</span></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
         <!-- Firebase Script -->
         <script type="module" src="src/Js/salesAndInventory.js"></script>

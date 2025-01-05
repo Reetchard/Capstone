@@ -3540,6 +3540,8 @@ document.addEventListener("DOMContentLoaded", async function () {
     } else {
     }
 });
+
+
 document.addEventListener("DOMContentLoaded", async function () {
     const dayPassForm = document.getElementById("dayPassForm");
     
@@ -3646,9 +3648,17 @@ window.handleDayPass = async function () {
         if (!querySnapshot.empty) {
             const gymData = querySnapshot.docs[0].data();
 
-            // Update Price Rate
-            document.getElementById("dynamicPrice").innerText =  `₱${gymData.gymPriceRate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-            document.getElementById("GymPriceRate").innerText = `₱${gymData.PriceRate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            // Check if gymPriceRate and PriceRate exist, else set default values
+            const gymPriceRate = gymData.gymPriceRate || 0;  // Default to 0 if undefined
+            const gymPriceRateFormatted = gymPriceRate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            
+            const PriceRate = gymData.PriceRate || 0;  // Default to 0 if undefined
+            const PriceRateFormatted = PriceRate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+            // Update Price Rate UI elements
+            document.getElementById("dynamicPrice").innerText = `₱${gymPriceRateFormatted}`;
+            document.getElementById("GymPriceRate").innerText = `₱${PriceRateFormatted}`;
+            
             // Display Services
             displayAvailableServices(gymData.gymServices);
 
@@ -3658,13 +3668,18 @@ window.handleDayPass = async function () {
                 minDate: "today"
             });
 
-            $('#dayPassModal').modal('show');
+            // Bootstrap 5 way to show modal
+            const dayPassModal = new bootstrap.Modal(document.getElementById('dayPassModal'));
+            dayPassModal.show();
         } else {
             alert("Gym details not found. Please try again.");
         }
     } catch (error) {
+        console.error('Error handling Day Pass modal:', error);
     }
 };
+
+
 
 
 // 📝 Display Services in Day Pass Modal
