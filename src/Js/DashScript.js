@@ -641,6 +641,26 @@ window.ViewProductInfo = async function (productId) {
             // Handle confirmation action
             document.getElementById('confirmPurchaseBtn').onclick = async function () {
                 try {
+
+                        // Check if user already has a pending or active transaction for the same product
+                    const existingTransactionQuery = query(
+                        collection(db, 'Transactions'),
+                        where('userId', '==', userId),
+                        where('status', 'in', ['Pending', 'Active'])  // Check for active or pending transactions
+                    );
+                    const existingTransactionSnapshot = await getDocs(existingTransactionQuery);
+            
+                    if (!existingTransactionSnapshot.empty) {
+                        // If there's already an active or pending transaction for this product, prevent purchase
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Purchase Conflict',
+                            text: `You already have a pending or active transaction for ${productName}. Please wait for it to complete before purchasing again.`,
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#3085d6'
+                        });
+                        return; // Stop further processing
+                    }
                     // Simulate purchase logic (e.g., update stock, etc.)
                     notificationCount++;
     
@@ -719,8 +739,8 @@ window.ViewProductInfo = async function (productId) {
         try {
             // Simulate purchase logic (e.g., update stock, etc.)
             notificationCount++; // Increment the notification count
-            // Ensure productId is set
             document.getElementById('notification-count').innerText = notificationCount;
+    
             const productId = document.getElementById('modalProductPhoto').dataset.productId;
             if (!productId) {
                 console.error('Product ID is undefined.');
@@ -745,6 +765,34 @@ window.ViewProductInfo = async function (productId) {
                     text: 'Quantity or price is invalid. Please try again.',
                 });
                 return;
+            }
+    
+            // Ensure user is authenticated and get userId
+            const authUser = auth.currentUser;
+            if (!authUser) {
+                throw new Error("No authenticated user found.");
+            }
+            
+            const userId = authUser.uid;
+    
+            // Check if user already has a pending or active transaction for the same product
+            const existingTransactionQuery = query(
+                collection(db, 'Transactions'),
+                where('userId', '==', userId),
+                where('status', 'in', ['Pending', 'Active'])  // Check for active or pending transactions
+            );
+            const existingTransactionSnapshot = await getDocs(existingTransactionQuery);
+    
+            if (!existingTransactionSnapshot.empty) {
+                // If there's already an active or pending transaction for this product, prevent purchase
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Purchase Conflict',
+                    text: `You already have a pending or active transaction for ${productName}. Please wait for it to complete before purchasing again.`,
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#3085d6'
+                });
+                return; // Stop further processing
             }
     
             // Fetch the product document from Firestore
@@ -777,7 +825,7 @@ window.ViewProductInfo = async function (productId) {
             const updatedStock = availableStock - quantityPurchased;
             await updateDoc(productDocRef, { quantity: updatedStock });
             document.getElementById('notification-count').innerText = notificationCount;
-
+    
             // Add notification
             const newNotification = {
                 message: `You purchased ${quantityPurchased} of ${productName} for ₱${(productPrice * quantityPurchased).toFixed(2)}.`,
@@ -798,17 +846,16 @@ window.ViewProductInfo = async function (productId) {
             // Save the notification to Firestore
             await addDoc(collection(db, 'Notifications'), newNotification);
     
-             // Save transaction to 'Transactions' collection
-             const newTransaction = {
+            // Save transaction to 'Transactions' collection
+            const newTransaction = {
                 type: 'Products',
                 userId: userId, // Storing userId of the customer/user
                 productName: productName,
                 quantity: quantityPurchased,
-                totalPrice: totalPrice,
-                status : 'Pending',           
+                totalPrice: productPrice * quantityPurchased,
+                status: 'Pending',
                 gymName: gymName, // Storing gymName from GymProfile card
                 timestamp: new Date().toISOString() // Timestamp of the transaction
-
             };
     
             console.log('Transaction:', newTransaction);
@@ -822,7 +869,7 @@ window.ViewProductInfo = async function (productId) {
             // Show success modal
             document.getElementById('successProductName').innerText = productName;
             document.getElementById('successQuantity').innerText = quantityPurchased;
-            document.getElementById('successTotalPrice').innerText = totalPrice;
+            document.getElementById('successTotalPrice').innerText = (productPrice * quantityPurchased).toFixed(2);
             $('#successModal').modal('show');
     
             // Update the notification list (assuming this function exists)
@@ -838,6 +885,7 @@ window.ViewProductInfo = async function (productId) {
             });
         }
     };
+    
     
 
     document.getElementById('membershipPlansBtn').addEventListener('click', function() {
@@ -930,6 +978,26 @@ window.ViewProductInfo = async function (productId) {
     
                 console.log('Proceeding with purchase for:', planType, price, membershipDays, planId, userId, gymName);
     
+                // Check if the user already has an active or pending membership plan
+                const existingMembershipQuery = query(
+                    collection(db, 'Transactions'),
+                    where('userId', '==', userId),
+                    where('status', 'in', ['Pending Owner Approval', 'Active']) // Check for active or pending memberships
+                );
+                const existingMembershipSnapshot = await getDocs(existingMembershipQuery);
+    
+                if (!existingMembershipSnapshot.empty) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Membership Already Active or Pending',
+                        text: 'You already have an active or pending membership plan.',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#3085d6'
+                    });
+                    confirmPurchaseModal.hide(); // Hide the confirmation modal
+                    return; // Stop the purchase process
+                }
+    
                 // Call the purchasePlan function to save the transaction
                 await purchasePlan(planId, planType, price, membershipDays, userId, gymName);
                 await displayMembershipNotificationDot();
@@ -990,7 +1058,15 @@ window.ViewProductInfo = async function (productId) {
     
             } catch (error) {
                 console.error('Error during membership purchase:', error.message);
-                alert('There was an error: ' + error.message);
+                
+                // Show error message using SweetAlert
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'There was an error processing your request.',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#3085d6'
+                });
     
                 confirmPurchaseModal.hide(); // Hide the confirmation modal on error
                 const errorModal = new bootstrap.Modal(document.getElementById('errorModal'), { backdrop: 'static', keyboard: false });
@@ -998,6 +1074,7 @@ window.ViewProductInfo = async function (productId) {
             }
         };
     };
+    
     
     
     
@@ -1587,7 +1664,6 @@ window.ViewProductInfo = async function (productId) {
             } else {
                 console.error("Form inputs not found.");
             }
-            
     
         } catch (error) {
             console.error("Error fetching user details:", error);
@@ -1624,6 +1700,28 @@ window.ViewProductInfo = async function (productId) {
                         return;
                     }
     
+                    // Check if the user already has a booking for the same trainer and date
+                    const existingBookingQuery = query(
+                        collection(db, 'Reservations'),
+                        where('userId', '==', userId),
+                        where('trainerId', '==', trainerId),
+                        where('bookingDate', '==', bookingDate),
+                        where('status', 'in', ['Pending', 'Active'])  // Check for active or pending bookings
+                    );
+                    const existingBookingSnapshot = await getDocs(existingBookingQuery);
+    
+                    if (!existingBookingSnapshot.empty) {
+                        // If there's already a booking for this trainer on this date, prevent booking
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Booking Conflict',
+                            text: `You already have an active or pending booking with ${trainerData?.username || "this trainer"} on ${bookingDate}. Please choose a different date.`,
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#3085d6'
+                        });
+                        return; // Stop further processing
+                    }
+    
                     $('#bookingTrainerModal').modal('hide');
     
                     const reservationData = {
@@ -1636,6 +1734,7 @@ window.ViewProductInfo = async function (productId) {
                         bookingDate: bookingDate,
                         email: email,
                         message: message,
+                        status: 'Pending',
                         timestamp: new Date().toISOString()
                     };
     
@@ -1668,7 +1767,6 @@ window.ViewProductInfo = async function (productId) {
                     };
                     await addDoc(collection(db, 'TrainerNotif'), memberNotification);
                     console.log('Trainer notification saved successfully.');
-                    
     
                     showToast("success", `Successfully booked a session with ${trainerData?.username || "Unknown Trainer"}!`);
     
@@ -1684,6 +1782,7 @@ window.ViewProductInfo = async function (productId) {
     
         $('#bookingConfirmationModal').modal('show');
     };
+    
     
     
     
@@ -2537,7 +2636,7 @@ async function displayTrainerRating() {
                         const price = parseFloat(notification.price) || 0;  // Default to 0 if not a valid number
                     
                         // Remove peso sign and any other non-numeric characters from gymprice, then parse it to float
-                        const gymPrice = parseFloat(notification.gymprice.replace(/[^\d.-]/g, '')) || 0;  // Remove non-numeric characters
+                        const gymPrice = parseFloat(String(notification.gymprice).replace(/[^\d.-]/g, '')) || 0;  // Ensure it's a string before applying replace
                     
                         // Log values for debugging
                         console.log("Price: ", price);
@@ -3541,10 +3640,9 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 });
 
-
 document.addEventListener("DOMContentLoaded", async function () {
     const dayPassForm = document.getElementById("dayPassForm");
-    
+
     if (dayPassForm) {
         dayPassForm.addEventListener("submit", async function (e) {
             e.preventDefault();
@@ -3558,12 +3656,34 @@ document.addEventListener("DOMContentLoaded", async function () {
             const userId = await getCurrentUserId();
 
             try {
+                // Check if the user already has an active or pending DayPass for the same date
+                const existingDayPassQuery = query(
+                    collection(db, 'Transactions'),
+                    where('userId', '==', userId),
+                    where('type', '==', 'Day Pass'),
+                    where('status', 'in', ['Pending', 'Active']),
+                    where('date', '==', selectedDate)  // Check for the same date
+                );
+                const existingDayPassSnapshot = await getDocs(existingDayPassQuery);
+
+                if (!existingDayPassSnapshot.empty) {
+                    // If there's already a pending or active DayPass for the same date, prevent new application
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Unable to Apply for DayPass',
+                        text: `You already have a DayPass application for ${selectedDate}. Please wait for approval before applying again.`,
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#3085d6'
+                    });
+                    return; // Stop the process
+                }
+
                 const cleanPrice = parseFloat(price.replace(/[^0-9.]/g, '')) || 0;
                 const cleanGymPrice = parseFloat(gymprice.replace(/[^\d.-]/g, '')) || 0;
                 const totalPrice = cleanPrice + cleanGymPrice;
 
                 const newNotification = {
-                    message: `Day Pass Access for ${gymName} on ${selectedDate} at  ₱${cleanGymPrice.toLocaleString()}. Services: ₱${cleanPrice.toLocaleString()}. Total: ₱${totalPrice.toLocaleString()}.`,
+                    message: `Day Pass Access for ${gymName} on ${selectedDate} at ₱${cleanGymPrice.toLocaleString()}. Services: ₱${cleanPrice.toLocaleString()}. Total: ₱${totalPrice.toLocaleString()}.`,
                     type: 'Day Pass',
                     email: email,
                     status: 'Pending',
@@ -3601,7 +3721,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                         <p><strong>Gym Name:</strong> ${gymName}</p>
                         <p><strong>Service Rate:</strong> ₱${cleanPrice.toLocaleString()}</p>
                         <p><strong>Gym Rate:</strong> ₱${cleanGymPrice.toLocaleString()}</p>  
-                        <p><strong>Total Price:</strong> ₱${totalPrice.toLocaleString()}</p>                      
+                        <p><strong>Total Price:</strong> ₱${totalPrice.toLocaleString()}</p>                       
                         <p><strong>Date:</strong> ${selectedDate}</p>
                         <p><strong>Email:</strong> ${email}</p>
                     `,
@@ -3615,6 +3735,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         });
     }
 });
+
 
 let selectedServices = [];
 let totalServicePrice = 0;
