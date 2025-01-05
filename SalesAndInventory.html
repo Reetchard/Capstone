@@ -812,32 +812,31 @@
             </div>
         </div>
     </div>
-<!-- Inventory Modal -->
+<!-- Modal for Inventory Details -->
 <div class="modal fade" id="inventoryModal" tabindex="-1" aria-labelledby="inventoryModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="inventoryModalLabel">Product Details</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <!-- Product Image -->
-                <div id="productImageWrapper" class="text-center mb-3">
-                    <img id="productImage" src="" alt="Product Image" class="img-fluid" />
-                </div>
-
-                <!-- Product Name -->
-                <h5 id="productName" class="text-center mb-3">Product Name</h5>
-
-                <!-- Product Description -->
-                <p id="productDescription" class="text-muted">Description of the product...</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <table class="table table-bordered table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Photo</th>
+                            <th>Product Name</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventoryTableBody"></tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
+
 
 
         <!-- Firebase Script -->
