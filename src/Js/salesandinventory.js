@@ -209,51 +209,107 @@ const loadPendingSales = async () => {
     }
 };
 
-
 const loadPendingBookings = async () => {
-    const totalPendingBookings = await loadPendingData(
-        'Notifications',  // Change the collection name to 'Notifications'
-        'pendingBookingsTableBody',
-        (data) => `
-            <td>${data.userId || 'N/A'}</td>
-            <td>${data.username || 'N/A'}</td>
-            <td>${formatTimestamp(data.bookingDate)}</td>
-            <td>${data.price || 'N/A'}</td>            
-            <td>${data.status || 'N/A'}</td>
-        `,
-        'Booking_trainer'
-    );
-    document.getElementById('bookings-tab').innerHTML = `Trainer Bookings (${formatCurrency(totalPendingBookings)})`;
+    try {
+        const totalPendingBookings = await loadPendingData(
+            'Notifications',  // Change the collection name to 'Notifications'
+            'pendingBookingsTableBody',
+            (data) => {
+                // Only process transactions with 'Pending' status, ignore 'Accepted'
+                if (data.status !== 'Pending') {
+                    return ''; // Skip this row if status is not 'Pending'
+                }
+
+                // Display data for pending bookings
+                return `
+                    <td>${data.userId || 'N/A'}</td>
+                    <td>${data.username || 'N/A'}</td>
+                    <td>${formatTimestamp(data.bookingDate)}</td>
+                    <td>${formatCurrency(parseFloat(data.price.replace(/[^\d.-]/g, '')) || 0)}</td>
+                    <td>${data.status || 'N/A'}</td>
+                `;
+            },
+            'Booking_trainer'  // Transaction type
+        );
+
+        // Ensure totalPendingBookings is an array before processing
+        const bookingsArray = Array.isArray(totalPendingBookings) ? totalPendingBookings : [totalPendingBookings];
+
+        // Sum the total price of pending bookings
+        const totalAmount = bookingsArray.reduce((sum, price) => sum + (isNaN(price) ? 0 : price), 0);
+
+        // Update the bookings tab with the total pending amount
+        const bookingsTab = document.getElementById('bookings-tab');
+        if (bookingsTab) {
+            bookingsTab.innerHTML = `Trainer Bookings (${formatCurrency(totalAmount)})`;
+        } else {
+            console.error("❌ 'bookings-tab' element not found.");
+        }
+    } catch (error) {
+        console.error('❌ Error updating pending bookings:', error);
+    }
 };
 
 const loadPendingMemberships = async () => {
-    // Fetch the transactions and filter out the Approved and Accepted ones
-    const totalPendingMemberships = await loadPendingData(
-        'Transactions',
-        'pendingMembershipsTableBody',
-        (data) => {
-            // Filter out transactions with "Approved" or "Accepted" status
-            if (data.status === 'Approved' || data.status === 'Accepted') {
-                return ''; // Return empty string to skip this row
+    try {
+        // Fetch the transactions and filter out the Approved and Accepted ones
+        const totalPendingMemberships = await loadPendingData(
+            'Transactions',
+            'pendingMembershipsTableBody',
+            (data) => {
+                // Filter out transactions with "Approved" or "Accepted" status
+                if (data.status === 'Approved' || data.status === 'Accepted') {
+                    return ''; // Return empty string to skip this row
+                }
+
+                // If the status is "Pending" or "Pending Owner Approval", include it in the total
+                const cleanTotalPrice = (data.status === 'Pending' || data.status === 'Pending Owner Approval') 
+                    ? parseFloat(data.price.replace(/[^\d.-]/g, '')) || 0 
+                    : 0;
+
+                // Handle undefined or null values gracefully with fallback values
+                return {
+                    price: cleanTotalPrice, // Return price as a number for summing
+                    row: ` 
+                        <td>${data.userId || 'N/A'}</td>
+                        <td>${data.planType || 'N/A'}</td>
+                        <td>${data.price || 'N/A'}</td>
+                        <td>${data.membershipDays || 'N/A'} days</td>
+                        <td>${formatTimestamp(data.purchaseDate) || 'N/A'}</td>
+                        <td>${data.status || 'N/A'}</td>
+                    `
+                };
+            },
+            'membership'
+        );
+
+        // Log the fetched data to understand its structure
+        console.log('Fetched data for memberships:', totalPendingMemberships);
+
+        // Ensure totalPendingMemberships is an array, if it's not, turn it into an array
+        const validData = Array.isArray(totalPendingMemberships) ? totalPendingMemberships : [totalPendingMemberships];
+
+        // Insert the rows into the table body
+        const tableBody = document.getElementById('pendingMembershipsTableBody');
+        tableBody.innerHTML = ''; // Clear the table body before appending new rows
+        let totalAmount = 0;
+
+        validData.forEach(item => {
+            // Only add to the total if the price is defined
+            if (item.price !== undefined) {
+                totalAmount += isNaN(item.price) ? 0 : item.price;
             }
+            // Add the row HTML to the table
+            tableBody.innerHTML += item.row;
+        });
 
-            // Otherwise, display the row for pending membership
-            return `
-                <td>${data.userId || 'N/A'}</td>
-                <td>${data.planType || 'N/A'}</td>
-                <td>${data.price || 'N/A'}</td>
-                <td>${data.membershipDays || 'N/A'} days</td>
-                <td>${formatTimestamp(data.purchaseDate)}</td>
-                <td>${data.status || 'N/A'}</td>
-            `;
-        },
-        'membership'
-    );
+        // Update the Memberships tab with the total price
+        document.getElementById('memberships-tab').innerHTML = `Memberships (${formatCurrency(totalAmount)})`;
 
-    // Now totalPendingMemberships will not include "Approved" or "Accepted" transactions
-    document.getElementById('memberships-tab').innerHTML = `Memberships (${formatCurrency(totalPendingMemberships)})`;
+    } catch (error) {
+        console.error('Error loading pending memberships:', error);
+    }
 };
-
 
 
 const loadPendingDayPasses = async () => {
@@ -1106,4 +1162,76 @@ document.addEventListener('DOMContentLoaded', function () {
             sidebar.classList.remove('show');
         }
     });
+});
+const getGymNameForUser = async (userId) => {
+    try {
+        const gymOwnerDocRef = doc(db, 'GymOwner', userId);  // Reference to GymOwner document
+        const gymOwnerDoc = await getDoc(gymOwnerDocRef);  // Fetch the document
+
+        if (gymOwnerDoc.exists()) {
+            // Extract the gymName from the document data
+            const gymName = gymOwnerDoc.data().gymName;
+            return gymName;
+        } else {
+            console.log('No gym found for this user');
+            return null;
+        }
+    } catch (error) {
+        console.error('Error fetching gym name:', error);
+        return null;
+    }
+};
+
+// Fetch Products for a given gymName
+const loadProductsForGym = async (gymName) => {
+    try {
+        const productsCollectionRef = collection(db, 'Products');  // Reference to Products collection
+        const q = query(productsCollectionRef, where("gymName", "==", gymName));  // Query to match gymName
+        const querySnapshot = await getDocs(q);  // Fetch the documents
+
+        const products = querySnapshot.docs.map(doc => doc.data());  // Map documents to product data
+        console.log('Fetched products for gym:', gymName, products);
+        return products;
+    } catch (error) {
+        console.error('Error fetching products:', error);
+    }
+};
+
+/// Add event listener to inventory card for opening the modal
+document.getElementById('inventoryOverviewCard').addEventListener('click', async () => {
+    try {
+        // Get the logged-in user's gymName
+        const userId = auth.currentUser.uid;
+        const gymName = await getGymNameForUser(userId);
+
+        if (!gymName) {
+            console.error('No gym name found for this user');
+            return;
+        }
+
+        // Fetch products for the logged-in gym
+        const products = await loadProductsForGym(gymName);
+
+        if (products.length > 0) {
+            const product = products[0];  // Example: Show the first product
+
+            // Ensure the modal is showing the correct data
+            const productImage = document.getElementById('productImage');
+            const productName = document.getElementById('productName');
+            const productDescription = document.getElementById('productDescription');
+
+            // Set modal content dynamically
+            productImage.src = product.imageUrl || '';  // Set product image
+            productName.innerText = product.name || 'No name available';  // Set product name
+            productDescription.innerText = product.description || 'No description available';  // Set product description
+
+            // Ensure the modal is visible after updating content
+            const inventoryModal = new bootstrap.Modal(document.getElementById('inventoryModal'));
+            inventoryModal.show();  // Open the modal
+        } else {
+            console.log('No products available for this gym');
+        }
+    } catch (error) {
+        console.error('Error displaying product details in modal:', error);
+    }
 });

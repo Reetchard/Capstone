@@ -571,7 +571,7 @@
             <div class="card shadow-sm" id="totalSalesCard" style="cursor: pointer;">
                 <div class="card-body">
                     <h5 class="modal-title">Total <span class="profile-text">Sales</span></h5>
-                    <p class="card-text fs-4 fw-bold" id="totalSales">₱0.00</p>
+                    <p class="card-text fs-4 fw-bold" id="totalSales"></p>
                     <canvas id="salesChart" height="200"></canvas>
                 </div>
             </div>
@@ -582,7 +582,7 @@
             <div class="card shadow-sm" id="SalesOverviewCard" style="cursor: pointer;">
                 <div class="card-body">
                     <h5 class="modal-title">Pending <span class="profile-text">Sales</span></h5>
-                    <p class="card-text fs-5 fw-bold" id="pendingSalesAmount">₱0.00</p>
+                    <p class="card-text fs-5 fw-bold" id="pendingSalesAmount"></p>
                     <canvas id="pendingSalesChart" height="200"></canvas>
                     <small class="text-muted" style="color: red;">Sales awaiting approval</small>
                 </div>
@@ -595,7 +595,7 @@
             <div class="card shadow-sm" id="inventoryOverviewCard" style="cursor: pointer;">
                 <div class="card-body">
                     <h5 class="modal-title">Inventory <span class="profile-text">Overview</span></h5>
-                    <p class="card-text fs-4 fw-bold" id="totalInventory">0 Items</p>
+                    <p class="card-text fs-4 fw-bold" id="totalInventory">0 Quantity</p>
                     <canvas id="inventoryChart" height="200"></canvas>
                 </div>
             </div>
@@ -812,22 +812,25 @@
             </div>
         </div>
     </div>
-    <!-- Modal for Product Details -->
-<div class="modal fade" id="productDetailsModal" tabindex="-1" aria-labelledby="productDetailsModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+<!-- Inventory Modal -->
+<div class="modal fade" id="inventoryModal" tabindex="-1" aria-labelledby="inventoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="productDetailsModalLabel">Product Details</h5>
+                <h5 class="modal-title" id="inventoryModalLabel">Product Details</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <!-- Product Image -->
-                <img id="productImage" src="" alt="Product Image" class="img-fluid mb-3" style="max-height: 200px;">
-                
-                <!-- Product Details -->
-                <p><strong>Quantity:</strong> <span id="productQuantity">N/A</span></p>
-                <p><strong>Price:</strong> <span id="productPrice">₱0.00</span></p>
-                <p><strong>Date Added:</strong> <span id="productDateAdded">N/A</span></p>
+                <div id="productImageWrapper" class="text-center mb-3">
+                    <img id="productImage" src="" alt="Product Image" class="img-fluid" />
+                </div>
+
+                <!-- Product Name -->
+                <h5 id="productName" class="text-center mb-3">Product Name</h5>
+
+                <!-- Product Description -->
+                <p id="productDescription" class="text-muted">Description of the product...</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -835,6 +838,7 @@
         </div>
     </div>
 </div>
+
 
         <!-- Firebase Script -->
         <script type="module" src="src/Js/salesAndInventory.js"></script>
