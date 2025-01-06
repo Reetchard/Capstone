@@ -14,6 +14,56 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <title>Manage Services and Promotions</title>
     <style>
+        
+        .toast-message {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #4caf50;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    z-index: 1000;
+    font-size: 14px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    animation: fadeInOut 3s ease-in-out;
+}
+/* Container for checkbox and label */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Space between checkbox and label */
+    margin-bottom: 5px; /* Space between rows */
+}
+
+/* Styling for checkboxes */
+.gym-checkbox {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+/* Styling for labels */
+.checkbox-label {
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+}
+
+/* Optional: Adjust hover effect */
+.checkbox-label:hover {
+    color: #007bff; /* Change to a blue color when hovered */
+    text-decoration: underline;
+}
+
+
+@keyframes fadeInOut {
+    0% { opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
         .toast {
     padding: 10px;
     margin-bottom: 10px;

@@ -762,85 +762,159 @@ function showModal(selectionType) {
                         async function updateGymOwnerCollection() {
                             const user = auth.currentUser;
                             if (!user) {
-                                console.error("User is not authenticated.");
+                                console.error('User is not authenticated.');
                                 return;
                             }
-
+        
                             const gymOwnerRef = doc(db, 'GymOwner', user.uid);
-
+        
                             try {
                                 await updateDoc(gymOwnerRef, {
                                     gymPrograms: gymOwnerData.gymPrograms,
                                     gymEquipment: gymOwnerData.gymEquipment,
-                                    gymServices: gymOwnerData.gymServices
+                                    gymServices: gymOwnerData.gymServices,
                                 });
-                                console.log("Firestore updated after checkbox change");
-                                showToast("Data updated successfully!");
+                                console.log('Firestore updated successfully!');
                             } catch (error) {
-                                console.error("Error updating Firestore after checkbox change:", error);
-                                showToast("Failed to update data. Please try again.");
+                                console.error('Error saving data to Firestore:', error);
+                                showToast('Failed to save data. Please try again.');
                             }
                         }
+        
+                        // Show Toast Messages
+                        function showToast(message) {
+                            const toast = document.createElement('div');
+                            toast.textContent = message;
+                            toast.className = 'toast-message';
+                            document.body.appendChild(toast);
+        
+                            setTimeout(() => {
+                                toast.remove();
+                            }, 3000);
+                        }
+        
+                        // Initialize Table on Page Load
+                        await refreshGymDetailsTable();
+       
 
-                    async function refreshGymDetailsTable() {
-                        // Check if currentGymName is valid
-                        const currentGymName = gymOwnerData.gymName;  // Make sure gymOwnerData is defined and contains gymName
-                        if (!currentGymName) {
-                            console.error("Gym name is missing");
-                            return;  // Stop if the gymName is missing
-                        }
-                    
-                        // Query Firestore for gyms with the matching gymName
-                        const gymsCollection = collection(db, 'GymOwner');
-                        const gymOwnerQuery = query(gymsCollection, where('gymName', '==', currentGymName));
-                    
-                        try {
-                            const gymSnapshot = await getDocs(gymOwnerQuery); // Fetch docs matching the query
-                    
-                            if (gymSnapshot.empty) {
-                                console.error("No gyms found for the given gym name:", currentGymName);
-                                alert("No gyms found for the specified gym name.");
-                                return; // Stop further execution if no gyms are found
+                        async function refreshGymDetailsTable() {
+                            const currentGymName = gymOwnerData.gymName;
+                            if (!currentGymName) {
+                                console.error("Gym name is missing");
+                                return;
                             }
-                    
-                            const gymList = gymSnapshot.docs.map(doc => ({
-                                id: doc.id,
-                                ...doc.data()
-                            }));
-                    
-                            const gymDetailsTable = document.getElementById('gymDetailsTable');
-                            gymDetailsTable.innerHTML = ''; // Clear existing table data
-                    
-                            // Iterate through gymList and create rows for each gym
-                            gymList.forEach(gym => {
-                                // Ensure gymName exists and filter gyms accordingly
-                                if (gym.status && gym.status !== 'Decline' && gym.gymName) {
-                                    const gymRow = document.createElement('tr');
-                                    gymRow.innerHTML = `
-                                        <td><img src="${gym.gymPhoto || 'default.jpg'}" alt="Gym Photo" style="width: 50px; height: 50px;" onclick="showImage('${gym.gymPhoto}')"></td>
-                                        <td><img src="${gym.gymCertifications || 'default-cert.jpg'}" alt="Certification" style="width: 50px; height: 50px;" onclick="showImage('${gym.gymCertifications}')"></td>
-                                        <td>${gym.gymName || 'N/A'}</td>
-                                        <td>${gym.gymLocation || 'Not Available'}</td>
-                                        <td>${gym.gymContact || 'Not Available'}</td>
-                                        <td>${gym.gymPrograms || 'N/A'}</td>
-                                        <td>${gym.gymEquipment || 'N/A'}</td>
-                                        <td>${gym.gymServices || 'N/A'}</td>
-                                        <td>${gym.gymPriceRate ? `₱${parseFloat(gym.gymPriceRate).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : 'N/A'}</td>
-                                        <td>${gym.gymOpeningTime || 'N/A'}</td>
-                                        <td>${gym.gymClosingTime || 'N/A'}</td>
-                                        <td>
-                                            <button class="btn custom-btn-warning" onclick="editGymDetails('${gym.id}')"><i class="fas fa-edit"></i></button>
-                                        </td>
-                                    `;
-                                    gymDetailsTable.appendChild(gymRow);
+                        
+                            const gymsCollection = collection(db, 'GymOwner');
+                            const gymOwnerQuery = query(gymsCollection, where('gymName', '==', currentGymName));
+                        
+                            try {
+                                const gymSnapshot = await getDocs(gymOwnerQuery);
+                                if (gymSnapshot.empty) {
+                                    console.error("No gyms found for the given gym name:", currentGymName);
+                                    alert("No gyms found for the specified gym name.");
+                                    return;
                                 }
-                            });
-                    
-                        } catch (error) {
-                            console.error("Error fetching gyms:", error);
+                        
+                                const gymList = gymSnapshot.docs.map((doc) => ({
+                                    id: doc.id,
+                                    ...doc.data(),
+                                }));
+                        
+                                const gymDetailsTable = document.getElementById('gymDetailsTable');
+                                gymDetailsTable.innerHTML = ''; // Clear existing table data
+                        
+                                gymList.forEach((gym) => {
+                                    if (gym.status && gym.status !== 'Decline' && gym.gymName) {
+                                        const gymRow = document.createElement('tr');
+                        
+                                        gymRow.innerHTML = `
+                                            <td><img src="${gym.gymPhoto || 'default.jpg'}" alt="Gym Photo" style="width: 50px; height: 50px;" onclick="showImage('${gym.gymPhoto || 'default.jpg'}')"></td>
+                                            <td><img src="${gym.gymCertifications || 'default-cert.jpg'}" alt="Certification" style="width: 50px; height: 50px;" onclick="showImage('${gym.gymCertifications || 'default-cert.jpg'}')"></td>
+                                            <td>${gym.gymName || 'N/A'}</td>
+                                            <td>${gym.gymLocation || 'Not Available'}</td>
+                                            <td>${gym.gymContact || 'Not Available'}</td>
+                                            <td>${generateCheckboxHTML(gym.gymPrograms || [], 'programs', gym.id)}</td>
+                                            <td>${generateCheckboxHTML(gym.gymEquipment || [], 'equipment', gym.id)}</td>
+                                            <td>${generateCheckboxHTML(gym.gymServices || [], 'services', gym.id)}</td>
+                                            <td>${gym.gymPriceRate ? `₱${parseFloat(gym.gymPriceRate).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : 'N/A'}</td>
+                                            <td>${gym.gymOpeningTime || 'N/A'}</td>
+                                            <td>${gym.gymClosingTime || 'N/A'}</td>
+                                            <td>
+                                                <button class="btn custom-btn-warning" onclick="editGymDetails('${gym.id}')"><i class="fas fa-edit"></i></button>
+                                            </td>
+                                        `;
+                        
+                                        gymDetailsTable.appendChild(gymRow);
+                        
+                                        // Attach event listeners for checkboxes
+                                        attachCheckboxListeners(gym.id);
+                                    }
+                                });
+                            } catch (error) {
+                                console.error('Error fetching gyms:', error);
+                            }
                         }
-                    }
-                    
+                        
+                        function generateCheckboxHTML(items, type, gymId) {
+                            // Filter out invalid or empty items
+                            const validItems = items.filter((item) => item && item.trim().length > 0);
+                        
+                            return validItems
+                                .map(
+                                    (item) => `
+                                <div class="checkbox-container">
+                                    <input type="checkbox" 
+                                        class="gym-checkbox" 
+                                        data-type="${type}" 
+                                        data-gym-id="${gymId}" 
+                                        value="${item}" 
+                                        id="${type}-${item}-${gymId}" 
+                                        ${gymOwnerData[`gym${capitalize(type)}`]?.includes(item) ? 'checked' : ''}>
+                                    <label for="${type}-${item}-${gymId}" class="checkbox-label">${item}</label>
+                                </div>
+                            `
+                                )
+                                .join('');
+                        }
+                        
+                        
+                        function attachCheckboxListeners(gymId) {
+                            const checkboxes = document.querySelectorAll(`input[data-gym-id="${gymId}"]`);
+                        
+                            checkboxes.forEach((checkbox) => {
+                                checkbox.addEventListener('change', async (e) => {
+                                    const isChecked = e.target.checked;
+                                    const type = e.target.dataset.type;
+                                    const itemValue = e.target.value;
+                        
+                                    if (!itemValue || !itemValue.trim().length) {
+                                        console.warn("Empty or invalid checkbox value detected");
+                                        return;
+                                    }
+                        
+                                    try {
+                                        if (isChecked) {
+                                            gymOwnerData[`gym${capitalize(type)}`].push(itemValue);
+                                            showToast(`${capitalize(type)} item "${itemValue}" added successfully.`);
+                                        } else {
+                                            gymOwnerData[`gym${capitalize(type)}`] = gymOwnerData[`gym${capitalize(type)}`].filter((item) => item !== itemValue);
+                                            showToast(`${capitalize(type)} item "${itemValue}" removed successfully.`);
+                                        }
+                        
+                                        await updateGymOwnerCollection(); // Save to Firestore
+                                    } catch (error) {
+                                        console.error('Error updating Firestore:', error);
+                                        showToast('Failed to update data. Please try again.');
+                                    }
+                                });
+                            });
+                        }
+                        
+                         // Capitalize First Letter
+                function capitalize(word) {
+                    return word.charAt(0).toUpperCase() + word.slice(1);
+                }
+
 
 
                     async function getCurrentGymName() {

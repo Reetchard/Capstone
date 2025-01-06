@@ -795,8 +795,6 @@ function groupTransactions(transactions) {
 
     return grouped;
 }
-
-// Generate PDF Report
 async function generatePDF() {
     const transactions = await fetchTransactions();
     const trainerBookings = await fetchNotifications('Booking_trainer');
@@ -812,40 +810,94 @@ async function generatePDF() {
     const pdf = new jsPDF();
 
     let y = 20;
+
+    // Get today's date
+    const today = new Date();
+    const formattedDate = today.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+
+    // Add the date to the top-right corner
+    pdf.setFontSize(10);
+    pdf.setFont("helvetica", "normal");
+    pdf.text(`Date: ${formattedDate}`, 200, y, { align: 'right' });
+
+    // Title
     pdf.setFontSize(16);
     pdf.setFont("helvetica", "bold");
     pdf.text('Transactions Report', 105, y, { align: "center" });
     y += 12;
 
-    pdf.setFontSize(8);
+    // Calculate Summary
+    const summary = calculateSummary(grouped, trainerBookings, productsFromNotif);
+
+    function calculateSummary(grouped, trainerBookings, productsFromNotif) {
+        const trainerBookingsTotal = trainerBookings.reduce((sum, tx) => sum + (parseFloat(tx.price) || 0), 0);
+        const dayPassTotal = grouped.Day_Pass.reduce((sum, tx) => sum + (parseFloat(tx.totalPrice) || 0), 0);
+        const membershipsTotal = grouped.Membership.reduce((sum, tx) => sum + (parseFloat(tx.price) || 0), 0);
+        const productsTotal = productsFromNotif.reduce((sum, tx) => sum + (parseFloat(tx.totalPrice) || 0), 0);
+
+        return {
+            trainerBookingsTotal,
+            dayPassTotal,
+            membershipsTotal,
+            productsTotal,
+            totalTransactions: grouped.Membership.length + grouped.Day_Pass.length + trainerBookings.length + productsFromNotif.length
+        };
+    }
+
+    // Add Summary Section
+    pdf.setFontSize(12);
+    pdf.setFont("helvetica", "bold");
+    pdf.text('Summary', 14, y);
+    y += 6;
+
+    pdf.setFontSize(10);
+    pdf.setFont("helvetica", "normal");
+    pdf.text(`Total Transactions: ${summary.totalTransactions}`, 14, y);
+    y += 6;
+    pdf.text(`Trainer Bookings Total: ₱${summary.trainerBookingsTotal.toFixed(2)}`, 14, y);
+    y += 6;
+    pdf.text(`Day Passes Total: ₱${summary.dayPassTotal.toFixed(2)}`, 14, y);
+    y += 6;
+    pdf.text(`Memberships Total: ₱${summary.membershipsTotal.toFixed(2)}`, 14, y);
+    y += 6;
+    pdf.text(`Products Total: ₱${summary.productsTotal.toFixed(2)}`, 14, y);
+    y += 12;
 
     // Section for Memberships
     if (grouped.Membership.length > 0) {
-        y = addSection(pdf, 'Memberships', grouped.Membership, y, ['planType', 'price', 'purchaseDate', 'status']);
+        y = addSection(pdf, 'Memberships', grouped.Membership, y, ['planType', 'price', 'purchaseDate', 'status'], 'price');
     }
 
     // Section for Trainer Bookings (Transactions)
     if (grouped.Trainer_Booking.length > 0) {
-        y = addSection(pdf, 'Trainer Bookings', grouped.Trainer_Booking, y, ['username', 'price', 'timestamp', 'status']);
+        y = addSection(pdf, 'Trainer Bookings', grouped.Trainer_Booking, y, ['username', 'price', 'timestamp', 'status'], 'price');
     }
 
     // Section for Day Passes
     if (grouped.Day_Pass.length > 0) {
-        y = addSection(pdf, 'Day Passes', grouped.Day_Pass, y, ['email', 'totalPrice', 'date', 'status']);
+        y = addSection(pdf, 'Day Passes', grouped.Day_Pass, y, ['email', 'totalPrice', 'date', 'status'], 'totalPrice');
     }
 
     // Section for Booking_Trainer (Notifications)
     if (trainerBookings.length > 0) {
-        y = addSection(pdf, 'Trainer Bookings', trainerBookings, y, ['username', 'price', 'timestamp', 'status']);
+        y = addSection(pdf, 'Trainer Bookings', trainerBookings, y, ['username', 'price', 'timestamp', 'status'], 'price');
     }
 
     // Section for Products (Notifications)
     if (productsFromNotif.length > 0) {
-        y = addSection(pdf, 'Products', productsFromNotif, y, ['productName', 'quantity', 'totalPrice', 'timestamp']);
+        y = addSection(pdf, 'Products', productsFromNotif, y, ['productName', 'quantity', 'totalPrice', 'timestamp'], 'totalPrice');
     }
 
-    pdf.save('transactions_and_notifications_report.pdf');
+    // Save the PDF
+    pdf.save(`Transactions_Report_${today.toISOString().slice(0, 10)}.pdf`);
 }
+
+
+
 
 // Fetch Notifications with Specific Type
 async function fetchNotifications(type) {
@@ -902,62 +954,68 @@ function formatDate(dateInput) {
     });
 
     return `${formattedDate} ${formattedTime}`;
-}
-
-// Add Section Table to PDF with Borders and Shading
-function addSection(pdf, title, data, yStart, fields) {
+}function addSection(pdf, title, data, yStart, fields, totalField) {
     let y = yStart + 12;
+    let total = 0;
+
     pdf.setFontSize(10);
     pdf.setFont("helvetica", "bold");
-    pdf.setTextColor(0, 76, 153);  // Blue Title
+    pdf.setTextColor(0, 76, 153); // Blue Title
     pdf.text(title, 14, y);
     y += 6;
 
     pdf.setFontSize(7);
     pdf.setTextColor(0, 0, 0);
 
-    // Table Headers (Bold)
+    // Table Headers (Capitalize first letter and make others lowercase)
     pdf.setFont("helvetica", "bold");
-    pdf.text('No.', 14, y);
+    pdf.text("No.", 14, y);
     let x = 30;
-    fields.forEach(field => {
-        pdf.text(field, x, y);
+    fields.forEach((field) => {
+        const header = field.charAt(0).toUpperCase() + field.slice(1).toLowerCase(); // Capitalize first letter
+        pdf.text(header, x, y);
         x += 45;
     });
 
     y += 4;
-    pdf.setDrawColor(0, 0, 0);  // Black Border
-    pdf.line(14, y, 190, y);  // Horizontal line
+    pdf.setDrawColor(0, 0, 0); // Black Border
+    pdf.line(14, y, 190, y); // Horizontal line
     y += 6;
 
     // Table Rows (With Alternating Shading)
     pdf.setFont("helvetica", "normal");
 
     data.forEach((tx, index) => {
-        const rowColor = index % 2 === 0 ? [240, 240, 240] : [255, 255, 255];  // Alternating colors
+        const rowColor = index % 2 === 0 ? [240, 240, 240] : [255, 255, 255]; // Alternating colors
         pdf.setFillColor(...rowColor);
-        pdf.rect(14, y - 4, 176, 8, 'F');  // Row background fill
+        pdf.rect(14, y - 4, 176, 8, "F"); // Row background fill
 
         pdf.text(`${index + 1}`, 14, y);
         x = 30;
 
-        fields.forEach(field => {
-            let value = tx[field] || 'N/A';
-        
-            // Apply Peso sign and remove ± symbol
-            if (field === 'totalPrice' || field === 'price') {
-                value = `₱${value.replace('±', '').trim()}`;
+        fields.forEach((field) => {
+            let value = tx[field] || "N/A";
+
+            // Ensure proper formatting for currency fields
+            if (field === "totalPrice" || field === "price") {
+                const cleanValue = parseFloat(value.replace(/[^\d.-]/g, "")) || 0;
+                value = `₱${cleanValue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
             }
-        
+
             // Format Timestamp or Date
-            if (field === 'timestamp' || field === 'purchaseDate' || field === 'date') {
+            if (field === "timestamp" || field === "purchaseDate" || field === "date") {
                 value = formatDate(tx[field]);
             }
-        
+
             pdf.text(`${value}`, x, y);
             x += 45;
         });
-        
+
+        // Add to total if applicable
+        if (totalField && tx[totalField]) {
+            const cleanValue = parseFloat(tx[totalField].replace(/[^\d.-]/g, "")) || 0;
+            total += cleanValue;
+        }
 
         y += 8;
 
@@ -968,9 +1026,22 @@ function addSection(pdf, title, data, yStart, fields) {
         }
     });
 
-    y += 8;
+    // Add total row under "Total Price" column
+    pdf.setFont("helvetica", "bold");
+    pdf.setTextColor(0, 0, 0);
+    const totalXPosition = 30 + (fields.indexOf(totalField) * 45); // Position in the "Total Price" column
+    pdf.text(
+        `Total: ₱${total.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+        totalXPosition,
+        y
+    );
+    y += 12;
+
     return y;
 }
+
+
+
 
 // Attach to Button
 document.addEventListener('DOMContentLoaded', () => {

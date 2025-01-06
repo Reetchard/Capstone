@@ -11,6 +11,300 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/main.min.css">
     <link rel="stylesheet" href="css/trainer.css">
     <style>
+        /* Toast Container */
+#toastContainer {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Toast Message */
+.toast-message {
+    padding: 15px 20px;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    animation: fadeInOut 3s forwards;
+}
+
+.toast-success {
+    background-color: #28a745; /* Green */
+}
+
+.toast-error {
+    background-color: #dc3545; /* Red */
+}
+
+.toast-confirmation {
+    background-color: #ffc107; /* Yellow */
+    color: #212529; /* Dark Text */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.toast-confirmation .toast-actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+}
+
+.toast-confirmation .btn {
+    padding: 5px 10px;
+    font-size: 12px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border: none;
+    color: #fff;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border: none;
+    color: #fff;
+}
+
+/* Animation */
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    10% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    90% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+        /* Styled Table */
+.styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 18px;
+    text-align: left;
+    background-color: #f9f9f9;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+/* Table Styles */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+    background-color: #ffffff; /* White background for the table */
+    color: #333; /* Black text for readability */
+    font-size: 14px;
+    border: 1px solid #ddd;
+}
+
+.table th,
+.table td {
+    padding: 12px 15px;
+    text-align: center;
+    border: 1px solid #ddd;
+    background-color: #ffffff; /* Ensure white background for all cells */
+    color: #000; /* Set text color to black */
+}
+
+.table th {
+    background-color: #f8f9fa; /* Light gray background for headers */
+    color: #212529; /* Dark text for headers */
+    font-weight: bold;
+}
+
+.table tr:nth-child(even) td {
+    background-color: #f2f2f2; /* Alternate row color for even rows */
+    color: #000; /* Black text for even rows */
+}
+
+.table tr:nth-child(odd) td {
+    background-color: #ffffff; /* White background for odd rows */
+    color: #000; /* Black text for odd rows */
+}
+
+.table tr:hover td {
+    background-color: #e9ecef; /* Highlight row on hover */
+    color: #000; /* Ensure text remains black on hover */
+}
+
+/* Profile Picture Styling */
+.table img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%; /* Circular image */
+    object-fit: cover;
+}
+
+/* Button Styles */
+.btn-success {
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+/* Responsive Table */
+.table-responsive {
+    overflow-x: auto;
+    margin: 10px 0;
+}
+
+.styled-table thead tr {
+    background-color: #007bff;
+    color: #ffffff;
+    text-align: center;
+}
+
+.styled-table th,
+.styled-table td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+}
+
+.styled-table tbody tr {
+    transition: all 0.3s ease;
+}
+
+.styled-table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+.styled-table tbody tr.styled-row {
+    background-color: #ffffff;
+}
+
+.profile-cell img {
+    border: 2px solid #007bff;
+}
+
+/* Buttons */
+.btn-sm {
+    padding: 5px 10px;
+    font-size: 14px;
+    margin: 0 2px;
+}
+
+.badge {
+    padding: 5px 10px;
+    border-radius: 8px;
+    color: #fff;
+}
+
+.badge-success {
+    background-color: #28a745;
+}
+
+.badge-warning {
+    background-color: #ffc107;
+}
+
+        /* Modal Header and Footer */
+.modal-header.bg-primary {
+    background-color: #007bff;
+    border-bottom: 2px solid #0056b3;
+}
+
+.modal-footer.bg-primary {
+    background-color: #007bff;
+    border-top: 2px solid #0056b3;
+}
+
+/* Table Design */
+.table-bordered {
+    border: 1px solid #dee2e6;
+}
+
+.table-bordered th,
+.table-bordered td {
+    border: 1px solid #dee2e6;
+}
+
+.table thead th {
+    text-align: center;
+    vertical-align: middle;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #e9ecef;
+}
+
+/* Profile Picture Styling */
+#clientBookingTable img {
+    border-radius: 50%;
+    height: 50px;
+    width: 50px;
+    object-fit: cover;
+    border: 2px solid #dee2e6;
+}
+
+/* Button Styling */
+.btn-sm {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.85rem;
+}
+
+        /* Modal Table Styling */
+.modal .table {
+    font-size: 14px;
+}
+
+.modal .btn-sm {
+    padding: 5px 10px;
+    font-size: 12px;
+    margin: 0 2px;
+}
+
+.modal .btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.modal .btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
         /* General Styles */
         body {
             font-family: "Helvetica Neue", Arial, sans-serif; /* Set the font */
@@ -176,25 +470,85 @@
         </div>
         
         <ul class="nav flex-column">
+            <!-- Gym Profile -->
             <li class="nav-item">
                 <a class="nav-link" href="#profiling">
                     <i class="fas fa-dumbbell"></i> Gym Profile
                 </a>
             </li>
+    
+            <!-- Notifications -->
             <li class="nav-item position-relative">
                 <a class="nav-link" href="#" data-toggle="modal" data-target="#notificationModal">
                     <i class="fas fa-bell"></i> Notifications
                     <span id="notification-count" class="badge badge-danger position-absolute" style="right: 10px; top: 5px;">0</span>
                 </a>
             </li>
+    
+            <!-- Messages -->
             <li class="nav-item">
                 <a id="messages" class="nav-link" data-toggle="modal" href="#chatModal">
                     <i class="fas fa-comments"></i> Messages
                     <span id="messagesNotification" class="message-count">0</span>
                 </a>   
             </li> 
+                
+            <!-- Check Client -->
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-toggle="modal" data-target="#checkClientModal">
+                    <i class="fas fa-user-check"></i> Check Client
+                </a>
+            </li>
+
         </ul>
     </nav>
+
+<!-- Check Client Modal -->
+<div class="modal fade" id="checkClientModal" tabindex="-1" aria-labelledby="checkClientModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="checkClientModalLabel">New Customer Bookings</h5>
+                <button type="button" class="btn btn-light btn-sm ml-auto" id="generateReport">
+                    <i class="fas fa-file-pdf"></i> Generate Report
+                </button>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body bg-light">
+                <!-- Client Table -->
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered styled-table">
+                            <thead>
+                                <tr>
+                                    <th>Profile Picture</th>
+                                    <th>Customer Name</th>
+                                    <th>Contact</th>
+                                    <th>Gym Name</th>
+                                    <th>Session Date</th>
+                                    <th>Rate</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clientBookingTable">
+                                <!-- Rows will be dynamically generated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="modal-footer bg-primary">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
     <div id="messages-section" class="section" style="display: none;">
         <h2>Messages</h2>
         <!-- Messages content -->
@@ -539,6 +893,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 
     <script type="module" src="src/Js/trainerDash.js"></script>
     

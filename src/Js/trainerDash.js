@@ -1388,4 +1388,344 @@ function showNotificationDetails(notification) {
             }
         });
     });
+    document.addEventListener("DOMContentLoaded", () => {
+        const clientBookingTable = document.getElementById("clientBookingTable");
+    
+        // Fetch logged-in trainer's ID
+        let trainerId = "";
+    
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                trainerId = user.uid; // Fetch the unique trainer ID (UID)
+                console.log("Trainer ID:", trainerId);
+            } else {
+                console.error("No user is logged in.");
+            }
+        });
+    
+        // Function to load bookings from Firestore
+        async function loadBookingsFromFirestore() {
+            if (!trainerId) {
+                console.error("Trainer ID not available.");
+                return;
+            }
+    
+            try {
+                const reservationCollection = collection(db, "Reservations");
+                const querySnapshot = await getDocs(query(reservationCollection, where("trainerId", "==", trainerId)));
+    
+                const bookings = [];
+                querySnapshot.forEach((doc) => {
+                    bookings.push({ id: doc.id, ...doc.data() }); // Add Firestore document ID and data
+                });
+    
+                populateBookingTable(bookings);
+            } catch (error) {
+                console.error("Error fetching bookings:", error);
+            }
+        }
+        async function populateBookingTable(bookings) {
+            clientBookingTable.innerHTML = ""; // Clear previous data
+        
+            if (bookings.length === 0) {
+                const noDataRow = document.createElement("tr");
+                noDataRow.innerHTML = `<td colspan="8" class="text-center">No new bookings found.</td>`;
+                clientBookingTable.appendChild(noDataRow);
+                return;
+            }
+        
+            // Sort bookings to prioritize 'Pending' status first
+            bookings.sort((a, b) => {
+                if (a.status === "Pending" && b.status !== "Pending") return -1; // Pending comes first
+                if (a.status !== "Pending" && b.status === "Pending") return 1;  // Others come later
+                return 0; // Maintain order for non-Pending statuses
+            });
+        
+            for (const booking of bookings) {
+                const userId = parseInt(booking.userId); // Convert Reservation userId to a number
+                let profilePictureURL = "default-profile.jpg"; // Default profile picture
+        
+                // Fetch user's profile picture from the Users collection
+                try {
+                    const usersCollection = collection(db, "Users"); // Reference the Users collection
+                    const userQuery = query(usersCollection, where("userId", "==", userId)); // Match userId
+                    const userQuerySnapshot = await getDocs(userQuery);
+        
+                    if (!userQuerySnapshot.empty) {
+                        // Assuming userId is unique, use the first document
+                        const userDoc = userQuerySnapshot.docs[0];
+                        const userData = userDoc.data();
+        
+                        // Validate userId and fetch photoURL
+                        if (userData.userId === userId) { // Compare as numbers
+                            profilePictureURL = userData.photoURL || profilePictureURL;
+                        } else {
+                            console.warn(`UserId mismatch: Users userId (${userData.userId}) does not match Reservations userId (${userId})`);
+                        }
+                    } else {
+                        console.warn(`No user found with userId: ${userId}`);
+                    }
+                } catch (error) {
+                    console.error(`Error fetching user profile for userId: ${userId}`, error);
+                }
+        
+                // Create a row for each booking
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>
+                        <img src="${profilePictureURL}" alt="Profile Picture" style="width: 50px; height: 50px; border-radius: 50%;">
+                    </td>
+                    <td>${booking.fullName || "N/A"}</td>
+                    <td>${booking.email || "N/A"}</td>
+                    <td>${booking.gymName || "N/A"}</td>
+                    <td>${booking.bookingDate || "N/A"}</td>
+                    <td>${booking.rate || "N/A"}</td>
+                    <td>${booking.status || "Pending"}</td>
+                    <td>
+                        <button class="btn btn-success btn-sm approve-button" data-id="${booking.id}">Approve</button>
+                        <button class="btn btn-danger btn-sm decline-button" data-id="${booking.id}">Decline</button>
+                    </td>
+                `;
+                clientBookingTable.appendChild(row);
+            }
+        
+            attachActionListeners(bookings); // Attach approve/decline button listeners
+        }
+        
+        
+        
+        
+        
+    
+        // Attach event listeners to Approve and Decline buttons
+        function attachActionListeners(bookings) {
+            document.querySelectorAll(".approve-button").forEach((button) => {
+                button.addEventListener("click", (e) => handleApproval(e.target.dataset.id));
+            });
+    
+            document.querySelectorAll(".decline-button").forEach((button) => {
+                button.addEventListener("click", (e) => handleDecline(e.target.dataset.id));
+            });
+        }
+// Toast Container
+function showToast(message, type = "success") {
+    const toastContainer = document.getElementById("toastContainer");
+    const toast = document.createElement("div");
+    toast.className = `toast-message toast-${type}`;
+    toast.innerText = message;
+
+    toastContainer.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 3000); // Remove toast after 3 seconds
+}
+
+// Custom Toast Confirmation Dialog
+async function showConfirmationToast(message) {
+    return new Promise((resolve) => {
+        const toastContainer = document.getElementById("toastContainer");
+        const toast = document.createElement("div");
+        toast.className = `toast-message toast-confirmation`;
+
+        toast.innerHTML = `
+            <div>${message}</div>
+            <div class="toast-actions">
+                <button id="confirmBtn" class="btn btn-success btn-sm">Confirm</button>
+                <button id="cancelBtn" class="btn btn-danger btn-sm">Cancel</button>
+            </div>
+        `;
+
+        toastContainer.appendChild(toast);
+
+        const confirmBtn = toast.querySelector("#confirmBtn");
+        const cancelBtn = toast.querySelector("#cancelBtn");
+
+        // Event listeners for confirm and cancel actions
+        confirmBtn.addEventListener("click", () => {
+            resolve(true); // Confirm action
+            toast.remove();
+        });
+
+        cancelBtn.addEventListener("click", () => {
+            resolve(false); // Cancel action
+            toast.remove();
+        });
+    });
+}
+
+// Handle Approve Action
+async function handleApproval(docId) {
+    const confirmed = await showConfirmationToast("Are you sure you want to approve this booking?");
+    if (!confirmed) return;
+
+    try {
+        const docRef = doc(db, "Reservations", docId);
+        await updateDoc(docRef, { status: "Approved" }); // Update Firestore document status to Approved
+        showToast("Booking approved successfully.", "success");
+        loadBookingsFromFirestore(); // Refresh the table
+    } catch (error) {
+        console.error("Error approving booking:", error);
+        showToast("Failed to approve booking. Please try again.", "error");
+    }
+}
+
+// Handle Decline Action
+async function handleDecline(docId) {
+    const confirmed = await showConfirmationToast("Are you sure you want to decline this booking?");
+    if (!confirmed) return;
+
+    try {
+        const docRef = doc(db, "Reservations", docId);
+        await updateDoc(docRef, { status: "Declined" }); // Update Firestore document status to Declined
+        showToast("Booking declined successfully.", "success");
+        loadBookingsFromFirestore(); // Refresh the table
+    } catch (error) {
+        console.error("Error declining booking:", error);
+        showToast("Failed to decline booking. Please try again.", "error");
+    }
+}
+
+
+    
+        // Load bookings when the modal is shown
+        $('#checkClientModal').on('show.bs.modal', loadBookingsFromFirestore);
+    });
+    
+    
+    document.getElementById('generateReport').addEventListener('click', async () => {
+        const bookings = await getBookingsData(); // Fetch bookings data
+        generatePDF(bookings);
+    });
+    
+    async function getBookingsData() {
+        const tableRows = document.querySelectorAll('#clientBookingTable tr');
+        const bookings = [];
+    
+        tableRows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            if (cells.length > 0) {
+                bookings.push({
+                    profilePicture: cells[0].querySelector('img').src,
+                    customerName: cells[1].innerText,
+                    contact: cells[2].innerText,
+                    gymName: cells[3].innerText,
+                    sessionDate: cells[4].innerText,
+                    rate: cells[5].innerText,
+                    status: cells[6].innerText
+                });
+            }
+        });
+    
+        return bookings;
+    }
+    function generatePDF(bookings) {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF();
+        let y = 20;
+    
+        // Add today's date
+        const today = new Date();
+        const formattedDate = today.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        pdf.setFontSize(10);
+        pdf.text(`Date: ${formattedDate}`, 200, y, { align: 'right' });
+    
+        // Title
+        pdf.setFontSize(16);
+        pdf.setFont("helvetica", "bold");
+        pdf.text('Customer Bookings Report', 105, y, { align: "center" });
+        y += 20;
+    
+        // Summary Section
+        pdf.setFontSize(12);
+        pdf.setFont("helvetica", "bold");
+        pdf.text('Summary', 14, y);
+        y += 6;
+    
+        // Calculate Totals
+        const totalBookings = bookings.length;
+        const totalApproved = bookings.filter(booking => booking.status === "Approved").length;
+        const totalDeclined = bookings.filter(booking => booking.status === "Declined").length;
+        const totalAmount = bookings.reduce((sum, booking) => sum + parseFloat(booking.rate || 0), 0);
+    
+        pdf.setFontSize(10);
+        pdf.setFont("helvetica", "normal");
+        pdf.text(`Total Bookings: ${totalBookings}`, 14, y);
+        y += 6;
+        pdf.text(`Total Approved: ${totalApproved}`, 14, y);
+        y += 6;
+        pdf.text(`Total Declined: ${totalDeclined}`, 14, y);
+        y += 6;
+        pdf.text(`Total Amount: ₱${totalAmount.toFixed(2)}`, 14, y);
+        y += 12;
+    
+        // Table Header with Fixed Column Widths
+        pdf.setFontSize(10);
+        pdf.setFont("helvetica", "bold");
+        pdf.setFillColor(0, 76, 153); // Dark Blue
+        pdf.setTextColor(255, 255, 255); // White
+        pdf.rect(14, y, 190, 10, 'F'); // Adjusted width to fit "Status"
+        pdf.text('No.', 16, y + 7);
+        pdf.text('Customer Name', 30, y + 7);
+        pdf.text('Contact', 80, y + 7);
+        pdf.text('Gym Name', 130, y + 7); // Adjusted position
+        pdf.text('Session Date', 160, y + 7); // Adjusted position
+        pdf.text('Rate', 190, y + 7); // Adjusted position
+        pdf.text('Status', 210, y + 7);
+        y += 12;
+    
+        // Table Content with Alignment Fix and Alternating Row Colors
+        pdf.setFont("helvetica", "normal");
+        pdf.setTextColor(0, 0, 0); // Black text
+        bookings.forEach((booking, index) => {
+            if (y > 270) { // Page break
+                pdf.addPage();
+                y = 20;
+    
+                // Re-add table header on new page
+                pdf.setFontSize(10);
+                pdf.setFont("helvetica", "bold");
+                pdf.setFillColor(0, 76, 153); // Dark Blue
+                pdf.setTextColor(255, 255, 255); // White
+                pdf.rect(14, y, 190, 10, 'F'); // Adjusted width to fit "Status"
+                pdf.text('No.', 16, y + 7);
+                pdf.text('Customer Name', 30, y + 7);
+                pdf.text('Contact', 80, y + 7);
+                pdf.text('Gym Name', 130, y + 7); // Adjusted position
+                pdf.text('Session Date', 160, y + 7); // Adjusted position
+                pdf.text('Rate', 190, y + 7); // Adjusted position
+                pdf.text('Status', 210, y + 7);
+                y += 12;
+    
+                pdf.setFont("helvetica", "normal");
+                pdf.setTextColor(0, 0, 0); // Black text
+            }
+    
+            // Alternate row background color
+            const isEven = index % 2 === 0;
+            if (isEven) {
+                pdf.setFillColor(240, 240, 240); // Light Gray
+                pdf.rect(14, y - 2, 190, 10, 'F'); // Adjusted width to fit "Status"
+            }
+    
+            // Ensure text fits within the column widths
+            pdf.text((index + 1).toString(), 16, y + 7);
+            pdf.text(booking.customerName.slice(0, 20), 30, y + 7); // Trim long names
+            pdf.text(booking.contact.slice(0, 20), 80, y + 7); // Trim long contacts
+            pdf.text(booking.gymName.slice(0, 20), 130, y + 7); // Trim long gym names
+            pdf.text(booking.sessionDate, 160, y + 7);
+            pdf.text(`₱${booking.rate}`, 190, y + 7);
+            pdf.text(booking.status, 210, y + 7);
+            y += 12;
+        });
+    
+        // Save the PDF
+        pdf.save(`Customer_Bookings_Report_${today.toISOString().slice(0, 10)}.pdf`);
+    }
+    
+    
     
