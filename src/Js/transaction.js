@@ -49,6 +49,8 @@ async function getGymOwnerName(userId) {
         const userDoc = await getDoc(doc(db, 'GymOwner', userId));
         if (userDoc.exists()) {
             console.log("Gym Owner Found:", userDoc.data().gymName);
+            document.querySelector('#profile-username').textContent = userDoc.data().gymName;
+            document.querySelector('#profile-username-mobile').textContent = userDoc.data().gymName;
             return userDoc.data().gymName;
         } else {
             console.error("Gym owner document not found.");
@@ -431,7 +433,6 @@ function filterTable(tableSelector, filter) {
     });
 }
 
-// Existing function to populate trainer table
 async function populateTrainerTable(transactions) {
     const tableBody = document.querySelector("#Booking_trainerTable tbody");
 
@@ -446,6 +447,17 @@ async function populateTrainerTable(transactions) {
         tableBody.innerHTML = '<tr><td colspan="8">No transactions found.</td></tr>';
         return;
     }
+
+    // Sort transactions: Pending transactions first, others follow
+    transactions.sort((a, b) => {
+        if (a.status === 'Pending' && b.status !== 'Pending') {
+            return -1; // a comes first
+        }
+        if (a.status !== 'Pending' && b.status === 'Pending') {
+            return 1; // b comes first
+        }
+        return 0; // Keep original order if both are equal
+    });
 
     for (let transaction of transactions) {
         const row = document.createElement('tr');
@@ -518,6 +530,7 @@ async function populateTrainerTable(transactions) {
         tableBody.appendChild(row);
     }
 }
+
 
 async function fetchAndPopulateTrainerNotifications(userId, gymName) {
     try {
@@ -827,39 +840,59 @@ document.querySelectorAll('.notification-link[data-reset="true"]').forEach(link 
 document.addEventListener('DOMContentLoaded', listenForUpdates);
 
 
+async function fetchGymOwnerUsername() {
+    const user = auth.currentUser; // Get the currently authenticated user
 
-  async function fetchGymOwnerUsername() {
-      const user = auth.currentUser;
-  
-      if (user) {
-          try {
-              // Reference to GymOwner document
-              const gymOwnerDocRef = doc(db, 'GymOwner', user.uid);  
-              const gymOwnerDocSnap = await getDoc(gymOwnerDocRef);
-  
-              if (gymOwnerDocSnap.exists()) {
-                  const username = gymOwnerDocSnap.data().username || 'Gym Owner';
-                  document.querySelector('#profile-username').textContent = username;
-                  document.querySelector('#profile-username-mobile').textContent = username;
-              } else {
-                  document.querySelector('#profile-username').textContent = 'Gym Owner';
-                  console.error("Gym owner document not found.");
-              }
-          } catch (error) {
-              console.error("Error fetching gym owner data:", error);
-          }
-      } else {
-          document.querySelector('#profile-username').textContent = 'Not Logged In';
-          console.error("No authenticated user.");
-      }
-  }
-  
-  // Wait for Firebase Authentication state change
-  onAuthStateChanged(auth, (user) => {
-      if (user) {
-          fetchGymOwnerUsername();
-      }
-  });
+    if (user) {
+        try {
+            // Reference to GymOwner document
+            const gymOwnerDocRef = doc(db, 'GymOwner', user.uid);
+            const gymOwnerDocSnap = await getDoc(gymOwnerDocRef);
+
+            if (gymOwnerDocSnap.exists()) {
+                // Check if 'username' field exists in the document
+                const username = gymOwnerDocSnap.data().username;
+
+                if (username) {
+                    // Display the username in the appropriate elements
+                    document.querySelector('#profile-username').textContent = username;
+                    document.querySelector('#profile-username-mobile').textContent = username;
+                    console.log("Gym Owner Username:", username);
+                } else {
+                    // Fallback to default text if 'username' is not found
+                    document.querySelector('#profile-username').textContent = 'Gym Owner';
+                    document.querySelector('#profile-username-mobile').textContent = 'Gym Owner';
+                    console.warn("Username field is missing in the GymOwner document.");
+                }
+            } else {
+                // If the document does not exist, log an error and use fallback text
+                document.querySelector('#profile-username').textContent = 'Gym Owner';
+                document.querySelector('#profile-username-mobile').textContent = 'Gym Owner';
+                console.error("Gym owner document not found.");
+            }
+        } catch (error) {
+            // Catch any errors while fetching the document and log them
+            console.error("Error fetching gym owner data:", error);
+            document.querySelector('#profile-username').textContent = 'Gym Owner';
+            document.querySelector('#profile-username-mobile').textContent = 'Gym Owner';
+        }
+    } else {
+        // Handle cases where no user is logged in
+        document.querySelector('#profile-username').textContent = 'Not Logged In';
+        document.querySelector('#profile-username-mobile').textContent = 'Not Logged In';
+        console.error("No authenticated user.");
+    }
+}
+
+// Listen for Firebase Authentication state changes
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        fetchGymOwnerUsername();
+    } else {
+        console.warn("User not logged in.");
+    }
+});
+
 
   window. toggleDropdown =function() {
     const dropdownMenu = document.getElementById('dropdown-menu');

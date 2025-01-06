@@ -134,6 +134,56 @@ document.getElementById("inventoryOverviewCard").addEventListener("click", async
     }
 });
 
+// Function to Load Inventory Details
+async function loadInventoryDetails(gymName) {
+    const inventoryTableBody = document.getElementById("inventoryTableBody");
+    const totalInventoryElement = document.getElementById("totalInventory");
+
+    inventoryTableBody.innerHTML = ""; // Clear existing rows
+
+    if (!gymName) {
+        console.error("Invalid gymName provided.");
+        return;
+    }
+
+    try {
+        const productsQuery = query(collection(db, "Products"), where("gymName", "==", gymName));
+        const productsSnapshot = await getDocs(productsQuery);
+
+        if (productsSnapshot.empty) {
+            console.warn(`No products found for gymName: ${gymName}`);
+            inventoryTableBody.innerHTML = '<tr><td colspan="4">No products available</td></tr>';
+            totalInventoryElement.textContent = "0 Items";
+            localStorage.setItem("totalInventory", 0); // Store total inventory as 0 in localStorage
+            return;
+        }
+
+        let totalProducts = 0;
+
+        productsSnapshot.forEach((doc) => {
+            const data = doc.data();
+            totalProducts++;
+
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td><img src="${data.photoURL || 'https://via.placeholder.com/100'}" alt="${data.name || 'Product'}" style="width: 100px; height: auto;"></td>
+                <td>${data.name || "Unnamed Product"}</td>
+                <td>${data.category || "Uncategorized"}</td>
+                <td>${data.description || "No description available"}</td>
+            `;
+            inventoryTableBody.appendChild(row);
+        });
+
+        // Store the updated total inventory count in localStorage
+        localStorage.setItem("totalInventory", totalProducts);
+
+        // Update total inventory count in the UI
+        totalInventoryElement.textContent = `${totalProducts} Items`;
+    } catch (error) {
+
+    }
+}
+
 const loadPendingData = async (collectionName, tableBodyId, criteria, typeFilter) => {
     const tableBody = document.getElementById(tableBodyId);
     if (!tableBody) {
@@ -500,63 +550,7 @@ async function loadSalesDetails(gymName) {
         alert("Failed to load sales details.");
     }
 }
-async function loadInventoryDetails() {
-    console.log('Loading inventory details...');
 
-    // Fetch the currently logged-in user data (e.g., user from Firebase Authentication)
-    const user = auth.currentUser;
-    if (!user) {
-        console.log('No user is logged in.');
-        return;
-    }
-
-    const userId = user.uid;  // Get user ID
-
-    // Fetch gymName from the GymOwner collection where the userId matches
-    try {
-        const gymOwnerDocRef = doc(db, 'GymOwner', userId);
-        const gymOwnerSnapshot = await getDoc(gymOwnerDocRef);
-
-        if (!gymOwnerSnapshot.exists()) {
-            console.log('No gym found for this user.');
-            return;
-        }
-
-        const gymName = gymOwnerSnapshot.data().gymName;
-        console.log('Gym Name:', gymName);  // Log gym name for debugging
-
-        if (!gymName) {
-            console.log('Gym name is not found.');
-            return;
-        }
-
-        // Fetch inventory items from the Products collection where gymName matches the logged-in user's gym
-        const productsQuery = query(collection(db, 'Products'), where('gymName', '==', gymName));
-        const productsSnapshot = await getDocs(productsQuery);
-
-        if (productsSnapshot.empty) {
-            console.log('No products found for this gym.');
-            return;
-        }
-
-        // Process the fetched data
-        let totalItems = 0;
-        productsSnapshot.forEach(doc => {
-            const data = doc.data();
-            console.log(data); // Log individual product details (for debugging)
-
-            // Assuming the 'quantity' field exists in the product document
-            totalItems += data.quantity || 0; // Sum up the quantity of all products
-        });
-
-        // Update the total inventory count in the UI
-        const totalInventory = document.getElementById('totalInventory');
-        totalInventory.textContent = `${totalItems} Items`;  // Display the total inventory count
-
-    } catch (error) {
-        console.error('Error fetching gym name or inventory data:', error);
-    }
-}
 
 // Add event listener to the inventory card
 const inventoryCard = document.getElementById('inventoryOverviewCard');

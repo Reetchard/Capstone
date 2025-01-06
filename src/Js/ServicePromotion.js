@@ -856,26 +856,27 @@ function showModal(selectionType) {
                         }
                         
                         function generateCheckboxHTML(items, type, gymId) {
-                            // Filter out invalid or empty items
-                            const validItems = items.filter((item) => item && item.trim().length > 0);
+                            // Safely filter out non-string or invalid items
+                            const validItems = items.filter((item) => typeof item === 'string' && item.trim().length > 0);
                         
                             return validItems
                                 .map(
                                     (item) => `
-                                <div class="checkbox-container">
-                                    <input type="checkbox" 
-                                        class="gym-checkbox" 
-                                        data-type="${type}" 
-                                        data-gym-id="${gymId}" 
-                                        value="${item}" 
-                                        id="${type}-${item}-${gymId}" 
-                                        ${gymOwnerData[`gym${capitalize(type)}`]?.includes(item) ? 'checked' : ''}>
-                                    <label for="${type}-${item}-${gymId}" class="checkbox-label">${item}</label>
-                                </div>
-                            `
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" 
+                                            class="gym-checkbox" 
+                                            data-type="${type}" 
+                                            data-gym-id="${gymId}" 
+                                            value="${item}" 
+                                            id="${type}-${item}-${gymId}" 
+                                            ${gymOwnerData[`gym${capitalize(type)}`]?.includes(item) ? 'checked' : ''}>
+                                        <label for="${type}-${item}-${gymId}" class="checkbox-label">${item}</label>
+                                    </div>
+                                `
                                 )
                                 .join('');
                         }
+                        
                         
                         
                         function attachCheckboxListeners(gymId) {
@@ -1193,6 +1194,55 @@ async function saveGymOwnerDataToFirestore() {
     });
 });
 
+// Function to save selected services to the Service collection in Firestore
+async function saveSelectedServicesToFirestore() {
+    const user = auth.currentUser;
+    if (!user) {
+        console.error("User is not authenticated.");
+        return;
+    }
+
+    const gymName = gymOwnerData.gymName;
+    if (!gymName) {
+        console.error("Gym name is missing.");
+        return;
+    }
+
+    // Prepare the service list with their prices
+    const selectedServices = [];
+    checklistContainer.querySelectorAll('input[type="checkbox"]:checked').forEach((checkbox) => {
+        const serviceName = checkbox.value;
+
+        // Get the price for the service
+        const priceSelector = checklistContainer.querySelector(`.price-selector[data-item="${serviceName}"]`);
+        const customPriceInput = checklistContainer.querySelector(`.custom-price[data-item="${serviceName}"]`);
+        let price = 100; // Default price
+
+        if (priceSelector) {
+            if (priceSelector.value === "custom" && customPriceInput && customPriceInput.value) {
+                price = parseFloat(customPriceInput.value) || 0; // Custom price
+            } else {
+                price = parseFloat(priceSelector.value) || 0; // Dropdown price
+            }
+        }
+
+        selectedServices.push({ serviceName, price });
+    });
+
+    // Save to Firestore
+    const serviceRef = doc(db, "Service", gymName); // Use gymName as the document ID
+    try {
+        await setDoc(serviceRef, {
+            gymName: gymName,
+            serviceList: selectedServices,
+        });
+        console.log("Service data saved to Firestore:", selectedServices);
+        showToast("Services saved successfully!");
+    } catch (error) {
+        console.error("Error saving services to Firestore:", error);
+        showToast("Failed to save services. Please try again.");
+    }
+}
 
 
 $(document).ready(function () {
