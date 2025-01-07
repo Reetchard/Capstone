@@ -592,23 +592,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 let currentSelectionType = ""; // Tracks what list we're selecting
 let priceData = {}; // Store prices for each item
-
-// 📝 Populate Checklist with Dynamic Event Listeners
 function populateChecklist(items, selectedItems) {
-    checklistContainer.innerHTML = ""; // Clear current checklist items
+    checklistContainer.innerHTML = ""; // Clear the current checklist
 
-    items.forEach((item) => {
+    const allItems = [...new Set([...items, ...selectedItems])]; // Remove duplicates
+
+    allItems.forEach((item) => {
         const isChecked = selectedItems.includes(item);
-        const currentPrice = priceData[item] || "100"; // Default price is 100
 
-        const isServiceItem = currentSelectionType === "services";
+        if (currentSelectionType === "services") {
+            // Only services have pricing dropdowns
+            const currentPrice = priceData[item] || "100"; // Default price is 100
 
-        // Add each item with dynamic checkbox state
-        checklistContainer.innerHTML += `
-            <div class="checklist-item">
-                <input type="checkbox" value="${item}" ${isChecked ? "checked" : ""} />
-                <label>${item}</label>
-                ${isServiceItem ? `
+            checklistContainer.innerHTML += `
+                <div class="checklist-item">
+                    <input type="checkbox" value="${item}" ${isChecked ? "checked" : ""} />
+                    <label>${item}</label>
                     <span>
                         <select class="price-selector" data-item="${item}">
                             <option value="100" ${currentPrice == "100" ? "selected" : ""}>100</option>
@@ -618,15 +617,26 @@ function populateChecklist(items, selectedItems) {
                         </select>
                         <input type="number" class="custom-price" data-item="${item}" value="${currentPrice}" placeholder="Custom Price" style="${currentPrice && !["100", "150", "200"].includes(currentPrice) ? "display:inline-block" : "display:none"}" />
                     </span>
-                ` : ''}
-            </div>
-        `;
+                </div>
+            `;
+        } else {
+            // Programs and Equipment (No pricing dropdowns)
+            checklistContainer.innerHTML += `
+                <div class="checklist-item">
+                    <input type="checkbox" value="${item}" ${isChecked ? "checked" : ""} />
+                    <label>${item}</label>
+                </div>
+            `;
+        }
     });
 
-    // Attach dynamic event listeners after populating
     addDynamicEventListeners();
     updatePriceRate();
 }
+
+
+
+
 
 // 📝 Attach Dynamic Event Listeners
 function addDynamicEventListeners() {
@@ -681,6 +691,7 @@ function showModal(selectionType) {
     let items = [];
     let selectedItems = [];
 
+    // Hide all custom inputs and buttons by default
     document.getElementById('customProgramInput').style.display = "none";
     document.getElementById('addProgramButton').style.display = "none";
     document.getElementById('customEquipmentInput').style.display = "none";
@@ -688,23 +699,28 @@ function showModal(selectionType) {
     document.getElementById('customServiceInput').style.display = "none";
     document.getElementById('addServiceButton').style.display = "none";
 
+    // Set items and selectedItems based on the selectionType
     if (selectionType === "programs") {
         items = programs;
-        selectedItems = gymOwnerData.gymPrograms;
+        selectedItems = gymOwnerData.gymPrograms || []; // Default to empty array if undefined
         document.getElementById('customProgramInput').style.display = "inline-block";
         document.getElementById('addProgramButton').style.display = "inline-block";
     } else if (selectionType === "equipment") {
         items = equipment;
-        selectedItems = gymOwnerData.gymEquipment;
+        selectedItems = gymOwnerData.gymEquipment || []; // Default to empty array if undefined
         document.getElementById('customEquipmentInput').style.display = "inline-block";
         document.getElementById('addEquipmentButton').style.display = "inline-block";
     } else if (selectionType === "services") {
         items = services;
-        selectedItems = gymOwnerData.gymServices;
+        selectedItems = gymOwnerData.gymServices || []; // Default to empty array if undefined
         document.getElementById('customServiceInput').style.display = "inline-block";
         document.getElementById('addServiceButton').style.display = "inline-block";
     }
 
+    // Ensure selectedItems is never undefined
+    selectedItems = selectedItems || [];
+
+    // Populate checklist with the given items and selectedItems
     populateChecklist(items, selectedItems);
     checklistModal.style.display = "flex";
 }
@@ -758,16 +774,25 @@ function showModal(selectionType) {
                             });
                         }
 
-                        // 📝 Update Firestore When Checkbox State Changes
                         async function updateGymOwnerCollection() {
                             const user = auth.currentUser;
                             if (!user) {
                                 console.error('User is not authenticated.');
                                 return;
                             }
-        
+                        
+                            // Initialize gymOwnerData if it's not defined
+                            if (!gymOwnerData) {
+                                gymOwnerData = {};
+                            }
+                        
+                            // Ensure gymPrograms, gymEquipment, and gymServices are arrays
+                            gymOwnerData.gymPrograms = gymOwnerData.gymPrograms || [];
+                            gymOwnerData.gymEquipment = gymOwnerData.gymEquipment || [];
+                            gymOwnerData.gymServices = gymOwnerData.gymServices || [];
+                        
                             const gymOwnerRef = doc(db, 'GymOwner', user.uid);
-        
+                        
                             try {
                                 await updateDoc(gymOwnerRef, {
                                     gymPrograms: gymOwnerData.gymPrograms,
@@ -780,6 +805,7 @@ function showModal(selectionType) {
                                 showToast('Failed to save data. Please try again.');
                             }
                         }
+                        
         
                         // Show Toast Messages
                         function showToast(message) {
@@ -1102,45 +1128,121 @@ document.getElementById("selectServicesButton").addEventListener("click", () => 
     gympopulateChecklist("services"); // Populate checklist for services
 });
 
-// Example logic to handle adding custom items (e.g., custom program, equipment, or service)
+// Handle adding custom program
 document.getElementById("addProgramButton").addEventListener("click", () => {
     const customProgram = document.getElementById("customProgramInput").value.trim();
     if (customProgram) {
-        // Update gymOwnerData with new custom program
-        gymOwnerData.gymPrograms.push(customProgram);
-        // Repopulate checklist for programs
-        gympopulateChecklist("programs");
+        // Ensure gymPrograms exists in gymOwnerData
+        if (!gymOwnerData.gymPrograms) {
+            gymOwnerData.gymPrograms = []; // Initialize gymPrograms if it's not defined
+        }
 
-        // Save new data to Firestore
-        saveGymOwnerDataToFirestore();
+        // Cross-check to ensure the program is not the same as any service or equipment (both dynamic and static)
+        if (gymOwnerData.gymPrograms.includes(customProgram) || 
+            gymOwnerData.gymServices.includes(customProgram) || 
+            gymOwnerData.gymEquipment.includes(customProgram) || 
+            programs.includes(customProgram) || 
+            services.includes(customProgram) || 
+            equipment.includes(customProgram)) {
+            showToast(`The program "${customProgram}" already exists in services, equipment, or static programs.`);
+        } else {
+            // Update gymOwnerData with new custom program
+            gymOwnerData.gymPrograms.push(customProgram);
+            // Repopulate checklist for programs
+            gympopulateChecklist("programs");
+
+            // Save new data to Firestore
+            saveGymOwnerDataToFirestore();
+
+            showToast(`New program "${customProgram}" added successfully.`);
+        }
+    } else {
+        showToast('Please enter a valid program name.');
     }
 });
 
+// Handle adding custom equipment
 document.getElementById("addEquipmentButton").addEventListener("click", () => {
     const customEquipment = document.getElementById("customEquipmentInput").value.trim();
     if (customEquipment) {
-        // Update gymOwnerData with new custom equipment
-        gymOwnerData.gymEquipment.push(customEquipment);
-        // Repopulate checklist for equipment
-        gympopulateChecklist("equipment");
+        // Ensure gymEquipment exists in gymOwnerData
+        if (!gymOwnerData.gymEquipment) {
+            gymOwnerData.gymEquipment = []; // Initialize gymEquipment if it's not defined
+        }
 
-        // Save new data to Firestore
-        saveGymOwnerDataToFirestore();
+        // Normalize the custom input and static arrays for comparison (trim, case-insensitive)
+        const normalizedEquipment = customEquipment.toLowerCase(); // Convert to lowercase for case-insensitive comparison
+
+        // Cross-check to ensure the equipment is not the same as any service or program (both dynamic and static)
+        if (
+            gymOwnerData.gymEquipment.some(equipment => equipment.toLowerCase() === normalizedEquipment) ||
+            gymOwnerData.gymPrograms.some(program => program.toLowerCase() === normalizedEquipment) ||
+            gymOwnerData.gymServices.some(service => service.toLowerCase() === normalizedEquipment) ||
+            programs.some(staticProgram => staticProgram.toLowerCase() === normalizedEquipment) ||
+            services.some(staticService => staticService.toLowerCase() === normalizedEquipment) ||
+            equipment.some(staticEquipment => staticEquipment.toLowerCase() === normalizedEquipment)
+        ) {
+            showToast(`The equipment "${customEquipment}" already exists in services, programs, or static equipment.`);
+        } else {
+            // Update gymOwnerData with new custom equipment
+            gymOwnerData.gymEquipment.push(customEquipment);
+            // Repopulate checklist for equipment
+            gympopulateChecklist("equipment");
+
+            // Save new data to Firestore
+            saveGymOwnerDataToFirestore();
+
+            showToast(`New equipment "${customEquipment}" added successfully.`);
+        }
+    } else {
+        showToast('Please enter a valid equipment name.');
     }
 });
 
-document.getElementById("addServiceButton").addEventListener("click", () => {
-    const customService = document.getElementById("customServiceInput").value.trim();
-    if (customService) {
-        // Update gymOwnerData with new custom service
-        gymOwnerData.gymServices.push(customService);
-        // Repopulate checklist for services
-        gympopulateChecklist("services");
 
-        // Save new data to Firestore
-        saveGymOwnerDataToFirestore();
+// Handle adding custom service
+document.getElementById('addServiceButton').addEventListener('click', () => {
+    const customServiceInput = document.getElementById('customServiceInput');
+    const newService = customServiceInput.value.trim();
+
+    if (newService) {
+        // Ensure gymServices exists in gymOwnerData
+        if (!gymOwnerData.gymServices) {
+            gymOwnerData.gymServices = [];  // Initialize gymServices if it's not defined
+        }
+
+        // Cross-check to ensure the service is not the same as any program or equipment (both dynamic and static)
+        if (gymOwnerData.gymServices.includes(newService) || 
+            gymOwnerData.gymPrograms.includes(newService) || 
+            gymOwnerData.gymEquipment.includes(newService) || 
+            programs.includes(newService) || 
+            services.includes(newService) || 
+            equipment.includes(newService)) {
+            showToast(`The service "${newService}" already exists in programs, equipment, or static services.`);
+        } else {
+            // Add the new service to gymOwnerData.gymServices
+            gymOwnerData.gymServices.push(newService);
+
+            // Add the new service to the static services array if necessary
+            if (!services.includes(newService)) {
+                services.push(newService);  // Add new service to the static services list
+            }
+
+            // Optionally, save this to Firestore or other persistence layer
+            updateGymOwnerCollection();  // This function should save the updated data to Firestore
+
+            // Re-populate the checklist with the updated list of services (both static and dynamic)
+            populateChecklist(services, gymOwnerData.gymServices);  // Pass both arrays
+
+            // Clear the input field
+            customServiceInput.value = '';
+            showToast(`New service "${newService}" added successfully.`);
+        }
+    } else {
+        showToast('Please enter a valid service name.');
     }
 });
+
 
 // 📝 Save Updated Data to Firestore
 async function saveGymOwnerDataToFirestore() {

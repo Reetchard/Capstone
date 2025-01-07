@@ -299,67 +299,79 @@ const loadPendingBookings = async () => {
         console.error('❌ Error updating pending bookings:', error);
     }
 };
-
 const loadPendingMemberships = async () => {
     try {
         // Fetch the transactions and filter out the Approved and Accepted ones
-        const totalPendingMemberships = await loadPendingData(
+        const pendingMemberships = await loadPendingData(
             'Transactions',
             'pendingMembershipsTableBody',
             (data) => {
-                // Filter out transactions with "Approved" or "Accepted" status
+                // Skip if the status is "Approved" or "Accepted"
                 if (data.status === 'Approved' || data.status === 'Accepted') {
-                    return ''; // Return empty string to skip this row
+                    return null; // Skip invalid rows
                 }
 
-                // If the status is "Pending" or "Pending Owner Approval", include it in the total
-                const cleanTotalPrice = (data.status === 'Pending' || data.status === 'Pending Owner Approval') 
-                    ? parseFloat(data.price.replace(/[^\d.-]/g, '')) || 0 
-                    : 0;
+                // Extract and clean price
+                const cleanTotalPrice = parseFloat(data.price?.replace(/[^\d.-]/g, '') || 0);
 
-                // Handle undefined or null values gracefully with fallback values
+                // Return valid row structure
                 return {
-                    price: cleanTotalPrice, // Return price as a number for summing
-                    row: ` 
-                        <td>${data.userId || 'N/A'}</td>
-                        <td>${data.planType || 'N/A'}</td>
-                        <td>${data.price || 'N/A'}</td>
-                        <td>${data.membershipDays || 'N/A'} days</td>
-                        <td>${formatTimestamp(data.purchaseDate) || 'N/A'}</td>
-                        <td>${data.status || 'N/A'}</td>
+                    price: cleanTotalPrice, // Add clean price for total calculation
+                    row: `
+                        <tr>
+                            <td>${data.userId || 'N/A'}</td>
+                            <td>${data.planType || 'N/A'}</td>
+                            <td>${formatCurrency(cleanTotalPrice)}</td>
+                            <td>${data.startDate ? formatTimestamp(data.startDate) : 'N/A'}</td>
+                            <td>${data.endDate ? formatTimestamp(data.endDate) : 'N/A'}</td>
+                            <td>${data.status || 'N/A'}</td>
+                        </tr>
                     `
                 };
             },
             'membership'
         );
 
-        // Log the fetched data to understand its structure
-        console.log('Fetched data for memberships:', totalPendingMemberships);
+        // Log fetched data for debugging
+        console.log('Fetched data for memberships:', pendingMemberships);
 
-        // Ensure totalPendingMemberships is an array, if it's not, turn it into an array
-        const validData = Array.isArray(totalPendingMemberships) ? totalPendingMemberships : [totalPendingMemberships];
+        // Ensure data is always treated as an array
+        const validData = Array.isArray(pendingMemberships) ? pendingMemberships : [pendingMemberships];
 
-        // Insert the rows into the table body
+        // Clear the table body
         const tableBody = document.getElementById('pendingMembershipsTableBody');
-        tableBody.innerHTML = ''; // Clear the table body before appending new rows
+        tableBody.innerHTML = '';
+
         let totalAmount = 0;
 
+        // Iterate and populate table rows
         validData.forEach(item => {
-            // Only add to the total if the price is defined
-            if (item.price !== undefined) {
+            if (item && item.row) { // Ensure valid row data
+                tableBody.innerHTML += item.row;
                 totalAmount += isNaN(item.price) ? 0 : item.price;
             }
-            // Add the row HTML to the table
-            tableBody.innerHTML += item.row;
         });
 
         // Update the Memberships tab with the total price
-        document.getElementById('memberships-tab').innerHTML = `Memberships (${formatCurrency(totalAmount)})`;
+        const membershipsTab = document.getElementById('memberships-tab');
+        if (membershipsTab) {
+            membershipsTab.innerHTML = `Memberships (${formatCurrency(totalAmount)})`;
+        } else {
+            console.error("❌ 'memberships-tab' element not found.");
+        }
 
     } catch (error) {
-        console.error('Error loading pending memberships:', error);
+        console.error('❌ Error loading pending memberships:', error);
+
+        // Display an error message in the table body
+        const tableBody = document.getElementById('pendingMembershipsTableBody');
+        if (tableBody) {
+            tableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Failed to load pending memberships.</td></tr>`;
+        }
     }
 };
+
+
 
 
 const loadPendingDayPasses = async () => {
@@ -391,38 +403,38 @@ const updatePendingSalesCard = async () => {
             ])
         ).reduce((sum, value) => sum + (isNaN(value) ? 0 : value), 0); // Sum up all the totals
 
-        console.log("Total Pending Sales:", totalPendingSales);  // Debugging step
+        console.log("Total Pending Sales:", totalPendingSales); // Debugging step
 
         // Get the sales amount element to display the result
         const salesAmountElement = document.getElementById('pendingSalesAmount');
+
         if (salesAmountElement) {
-            // Format the total and update the element's text content
-            salesAmountElement.textContent = formatCurrency(totalPendingSales); // Format and display the total amount
+            if (totalPendingSales > 0) {
+                // Show the formatted total if there's a positive amount
+                salesAmountElement.textContent = formatCurrency(totalPendingSales); 
+                salesAmountElement.style.display = 'block'; // Ensure it's visible
+            } else {
+                // Hide the amount and show fallback text
+                salesAmountElement.textContent = 'Check All';
+                salesAmountElement.style.display = 'block'; // Ensure the fallback is shown
+            }
         } else {
             console.error('❌ Sales amount card element not found!');
         }
     } catch (error) {
         console.error('❌ Error updating pending sales card:', error);
 
-        // Handle any errors by resetting the displayed value to zero
+        // Handle any errors by resetting the displayed value to fallback text
         const salesAmountElement = document.getElementById('pendingSalesAmount');
         if (salesAmountElement) {
-            salesAmountElement.textContent = '₱0.00'; // Fallback to 0 on error
+            salesAmountElement.textContent = 'Check All';
+            salesAmountElement.style.display = 'block'; // Ensure visibility for fallback
         }
     }
 };
+
  
 
-// 🛡️ Validate User and Gym Ownership
-const validateUser = async () => {
-    const currentUser = auth.currentUser;
-    if (!currentUser) throw new Error('❌ User not authenticated.');
-
-    const gymOwnerDoc = await getDoc(doc(db, 'GymOwner', currentUser.uid));
-    if (!gymOwnerDoc.exists()) throw new Error('❌ Gym owner details not found.');
-
-    return gymOwnerDoc.data().gymName;
-};
 
 // 🛠️ Initialize the Application after Authentication
 const initializeAppAfterAuth = async () => {
@@ -470,6 +482,16 @@ onAuthStateChanged(auth, (user) => {
         window.location.href = 'login.html';
     }
 });
+// 🛡️ Validate User and Gym Ownership
+const validateUser = async () => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) throw new Error('❌ User not authenticated.');
+
+    const gymOwnerDoc = await getDoc(doc(db, 'GymOwner', currentUser.uid));
+    if (!gymOwnerDoc.exists()) throw new Error('❌ Gym owner details not found.');
+
+    return gymOwnerDoc.data().gymName;
+};
 
 
 // Add Event Listener to the Pending Sales Card (open the modal)
@@ -518,7 +540,7 @@ async function loadSalesDetails(gymName) {
 
         if (transactionsSnapshot.empty) {
             salesTableBody.innerHTML = '<tr><td colspan="5">No approved sales found for this gym.</td></tr>';
-            totalSalesElement.textContent = '₱0.00';
+            totalSalesElement.textContent = '';
             return;
         }
 
